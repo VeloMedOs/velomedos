@@ -18,6 +18,13 @@ import { Route as AuthenticatedProviderRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedPatientRouteImport } from './routes/_authenticated/patient'
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
 import { Route as AuthenticatedDeveloperRouteImport } from './routes/_authenticated/developer'
+import { Route as ApiPublicV1OpenapiRouteImport } from './routes/api/public/v1/openapi'
+import { Route as ApiPublicV1IncidentsRouteImport } from './routes/api/public/v1/incidents'
+import { Route as ApiPublicV1FleetRouteImport } from './routes/api/public/v1/fleet'
+import { Route as ApiPublicV1CoursesRouteImport } from './routes/api/public/v1/courses'
+import { Route as ApiPublicV1ClinicsRouteImport } from './routes/api/public/v1/clinics'
+import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/v1/incidents.$id'
+import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/public/v1/fleet.$id.location'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -63,6 +70,42 @@ const AuthenticatedDeveloperRoute = AuthenticatedDeveloperRouteImport.update({
   path: '/developer',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicV1OpenapiRoute = ApiPublicV1OpenapiRouteImport.update({
+  id: '/api/public/v1/openapi',
+  path: '/api/public/v1/openapi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1IncidentsRoute = ApiPublicV1IncidentsRouteImport.update({
+  id: '/api/public/v1/incidents',
+  path: '/api/public/v1/incidents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1FleetRoute = ApiPublicV1FleetRouteImport.update({
+  id: '/api/public/v1/fleet',
+  path: '/api/public/v1/fleet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1CoursesRoute = ApiPublicV1CoursesRouteImport.update({
+  id: '/api/public/v1/courses',
+  path: '/api/public/v1/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1ClinicsRoute = ApiPublicV1ClinicsRouteImport.update({
+  id: '/api/public/v1/clinics',
+  path: '/api/public/v1/clinics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1IncidentsIdRoute = ApiPublicV1IncidentsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiPublicV1IncidentsRoute,
+} as any)
+const ApiPublicV1FleetIdLocationRoute =
+  ApiPublicV1FleetIdLocationRouteImport.update({
+    id: '/$id/location',
+    path: '/$id/location',
+    getParentRoute: () => ApiPublicV1FleetRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,6 +116,13 @@ export interface FileRoutesByFullPath {
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
   '/training': typeof AuthenticatedTrainingRoute
+  '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
+  '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
+  '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
+  '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
+  '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
+  '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,6 +133,13 @@ export interface FileRoutesByTo {
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
   '/training': typeof AuthenticatedTrainingRoute
+  '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
+  '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
+  '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
+  '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
+  '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
+  '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,6 +152,13 @@ export interface FileRoutesById {
   '/_authenticated/provider': typeof AuthenticatedProviderRoute
   '/_authenticated/rentals': typeof AuthenticatedRentalsRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
+  '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
+  '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
+  '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
+  '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
+  '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
+  '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,6 +171,13 @@ export interface FileRouteTypes {
     | '/provider'
     | '/rentals'
     | '/training'
+    | '/api/public/v1/clinics'
+    | '/api/public/v1/courses'
+    | '/api/public/v1/fleet'
+    | '/api/public/v1/incidents'
+    | '/api/public/v1/openapi'
+    | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/fleet/$id/location'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,6 +188,13 @@ export interface FileRouteTypes {
     | '/provider'
     | '/rentals'
     | '/training'
+    | '/api/public/v1/clinics'
+    | '/api/public/v1/courses'
+    | '/api/public/v1/fleet'
+    | '/api/public/v1/incidents'
+    | '/api/public/v1/openapi'
+    | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/fleet/$id/location'
   id:
     | '__root__'
     | '/'
@@ -128,12 +206,24 @@ export interface FileRouteTypes {
     | '/_authenticated/provider'
     | '/_authenticated/rentals'
     | '/_authenticated/training'
+    | '/api/public/v1/clinics'
+    | '/api/public/v1/courses'
+    | '/api/public/v1/fleet'
+    | '/api/public/v1/incidents'
+    | '/api/public/v1/openapi'
+    | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/fleet/$id/location'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicV1ClinicsRoute: typeof ApiPublicV1ClinicsRoute
+  ApiPublicV1CoursesRoute: typeof ApiPublicV1CoursesRoute
+  ApiPublicV1FleetRoute: typeof ApiPublicV1FleetRouteWithChildren
+  ApiPublicV1IncidentsRoute: typeof ApiPublicV1IncidentsRouteWithChildren
+  ApiPublicV1OpenapiRoute: typeof ApiPublicV1OpenapiRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -201,6 +291,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDeveloperRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/v1/openapi': {
+      id: '/api/public/v1/openapi'
+      path: '/api/public/v1/openapi'
+      fullPath: '/api/public/v1/openapi'
+      preLoaderRoute: typeof ApiPublicV1OpenapiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/incidents': {
+      id: '/api/public/v1/incidents'
+      path: '/api/public/v1/incidents'
+      fullPath: '/api/public/v1/incidents'
+      preLoaderRoute: typeof ApiPublicV1IncidentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/fleet': {
+      id: '/api/public/v1/fleet'
+      path: '/api/public/v1/fleet'
+      fullPath: '/api/public/v1/fleet'
+      preLoaderRoute: typeof ApiPublicV1FleetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/courses': {
+      id: '/api/public/v1/courses'
+      path: '/api/public/v1/courses'
+      fullPath: '/api/public/v1/courses'
+      preLoaderRoute: typeof ApiPublicV1CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/clinics': {
+      id: '/api/public/v1/clinics'
+      path: '/api/public/v1/clinics'
+      fullPath: '/api/public/v1/clinics'
+      preLoaderRoute: typeof ApiPublicV1ClinicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/incidents/$id': {
+      id: '/api/public/v1/incidents/$id'
+      path: '/$id'
+      fullPath: '/api/public/v1/incidents/$id'
+      preLoaderRoute: typeof ApiPublicV1IncidentsIdRouteImport
+      parentRoute: typeof ApiPublicV1IncidentsRoute
+    }
+    '/api/public/v1/fleet/$id/location': {
+      id: '/api/public/v1/fleet/$id/location'
+      path: '/$id/location'
+      fullPath: '/api/public/v1/fleet/$id/location'
+      preLoaderRoute: typeof ApiPublicV1FleetIdLocationRouteImport
+      parentRoute: typeof ApiPublicV1FleetRoute
+    }
   }
 }
 
@@ -225,10 +364,37 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ApiPublicV1FleetRouteChildren {
+  ApiPublicV1FleetIdLocationRoute: typeof ApiPublicV1FleetIdLocationRoute
+}
+
+const ApiPublicV1FleetRouteChildren: ApiPublicV1FleetRouteChildren = {
+  ApiPublicV1FleetIdLocationRoute: ApiPublicV1FleetIdLocationRoute,
+}
+
+const ApiPublicV1FleetRouteWithChildren =
+  ApiPublicV1FleetRoute._addFileChildren(ApiPublicV1FleetRouteChildren)
+
+interface ApiPublicV1IncidentsRouteChildren {
+  ApiPublicV1IncidentsIdRoute: typeof ApiPublicV1IncidentsIdRoute
+}
+
+const ApiPublicV1IncidentsRouteChildren: ApiPublicV1IncidentsRouteChildren = {
+  ApiPublicV1IncidentsIdRoute: ApiPublicV1IncidentsIdRoute,
+}
+
+const ApiPublicV1IncidentsRouteWithChildren =
+  ApiPublicV1IncidentsRoute._addFileChildren(ApiPublicV1IncidentsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicV1ClinicsRoute: ApiPublicV1ClinicsRoute,
+  ApiPublicV1CoursesRoute: ApiPublicV1CoursesRoute,
+  ApiPublicV1FleetRoute: ApiPublicV1FleetRouteWithChildren,
+  ApiPublicV1IncidentsRoute: ApiPublicV1IncidentsRouteWithChildren,
+  ApiPublicV1OpenapiRoute: ApiPublicV1OpenapiRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
