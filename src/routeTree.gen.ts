@@ -9,38 +9,259 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ApiDocsRouteImport } from './routes/api-docs'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
+import { Route as AuthenticatedRentalsRouteImport } from './routes/_authenticated/rentals'
+import { Route as AuthenticatedProviderRouteImport } from './routes/_authenticated/provider'
+import { Route as AuthenticatedPatientRouteImport } from './routes/_authenticated/patient'
+import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
+import { Route as AuthenticatedDeveloperRouteImport } from './routes/_authenticated/developer'
+import { Route as ApiPublicV1OpenapiRouteImport } from './routes/api/public/v1/openapi'
+import { Route as ApiPublicV1IncidentsRouteImport } from './routes/api/public/v1/incidents'
+import { Route as ApiPublicV1FleetRouteImport } from './routes/api/public/v1/fleet'
+import { Route as ApiPublicV1CoursesRouteImport } from './routes/api/public/v1/courses'
+import { Route as ApiPublicV1ClinicsRouteImport } from './routes/api/public/v1/clinics'
+import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/v1/incidents.$id'
+import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/public/v1/fleet.$id.location'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDocsRoute = ApiDocsRouteImport.update({
+  id: '/api-docs',
+  path: '/api-docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
+  id: '/training',
+  path: '/training',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRentalsRoute = AuthenticatedRentalsRouteImport.update({
+  id: '/rentals',
+  path: '/rentals',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProviderRoute = AuthenticatedProviderRouteImport.update({
+  id: '/provider',
+  path: '/provider',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPatientRoute = AuthenticatedPatientRouteImport.update({
+  id: '/patient',
+  path: '/patient',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDispatchRoute = AuthenticatedDispatchRouteImport.update({
+  id: '/dispatch',
+  path: '/dispatch',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDeveloperRoute = AuthenticatedDeveloperRouteImport.update({
+  id: '/developer',
+  path: '/developer',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiPublicV1OpenapiRoute = ApiPublicV1OpenapiRouteImport.update({
+  id: '/api/public/v1/openapi',
+  path: '/api/public/v1/openapi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1IncidentsRoute = ApiPublicV1IncidentsRouteImport.update({
+  id: '/api/public/v1/incidents',
+  path: '/api/public/v1/incidents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1FleetRoute = ApiPublicV1FleetRouteImport.update({
+  id: '/api/public/v1/fleet',
+  path: '/api/public/v1/fleet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1CoursesRoute = ApiPublicV1CoursesRouteImport.update({
+  id: '/api/public/v1/courses',
+  path: '/api/public/v1/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1ClinicsRoute = ApiPublicV1ClinicsRouteImport.update({
+  id: '/api/public/v1/clinics',
+  path: '/api/public/v1/clinics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1IncidentsIdRoute = ApiPublicV1IncidentsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiPublicV1IncidentsRoute,
+} as any)
+const ApiPublicV1FleetIdLocationRoute =
+  ApiPublicV1FleetIdLocationRouteImport.update({
+    id: '/$id/location',
+    path: '/$id/location',
+    getParentRoute: () => ApiPublicV1FleetRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api-docs': typeof ApiDocsRoute
+  '/auth': typeof AuthRoute
+  '/developer': typeof AuthenticatedDeveloperRoute
+  '/dispatch': typeof AuthenticatedDispatchRoute
+  '/patient': typeof AuthenticatedPatientRoute
+  '/provider': typeof AuthenticatedProviderRoute
+  '/rentals': typeof AuthenticatedRentalsRoute
+  '/training': typeof AuthenticatedTrainingRoute
+  '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
+  '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
+  '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
+  '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
+  '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
+  '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api-docs': typeof ApiDocsRoute
+  '/auth': typeof AuthRoute
+  '/developer': typeof AuthenticatedDeveloperRoute
+  '/dispatch': typeof AuthenticatedDispatchRoute
+  '/patient': typeof AuthenticatedPatientRoute
+  '/provider': typeof AuthenticatedProviderRoute
+  '/rentals': typeof AuthenticatedRentalsRoute
+  '/training': typeof AuthenticatedTrainingRoute
+  '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
+  '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
+  '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
+  '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
+  '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
+  '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/api-docs': typeof ApiDocsRoute
+  '/auth': typeof AuthRoute
+  '/_authenticated/developer': typeof AuthenticatedDeveloperRoute
+  '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
+  '/_authenticated/patient': typeof AuthenticatedPatientRoute
+  '/_authenticated/provider': typeof AuthenticatedProviderRoute
+  '/_authenticated/rentals': typeof AuthenticatedRentalsRoute
+  '/_authenticated/training': typeof AuthenticatedTrainingRoute
+  '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
+  '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
+  '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
+  '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
+  '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
+  '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/api-docs'
+    | '/auth'
+    | '/developer'
+    | '/dispatch'
+    | '/patient'
+    | '/provider'
+    | '/rentals'
+    | '/training'
+    | '/api/public/v1/clinics'
+    | '/api/public/v1/courses'
+    | '/api/public/v1/fleet'
+    | '/api/public/v1/incidents'
+    | '/api/public/v1/openapi'
+    | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/fleet/$id/location'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/api-docs'
+    | '/auth'
+    | '/developer'
+    | '/dispatch'
+    | '/patient'
+    | '/provider'
+    | '/rentals'
+    | '/training'
+    | '/api/public/v1/clinics'
+    | '/api/public/v1/courses'
+    | '/api/public/v1/fleet'
+    | '/api/public/v1/incidents'
+    | '/api/public/v1/openapi'
+    | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/fleet/$id/location'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/api-docs'
+    | '/auth'
+    | '/_authenticated/developer'
+    | '/_authenticated/dispatch'
+    | '/_authenticated/patient'
+    | '/_authenticated/provider'
+    | '/_authenticated/rentals'
+    | '/_authenticated/training'
+    | '/api/public/v1/clinics'
+    | '/api/public/v1/courses'
+    | '/api/public/v1/fleet'
+    | '/api/public/v1/incidents'
+    | '/api/public/v1/openapi'
+    | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/fleet/$id/location'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ApiDocsRoute: typeof ApiDocsRoute
+  AuthRoute: typeof AuthRoute
+  ApiPublicV1ClinicsRoute: typeof ApiPublicV1ClinicsRoute
+  ApiPublicV1CoursesRoute: typeof ApiPublicV1CoursesRoute
+  ApiPublicV1FleetRoute: typeof ApiPublicV1FleetRouteWithChildren
+  ApiPublicV1IncidentsRoute: typeof ApiPublicV1IncidentsRouteWithChildren
+  ApiPublicV1OpenapiRoute: typeof ApiPublicV1OpenapiRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api-docs': {
+      id: '/api-docs'
+      path: '/api-docs'
+      fullPath: '/api-docs'
+      preLoaderRoute: typeof ApiDocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +269,154 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/training': {
+      id: '/_authenticated/training'
+      path: '/training'
+      fullPath: '/training'
+      preLoaderRoute: typeof AuthenticatedTrainingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/rentals': {
+      id: '/_authenticated/rentals'
+      path: '/rentals'
+      fullPath: '/rentals'
+      preLoaderRoute: typeof AuthenticatedRentalsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/provider': {
+      id: '/_authenticated/provider'
+      path: '/provider'
+      fullPath: '/provider'
+      preLoaderRoute: typeof AuthenticatedProviderRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/patient': {
+      id: '/_authenticated/patient'
+      path: '/patient'
+      fullPath: '/patient'
+      preLoaderRoute: typeof AuthenticatedPatientRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dispatch': {
+      id: '/_authenticated/dispatch'
+      path: '/dispatch'
+      fullPath: '/dispatch'
+      preLoaderRoute: typeof AuthenticatedDispatchRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/developer': {
+      id: '/_authenticated/developer'
+      path: '/developer'
+      fullPath: '/developer'
+      preLoaderRoute: typeof AuthenticatedDeveloperRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/v1/openapi': {
+      id: '/api/public/v1/openapi'
+      path: '/api/public/v1/openapi'
+      fullPath: '/api/public/v1/openapi'
+      preLoaderRoute: typeof ApiPublicV1OpenapiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/incidents': {
+      id: '/api/public/v1/incidents'
+      path: '/api/public/v1/incidents'
+      fullPath: '/api/public/v1/incidents'
+      preLoaderRoute: typeof ApiPublicV1IncidentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/fleet': {
+      id: '/api/public/v1/fleet'
+      path: '/api/public/v1/fleet'
+      fullPath: '/api/public/v1/fleet'
+      preLoaderRoute: typeof ApiPublicV1FleetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/courses': {
+      id: '/api/public/v1/courses'
+      path: '/api/public/v1/courses'
+      fullPath: '/api/public/v1/courses'
+      preLoaderRoute: typeof ApiPublicV1CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/clinics': {
+      id: '/api/public/v1/clinics'
+      path: '/api/public/v1/clinics'
+      fullPath: '/api/public/v1/clinics'
+      preLoaderRoute: typeof ApiPublicV1ClinicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/incidents/$id': {
+      id: '/api/public/v1/incidents/$id'
+      path: '/$id'
+      fullPath: '/api/public/v1/incidents/$id'
+      preLoaderRoute: typeof ApiPublicV1IncidentsIdRouteImport
+      parentRoute: typeof ApiPublicV1IncidentsRoute
+    }
+    '/api/public/v1/fleet/$id/location': {
+      id: '/api/public/v1/fleet/$id/location'
+      path: '/$id/location'
+      fullPath: '/api/public/v1/fleet/$id/location'
+      preLoaderRoute: typeof ApiPublicV1FleetIdLocationRouteImport
+      parentRoute: typeof ApiPublicV1FleetRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDeveloperRoute: typeof AuthenticatedDeveloperRoute
+  AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
+  AuthenticatedPatientRoute: typeof AuthenticatedPatientRoute
+  AuthenticatedProviderRoute: typeof AuthenticatedProviderRoute
+  AuthenticatedRentalsRoute: typeof AuthenticatedRentalsRoute
+  AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDeveloperRoute: AuthenticatedDeveloperRoute,
+  AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
+  AuthenticatedPatientRoute: AuthenticatedPatientRoute,
+  AuthenticatedProviderRoute: AuthenticatedProviderRoute,
+  AuthenticatedRentalsRoute: AuthenticatedRentalsRoute,
+  AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface ApiPublicV1FleetRouteChildren {
+  ApiPublicV1FleetIdLocationRoute: typeof ApiPublicV1FleetIdLocationRoute
+}
+
+const ApiPublicV1FleetRouteChildren: ApiPublicV1FleetRouteChildren = {
+  ApiPublicV1FleetIdLocationRoute: ApiPublicV1FleetIdLocationRoute,
+}
+
+const ApiPublicV1FleetRouteWithChildren =
+  ApiPublicV1FleetRoute._addFileChildren(ApiPublicV1FleetRouteChildren)
+
+interface ApiPublicV1IncidentsRouteChildren {
+  ApiPublicV1IncidentsIdRoute: typeof ApiPublicV1IncidentsIdRoute
+}
+
+const ApiPublicV1IncidentsRouteChildren: ApiPublicV1IncidentsRouteChildren = {
+  ApiPublicV1IncidentsIdRoute: ApiPublicV1IncidentsIdRoute,
+}
+
+const ApiPublicV1IncidentsRouteWithChildren =
+  ApiPublicV1IncidentsRoute._addFileChildren(ApiPublicV1IncidentsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ApiDocsRoute: ApiDocsRoute,
+  AuthRoute: AuthRoute,
+  ApiPublicV1ClinicsRoute: ApiPublicV1ClinicsRoute,
+  ApiPublicV1CoursesRoute: ApiPublicV1CoursesRoute,
+  ApiPublicV1FleetRoute: ApiPublicV1FleetRouteWithChildren,
+  ApiPublicV1IncidentsRoute: ApiPublicV1IncidentsRouteWithChildren,
+  ApiPublicV1OpenapiRoute: ApiPublicV1OpenapiRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
