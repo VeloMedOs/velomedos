@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRentalsRouteImport } from './routes/_authenticated/rentals'
 import { Route as AuthenticatedProviderRouteImport } from './routes/_authenticated/provider'
 import { Route as AuthenticatedPatientRouteImport } from './routes/_authenticated/patient'
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRentalsRoute = AuthenticatedRentalsRouteImport.update({
+  id: '/rentals',
+  path: '/rentals',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProviderRoute = AuthenticatedProviderRouteImport.update({
   id: '/provider',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/patient': typeof AuthenticatedPatientRoute
   '/provider': typeof AuthenticatedProviderRoute
+  '/rentals': typeof AuthenticatedRentalsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/patient': typeof AuthenticatedPatientRoute
   '/provider': typeof AuthenticatedProviderRoute
+  '/rentals': typeof AuthenticatedRentalsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,12 +76,13 @@ export interface FileRoutesById {
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
   '/_authenticated/patient': typeof AuthenticatedPatientRoute
   '/_authenticated/provider': typeof AuthenticatedProviderRoute
+  '/_authenticated/rentals': typeof AuthenticatedRentalsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dispatch' | '/patient' | '/provider'
+  fullPaths: '/' | '/auth' | '/dispatch' | '/patient' | '/provider' | '/rentals'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dispatch' | '/patient' | '/provider'
+  to: '/' | '/auth' | '/dispatch' | '/patient' | '/provider' | '/rentals'
   id:
     | '__root__'
     | '/'
@@ -82,6 +91,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dispatch'
     | '/_authenticated/patient'
     | '/_authenticated/provider'
+    | '/_authenticated/rentals'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -113,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/rentals': {
+      id: '/_authenticated/rentals'
+      path: '/rentals'
+      fullPath: '/rentals'
+      preLoaderRoute: typeof AuthenticatedRentalsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/provider': {
       id: '/_authenticated/provider'
       path: '/provider'
@@ -141,12 +158,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
   AuthenticatedPatientRoute: typeof AuthenticatedPatientRoute
   AuthenticatedProviderRoute: typeof AuthenticatedProviderRoute
+  AuthenticatedRentalsRoute: typeof AuthenticatedRentalsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
   AuthenticatedPatientRoute: AuthenticatedPatientRoute,
   AuthenticatedProviderRoute: AuthenticatedProviderRoute,
+  AuthenticatedRentalsRoute: AuthenticatedRentalsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
