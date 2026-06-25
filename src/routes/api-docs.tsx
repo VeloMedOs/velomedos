@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 
+const SWAGGER_VERSION = "5.17.14";
+
 export const Route = createFileRoute("/api-docs")({
   head: () => ({
-    links: [{ rel: "stylesheet", href: "https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui.css" }],
+    links: [{ rel: "stylesheet", href: `https://unpkg.com/swagger-ui-dist@${SWAGGER_VERSION}/swagger-ui.css` }],
   }),
   component: ApiDocs,
 });
@@ -11,19 +13,28 @@ export const Route = createFileRoute("/api-docs")({
 function ApiDocs() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const mod: any = await import(/* @vite-ignore */ "https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-es-bundle.js");
-      if (cancelled || !ref.current) return;
-      const SwaggerUIBundle = mod.default ?? mod.SwaggerUIBundle ?? (window as any).SwaggerUIBundle;
+    if (!ref.current) return;
+    const existing = document.getElementById("swagger-ui-bundle") as HTMLScriptElement | null;
+    function mount() {
+      const SwaggerUIBundle = (window as unknown as { SwaggerUIBundle?: (opts: Record<string, unknown>) => void }).SwaggerUIBundle;
+      if (!SwaggerUIBundle || !ref.current) return;
       SwaggerUIBundle({
         url: "/api/public/v1/openapi",
         domNode: ref.current,
         deepLinking: true,
         persistAuthorization: true,
       });
-    })();
-    return () => { cancelled = true; };
+    }
+    if (existing) {
+      mount();
+    } else {
+      const s = document.createElement("script");
+      s.id = "swagger-ui-bundle";
+      s.src = `https://unpkg.com/swagger-ui-dist@${SWAGGER_VERSION}/swagger-ui-bundle.js`;
+      s.crossOrigin = "anonymous";
+      s.onload = mount;
+      document.head.appendChild(s);
+    }
   }, []);
 
   return (

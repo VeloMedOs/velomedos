@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
@@ -29,6 +30,11 @@ import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/pub
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDocsRoute = ApiDocsRouteImport.update({
+  id: '/api-docs',
+  path: '/api-docs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -109,6 +115,7 @@ const ApiPublicV1FleetIdLocationRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
   '/_authenticated/developer': typeof AuthenticatedDeveloperRoute
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
@@ -164,6 +173,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api-docs'
     | '/auth'
     | '/developer'
     | '/dispatch'
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api-docs'
     | '/auth'
     | '/developer'
     | '/dispatch'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/api-docs'
     | '/auth'
     | '/_authenticated/developer'
     | '/_authenticated/dispatch'
@@ -218,6 +230,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ApiDocsRoute: typeof ApiDocsRoute
   AuthRoute: typeof AuthRoute
   ApiPublicV1ClinicsRoute: typeof ApiPublicV1ClinicsRoute
   ApiPublicV1CoursesRoute: typeof ApiPublicV1CoursesRoute
@@ -233,6 +246,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api-docs': {
+      id: '/api-docs'
+      path: '/api-docs'
+      fullPath: '/api-docs'
+      preLoaderRoute: typeof ApiDocsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -389,6 +409,7 @@ const ApiPublicV1IncidentsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ApiDocsRoute: ApiDocsRoute,
   AuthRoute: AuthRoute,
   ApiPublicV1ClinicsRoute: ApiPublicV1ClinicsRoute,
   ApiPublicV1CoursesRoute: ApiPublicV1CoursesRoute,
