@@ -97,7 +97,7 @@ function RequestForm({ onCreated }: { onCreated: () => void }) {
     setBusy(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const sla = { code_red: 8, code_yellow: 20, routine: 60 }[form.severity];
+      const sla = ({ code_red: 8, code_yellow: 20, routine: 60 } as Record<string, number>)[form.severity] ?? 30;
       const { error } = await supabase.from("incidents").insert({
         requested_by: user?.id ?? null,
         caller_phone: form.phone || null,
