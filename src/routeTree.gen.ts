@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
 import { Route as AuthenticatedRentalsRouteImport } from './routes/_authenticated/rentals'
 import { Route as AuthenticatedProviderRouteImport } from './routes/_authenticated/provider'
 import { Route as AuthenticatedPatientRouteImport } from './routes/_authenticated/patient'
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
+  id: '/training',
+  path: '/training',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRentalsRoute = AuthenticatedRentalsRouteImport.update({
   id: '/rentals',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/patient': typeof AuthenticatedPatientRoute
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
+  '/training': typeof AuthenticatedTrainingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/patient': typeof AuthenticatedPatientRoute
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
+  '/training': typeof AuthenticatedTrainingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,12 +85,27 @@ export interface FileRoutesById {
   '/_authenticated/patient': typeof AuthenticatedPatientRoute
   '/_authenticated/provider': typeof AuthenticatedProviderRoute
   '/_authenticated/rentals': typeof AuthenticatedRentalsRoute
+  '/_authenticated/training': typeof AuthenticatedTrainingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dispatch' | '/patient' | '/provider' | '/rentals'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dispatch'
+    | '/patient'
+    | '/provider'
+    | '/rentals'
+    | '/training'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dispatch' | '/patient' | '/provider' | '/rentals'
+  to:
+    | '/'
+    | '/auth'
+    | '/dispatch'
+    | '/patient'
+    | '/provider'
+    | '/rentals'
+    | '/training'
   id:
     | '__root__'
     | '/'
@@ -92,6 +115,7 @@ export interface FileRouteTypes {
     | '/_authenticated/patient'
     | '/_authenticated/provider'
     | '/_authenticated/rentals'
+    | '/_authenticated/training'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -122,6 +146,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/training': {
+      id: '/_authenticated/training'
+      path: '/training'
+      fullPath: '/training'
+      preLoaderRoute: typeof AuthenticatedTrainingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/rentals': {
       id: '/_authenticated/rentals'
@@ -159,6 +190,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPatientRoute: typeof AuthenticatedPatientRoute
   AuthenticatedProviderRoute: typeof AuthenticatedProviderRoute
   AuthenticatedRentalsRoute: typeof AuthenticatedRentalsRoute
+  AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -166,6 +198,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPatientRoute: AuthenticatedPatientRoute,
   AuthenticatedProviderRoute: AuthenticatedProviderRoute,
   AuthenticatedRentalsRoute: AuthenticatedRentalsRoute,
+  AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
