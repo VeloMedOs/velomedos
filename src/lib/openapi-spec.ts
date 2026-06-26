@@ -158,6 +158,26 @@ export const openApiSpec = {
         },
       },
     },
+    "/vehicles/{id}/defects": {
+      get: { summary: "List defects for a vehicle", description: "Requires scope `compliance:read`.", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: { "200": { description: "OK" } } },
+    },
+    "/vehicles/{id}/work_orders": {
+      get: { summary: "List work orders for a vehicle", description: "Requires scope `compliance:read`.", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: { "200": { description: "OK" } } },
+    },
+    "/vehicles/{id}/credentials": {
+      get: { summary: "Vehicle + assigned crew credentials", description: "Requires scope `compliance:read`. Returns `{ vehicle: Credential[], crew: Credential[] }`.", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: { "200": { description: "OK" } } },
+    },
+    "/eta": {
+      post: {
+        summary: "Real road-based ETA via Google Routes",
+        description: "Requires scope `fleet:read`. Returns `{ distance_km, duration_seconds, polyline }`.",
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["origin","destination"], properties: { origin: { type: "object", properties: { lat: { type: "number" }, lng: { type: "number" } } }, destination: { type: "object", properties: { lat: { type: "number" }, lng: { type: "number" } } } } } } } },
+        responses: { "200": { description: "OK" } },
+      },
+    },
+    "/share/{token}": {
+      get: { summary: "Public live trip snapshot (no API key, token-only)", parameters: [{ name: "token", in: "path", required: true, schema: { type: "string" } }], security: [], responses: { "200": { description: "OK" }, "410": { description: "Expired or revoked" } } },
+    },
     "/incidents": {
       get: {
         summary: "List recent incidents",
