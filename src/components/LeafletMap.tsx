@@ -6,9 +6,17 @@ export type MapMarker = {
   lat: number;
   lng: number;
   label?: string;
-  variant?: "ambulance" | "incident" | "patient" | "clinic";
+  variant?: "ambulance" | "incident" | "patient" | "clinic" | "paramedic" | "doctor";
   status?: string;
   pulse?: boolean;
+  speedKmh?: number;
+};
+
+export type MapPolyline = {
+  id: string;
+  path: { lat: number; lng: number }[];
+  color?: string;
+  width?: number;
 };
 
 const variantColor: Record<NonNullable<MapMarker["variant"]>, string> = {
