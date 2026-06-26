@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TripTokenRouteImport } from './routes/trip.$token'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
 import { Route as AuthenticatedScreeningRouteImport } from './routes/_authenticated/screening'
 import { Route as AuthenticatedRentalsRouteImport } from './routes/_authenticated/rentals'
@@ -29,10 +30,15 @@ import { Route as ApiPublicV1Screening_ordersRouteImport } from './routes/api/pu
 import { Route as ApiPublicV1OpenapiRouteImport } from './routes/api/public/v1/openapi'
 import { Route as ApiPublicV1IncidentsRouteImport } from './routes/api/public/v1/incidents'
 import { Route as ApiPublicV1FleetRouteImport } from './routes/api/public/v1/fleet'
+import { Route as ApiPublicV1EtaRouteImport } from './routes/api/public/v1/eta'
 import { Route as ApiPublicV1CredentialsRouteImport } from './routes/api/public/v1/credentials'
 import { Route as ApiPublicV1CoursesRouteImport } from './routes/api/public/v1/courses'
 import { Route as ApiPublicV1ClinicsRouteImport } from './routes/api/public/v1/clinics'
+import { Route as ApiPublicV1ShareTokenRouteImport } from './routes/api/public/v1/share.$token'
 import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/v1/incidents.$id'
+import { Route as ApiPublicV1VehiclesIdWork_ordersRouteImport } from './routes/api/public/v1/vehicles.$id.work_orders'
+import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/public/v1/vehicles.$id.defects'
+import { Route as ApiPublicV1VehiclesIdCredentialsRouteImport } from './routes/api/public/v1/vehicles.$id.credentials'
 import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/public/v1/fleet.$id.location'
 
 const AuthRoute = AuthRouteImport.update({
@@ -52,6 +58,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TripTokenRoute = TripTokenRouteImport.update({
+  id: '/trip/$token',
+  path: '/trip/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
@@ -135,6 +146,11 @@ const ApiPublicV1FleetRoute = ApiPublicV1FleetRouteImport.update({
   path: '/api/public/v1/fleet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1EtaRoute = ApiPublicV1EtaRouteImport.update({
+  id: '/api/public/v1/eta',
+  path: '/api/public/v1/eta',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1CredentialsRoute = ApiPublicV1CredentialsRouteImport.update({
   id: '/api/public/v1/credentials',
   path: '/api/public/v1/credentials',
@@ -150,11 +166,34 @@ const ApiPublicV1ClinicsRoute = ApiPublicV1ClinicsRouteImport.update({
   path: '/api/public/v1/clinics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1ShareTokenRoute = ApiPublicV1ShareTokenRouteImport.update({
+  id: '/api/public/v1/share/$token',
+  path: '/api/public/v1/share/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1IncidentsIdRoute = ApiPublicV1IncidentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => ApiPublicV1IncidentsRoute,
 } as any)
+const ApiPublicV1VehiclesIdWork_ordersRoute =
+  ApiPublicV1VehiclesIdWork_ordersRouteImport.update({
+    id: '/api/public/v1/vehicles/$id/work_orders',
+    path: '/api/public/v1/vehicles/$id/work_orders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1VehiclesIdDefectsRoute =
+  ApiPublicV1VehiclesIdDefectsRouteImport.update({
+    id: '/api/public/v1/vehicles/$id/defects',
+    path: '/api/public/v1/vehicles/$id/defects',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1VehiclesIdCredentialsRoute =
+  ApiPublicV1VehiclesIdCredentialsRouteImport.update({
+    id: '/api/public/v1/vehicles/$id/credentials',
+    path: '/api/public/v1/vehicles/$id/credentials',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1FleetIdLocationRoute =
   ApiPublicV1FleetIdLocationRouteImport.update({
     id: '/$id/location',
@@ -177,16 +216,22 @@ export interface FileRoutesByFullPath {
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
   '/training': typeof AuthenticatedTrainingRoute
+  '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
   '/api/public/v1/credentials': typeof ApiPublicV1CredentialsRoute
+  '/api/public/v1/eta': typeof ApiPublicV1EtaRoute
   '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
   '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
   '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
+  '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
+  '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
+  '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -203,16 +248,22 @@ export interface FileRoutesByTo {
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
   '/training': typeof AuthenticatedTrainingRoute
+  '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
   '/api/public/v1/credentials': typeof ApiPublicV1CredentialsRoute
+  '/api/public/v1/eta': typeof ApiPublicV1EtaRoute
   '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
   '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
   '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
+  '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
+  '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
+  '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -231,16 +282,22 @@ export interface FileRoutesById {
   '/_authenticated/rentals': typeof AuthenticatedRentalsRoute
   '/_authenticated/screening': typeof AuthenticatedScreeningRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
+  '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
   '/api/public/v1/credentials': typeof ApiPublicV1CredentialsRoute
+  '/api/public/v1/eta': typeof ApiPublicV1EtaRoute
   '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
   '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
   '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
+  '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
+  '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
+  '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -259,16 +316,22 @@ export interface FileRouteTypes {
     | '/rentals'
     | '/screening'
     | '/training'
+    | '/trip/$token'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
     | '/api/public/v1/credentials'
+    | '/api/public/v1/eta'
     | '/api/public/v1/fleet'
     | '/api/public/v1/incidents'
     | '/api/public/v1/openapi'
     | '/api/public/v1/screening_orders'
     | '/api/public/v1/work_orders'
     | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/share/$token'
     | '/api/public/v1/fleet/$id/location'
+    | '/api/public/v1/vehicles/$id/credentials'
+    | '/api/public/v1/vehicles/$id/defects'
+    | '/api/public/v1/vehicles/$id/work_orders'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -285,16 +348,22 @@ export interface FileRouteTypes {
     | '/rentals'
     | '/screening'
     | '/training'
+    | '/trip/$token'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
     | '/api/public/v1/credentials'
+    | '/api/public/v1/eta'
     | '/api/public/v1/fleet'
     | '/api/public/v1/incidents'
     | '/api/public/v1/openapi'
     | '/api/public/v1/screening_orders'
     | '/api/public/v1/work_orders'
     | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/share/$token'
     | '/api/public/v1/fleet/$id/location'
+    | '/api/public/v1/vehicles/$id/credentials'
+    | '/api/public/v1/vehicles/$id/defects'
+    | '/api/public/v1/vehicles/$id/work_orders'
   id:
     | '__root__'
     | '/'
@@ -312,16 +381,22 @@ export interface FileRouteTypes {
     | '/_authenticated/rentals'
     | '/_authenticated/screening'
     | '/_authenticated/training'
+    | '/trip/$token'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
     | '/api/public/v1/credentials'
+    | '/api/public/v1/eta'
     | '/api/public/v1/fleet'
     | '/api/public/v1/incidents'
     | '/api/public/v1/openapi'
     | '/api/public/v1/screening_orders'
     | '/api/public/v1/work_orders'
     | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/share/$token'
     | '/api/public/v1/fleet/$id/location'
+    | '/api/public/v1/vehicles/$id/credentials'
+    | '/api/public/v1/vehicles/$id/defects'
+    | '/api/public/v1/vehicles/$id/work_orders'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -329,14 +404,20 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ApiDocsRoute: typeof ApiDocsRoute
   AuthRoute: typeof AuthRoute
+  TripTokenRoute: typeof TripTokenRoute
   ApiPublicV1ClinicsRoute: typeof ApiPublicV1ClinicsRoute
   ApiPublicV1CoursesRoute: typeof ApiPublicV1CoursesRoute
   ApiPublicV1CredentialsRoute: typeof ApiPublicV1CredentialsRoute
+  ApiPublicV1EtaRoute: typeof ApiPublicV1EtaRoute
   ApiPublicV1FleetRoute: typeof ApiPublicV1FleetRouteWithChildren
   ApiPublicV1IncidentsRoute: typeof ApiPublicV1IncidentsRouteWithChildren
   ApiPublicV1OpenapiRoute: typeof ApiPublicV1OpenapiRoute
   ApiPublicV1Screening_ordersRoute: typeof ApiPublicV1Screening_ordersRoute
   ApiPublicV1Work_ordersRoute: typeof ApiPublicV1Work_ordersRoute
+  ApiPublicV1ShareTokenRoute: typeof ApiPublicV1ShareTokenRoute
+  ApiPublicV1VehiclesIdCredentialsRoute: typeof ApiPublicV1VehiclesIdCredentialsRoute
+  ApiPublicV1VehiclesIdDefectsRoute: typeof ApiPublicV1VehiclesIdDefectsRoute
+  ApiPublicV1VehiclesIdWork_ordersRoute: typeof ApiPublicV1VehiclesIdWork_ordersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -367,6 +448,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trip/$token': {
+      id: '/trip/$token'
+      path: '/trip/$token'
+      fullPath: '/trip/$token'
+      preLoaderRoute: typeof TripTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/training': {
@@ -481,6 +569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1FleetRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/eta': {
+      id: '/api/public/v1/eta'
+      path: '/api/public/v1/eta'
+      fullPath: '/api/public/v1/eta'
+      preLoaderRoute: typeof ApiPublicV1EtaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/credentials': {
       id: '/api/public/v1/credentials'
       path: '/api/public/v1/credentials'
@@ -502,12 +597,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1ClinicsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/share/$token': {
+      id: '/api/public/v1/share/$token'
+      path: '/api/public/v1/share/$token'
+      fullPath: '/api/public/v1/share/$token'
+      preLoaderRoute: typeof ApiPublicV1ShareTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/incidents/$id': {
       id: '/api/public/v1/incidents/$id'
       path: '/$id'
       fullPath: '/api/public/v1/incidents/$id'
       preLoaderRoute: typeof ApiPublicV1IncidentsIdRouteImport
       parentRoute: typeof ApiPublicV1IncidentsRoute
+    }
+    '/api/public/v1/vehicles/$id/work_orders': {
+      id: '/api/public/v1/vehicles/$id/work_orders'
+      path: '/api/public/v1/vehicles/$id/work_orders'
+      fullPath: '/api/public/v1/vehicles/$id/work_orders'
+      preLoaderRoute: typeof ApiPublicV1VehiclesIdWork_ordersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/vehicles/$id/defects': {
+      id: '/api/public/v1/vehicles/$id/defects'
+      path: '/api/public/v1/vehicles/$id/defects'
+      fullPath: '/api/public/v1/vehicles/$id/defects'
+      preLoaderRoute: typeof ApiPublicV1VehiclesIdDefectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/vehicles/$id/credentials': {
+      id: '/api/public/v1/vehicles/$id/credentials'
+      path: '/api/public/v1/vehicles/$id/credentials'
+      fullPath: '/api/public/v1/vehicles/$id/credentials'
+      preLoaderRoute: typeof ApiPublicV1VehiclesIdCredentialsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/fleet/$id/location': {
       id: '/api/public/v1/fleet/$id/location'
@@ -577,14 +700,20 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ApiDocsRoute: ApiDocsRoute,
   AuthRoute: AuthRoute,
+  TripTokenRoute: TripTokenRoute,
   ApiPublicV1ClinicsRoute: ApiPublicV1ClinicsRoute,
   ApiPublicV1CoursesRoute: ApiPublicV1CoursesRoute,
   ApiPublicV1CredentialsRoute: ApiPublicV1CredentialsRoute,
+  ApiPublicV1EtaRoute: ApiPublicV1EtaRoute,
   ApiPublicV1FleetRoute: ApiPublicV1FleetRouteWithChildren,
   ApiPublicV1IncidentsRoute: ApiPublicV1IncidentsRouteWithChildren,
   ApiPublicV1OpenapiRoute: ApiPublicV1OpenapiRoute,
   ApiPublicV1Screening_ordersRoute: ApiPublicV1Screening_ordersRoute,
   ApiPublicV1Work_ordersRoute: ApiPublicV1Work_ordersRoute,
+  ApiPublicV1ShareTokenRoute: ApiPublicV1ShareTokenRoute,
+  ApiPublicV1VehiclesIdCredentialsRoute: ApiPublicV1VehiclesIdCredentialsRoute,
+  ApiPublicV1VehiclesIdDefectsRoute: ApiPublicV1VehiclesIdDefectsRoute,
+  ApiPublicV1VehiclesIdWork_ordersRoute: ApiPublicV1VehiclesIdWork_ordersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

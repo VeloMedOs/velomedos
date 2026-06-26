@@ -13,9 +13,9 @@ export const Route = createFileRoute("/api/public/v1/vehicles/$id/credentials")(
           db.from("credentials")
             .select("id,kind,reference,issuer,issued_on,expires_on,subject_user_id,subject_ambulance_id")
             .eq("subject_ambulance_id", params.id),
-          db.from("ambulances").select("driver_id,paramedic_id").eq("id", params.id).maybeSingle(),
+          db.from("ambulances").select("driver_id").eq("id", params.id).maybeSingle(),
         ]);
-        const crewIds = [crew.data?.driver_id, crew.data?.paramedic_id].filter(Boolean) as string[];
+        const crewIds = [crew.data?.driver_id].filter(Boolean) as string[];
         const crewCreds = crewIds.length
           ? (await db.from("credentials")
               .select("id,kind,reference,issuer,issued_on,expires_on,subject_user_id,subject_ambulance_id")
