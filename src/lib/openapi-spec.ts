@@ -2,9 +2,9 @@ export const openApiSpec = {
   openapi: "3.1.0",
   info: {
     title: "VeloMed OS Public API",
-    version: "1.0.0",
+    version: "1.1.0",
     description:
-      "Read-and-write REST API for ambulance fleet, incidents, clinics, courses, and rental bookings. Authenticate with an API key issued from the Developer console using the `x-api-key` header.",
+      "Read-and-write REST API for ambulance fleet, incidents, clinics, courses, compliance and mobile screening. Authenticate with a key issued from the Developer console using `x-api-key`. Each key has an explicit scope set (e.g. `fleet:read`, `incidents:write`, `compliance:read`, `screening:write`) and a per-minute rate limit (HTTP 429 on overrun).",
     contact: { name: "VeloMed Infrastructure Group" },
   },
   servers: [{ url: "/api/public/v1", description: "Public v1" }],
@@ -77,6 +77,56 @@ export const openApiSpec = {
           specialties: { type: "array", items: { type: "string" } },
         },
       },
+      Credential: {
+        type: "object",
+        properties: {
+          id: { type: "string", format: "uuid" },
+          kind: { type: "string", enum: ["paramedic_license", "driver_license", "vehicle_registration", "operating_permit", "provider_license"] },
+          subject_user_id: { type: "string", nullable: true },
+          subject_ambulance_id: { type: "string", nullable: true },
+          reference: { type: "string" },
+          issuer: { type: "string", nullable: true },
+          issued_on: { type: "string", format: "date", nullable: true },
+          expires_on: { type: "string", format: "date" },
+        },
+      },
+      WorkOrder: {
+        type: "object",
+        properties: {
+          id: { type: "string", format: "uuid" },
+          vehicle_id: { type: "string", format: "uuid" },
+          type: { type: "string", enum: ["preventive", "corrective"] },
+          status: { type: "string", enum: ["open", "in_progress", "closed", "cancelled"] },
+          opened_at: { type: "string", format: "date-time" },
+          closed_at: { type: "string", format: "date-time", nullable: true },
+          odometer_km: { type: "integer", nullable: true },
+          downtime_minutes: { type: "integer", nullable: true },
+        },
+      },
+      ScreeningOrder: {
+        type: "object",
+        properties: {
+          id: { type: "string", format: "uuid" },
+          corporate_account_id: { type: "string", format: "uuid" },
+          candidate_name: { type: "string" },
+          candidate_id_ref: { type: "string", nullable: true },
+          package_id: { type: "string", format: "uuid" },
+          appointment_at: { type: "string", format: "date-time", nullable: true },
+          status: { type: "string", enum: ["booked", "sample_collected", "results_ready", "certified", "cancelled"] },
+          created_at: { type: "string", format: "date-time" },
+        },
+      },
+      ScreeningOrderInput: {
+        type: "object",
+        required: ["corporate_account_id", "candidate_name", "package_id"],
+        properties: {
+          corporate_account_id: { type: "string", format: "uuid" },
+          candidate_name: { type: "string" },
+          candidate_id_ref: { type: "string", nullable: true },
+          package_id: { type: "string", format: "uuid" },
+          appointment_at: { type: "string", format: "date-time", nullable: true },
+        },
+      },
       Error: {
         type: "object",
         properties: { error: { type: "string" } },
@@ -88,15 +138,19 @@ export const openApiSpec = {
     "/fleet": {
       get: {
         summary: "List ambulance fleet",
+        description: "Requires scope `fleet:read`.",
         responses: {
           "200": { description: "OK", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/Ambulance" } } } } },
           "401": { description: "Missing or invalid API key", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          "403": { description: "Missing scope", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          "429": { description: "Rate limit exceeded" },
         },
       },
     },
     "/fleet/{id}/location": {
       get: {
         summary: "Get the latest known location for an ambulance",
+        description: "Requires scope `fleet:read`.",
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
         responses: {
           "200": { description: "OK", content: { "application/json": { schema: { type: "object", properties: { lat: { type: "number" }, lng: { type: "number" }, recorded_at: { type: "string", format: "date-time" } } } } } },
@@ -107,10 +161,12 @@ export const openApiSpec = {
     "/incidents": {
       get: {
         summary: "List recent incidents",
+        description: "Requires scope `incidents:read`.",
         responses: { "200": { description: "OK", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/Incident" } } } } } },
       },
       post: {
         summary: "File a new incident",
+        description: "Requires scope `incidents:write`. Recorded in audit log.",
         requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/IncidentInput" } } } },
         responses: { "201": { description: "Created", content: { "application/json": { schema: { $ref: "#/components/schemas/Incident" } } } } },
       },
@@ -118,15 +174,45 @@ export const openApiSpec = {
     "/incidents/{id}": {
       get: {
         summary: "Get an incident by id",
+        description: "Requires scope `incidents:read`.",
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
         responses: { "200": { description: "OK", content: { "application/json": { schema: { $ref: "#/components/schemas/Incident" } } } } },
       },
     },
     "/clinics": {
-      get: { summary: "List remote clinics", responses: { "200": { description: "OK", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/Clinic" } } } } } } },
+      get: { summary: "List remote clinics (public, no phone)", description: "Requires scope `clinics:read`.", responses: { "200": { description: "OK", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/Clinic" } } } } } } },
     },
     "/courses": {
-      get: { summary: "List training courses", responses: { "200": { description: "OK", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/Course" } } } } } } },
+      get: { summary: "List training courses", description: "Requires scope `courses:read`.", responses: { "200": { description: "OK", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/Course" } } } } } } },
+    },
+    "/credentials": {
+      get: {
+        summary: "List credentials with optional expiry filter",
+        description: "Requires scope `compliance:read`. Query `?expiring_in_days=30` to list credentials expiring within N days.",
+        parameters: [{ name: "expiring_in_days", in: "query", required: false, schema: { type: "integer" } }],
+        responses: { "200": { description: "OK", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/Credential" } } } } } },
+      },
+    },
+    "/work_orders": {
+      get: {
+        summary: "List vehicle work orders",
+        description: "Requires scope `compliance:read`. Optional `?status=open`.",
+        parameters: [{ name: "status", in: "query", required: false, schema: { type: "string", enum: ["open", "in_progress", "closed", "cancelled"] } }],
+        responses: { "200": { description: "OK", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/WorkOrder" } } } } } },
+      },
+    },
+    "/screening_orders": {
+      get: {
+        summary: "List mobile-clinic screening orders",
+        description: "Requires scope `screening:read`.",
+        responses: { "200": { description: "OK", content: { "application/json": { schema: { type: "array", items: { $ref: "#/components/schemas/ScreeningOrder" } } } } } },
+      },
+      post: {
+        summary: "Book a new screening order",
+        description: "Requires scope `screening:write`. Recorded in audit log.",
+        requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/ScreeningOrderInput" } } } },
+        responses: { "201": { description: "Created", content: { "application/json": { schema: { $ref: "#/components/schemas/ScreeningOrder" } } } } },
+      },
     },
   },
 } as const;

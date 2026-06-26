@@ -17,7 +17,7 @@ async function sha256Hex(input: string): Promise<string> {
 
 const CORS = {
   "access-control-allow-origin": "*",
-  "access-control-allow-headers": "content-type, x-api-key",
+  "access-control-allow-headers": "content-type, x-api-key, x-velomed-signature",
   "access-control-allow-methods": "GET, POST, OPTIONS",
 };
 
@@ -31,14 +31,62 @@ export function preflight(): Response {
   return new Response(null, { status: 204, headers: CORS });
 }
 
-export async function requireKey(request: Request): Promise<{ ok: true; ownerId: string; keyId: string } | { ok: false; res: Response }> {
+// in-process token bucket. Single dev-server instance → adequate for the demo runtime.
+type Bucket = { count: number; resetAt: number };
+const buckets = new Map<string, Bucket>();
+function checkRate(keyId: string, limit: number): { ok: true; remaining: number } | { ok: false } {
+  const now = Date.now();
+  const b = buckets.get(keyId);
+  if (!b || b.resetAt <= now) {
+    buckets.set(keyId, { count: 1, resetAt: now + 60_000 });
+    return { ok: true, remaining: limit - 1 };
+  }
+  if (b.count >= limit) return { ok: false };
+  b.count += 1;
+  return { ok: true, remaining: limit - b.count };
+}
+
+export type KeyAuth = { ownerId: string; keyId: string; scopes: string[]; rateLimit: number };
+
+export async function requireKey(
+  request: Request,
+  requiredScope?: string,
+): Promise<{ ok: true; auth: KeyAuth; ownerId: string; keyId: string } | { ok: false; res: Response }> {
   const raw = request.headers.get("x-api-key");
   if (!raw) return { ok: false, res: json({ error: "Missing x-api-key header" }, 401) };
   const hashed = await sha256Hex(raw);
   const db = serviceClient();
-  const { data, error } = await db.from("api_keys").select("id, owner_id").eq("hashed_key", hashed).maybeSingle();
+  const { data, error } = await db
+    .from("api_keys")
+    .select("id, owner_id, scopes, rate_limit_per_min")
+    .eq("hashed_key", hashed)
+    .maybeSingle();
   if (error || !data) return { ok: false, res: json({ error: "Invalid API key" }, 401) };
+  const scopes = (data.scopes as string[] | null) ?? [];
+  if (requiredScope && !scopes.includes(requiredScope) && !scopes.includes("*")) {
+    return { ok: false, res: json({ error: `Missing required scope: ${requiredScope}` }, 403) };
+  }
+  const rl = checkRate(data.id, data.rate_limit_per_min ?? 60);
+  if (!rl.ok) return { ok: false, res: json({ error: "Rate limit exceeded" }, 429) };
   // fire-and-forget last_used update
   db.from("api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", data.id).then(() => {});
-  return { ok: true, ownerId: data.owner_id, keyId: data.id };
+  return {
+    ok: true,
+    ownerId: data.owner_id,
+    keyId: data.id,
+    auth: { ownerId: data.owner_id, keyId: data.id, scopes, rateLimit: data.rate_limit_per_min ?? 60 },
+  };
+}
+
+/** Append an audit_log row. Best-effort, swallows errors. */
+export async function audit(actorId: string | null, action: string, entity: string, entityId?: string, payload?: unknown) {
+  try {
+    await serviceClient().from("audit_log").insert({
+      actor_id: actorId,
+      action,
+      entity,
+      entity_id: entityId ?? null,
+      payload: (payload as never) ?? null,
+    });
+  } catch { /* noop */ }
 }
