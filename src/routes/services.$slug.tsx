@@ -81,13 +81,13 @@ function ServicePage() {
       <section className="max-w-[1100px] mx-auto px-4 lg:px-8 py-12 grid lg:grid-cols-2 gap-10">
         <div>
           <h2 className="text-xl font-semibold mb-4">What you get</h2>
-          <ul className="space-y-3">{s.benefits.map((b) => (
+          <ul className="space-y-3">{s.benefits.map((b: string) => (
             <li key={b} className="flex gap-3 text-sm leading-relaxed"><CheckCircle2 className="size-4 text-stable shrink-0 mt-0.5" /><span>{b}</span></li>
           ))}</ul>
         </div>
         <div>
           <h2 className="text-xl font-semibold mb-4">How it works</h2>
-          <ol className="space-y-3">{s.how.map((h, i) => (
+          <ol className="space-y-3">{s.how.map((h: string, i: number) => (
             <li key={h} className="flex gap-3 text-sm leading-relaxed"><span className="mono text-[10px] text-action border border-action/40 rounded h-5 w-5 grid place-items-center shrink-0 mt-0.5">{i+1}</span><span>{h}</span></li>
           ))}</ol>
         </div>
@@ -95,7 +95,7 @@ function ServicePage() {
       <section className="max-w-[1100px] mx-auto px-4 lg:px-8 py-12">
         <h2 className="text-xl font-semibold mb-4">Frequently asked questions</h2>
         <div className="divide-y divide-hairline border border-hairline rounded-xl bg-panel">
-          {s.faqs.map((f) => (
+          {s.faqs.map((f: { q: string; a: string }) => (
             <details key={f.q} className="group p-5">
               <summary className="cursor-pointer text-sm font-medium flex items-center justify-between">{f.q}<ChevronRight className="size-4 transition-transform group-open:rotate-90" /></summary>
               <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{f.a}</p>
