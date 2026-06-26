@@ -9,7 +9,7 @@ import { haversineKm, formatElapsed } from "@/lib/distance";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { computeRouteEta } from "@/lib/maps.functions";
-import { getCareHistory, listTelehealthClinics, type CareEpisode } from "@/lib/patient.functions";
+import { getCareHistory, type CareEpisode, type ProviderInfo } from "@/lib/patient.functions";
 import { decodePolyline } from "@/lib/polyline";
 
 export const Route = createFileRoute("/_authenticated/patient")({ component: Patient });
@@ -87,6 +87,10 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 type IncEvent = { id: string; kind: string; payload: any; actor_id: string | null; created_at: string };
+type IncEventRow = { id: string; event_type: string; payload: any; actor_id: string | null; at: string };
+function toIncEvent(r: IncEventRow): IncEvent {
+  return { id: r.id, kind: r.event_type, payload: r.payload, actor_id: r.actor_id, created_at: r.at };
+}
 
 function LiveNow({ inc, onCancel }: { inc: Inc; onCancel: () => void }) {
   const [amb, setAmb] = useState<Amb | null>(null);
@@ -122,12 +126,12 @@ function LiveNow({ inc, onCancel }: { inc: Inc; onCancel: () => void }) {
 
   // Incident events timeline
   useEffect(() => {
-    supabase.from("incident_events").select("id, kind, payload, actor_id, created_at").eq("incident_id", inc.id).order("created_at")
-      .then(({ data }) => setEvents((data ?? []) as IncEvent[]));
+    supabase.from("incident_events").select("id, event_type, payload, actor_id, at").eq("incident_id", inc.id).order("at")
+      .then(({ data }) => setEvents(((data ?? []) as IncEventRow[]).map(toIncEvent)));
     const ch = supabase
       .channel(`patient-inc-${inc.id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "incident_events", filter: `incident_id=eq.${inc.id}` }, (payload) => {
-        setEvents((prev) => [...prev, payload.new as IncEvent]);
+        setEvents((prev) => [...prev, toIncEvent(payload.new as IncEventRow)]);
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -607,7 +611,7 @@ function EpisodeCard({ ep }: { ep: CareEpisode }) {
   );
 }
 
-function ProviderBadge({ provider }: { provider: NonNullable<CareEpisode extends { provider: infer P } ? P : never> }) {
+function ProviderBadge({ provider }: { provider: ProviderInfo }) {
   const anyValid = provider.credentials.some((c) => c.valid_at_time);
   const noCreds = provider.credentials.length === 0;
   return (
