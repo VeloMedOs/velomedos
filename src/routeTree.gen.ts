@@ -20,6 +20,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TripTokenRouteImport } from './routes/trip.$token'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
+import { Route as ClinicsCityRouteImport } from './routes/clinics.$city'
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
 import { Route as AuthenticatedScreeningRouteImport } from './routes/_authenticated/screening'
@@ -103,6 +104,11 @@ const ServicesSlugRoute = ServicesSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ServicesRoute,
+} as any)
+const ClinicsCityRoute = ClinicsCityRouteImport.update({
+  id: '/$city',
+  path: '/$city',
+  getParentRoute: () => ClinicsRoute,
 } as any)
 const AuthenticatedTripsRoute = AuthenticatedTripsRouteImport.update({
   id: '/trips',
@@ -260,7 +266,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
-  '/clinics': typeof ClinicsRoute
+  '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -277,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/screening': typeof AuthenticatedScreeningRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
+  '/clinics/$city': typeof ClinicsCityRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
@@ -301,7 +308,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
-  '/clinics': typeof ClinicsRoute
+  '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -318,6 +325,7 @@ export interface FileRoutesByTo {
   '/screening': typeof AuthenticatedScreeningRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
+  '/clinics/$city': typeof ClinicsCityRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
@@ -344,7 +352,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
-  '/clinics': typeof ClinicsRoute
+  '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -361,6 +369,7 @@ export interface FileRoutesById {
   '/_authenticated/screening': typeof AuthenticatedScreeningRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
+  '/clinics/$city': typeof ClinicsCityRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
@@ -404,6 +413,7 @@ export interface FileRouteTypes {
     | '/screening'
     | '/training'
     | '/trips'
+    | '/clinics/$city'
     | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
@@ -445,6 +455,7 @@ export interface FileRouteTypes {
     | '/screening'
     | '/training'
     | '/trips'
+    | '/clinics/$city'
     | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
@@ -487,6 +498,7 @@ export interface FileRouteTypes {
     | '/_authenticated/screening'
     | '/_authenticated/training'
     | '/_authenticated/trips'
+    | '/clinics/$city'
     | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
@@ -513,7 +525,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ApiDocsRoute: typeof ApiDocsRoute
   AuthRoute: typeof AuthRoute
-  ClinicsRoute: typeof ClinicsRoute
+  ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
   ServicesRoute: typeof ServicesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -612,6 +624,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/services/$slug'
       preLoaderRoute: typeof ServicesSlugRouteImport
       parentRoute: typeof ServicesRoute
+    }
+    '/clinics/$city': {
+      id: '/clinics/$city'
+      path: '/$city'
+      fullPath: '/clinics/$city'
+      preLoaderRoute: typeof ClinicsCityRouteImport
+      parentRoute: typeof ClinicsRoute
     }
     '/_authenticated/trips': {
       id: '/_authenticated/trips'
@@ -854,6 +873,17 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ClinicsRouteChildren {
+  ClinicsCityRoute: typeof ClinicsCityRoute
+}
+
+const ClinicsRouteChildren: ClinicsRouteChildren = {
+  ClinicsCityRoute: ClinicsCityRoute,
+}
+
+const ClinicsRouteWithChildren =
+  ClinicsRoute._addFileChildren(ClinicsRouteChildren)
+
 interface ServicesRouteChildren {
   ServicesSlugRoute: typeof ServicesSlugRoute
 }
@@ -894,7 +924,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ApiDocsRoute: ApiDocsRoute,
   AuthRoute: AuthRoute,
-  ClinicsRoute: ClinicsRoute,
+  ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
   ServicesRoute: ServicesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
