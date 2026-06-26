@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -68,6 +69,11 @@ const ServicesRoute = ServicesRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -294,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -340,6 +347,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -388,6 +396,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -436,6 +445,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/developers'
     | '/pricing'
+    | '/privacy'
     | '/resources'
     | '/services'
     | '/sitemap.xml'
@@ -482,6 +492,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/developers'
     | '/pricing'
+    | '/privacy'
     | '/resources'
     | '/services'
     | '/sitemap.xml'
@@ -529,6 +540,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/developers'
     | '/pricing'
+    | '/privacy'
     | '/resources'
     | '/services'
     | '/sitemap.xml'
@@ -577,6 +589,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DevelopersRoute: typeof DevelopersRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResourcesRoute: typeof ResourcesRouteWithChildren
   ServicesRoute: typeof ServicesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -618,6 +631,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -1019,6 +1039,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DevelopersRoute: DevelopersRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   ResourcesRoute: ResourcesRouteWithChildren,
   ServicesRoute: ServicesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
