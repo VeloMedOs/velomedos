@@ -25,7 +25,7 @@ export type IncidentEpisode = {
   address: string | null;
   at: string;
   unit_code: string | null;
-  events: { id: string; at: string; kind: string; payload: unknown }[];
+  events: { id: string; at: string; kind: string; payload: Record<string, unknown> | null }[];
   provider: ProviderInfo | null;
 };
 
@@ -197,7 +197,7 @@ export const getCareHistory = createServerFn({ method: "GET" })
         address: i.address,
         at: i.created_at,
         unit_code: amb?.code ?? null,
-        events: (eventsByInc.get(i.id) ?? []).map((e) => ({ id: e.id, at: e.created_at, kind: e.kind, payload: e.payload })),
+        events: (eventsByInc.get(i.id) ?? []).map((e) => ({ id: e.id, at: e.created_at, kind: e.kind, payload: (e.payload ?? null) as Record<string, unknown> | null })),
         provider: makeProvider(amb?.driver_id ?? null, i.created_at),
       };
     });
