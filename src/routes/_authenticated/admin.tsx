@@ -29,7 +29,7 @@ function AdminOverview() {
       const soon = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
       const [amb, inc, cred, wo, def, ev] = await Promise.all([
         supabase.from("ambulances").select("status"),
-        supabase.from("incidents").select("id,status").in("status", ["dispatched", "en_route", "on_scene", "transporting"]),
+        supabase.from("incidents").select("id,status").in("status", ["assigned", "en_route", "on_scene", "transporting"]),
         supabase.from("credentials").select("id").lte("expires_on", soon),
         supabase.from("work_orders").select("id").eq("status", "open"),
         supabase.from("defects").select("id").eq("blocks_service", true).is("resolved_at", null),
@@ -39,7 +39,7 @@ function AdminOverview() {
       const rows = amb.data ?? [];
       setK({
         available: rows.filter((r) => r.status === "available").length,
-        assigned: rows.filter((r) => ["dispatched", "en_route", "on_scene", "transporting"].includes(r.status as string)).length,
+        assigned: rows.filter((r) => ["dispatched", "en_route", "on_scene", "transporting"].includes(r.status as unknown as string)).length,
         total: rows.length,
         activeIncidents: inc.data?.length ?? 0,
         expiringCreds: cred.data?.length ?? 0,

@@ -22,6 +22,7 @@ import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDeveloperRouteImport } from './routes/_authenticated/developer'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicV1Work_ordersRouteImport } from './routes/api/public/v1/work_orders'
 import { Route as ApiPublicV1Screening_ordersRouteImport } from './routes/api/public/v1/screening_orders'
 import { Route as ApiPublicV1OpenapiRouteImport } from './routes/api/public/v1/openapi'
@@ -97,6 +98,11 @@ const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicV1Work_ordersRoute = ApiPublicV1Work_ordersRouteImport.update({
   id: '/api/public/v1/work_orders',
   path: '/api/public/v1/work_orders',
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/developer': typeof AuthenticatedDeveloperRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/developer': typeof AuthenticatedDeveloperRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/developer': typeof AuthenticatedDeveloperRoute
@@ -230,6 +239,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-docs'
     | '/auth'
+    | '/admin'
     | '/audit'
     | '/compliance'
     | '/developer'
@@ -254,6 +264,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-docs'
     | '/auth'
+    | '/admin'
     | '/audit'
     | '/compliance'
     | '/developer'
@@ -279,6 +290,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/api-docs'
     | '/auth'
+    | '/_authenticated/admin'
     | '/_authenticated/audit'
     | '/_authenticated/compliance'
     | '/_authenticated/developer'
@@ -408,6 +420,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAuditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/v1/work_orders': {
       id: '/api/public/v1/work_orders'
       path: '/api/public/v1/work_orders'
@@ -482,6 +501,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedDeveloperRoute: typeof AuthenticatedDeveloperRoute
@@ -494,6 +514,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedDeveloperRoute: AuthenticatedDeveloperRoute,
