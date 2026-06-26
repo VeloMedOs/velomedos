@@ -109,7 +109,7 @@ export const getCareHistory = createServerFn({ method: "GET" })
 
     const [{ data: events }, { data: ambs }] = await Promise.all([
       incIds.length
-        ? supabaseAdmin.from("incident_events").select("id, incident_id, kind, payload, created_at").in("incident_id", incIds).order("created_at")
+        ? supabaseAdmin.from("incident_events").select("id, incident_id, event_type, payload, at").in("incident_id", incIds).order("at")
         : Promise.resolve({ data: [] as any[] }),
       ambIds.length
         ? supabaseAdmin.from("ambulances").select("id, code, driver_id").in("id", ambIds)
@@ -197,7 +197,7 @@ export const getCareHistory = createServerFn({ method: "GET" })
         address: i.address,
         at: i.created_at,
         unit_code: amb?.code ?? null,
-        events: (eventsByInc.get(i.id) ?? []).map((e) => ({ id: e.id, at: e.created_at, kind: e.kind, payload_json: e.payload == null ? null : JSON.stringify(e.payload) })),
+        events: (eventsByInc.get(i.id) ?? []).map((e) => ({ id: String(e.id), at: e.at, kind: e.event_type, payload_json: e.payload == null ? null : JSON.stringify(e.payload) })),
         provider: makeProvider(amb?.driver_id ?? null, i.created_at),
       };
     });
