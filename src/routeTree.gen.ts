@@ -22,6 +22,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TripTokenRouteImport } from './routes/trip.$token'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
+import { Route as ResourcesSlugRouteImport } from './routes/resources.$slug'
 import { Route as ClinicsCityRouteImport } from './routes/clinics.$city'
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
@@ -116,6 +117,11 @@ const ServicesSlugRoute = ServicesSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ServicesRoute,
+} as any)
+const ResourcesSlugRoute = ResourcesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ResourcesRoute,
 } as any)
 const ClinicsCityRoute = ClinicsCityRouteImport.update({
   id: '/$city',
@@ -281,7 +287,7 @@ export interface FileRoutesByFullPath {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
-  '/resources': typeof ResourcesRoute
+  '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -298,6 +304,7 @@ export interface FileRoutesByFullPath {
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
@@ -325,7 +332,7 @@ export interface FileRoutesByTo {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
-  '/resources': typeof ResourcesRoute
+  '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -342,6 +349,7 @@ export interface FileRoutesByTo {
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
@@ -371,7 +379,7 @@ export interface FileRoutesById {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
-  '/resources': typeof ResourcesRoute
+  '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -388,6 +396,7 @@ export interface FileRoutesById {
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
@@ -434,6 +443,7 @@ export interface FileRouteTypes {
     | '/training'
     | '/trips'
     | '/clinics/$city'
+    | '/resources/$slug'
     | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
@@ -478,6 +488,7 @@ export interface FileRouteTypes {
     | '/training'
     | '/trips'
     | '/clinics/$city'
+    | '/resources/$slug'
     | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
@@ -523,6 +534,7 @@ export interface FileRouteTypes {
     | '/_authenticated/training'
     | '/_authenticated/trips'
     | '/clinics/$city'
+    | '/resources/$slug'
     | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
@@ -552,7 +564,7 @@ export interface RootRouteChildren {
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
   DevelopersRoute: typeof DevelopersRoute
-  ResourcesRoute: typeof ResourcesRoute
+  ResourcesRoute: typeof ResourcesRouteWithChildren
   ServicesRoute: typeof ServicesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TripTokenRoute: typeof TripTokenRoute
@@ -664,6 +676,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/services/$slug'
       preLoaderRoute: typeof ServicesSlugRouteImport
       parentRoute: typeof ServicesRoute
+    }
+    '/resources/$slug': {
+      id: '/resources/$slug'
+      path: '/$slug'
+      fullPath: '/resources/$slug'
+      preLoaderRoute: typeof ResourcesSlugRouteImport
+      parentRoute: typeof ResourcesRoute
     }
     '/clinics/$city': {
       id: '/clinics/$city'
@@ -924,6 +943,18 @@ const ClinicsRouteChildren: ClinicsRouteChildren = {
 const ClinicsRouteWithChildren =
   ClinicsRoute._addFileChildren(ClinicsRouteChildren)
 
+interface ResourcesRouteChildren {
+  ResourcesSlugRoute: typeof ResourcesSlugRoute
+}
+
+const ResourcesRouteChildren: ResourcesRouteChildren = {
+  ResourcesSlugRoute: ResourcesSlugRoute,
+}
+
+const ResourcesRouteWithChildren = ResourcesRoute._addFileChildren(
+  ResourcesRouteChildren,
+)
+
 interface ServicesRouteChildren {
   ServicesSlugRoute: typeof ServicesSlugRoute
 }
@@ -967,7 +998,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
   DevelopersRoute: DevelopersRoute,
-  ResourcesRoute: ResourcesRoute,
+  ResourcesRoute: ResourcesRouteWithChildren,
   ServicesRoute: ServicesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TripTokenRoute: TripTokenRoute,
