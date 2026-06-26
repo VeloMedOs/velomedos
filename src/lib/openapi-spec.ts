@@ -178,6 +178,27 @@ export const openApiSpec = {
     "/share/{token}": {
       get: { summary: "Public live trip snapshot (no API key, token-only)", parameters: [{ name: "token", in: "path", required: true, schema: { type: "string" } }], security: [], responses: { "200": { description: "OK" }, "410": { description: "Expired or revoked" } } },
     },
+    "/web_intake": {
+      post: {
+        summary: "Public website intake — creates an incident or a lead",
+        description: "Open endpoint (no API key) used by the public site contact form. Emergencies create an `incidents` row with `source=web` and a `web_submission` event; clinic/screening/rental/training/general become `web_leads`. Rate-limited per IP.",
+        security: [],
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["kind","name"], properties: {
+          kind: { type: "string", enum: ["emergency","clinic","screening","rental","training","general"] },
+          name: { type: "string", maxLength: 120 },
+          phone: { type: "string", maxLength: 40, nullable: true },
+          email: { type: "string", format: "email", maxLength: 255, nullable: true },
+          city: { type: "string", maxLength: 120, nullable: true },
+          address: { type: "string", maxLength: 500, nullable: true },
+          lat: { type: "number", nullable: true }, lng: { type: "number", nullable: true },
+          message: { type: "string", maxLength: 2000, nullable: true },
+          severity: { type: "string", enum: ["code_red","code_yellow","routine"], nullable: true },
+          symptoms: { type: "string", maxLength: 2000, nullable: true },
+          service: { type: "string", maxLength: 200, nullable: true },
+        } } } } },
+        responses: { "200": { description: "OK — returns reference_code" }, "400": { description: "Invalid input" }, "429": { description: "Rate limited" } },
+      },
+    },
     "/incidents": {
       get: {
         summary: "List recent incidents",

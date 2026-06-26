@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
-import { Activity, Ambulance, Radio, Stethoscope, GraduationCap, KeyRound, ArrowRight, Hospital } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Ambulance, Radio, Stethoscope, GraduationCap, KeyRound, ArrowRight, Hospital } from "lucide-react";
+import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -17,23 +17,8 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-50 h-14 border-b border-hairline bg-background/85 backdrop-blur flex items-center justify-between px-4 lg:px-8">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="size-7 rounded-md bg-emergency grid place-items-center text-emergency-foreground shadow-[0_0_18px_oklch(0.62_0.22_27/0.5)]">
-            <Activity className="size-4" />
-          </div>
-          <span className="font-bold tracking-tight">VELOMED <span className="text-emergency">OS</span></span>
-        </Link>
-        <nav className="hidden md:flex items-center gap-6 mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-          <a href="#surfaces" className="hover:text-foreground">Surfaces</a>
-          <a href="#fleet" className="hover:text-foreground">Fleet</a>
-          <Link to="/api-docs" className="hover:text-foreground">API Docs</Link>
-        </nav>
-        <div className="flex items-center gap-2">
-          <Link to="/auth" className="mono text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-md border border-hairline hover:bg-panel">Sign in</Link>
-          <Link to="/auth" search={{ mode: "signup" } as never} className="mono text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-md bg-emergency text-emergency-foreground hover:bg-emergency/90">Get access</Link>
-        </div>
-      </header>
+      <SiteHeader />
+      <EmergencyBanner />
 
       {/* HERO */}
       <section className="relative overflow-hidden border-b border-hairline">
@@ -42,7 +27,7 @@ function Index() {
         <div className="relative max-w-[1400px] mx-auto px-4 lg:px-8 pt-20 pb-24 grid lg:grid-cols-12 gap-10 items-start">
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-panel border border-hairline mono text-[10px] uppercase tracking-[0.2em] text-action">
-              <span className="size-1.5 rounded-full bg-stable animate-pulse" /> API v1.0 · Operational
+              <span className="size-1.5 rounded-full bg-stable animate-pulse" /> API v1.2 · Operational
             </div>
             <h1 className="text-5xl lg:text-7xl font-bold tracking-tight leading-[0.95]">
               Medical mobility,<br/>
@@ -52,11 +37,11 @@ function Index() {
               One platform for emergency dispatch, paramedics in the field, patients on the phone, fleet rental, and certification — all on a single documented REST API.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
-              <Link to="/dispatch" className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-emergency text-emergency-foreground mono text-xs uppercase tracking-widest font-bold hover:bg-emergency/90 shadow-[0_0_24px_oklch(0.62_0.22_27/0.35)]">
-                Open Dispatch Console <ArrowRight className="size-3.5" />
+              <Link to="/contact" className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-emergency text-emergency-foreground mono text-xs uppercase tracking-widest font-bold hover:bg-emergency/90 shadow-[0_0_24px_oklch(0.62_0.22_27/0.35)]">
+                Request help <ArrowRight className="size-3.5" />
               </Link>
-              <Link to="/api-docs" className="inline-flex items-center gap-2 px-5 py-3 rounded-md border border-hairline mono text-xs uppercase tracking-widest hover:bg-panel">
-                Read the API <ArrowRight className="size-3.5" />
+              <Link to="/services" className="inline-flex items-center gap-2 px-5 py-3 rounded-md border border-hairline mono text-xs uppercase tracking-widest hover:bg-panel">
+                Explore services <ArrowRight className="size-3.5" />
               </Link>
             </div>
           </div>
@@ -147,16 +132,7 @@ x-api-key: vmk_••••••••
         </Link>
       </section>
 
-      <footer className="border-t border-hairline">
-        <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-8 flex flex-wrap items-center justify-between gap-4">
-          <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            VeloMed Infrastructure Group · All core systems operational
-          </div>
-          <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-            <span className="size-1.5 rounded-full bg-stable animate-pulse" /> v1.0
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
