@@ -59,7 +59,7 @@ export function SiteFooter() {
           ["Developer API","/services/developer-api"],
         ]} />
         <FooterCol title="Cities served" links={SITE.cities.map((c) => [c.name, `/clinics/${c.slug}`])} />
-        <FooterCol title="Platform" links={[["Resources","/resources"],["Pricing","/pricing"],["About","/about"],["Developers","/developers"],["API Docs","/api-docs"]]} />
+        <FooterCol title="Platform" links={[["Resources","/resources"],["Pricing","/pricing"],["About","/about"],["Developers","/developers"],["API reference","/api-reference"],["API Docs","/api-docs"],["Website map","/website"]]} />
         <FooterCol title="Get in touch" links={[["Request a demo","/demo"],["Request help","/contact"],["Sign in","/auth"],["Privacy","/privacy"],["Terms","/terms"]]} />
       </div>
       <div className="border-t border-hairline">

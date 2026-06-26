@@ -41,7 +41,8 @@ function Developers() {
         <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">Build on the same API we run on.</h1>
         <p className="text-muted-foreground mt-4 max-w-2xl text-lg">Every surface — dispatch console, provider app, patient app — reads and writes through the same documented REST endpoints. Generate a scoped API key, point at the OpenAPI spec, and ship.</p>
         <div className="flex flex-wrap gap-3 mt-6">
-          <Link to="/api-docs" className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-action text-action-foreground mono text-xs uppercase tracking-widest font-bold">Read the API <ArrowRight className="size-3.5" /></Link>
+          <Link to="/api-reference" className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-action text-action-foreground mono text-xs uppercase tracking-widest font-bold">Try the API <ArrowRight className="size-3.5" /></Link>
+          <Link to="/api-docs" className="inline-flex items-center gap-2 px-5 py-3 rounded-md border border-hairline mono text-xs uppercase tracking-widest hover:bg-panel">Full reference <ArrowRight className="size-3.5" /></Link>
           <Link to="/contact" className="inline-flex items-center gap-2 px-5 py-3 rounded-md border border-hairline mono text-xs uppercase tracking-widest hover:bg-panel">Request access <ArrowRight className="size-3.5" /></Link>
         </div>
       </section>

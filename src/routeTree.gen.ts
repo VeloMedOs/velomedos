@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WebsiteRouteImport } from './routes/website'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
@@ -20,6 +21,7 @@ import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ApiReferenceRouteImport } from './routes/api-reference'
 import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -58,6 +60,11 @@ import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/p
 import { Route as ApiPublicV1VehiclesIdCredentialsRouteImport } from './routes/api/public/v1/vehicles.$id.credentials'
 import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/public/v1/fleet.$id.location'
 
+const WebsiteRoute = WebsiteRouteImport.update({
+  id: '/website',
+  path: '/website',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -111,6 +118,11 @@ const ClinicsRoute = ClinicsRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiReferenceRoute = ApiReferenceRouteImport.update({
+  id: '/api-reference',
+  path: '/api-reference',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDocsRoute = ApiDocsRouteImport.update({
@@ -307,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
+  '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
@@ -318,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/website': typeof WebsiteRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
@@ -356,6 +370,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
+  '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
@@ -367,6 +382,7 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/website': typeof WebsiteRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
@@ -407,6 +423,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
+  '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
@@ -418,6 +435,7 @@ export interface FileRoutesById {
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/website': typeof WebsiteRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/call-center': typeof AuthenticatedCallCenterRoute
@@ -458,6 +476,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/api-docs'
+    | '/api-reference'
     | '/auth'
     | '/clinics'
     | '/contact'
@@ -469,6 +488,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/terms'
+    | '/website'
     | '/admin'
     | '/audit'
     | '/call-center'
@@ -507,6 +527,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/api-docs'
+    | '/api-reference'
     | '/auth'
     | '/clinics'
     | '/contact'
@@ -518,6 +539,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/terms'
+    | '/website'
     | '/admin'
     | '/audit'
     | '/call-center'
@@ -557,6 +579,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/api-docs'
+    | '/api-reference'
     | '/auth'
     | '/clinics'
     | '/contact'
@@ -568,6 +591,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/sitemap.xml'
     | '/terms'
+    | '/website'
     | '/_authenticated/admin'
     | '/_authenticated/audit'
     | '/_authenticated/call-center'
@@ -608,6 +632,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   ApiDocsRoute: typeof ApiDocsRoute
+  ApiReferenceRoute: typeof ApiReferenceRoute
   AuthRoute: typeof AuthRoute
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
@@ -619,6 +644,7 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  WebsiteRoute: typeof WebsiteRoute
   TripTokenRoute: typeof TripTokenRoute
   ApiPublicV1ClinicsRoute: typeof ApiPublicV1ClinicsRoute
   ApiPublicV1CoursesRoute: typeof ApiPublicV1CoursesRoute
@@ -638,6 +664,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/website': {
+      id: '/website'
+      path: '/website'
+      fullPath: '/website'
+      preLoaderRoute: typeof WebsiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -713,6 +746,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api-reference': {
+      id: '/api-reference'
+      path: '/api-reference'
+      fullPath: '/api-reference'
+      preLoaderRoute: typeof ApiReferenceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api-docs': {
@@ -1074,6 +1114,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   ApiDocsRoute: ApiDocsRoute,
+  ApiReferenceRoute: ApiReferenceRoute,
   AuthRoute: AuthRoute,
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
@@ -1085,6 +1126,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  WebsiteRoute: WebsiteRoute,
   TripTokenRoute: TripTokenRoute,
   ApiPublicV1ClinicsRoute: ApiPublicV1ClinicsRoute,
   ApiPublicV1CoursesRoute: ApiPublicV1CoursesRoute,
