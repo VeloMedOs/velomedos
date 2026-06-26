@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Ambulance, CircleCheck, ShieldAlert, AlertTriangle, Check, X, Stethoscope, FileText, Hospital } from "lucide-react";
-import { formatElapsed } from "@/lib/distance";
+import { Ambulance, CircleCheck, ShieldAlert, AlertTriangle, Check, X, Stethoscope, FileText, Hospital, Share2, Copy } from "lucide-react";
+import { formatElapsed, haversineKm } from "@/lib/distance";
 
 export const Route = createFileRoute("/_authenticated/provider")({ component: Provider });
 
@@ -29,6 +29,10 @@ function Provider() {
   const [job, setJob] = useState<Inc | null>(null);
   const [sharing, setSharing] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number; acc: number } | null>(null);
+  const [speed, setSpeed] = useState<number>(0);
+  const [tripId, setTripId] = useState<string | null>(null);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const lastCoordsRef = useRef<{ lat: number; lng: number; t: number } | null>(null);
   const [vitals, setVitals] = useState({ bp: "", hr: "", spo2: "" });
   const [notes, setNotes] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
@@ -115,17 +119,37 @@ function Provider() {
     if (!activeAmbId) return;
     setSharing(true);
     watchRef.current = navigator.geolocation.watchPosition(
-      (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy }),
+      (pos) => {
+        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy };
+        const now = Date.now();
+        const prev = lastCoordsRef.current;
+        if (prev) {
+          const km = haversineKm({ lat: prev.lat, lng: prev.lng }, { lat: next.lat, lng: next.lng });
+          const dtH = (now - prev.t) / 3_600_000;
+          if (dtH > 0) setSpeed(Math.min(220, km / dtH));
+        }
+        lastCoordsRef.current = { lat: next.lat, lng: next.lng, t: now };
+        setCoords(next);
+      },
       (err) => toast.error(err.message),
       { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 },
     );
     tickerRef.current = window.setInterval(async () => {
       if (!coordsRef.current || !activeAmbId) return;
       const c = coordsRef.current;
-      await Promise.all([
-        supabase.from("ambulance_locations").insert({ ambulance_id: activeAmbId, lat: c.lat, lng: c.lng }),
-        supabase.from("ambulances").update({ current_lat: c.lat, current_lng: c.lng, last_ping_at: new Date().toISOString() }).eq("id", activeAmbId),
-      ]);
+      const ops: Array<PromiseLike<unknown>> = [
+        supabase.from("ambulance_locations").insert({ ambulance_id: activeAmbId, lat: c.lat, lng: c.lng }).then(() => null),
+        supabase.from("ambulances").update({ current_lat: c.lat, current_lng: c.lng, last_ping_at: new Date().toISOString() }).eq("id", activeAmbId).then(() => null),
+        supabase.from("resource_locations" as never).insert({
+          resource_kind: "vehicle", resource_id: activeAmbId, lat: c.lat, lng: c.lng, speed_kmh: speed, accuracy_m: c.acc,
+        } as never).then(() => null),
+      ];
+      if (userId) ops.push(
+        supabase.from("resource_locations" as never).insert({
+          resource_kind: "paramedic", resource_id: userId, lat: c.lat, lng: c.lng, speed_kmh: speed, accuracy_m: c.acc,
+        } as never).then(() => null),
+      );
+      await Promise.all(ops);
     }, 5000);
   }
 
@@ -134,8 +158,42 @@ function Provider() {
     if (watchRef.current != null) navigator.geolocation.clearWatch(watchRef.current);
     if (tickerRef.current != null) clearInterval(tickerRef.current);
     watchRef.current = null; tickerRef.current = null;
+    lastCoordsRef.current = null;
+    setSpeed(0);
   }
   useEffect(() => () => stopSharing(), []);
+
+  async function startTripForJob() {
+    if (!job || !activeAmbId) return;
+    const { data, error } = await supabase
+      .from("trips" as never)
+      .insert({ resource_kind: "vehicle", resource_id: activeAmbId, incident_id: job.id } as never)
+      .select("id")
+      .single();
+    if (error) return toast.error(error.message);
+    setTripId((data as { id: string }).id);
+    if (!sharing) startSharing();
+  }
+
+  async function endTrip(status: "completed" | "cancelled" = "completed") {
+    if (!tripId) return;
+    await supabase.from("trips" as never).update({ status, ended_at: new Date().toISOString() } as never).eq("id", tripId);
+    setTripId(null);
+    setShareUrl(null);
+  }
+
+  async function generateShareLink() {
+    if (!tripId) { toast.error("Start the trip first"); return; }
+    const token = crypto.randomUUID().replace(/-/g, "") + Math.random().toString(36).slice(2, 8);
+    const expires = new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString();
+    const { error } = await supabase.from("trip_shares" as never).insert({
+      trip_id: tripId, token, expires_at: expires, created_by: userId,
+    } as never);
+    if (error) return toast.error(error.message);
+    const url = `${window.location.origin}/trip/${token}`;
+    setShareUrl(url);
+    try { await navigator.clipboard.writeText(url); toast.success("Share link copied"); } catch { toast.success("Share link ready"); }
+  }
 
   async function logEvent(event_type: string, payload: Record<string, unknown> = {}) {
     if (!job) return;
@@ -151,6 +209,7 @@ function Provider() {
     await supabase.from("incidents").update({ status: "en_route" }).eq("id", job.id);
     if (activeAmbId) await supabase.from("ambulances").update({ status: "en_route" }).eq("id", activeAmbId);
     await logEvent("accepted");
+    await startTripForJob();
     toast.success("Job accepted");
   }
 
@@ -171,6 +230,7 @@ function Provider() {
     await logEvent("aborted", { reason });
     await supabase.from("incidents").update({ status: "cancelled" }).eq("id", job.id);
     if (activeAmbId) await supabase.from("ambulances").update({ status: "available" }).eq("id", activeAmbId);
+    await endTrip("cancelled");
     stopSharing();
     refreshHistory();
     toast.message("Job aborted");
@@ -209,6 +269,7 @@ function Provider() {
     await supabase.from("incidents").update({ status: next, notes: notes || null }).eq("id", job.id);
     if (next === "completed" && activeAmbId) {
       await supabase.from("ambulances").update({ status: "available" }).eq("id", activeAmbId);
+      await endTrip("completed");
       stopSharing();
       refreshHistory();
     } else if (activeAmbId) {
@@ -276,7 +337,20 @@ function Provider() {
           <div className="mt-3 grid grid-cols-3 gap-2 mono text-[11px]">
             <Telem label="LAT" value={coords.lat.toFixed(5)} />
             <Telem label="LNG" value={coords.lng.toFixed(5)} />
-            <Telem label="±m" value={coords.acc.toFixed(0)} />
+            <Telem label="km/h" value={speed.toFixed(0)} />
+          </div>
+        )}
+        {tripId && (
+          <div className="mt-3 space-y-2">
+            <button onClick={generateShareLink} className="w-full h-9 rounded-md border border-action/40 text-action mono text-[10px] uppercase tracking-widest font-bold flex items-center justify-center gap-1.5">
+              <Share2 className="size-3.5" /> Share live trip link
+            </button>
+            {shareUrl && (
+              <div className="rounded-md border border-hairline bg-panel-elevated p-2 flex items-center gap-2">
+                <span className="mono text-[10px] text-muted-foreground truncate flex-1">{shareUrl}</span>
+                <button onClick={() => navigator.clipboard.writeText(shareUrl)} className="text-action"><Copy className="size-3.5" /></button>
+              </div>
+            )}
           </div>
         )}
       </div>

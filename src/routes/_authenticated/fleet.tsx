@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { X, Ambulance as AmbulanceIcon } from "lucide-react";
+import { X, Ambulance as AmbulanceIcon, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/fleet")({
   head: () => ({ meta: [{ title: "Fleet Management · VeloMed OS" }] }),
@@ -14,9 +14,10 @@ type Vehicle = {
   last_ping_at: string | null; available_for_rent: boolean; daily_rate: number | null;
   driver_id: string | null;
 };
-type Credential = { id: string; kind: string; reference: string; expires_on: string; subject_ambulance_id: string | null };
-type Defect = { id: string; vehicle_id: string; severity: string; blocks_service: boolean; description: string; resolved_at: string | null };
-type WO = { id: string; vehicle_id: string; type: string; status: string; opened_at: string; closed_at: string | null };
+type Credential = { id: string; kind: string; reference: string; expires_on: string; subject_user_id: string | null; subject_ambulance_id: string | null };
+type Defect = { id: string; severity: string; blocks_service: boolean; description: string; resolved_at: string | null; created_at: string };
+type WO = { id: string; type: string; status: string; opened_at: string; closed_at: string | null; odometer_km: number | null; downtime_minutes: number | null };
+type Telemetry = { lat: number; lng: number; recorded_at: string; speed?: number | null; heading?: number | null };
 
 const STATUS_COLOR: Record<string, string> = {
   available: "text-stable bg-stable/10 border-stable/30",
@@ -31,9 +32,12 @@ const STATUS_COLOR: Record<string, string> = {
 function Fleet() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selected, setSelected] = useState<Vehicle | null>(null);
-  const [creds, setCreds] = useState<Credential[]>([]);
+  const [vCreds, setVCreds] = useState<Credential[]>([]);
+  const [crewCreds, setCrewCreds] = useState<Credential[]>([]);
   const [defects, setDefects] = useState<Defect[]>([]);
   const [wos, setWos] = useState<WO[]>([]);
+  const [telemetry, setTelemetry] = useState<Telemetry | null>(null);
+  const [loadingDrawer, setLoadingDrawer] = useState(false);
   const [q, setQ] = useState("");
 
   useEffect(() => {
@@ -43,17 +47,32 @@ function Fleet() {
       .then(({ data }) => setVehicles((data ?? []) as Vehicle[]));
   }, []);
 
+  async function loadFromApi(id: string) {
+    setLoadingDrawer(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: Record<string, string> = {};
+      if (session?.access_token) headers["authorization"] = `Bearer ${session.access_token}`;
+      const get = (path: string) => fetch(`/api/public/v1${path}`, { headers }).then(async (r) => r.ok ? r.json() : null);
+      const [loc, def, wo, cr] = await Promise.all([
+        get(`/fleet/${id}/location`),
+        get(`/vehicles/${id}/defects`),
+        get(`/vehicles/${id}/work_orders`),
+        get(`/vehicles/${id}/credentials`),
+      ]);
+      setTelemetry(loc as Telemetry | null);
+      setDefects((def ?? []) as Defect[]);
+      setWos((wo ?? []) as WO[]);
+      setVCreds(((cr?.vehicle ?? []) as Credential[]));
+      setCrewCreds(((cr?.crew ?? []) as Credential[]));
+    } finally { setLoadingDrawer(false); }
+  }
+
   useEffect(() => {
     if (!selected) return;
-    Promise.all([
-      supabase.from("credentials").select("id,kind,reference,expires_on,subject_ambulance_id").eq("subject_ambulance_id", selected.id),
-      supabase.from("defects").select("id,vehicle_id,severity,blocks_service,description,resolved_at").eq("vehicle_id", selected.id).order("created_at", { ascending: false }),
-      supabase.from("work_orders").select("id,vehicle_id,type,status,opened_at,closed_at").eq("vehicle_id", selected.id).order("opened_at", { ascending: false }),
-    ]).then(([c, d, w]) => {
-      setCreds((c.data ?? []) as Credential[]);
-      setDefects((d.data ?? []) as Defect[]);
-      setWos((w.data ?? []) as WO[]);
-    });
+    loadFromApi(selected.id);
+    const t = setInterval(() => loadFromApi(selected.id), 8000);
+    return () => clearInterval(t);
   }, [selected]);
 
   const filtered = vehicles.filter((v) =>
@@ -120,23 +139,26 @@ function Fleet() {
                 <span className={`mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border ${STATUS_COLOR[selected.status] ?? ""}`}>
                   {selected.status.replace("_", " ")}
                 </span>
+                {loadingDrawer && <RefreshCw className="size-3 animate-spin text-muted-foreground" />}
               </div>
               <button onClick={() => setSelected(null)} className="size-7 rounded-md hover:bg-panel-elevated grid place-items-center"><X className="size-4" /></button>
             </div>
             <div className="p-5 space-y-5">
               <section>
-                <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Telemetry</div>
+                <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Telemetry · GET /fleet/{`{id}`}/location</div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div><div className="text-muted-foreground text-xs">Latitude</div><div className="mono">{selected.current_lat?.toFixed(5) ?? "—"}</div></div>
-                  <div><div className="text-muted-foreground text-xs">Longitude</div><div className="mono">{selected.current_lng?.toFixed(5) ?? "—"}</div></div>
+                  <div><div className="text-muted-foreground text-xs">Latitude</div><div className="mono">{telemetry?.lat?.toFixed(5) ?? selected.current_lat?.toFixed(5) ?? "—"}</div></div>
+                  <div><div className="text-muted-foreground text-xs">Longitude</div><div className="mono">{telemetry?.lng?.toFixed(5) ?? selected.current_lng?.toFixed(5) ?? "—"}</div></div>
+                  <div><div className="text-muted-foreground text-xs">Speed</div><div className="mono">{telemetry?.speed != null ? `${Math.round(telemetry.speed)} km/h` : "—"}</div></div>
+                  <div><div className="text-muted-foreground text-xs">Last ping</div><div className="mono text-xs">{telemetry?.recorded_at ? new Date(telemetry.recorded_at).toLocaleTimeString() : "—"}</div></div>
                   <div><div className="text-muted-foreground text-xs">Home base</div><div>{selected.home_base ?? "—"}</div></div>
                   <div><div className="text-muted-foreground text-xs">Driver</div><div className="mono text-xs truncate">{selected.driver_id?.slice(0, 8) ?? "—"}</div></div>
                 </div>
               </section>
               <section>
-                <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Credentials ({creds.length})</div>
-                {creds.length === 0 && <div className="text-xs text-muted-foreground">No credentials on file.</div>}
-                {creds.map((c) => {
+                <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Vehicle credentials · GET /vehicles/{`{id}`}/credentials ({vCreds.length})</div>
+                {vCreds.length === 0 && <div className="text-xs text-muted-foreground">No vehicle credentials on file.</div>}
+                {vCreds.map((c) => {
                   const days = Math.floor((new Date(c.expires_on).getTime() - Date.now()) / 86_400_000);
                   const cls = days < 0 ? "text-emergency" : days < 30 ? "text-caution" : "text-stable";
                   return (
@@ -149,9 +171,27 @@ function Fleet() {
                     </div>
                   );
                 })}
+                {crewCreds.length > 0 && (
+                  <>
+                    <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mt-3 mb-1">Crew credentials ({crewCreds.length})</div>
+                    {crewCreds.map((c) => {
+                      const days = Math.floor((new Date(c.expires_on).getTime() - Date.now()) / 86_400_000);
+                      const cls = days < 0 ? "text-emergency" : days < 30 ? "text-caution" : "text-stable";
+                      return (
+                        <div key={c.id} className="flex items-center justify-between py-1.5 text-sm border-b border-hairline last:border-0">
+                          <div>
+                            <div className="font-medium">{c.kind.replace(/_/g, " ")}</div>
+                            <div className="mono text-xs text-muted-foreground">{c.reference}</div>
+                          </div>
+                          <div className={`mono text-xs ${cls}`}>{days < 0 ? `expired ${-days}d` : `${days}d`}</div>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
               </section>
               <section>
-                <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Defects ({defects.length})</div>
+                <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Defects · GET /vehicles/{`{id}`}/defects ({defects.length})</div>
                 {defects.length === 0 && <div className="text-xs text-muted-foreground">None reported.</div>}
                 {defects.map((d) => (
                   <div key={d.id} className="py-1.5 text-sm border-b border-hairline last:border-0">
@@ -164,13 +204,13 @@ function Fleet() {
                 ))}
               </section>
               <section>
-                <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Work orders ({wos.length})</div>
+                <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Work orders · GET /vehicles/{`{id}`}/work_orders ({wos.length})</div>
                 {wos.length === 0 && <div className="text-xs text-muted-foreground">No history.</div>}
                 {wos.map((w) => (
                   <div key={w.id} className="flex items-center justify-between py-1.5 text-sm border-b border-hairline last:border-0">
                     <div>
                       <div className="font-medium capitalize">{w.type}</div>
-                      <div className="mono text-xs text-muted-foreground">{new Date(w.opened_at).toLocaleDateString()}</div>
+                      <div className="mono text-xs text-muted-foreground">{new Date(w.opened_at).toLocaleDateString()} · {w.downtime_minutes ?? 0}m downtime</div>
                     </div>
                     <span className="mono text-[10px] uppercase text-action">{w.status}</span>
                   </div>

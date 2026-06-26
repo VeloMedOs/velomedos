@@ -703,6 +703,42 @@ export type Database = {
           },
         ]
       }
+      resource_locations: {
+        Row: {
+          accuracy_m: number | null
+          heading: number | null
+          id: string
+          lat: number
+          lng: number
+          recorded_at: string
+          resource_id: string
+          resource_kind: string
+          speed_kmh: number | null
+        }
+        Insert: {
+          accuracy_m?: number | null
+          heading?: number | null
+          id?: string
+          lat: number
+          lng: number
+          recorded_at?: string
+          resource_id: string
+          resource_kind: string
+          speed_kmh?: number | null
+        }
+        Update: {
+          accuracy_m?: number | null
+          heading?: number | null
+          id?: string
+          lat?: number
+          lng?: number
+          recorded_at?: string
+          resource_id?: string
+          resource_kind?: string
+          speed_kmh?: number | null
+        }
+        Relationships: []
+      }
       screening_orders: {
         Row: {
           appointment_at: string | null
@@ -868,6 +904,103 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "clinic_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_shares: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          revoked_at: string | null
+          token: string
+          trip_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at: string
+          id?: string
+          revoked_at?: string | null
+          token: string
+          trip_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          revoked_at?: string | null
+          token?: string
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_shares_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trips: {
+        Row: {
+          avg_speed_kmh: number | null
+          created_at: string
+          distance_km: number | null
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          incident_id: string | null
+          max_speed_kmh: number | null
+          polyline: string | null
+          resource_id: string
+          resource_kind: string
+          started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          avg_speed_kmh?: number | null
+          created_at?: string
+          distance_km?: number | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          incident_id?: string | null
+          max_speed_kmh?: number | null
+          polyline?: string | null
+          resource_id: string
+          resource_kind: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          avg_speed_kmh?: number | null
+          created_at?: string
+          distance_km?: number | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          incident_id?: string | null
+          max_speed_kmh?: number | null
+          polyline?: string | null
+          resource_id?: string
+          resource_kind?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trips_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
             referencedColumns: ["id"]
           },
         ]

@@ -53,7 +53,29 @@ export async function requireKey(
   requiredScope?: string,
 ): Promise<{ ok: true; auth: KeyAuth; ownerId: string; keyId: string } | { ok: false; res: Response }> {
   const raw = request.headers.get("x-api-key");
-  if (!raw) return { ok: false, res: json({ error: "Missing x-api-key header" }, 401) };
+  // Allow signed-in admin/dispatcher sessions to call the public API directly
+  // (so internal UIs such as the Fleet drawer exercise the same endpoints third-parties use).
+  if (!raw) {
+    const authHeader = request.headers.get("authorization") ?? "";
+    const bearer = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7) : "";
+    if (bearer) {
+      const db = serviceClient();
+      const { data: u } = await db.auth.getUser(bearer);
+      if (u?.user) {
+        const { data: roles } = await db.from("user_roles").select("role").eq("user_id", u.user.id);
+        const set = new Set((roles ?? []).map((r) => r.role));
+        if (set.has("admin") || set.has("dispatcher")) {
+          return {
+            ok: true,
+            ownerId: u.user.id,
+            keyId: `session:${u.user.id}`,
+            auth: { ownerId: u.user.id, keyId: `session:${u.user.id}`, scopes: ["*"], rateLimit: 600 },
+          };
+        }
+      }
+    }
+    return { ok: false, res: json({ error: "Missing x-api-key header" }, 401) };
+  }
   const hashed = await sha256Hex(raw);
   const db = serviceClient();
   const { data, error } = await db

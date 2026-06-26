@@ -6,9 +6,17 @@ export type MapMarker = {
   lat: number;
   lng: number;
   label?: string;
-  variant?: "ambulance" | "incident" | "patient" | "clinic";
+  variant?: "ambulance" | "incident" | "patient" | "clinic" | "paramedic" | "doctor";
   status?: string;
   pulse?: boolean;
+  speedKmh?: number;
+};
+
+export type MapPolyline = {
+  id: string;
+  path: { lat: number; lng: number }[];
+  color?: string;
+  width?: number;
 };
 
 const variantColor: Record<NonNullable<MapMarker["variant"]>, string> = {
@@ -16,6 +24,8 @@ const variantColor: Record<NonNullable<MapMarker["variant"]>, string> = {
   incident: "oklch(0.62 0.22 27)",
   patient: "oklch(0.70 0.16 155)",
   clinic: "oklch(0.78 0.16 75)",
+  paramedic: "oklch(0.78 0.16 200)",
+  doctor: "oklch(0.76 0.16 280)",
 };
 
 function iconFor(m: MapMarker): L.DivIcon {
