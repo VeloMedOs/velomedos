@@ -139,19 +139,19 @@ function Provider() {
     tickerRef.current = window.setInterval(async () => {
       if (!coordsRef.current || !activeAmbId) return;
       const c = coordsRef.current;
-      const promises: Array<Promise<unknown>> = [
-        supabase.from("ambulance_locations").insert({ ambulance_id: activeAmbId, lat: c.lat, lng: c.lng }),
-        supabase.from("ambulances").update({ current_lat: c.lat, current_lng: c.lng, last_ping_at: new Date().toISOString() }).eq("id", activeAmbId),
+      const ops: Array<PromiseLike<unknown>> = [
+        supabase.from("ambulance_locations").insert({ ambulance_id: activeAmbId, lat: c.lat, lng: c.lng }).then(() => null),
+        supabase.from("ambulances").update({ current_lat: c.lat, current_lng: c.lng, last_ping_at: new Date().toISOString() }).eq("id", activeAmbId).then(() => null),
         supabase.from("resource_locations" as never).insert({
           resource_kind: "vehicle", resource_id: activeAmbId, lat: c.lat, lng: c.lng, speed_kmh: speed, accuracy_m: c.acc,
-        } as never),
+        } as never).then(() => null),
       ];
-      if (userId) promises.push(
+      if (userId) ops.push(
         supabase.from("resource_locations" as never).insert({
           resource_kind: "paramedic", resource_id: userId, lat: c.lat, lng: c.lng, speed_kmh: speed, accuracy_m: c.acc,
-        } as never),
+        } as never).then(() => null),
       );
-      await Promise.all(promises);
+      await Promise.all(ops);
     }, 5000);
   }
 
