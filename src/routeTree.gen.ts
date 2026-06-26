@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
@@ -60,6 +61,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevelopersRoute = DevelopersRouteImport.update({
@@ -275,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
+  '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -318,6 +325,7 @@ export interface FileRoutesByTo {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
+  '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -363,6 +371,7 @@ export interface FileRoutesById {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
+  '/resources': typeof ResourcesRoute
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -408,6 +417,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/developers'
+    | '/resources'
     | '/services'
     | '/sitemap.xml'
     | '/admin'
@@ -451,6 +461,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/developers'
+    | '/resources'
     | '/services'
     | '/sitemap.xml'
     | '/admin'
@@ -495,6 +506,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/developers'
+    | '/resources'
     | '/services'
     | '/sitemap.xml'
     | '/_authenticated/admin'
@@ -540,6 +552,7 @@ export interface RootRouteChildren {
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
   DevelopersRoute: typeof DevelopersRoute
+  ResourcesRoute: typeof ResourcesRoute
   ServicesRoute: typeof ServicesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TripTokenRoute: typeof TripTokenRoute
@@ -573,6 +586,13 @@ declare module '@tanstack/react-router' {
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/developers': {
@@ -947,6 +967,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
   DevelopersRoute: DevelopersRoute,
+  ResourcesRoute: ResourcesRoute,
   ServicesRoute: ServicesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TripTokenRoute: TripTokenRoute,
