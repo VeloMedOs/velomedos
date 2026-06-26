@@ -5,6 +5,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Activity, LogOut } from "lucide-react";
 
 const NAV = [
+  { to: "/admin", label: "Overview" },
+  { to: "/fleet", label: "Fleet" },
   { to: "/dispatch", label: "Dispatch" },
   { to: "/provider", label: "Provider" },
   { to: "/patient", label: "Patient" },
