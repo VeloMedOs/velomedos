@@ -9,7 +9,12 @@ export const Route = createFileRoute("/about")({
       { name: "description", content: "VeloMed Infrastructure Group operates ambulance fleets, remote clinics, and a public medical-mobility API across multiple regions." },
       { property: "og:title", content: "About VeloMed OS" },
       { property: "og:description", content: "Who we are, what we operate, and how the platform fits together." },
+      { property: "og:url", content: "/about" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "index,follow" },
     ],
+    links: [{ rel: "canonical", href: "/about" }],
   }),
   component: About,
 });
