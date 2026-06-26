@@ -3,9 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Ambulance, CircleCheck, ShieldAlert, AlertTriangle, Check, X, Stethoscope, FileText, Hospital, Share2, Copy } from "lucide-react";
-import { formatElapsed } from "@/lib/distance";
-import { haversineKm } from "@/lib/distance";
-import { toast as _toast } from "sonner";
+import { formatElapsed, haversineKm } from "@/lib/distance";
 
 export const Route = createFileRoute("/_authenticated/provider")({ component: Provider });
 
@@ -339,7 +337,20 @@ function Provider() {
           <div className="mt-3 grid grid-cols-3 gap-2 mono text-[11px]">
             <Telem label="LAT" value={coords.lat.toFixed(5)} />
             <Telem label="LNG" value={coords.lng.toFixed(5)} />
-            <Telem label="±m" value={coords.acc.toFixed(0)} />
+            <Telem label="km/h" value={speed.toFixed(0)} />
+          </div>
+        )}
+        {tripId && (
+          <div className="mt-3 space-y-2">
+            <button onClick={generateShareLink} className="w-full h-9 rounded-md border border-action/40 text-action mono text-[10px] uppercase tracking-widest font-bold flex items-center justify-center gap-1.5">
+              <Share2 className="size-3.5" /> Share live trip link
+            </button>
+            {shareUrl && (
+              <div className="rounded-md border border-hairline bg-panel-elevated p-2 flex items-center gap-2">
+                <span className="mono text-[10px] text-muted-foreground truncate flex-1">{shareUrl}</span>
+                <button onClick={() => navigator.clipboard.writeText(shareUrl)} className="text-action"><Copy className="size-3.5" /></button>
+              </div>
+            )}
           </div>
         )}
       </div>
