@@ -16,6 +16,7 @@ import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as DevelopersRouteImport } from './routes/developers'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -90,6 +91,11 @@ const PricingRoute = PricingRouteImport.update({
 const DevelopersRoute = DevelopersRouteImport.update({
   id: '/developers',
   path: '/developers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -304,6 +310,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
   '/developers': typeof DevelopersRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -352,6 +359,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
   '/developers': typeof DevelopersRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -402,6 +410,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
   '/developers': typeof DevelopersRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -452,6 +461,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/clinics'
     | '/contact'
+    | '/demo'
     | '/developers'
     | '/pricing'
     | '/privacy'
@@ -500,6 +510,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/clinics'
     | '/contact'
+    | '/demo'
     | '/developers'
     | '/pricing'
     | '/privacy'
@@ -549,6 +560,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/clinics'
     | '/contact'
+    | '/demo'
     | '/developers'
     | '/pricing'
     | '/privacy'
@@ -599,6 +611,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
+  DemoRoute: typeof DemoRoute
   DevelopersRoute: typeof DevelopersRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -672,6 +685,13 @@ declare module '@tanstack/react-router' {
       path: '/developers'
       fullPath: '/developers'
       preLoaderRoute: typeof DevelopersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -1057,6 +1077,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
+  DemoRoute: DemoRoute,
   DevelopersRoute: DevelopersRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
