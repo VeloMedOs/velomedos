@@ -9,7 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as DevelopersRouteImport } from './routes/developers'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -18,6 +25,9 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TripTokenRouteImport } from './routes/trip.$token'
+import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
+import { Route as ResourcesSlugRouteImport } from './routes/resources.$slug'
+import { Route as ClinicsCityRouteImport } from './routes/clinics.$city'
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
 import { Route as AuthenticatedScreeningRouteImport } from './routes/_authenticated/screening'
@@ -48,9 +58,44 @@ import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/p
 import { Route as ApiPublicV1VehiclesIdCredentialsRouteImport } from './routes/api/public/v1/vehicles.$id.credentials'
 import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/public/v1/fleet.$id.location'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevelopersRoute = DevelopersRouteImport.update({
+  id: '/developers',
+  path: '/developers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -91,6 +136,21 @@ const TripTokenRoute = TripTokenRouteImport.update({
   id: '/trip/$token',
   path: '/trip/$token',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesSlugRoute = ServicesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ServicesRoute,
+} as any)
+const ResourcesSlugRoute = ResourcesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ResourcesRoute,
+} as any)
+const ClinicsCityRoute = ClinicsCityRouteImport.update({
+  id: '/$city',
+  path: '/$city',
+  getParentRoute: () => ClinicsRoute,
 } as any)
 const AuthenticatedTripsRoute = AuthenticatedTripsRouteImport.update({
   id: '/trips',
@@ -248,9 +308,16 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
-  '/clinics': typeof ClinicsRoute
+  '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
-  '/services': typeof ServicesRoute
+  '/demo': typeof DemoRoute
+  '/developers': typeof DevelopersRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/resources': typeof ResourcesRouteWithChildren
+  '/services': typeof ServicesRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
@@ -264,6 +331,9 @@ export interface FileRoutesByFullPath {
   '/screening': typeof AuthenticatedScreeningRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
+  '/clinics/$city': typeof ClinicsCityRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
+  '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
@@ -287,9 +357,16 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
-  '/clinics': typeof ClinicsRoute
+  '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
-  '/services': typeof ServicesRoute
+  '/demo': typeof DemoRoute
+  '/developers': typeof DevelopersRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/resources': typeof ResourcesRouteWithChildren
+  '/services': typeof ServicesRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
@@ -303,6 +380,9 @@ export interface FileRoutesByTo {
   '/screening': typeof AuthenticatedScreeningRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
+  '/clinics/$city': typeof ClinicsCityRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
+  '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
@@ -328,9 +408,16 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
-  '/clinics': typeof ClinicsRoute
+  '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
-  '/services': typeof ServicesRoute
+  '/demo': typeof DemoRoute
+  '/developers': typeof DevelopersRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/resources': typeof ResourcesRouteWithChildren
+  '/services': typeof ServicesRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/call-center': typeof AuthenticatedCallCenterRoute
@@ -344,6 +431,9 @@ export interface FileRoutesById {
   '/_authenticated/screening': typeof AuthenticatedScreeningRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
+  '/clinics/$city': typeof ClinicsCityRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
+  '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
@@ -371,7 +461,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/clinics'
     | '/contact'
+    | '/demo'
+    | '/developers'
+    | '/pricing'
+    | '/privacy'
+    | '/resources'
     | '/services'
+    | '/sitemap.xml'
+    | '/terms'
     | '/admin'
     | '/audit'
     | '/call-center'
@@ -385,6 +482,9 @@ export interface FileRouteTypes {
     | '/screening'
     | '/training'
     | '/trips'
+    | '/clinics/$city'
+    | '/resources/$slug'
+    | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
@@ -410,7 +510,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/clinics'
     | '/contact'
+    | '/demo'
+    | '/developers'
+    | '/pricing'
+    | '/privacy'
+    | '/resources'
     | '/services'
+    | '/sitemap.xml'
+    | '/terms'
     | '/admin'
     | '/audit'
     | '/call-center'
@@ -424,6 +531,9 @@ export interface FileRouteTypes {
     | '/screening'
     | '/training'
     | '/trips'
+    | '/clinics/$city'
+    | '/resources/$slug'
+    | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
@@ -450,7 +560,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/clinics'
     | '/contact'
+    | '/demo'
+    | '/developers'
+    | '/pricing'
+    | '/privacy'
+    | '/resources'
     | '/services'
+    | '/sitemap.xml'
+    | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/audit'
     | '/_authenticated/call-center'
@@ -464,6 +581,9 @@ export interface FileRouteTypes {
     | '/_authenticated/screening'
     | '/_authenticated/training'
     | '/_authenticated/trips'
+    | '/clinics/$city'
+    | '/resources/$slug'
+    | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
@@ -489,9 +609,16 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ApiDocsRoute: typeof ApiDocsRoute
   AuthRoute: typeof AuthRoute
-  ClinicsRoute: typeof ClinicsRoute
+  ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
-  ServicesRoute: typeof ServicesRoute
+  DemoRoute: typeof DemoRoute
+  DevelopersRoute: typeof DevelopersRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  ResourcesRoute: typeof ResourcesRouteWithChildren
+  ServicesRoute: typeof ServicesRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
   TripTokenRoute: typeof TripTokenRoute
   ApiPublicV1ClinicsRoute: typeof ApiPublicV1ClinicsRoute
   ApiPublicV1CoursesRoute: typeof ApiPublicV1CoursesRoute
@@ -511,11 +638,60 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services': {
       id: '/services'
       path: '/services'
       fullPath: '/services'
       preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developers': {
+      id: '/developers'
+      path: '/developers'
+      fullPath: '/developers'
+      preLoaderRoute: typeof DevelopersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -573,6 +749,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/trip/$token'
       preLoaderRoute: typeof TripTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/services/$slug': {
+      id: '/services/$slug'
+      path: '/$slug'
+      fullPath: '/services/$slug'
+      preLoaderRoute: typeof ServicesSlugRouteImport
+      parentRoute: typeof ServicesRoute
+    }
+    '/resources/$slug': {
+      id: '/resources/$slug'
+      path: '/$slug'
+      fullPath: '/resources/$slug'
+      preLoaderRoute: typeof ResourcesSlugRouteImport
+      parentRoute: typeof ResourcesRoute
+    }
+    '/clinics/$city': {
+      id: '/clinics/$city'
+      path: '/$city'
+      fullPath: '/clinics/$city'
+      preLoaderRoute: typeof ClinicsCityRouteImport
+      parentRoute: typeof ClinicsRoute
     }
     '/_authenticated/trips': {
       id: '/_authenticated/trips'
@@ -815,6 +1012,41 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ClinicsRouteChildren {
+  ClinicsCityRoute: typeof ClinicsCityRoute
+}
+
+const ClinicsRouteChildren: ClinicsRouteChildren = {
+  ClinicsCityRoute: ClinicsCityRoute,
+}
+
+const ClinicsRouteWithChildren =
+  ClinicsRoute._addFileChildren(ClinicsRouteChildren)
+
+interface ResourcesRouteChildren {
+  ResourcesSlugRoute: typeof ResourcesSlugRoute
+}
+
+const ResourcesRouteChildren: ResourcesRouteChildren = {
+  ResourcesSlugRoute: ResourcesSlugRoute,
+}
+
+const ResourcesRouteWithChildren = ResourcesRoute._addFileChildren(
+  ResourcesRouteChildren,
+)
+
+interface ServicesRouteChildren {
+  ServicesSlugRoute: typeof ServicesSlugRoute
+}
+
+const ServicesRouteChildren: ServicesRouteChildren = {
+  ServicesSlugRoute: ServicesSlugRoute,
+}
+
+const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
+  ServicesRouteChildren,
+)
+
 interface ApiPublicV1FleetRouteChildren {
   ApiPublicV1FleetIdLocationRoute: typeof ApiPublicV1FleetIdLocationRoute
 }
@@ -843,9 +1075,16 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ApiDocsRoute: ApiDocsRoute,
   AuthRoute: AuthRoute,
-  ClinicsRoute: ClinicsRoute,
+  ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
-  ServicesRoute: ServicesRoute,
+  DemoRoute: DemoRoute,
+  DevelopersRoute: DevelopersRoute,
+  PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  ResourcesRoute: ResourcesRouteWithChildren,
+  ServicesRoute: ServicesRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
   TripTokenRoute: TripTokenRoute,
   ApiPublicV1ClinicsRoute: ApiPublicV1ClinicsRoute,
   ApiPublicV1CoursesRoute: ApiPublicV1CoursesRoute,

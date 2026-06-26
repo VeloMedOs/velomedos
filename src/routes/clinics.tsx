@@ -7,6 +7,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
 import { Search, MapPin, Calendar, Stethoscope } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { SITE } from "@/lib/site-config";
 
 export const listPublicClinics = createServerFn({ method: "GET" }).handler(async () => {
   const db = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
@@ -26,7 +27,12 @@ export const Route = createFileRoute("/clinics")({
       { name: "description", content: "Browse our physical, mobile and remote clinics by city and specialty. See what's bookable before signing in." },
       { property: "og:title", content: "VeloMed clinics & availability" },
       { property: "og:description", content: "Find a clinic by city or specialty. Booking opens after sign-in." },
+      { property: "og:url", content: "/clinics" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "index,follow" },
     ],
+    links: [{ rel: "canonical", href: "/clinics" }],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(clinicsQuery),
   errorComponent: ({ error }) => <div className="p-10 text-sm text-emergency">Unable to load clinics: {error.message}</div>,
@@ -64,6 +70,14 @@ function Clinics() {
         <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground mb-2">Clinic directory</div>
         <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Find a clinic. See what's bookable.</h1>
         <p className="text-muted-foreground mt-3 max-w-2xl text-sm">Physical, mobile and remote/telehealth clinics across our operating regions. Booking opens after sign-in inside the patient app.</p>
+      </section>
+      <section className="max-w-[1400px] mx-auto px-4 lg:px-8 pb-6">
+        <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Browse by city</div>
+        <div className="flex flex-wrap gap-2">
+          {SITE.cities.map((c) => (
+            <Link key={c.slug} to="/clinics/$city" params={{ city: c.slug }} className="px-3 py-1.5 rounded-md border border-hairline bg-panel mono text-[11px] uppercase tracking-widest hover:bg-panel-elevated">{c.name}</Link>
+          ))}
+        </div>
       </section>
       <section className="max-w-[1400px] mx-auto px-4 lg:px-8 pb-4 flex flex-wrap gap-2">
         <label className="flex-1 min-w-[220px] relative">

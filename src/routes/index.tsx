@@ -1,15 +1,30 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Ambulance, Radio, Stethoscope, GraduationCap, KeyRound, ArrowRight, Hospital } from "lucide-react";
 import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
+import { faqLd, jsonld } from "@/components/Jsonld";
+import { SITE } from "@/lib/site-config";
+
+const HOME_FAQS = [
+  { q: "Where does VeloMed OS operate?", a: `VeloMed OS is live across ${SITE.cities.map((c) => c.name).join(", ")} with new cities onboarding each quarter.` },
+  { q: "Is the platform really API-first?", a: "Yes — our dispatch console, provider app and patient app all read and write through the same documented REST endpoints we expose to partners." },
+  { q: "Can I integrate VeloMed with our existing CAD or EHR?", a: "Yes. Every surface is available on the public REST API with scoped keys and webhooks for incident, trip and compliance events." },
+  { q: "How do you handle ambulance compliance?", a: "Vehicle credentials, defects and work orders feed a database-level dispatch gate; non-compliant units cannot be assigned." },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "VeloMed OS — API-first medical mobility infrastructure" },
-      { name: "description", content: "Dispatch console, paramedic and driver app, patient app, ambulance rental, training & certification — built on one documented public REST API." },
+      { name: "description", content: "Ambulance dispatch with live tracking, fleet compliance, telehealth, mobile screening, EMS training and a public REST API — across the Middle East & Africa." },
       { property: "og:title", content: "VeloMed OS — Medical mobility infrastructure" },
-      { property: "og:description", content: "Live tracking dispatch, provider and patient apps, rentals, training, and a public REST API." },
+      { property: "og:description", content: "Live ambulance dispatch, telehealth, mobile screening, EMS training and a documented REST API." },
+      { property: "og:url", content: "/" },
+      { name: "twitter:title", content: "VeloMed OS — Medical mobility infrastructure" },
+      { name: "twitter:description", content: "Live dispatch, telehealth, screening, training and a public REST API." },
+      { name: "robots", content: "index,follow" },
     ],
+    links: [{ rel: "canonical", href: "/" }],
+    scripts: [{ type: "application/ld+json", children: jsonld(faqLd(HOME_FAQS)) }],
   }),
   component: Index,
 });
@@ -130,6 +145,32 @@ x-api-key: vmk_••••••••
           <h3 className="text-xl font-semibold mt-1">Build on top of VeloMed.</h3>
           <p className="text-sm text-muted-foreground mt-3">Documented endpoints for fleet, incidents, courses and more. Swagger UI included.</p>
         </Link>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="max-w-[1100px] mx-auto px-4 lg:px-8 py-16 border-t border-hairline">
+        <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground mb-2">Frequently asked</div>
+        <h2 className="text-3xl font-bold tracking-tight mb-6">Questions operators ask first.</h2>
+        <div className="divide-y divide-hairline border border-hairline rounded-xl bg-panel">
+          {HOME_FAQS.map((f) => (
+            <details key={f.q} className="group p-5">
+              <summary className="cursor-pointer text-sm font-medium">{f.q}</summary>
+              <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {/* CLOSING CTA */}
+      <section className="border-t border-hairline">
+        <div className="max-w-[1100px] mx-auto px-4 lg:px-8 py-20 text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold tracking-tight">Replace dashboards with controls.</h2>
+          <p className="text-muted-foreground mt-3 max-w-xl mx-auto">See VeloMed OS scoped against your fleet, cities and SLAs in a 30-minute walk-through.</p>
+          <div className="mt-6 flex flex-wrap gap-3 justify-center">
+            <Link to="/demo" className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-emergency text-emergency-foreground mono text-xs uppercase tracking-widest font-bold">Request a demo <ArrowRight className="size-3.5" /></Link>
+            <Link to="/api-docs" className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-hairline mono text-xs uppercase tracking-widest hover:bg-panel">Read the API <ArrowRight className="size-3.5" /></Link>
+          </div>
+        </div>
       </section>
 
       <SiteFooter />

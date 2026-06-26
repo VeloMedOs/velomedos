@@ -12,7 +12,12 @@ export const Route = createFileRoute("/contact")({
       { name: "description", content: "Request an ambulance, a clinic appointment, mobile screening, rental or training. Non-911 requests routed live to our call centre." },
       { property: "og:title", content: "VeloMed OS — Request help" },
       { property: "og:description", content: "Submit a request: emergency, clinic, screening, rental or training." },
+      { property: "og:url", content: "/contact" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "index,follow" },
     ],
+    links: [{ rel: "canonical", href: "/contact" }],
   }),
   component: Contact,
 });
