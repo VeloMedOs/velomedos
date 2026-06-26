@@ -2,10 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MapClient } from "@/components/MapClient";
-import type { MapMarker } from "@/components/LeafletMap";
-import { Plus, Radio, Crosshair, ShieldAlert, Activity, X } from "lucide-react";
+import type { MapMarker, MapPolyline } from "@/components/LeafletMap";
+import { Plus, Radio, X } from "lucide-react";
 import { toast } from "sonner";
 import { haversineKm, etaMinutes, formatElapsed } from "@/lib/distance";
+import { decodePolyline } from "@/lib/polyline";
+import { computeRouteEta } from "@/lib/maps.functions";
 
 export const Route = createFileRoute("/_authenticated/dispatch")({ component: Dispatch });
 
@@ -32,6 +34,8 @@ const STATUS_COLOR: Record<string, string> = {
 function Dispatch() {
   const [ambulances, setAmbulances] = useState<Ambulance[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [resources, setResources] = useState<Array<{ resource_kind: string; resource_id: string; lat: number; lng: number; speed_kmh: number | null }>>([]);
+  const [polylines, setPolylines] = useState<MapPolyline[]>([]);
   const [intakeOpen, setIntakeOpen] = useState(false);
   const [assignFor, setAssignFor] = useState<Incident | null>(null);
   const [tick, setTick] = useState(0);
@@ -59,9 +63,33 @@ function Dispatch() {
         const row = payload.new as { ambulance_id: string; lat: number; lng: number };
         setAmbulances((prev) => prev.map((a) => a.id === row.ambulance_id ? { ...a, current_lat: row.lat, current_lng: row.lng } : a));
       })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "resource_locations" }, (payload) => {
+        const r = payload.new as { resource_kind: string; resource_id: string; lat: number; lng: number; speed_kmh: number | null };
+        setResources((prev) => {
+          const next = prev.filter((p) => !(p.resource_id === r.resource_id && p.resource_kind === r.resource_kind));
+          next.push(r);
+          return next;
+        });
+      })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, []);
+
+  // Compute live road route for the most recent active assigned incident
+  useEffect(() => {
+    const active = incidents.find((i) => i.assigned_ambulance_id && ["assigned", "en_route"].includes(i.status));
+    if (!active || active.pickup_lat == null || active.pickup_lng == null) { setPolylines([]); return; }
+    const amb = ambulances.find((a) => a.id === active.assigned_ambulance_id);
+    if (!amb?.current_lat || !amb?.current_lng) { setPolylines([]); return; }
+    let cancelled = false;
+    computeRouteEta({ data: { origin: { lat: amb.current_lat, lng: amb.current_lng }, destination: { lat: active.pickup_lat, lng: active.pickup_lng } } })
+      .then((res) => {
+        if (cancelled || !res?.polyline) return;
+        setPolylines([{ id: `route-${active.id}`, path: decodePolyline(res.polyline), color: "#3b9eff", width: 5 }]);
+      })
+      .catch(() => { /* fallback: empty */ });
+    return () => { cancelled = true; };
+  }, [incidents, ambulances]);
 
   const markers: MapMarker[] = useMemo(() => {
     const out: MapMarker[] = [];
@@ -83,8 +111,18 @@ function Dispatch() {
         variant: "incident", pulse: i.severity === "code_red" && i.status === "pending",
       });
     }
+    for (const r of resources) {
+      if (r.resource_kind === "vehicle") continue;
+      out.push({
+        id: `res-${r.resource_kind}-${r.resource_id}`,
+        lat: r.lat, lng: r.lng,
+        variant: r.resource_kind === "doctor" ? "doctor" : "paramedic",
+        label: `${r.resource_kind} · ${Math.round(r.speed_kmh ?? 0)} km/h`,
+        pulse: (r.speed_kmh ?? 0) > 1,
+      });
+    }
     return out;
-  }, [ambulances, incidents]);
+  }, [ambulances, incidents, resources]);
 
   const kpis = useMemo(() => {
     const total = ambulances.length;
@@ -100,7 +138,7 @@ function Dispatch() {
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] h-[calc(100vh-3.5rem)]">
       {/* MAP + KPIs */}
       <div className="relative">
-        <MapClient markers={markers} className="absolute inset-0" />
+        <MapClient markers={markers} polylines={polylines} className="absolute inset-0" />
         <div className="absolute top-3 left-3 right-3 z-10 grid grid-cols-2 md:grid-cols-5 gap-2 pointer-events-none">
           <Kpi label="Fleet" value={`${kpis.avail}/${kpis.total}`} sub="available" />
           <Kpi label="Active" value={String(kpis.active)} sub="en-route / scene" />
