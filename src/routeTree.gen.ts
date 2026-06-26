@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
@@ -67,6 +68,11 @@ const ServicesRoute = ServicesRouteImport.update({
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevelopersRoute = DevelopersRouteImport.update({
@@ -287,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
+  '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -332,6 +339,7 @@ export interface FileRoutesByTo {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
+  '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -379,6 +387,7 @@ export interface FileRoutesById {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/developers': typeof DevelopersRoute
+  '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -426,6 +435,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/developers'
+    | '/pricing'
     | '/resources'
     | '/services'
     | '/sitemap.xml'
@@ -471,6 +481,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/developers'
+    | '/pricing'
     | '/resources'
     | '/services'
     | '/sitemap.xml'
@@ -517,6 +528,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/developers'
+    | '/pricing'
     | '/resources'
     | '/services'
     | '/sitemap.xml'
@@ -564,6 +576,7 @@ export interface RootRouteChildren {
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
   DevelopersRoute: typeof DevelopersRoute
+  PricingRoute: typeof PricingRoute
   ResourcesRoute: typeof ResourcesRouteWithChildren
   ServicesRoute: typeof ServicesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -605,6 +618,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/developers': {
@@ -998,6 +1018,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
   DevelopersRoute: DevelopersRoute,
+  PricingRoute: PricingRoute,
   ResourcesRoute: ResourcesRouteWithChildren,
   ServicesRoute: ServicesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
