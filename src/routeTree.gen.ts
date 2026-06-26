@@ -9,8 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ServicesRouteImport } from './routes/services'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ClinicsRouteImport } from './routes/clinics'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiDocsRouteImport } from './routes/api-docs'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TripTokenRouteImport } from './routes/trip.$token'
@@ -27,6 +31,7 @@ import { Route as AuthenticatedComplianceRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicV1Work_ordersRouteImport } from './routes/api/public/v1/work_orders'
+import { Route as ApiPublicV1Web_intakeRouteImport } from './routes/api/public/v1/web_intake'
 import { Route as ApiPublicV1Screening_ordersRouteImport } from './routes/api/public/v1/screening_orders'
 import { Route as ApiPublicV1OpenapiRouteImport } from './routes/api/public/v1/openapi'
 import { Route as ApiPublicV1IncidentsRouteImport } from './routes/api/public/v1/incidents'
@@ -42,6 +47,21 @@ import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/p
 import { Route as ApiPublicV1VehiclesIdCredentialsRouteImport } from './routes/api/public/v1/vehicles.$id.credentials'
 import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/public/v1/fleet.$id.location'
 
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClinicsRoute = ClinicsRouteImport.update({
+  id: '/clinics',
+  path: '/clinics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -50,6 +70,11 @@ const AuthRoute = AuthRouteImport.update({
 const ApiDocsRoute = ApiDocsRouteImport.update({
   id: '/api-docs',
   path: '/api-docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -131,6 +156,11 @@ const ApiPublicV1Work_ordersRoute = ApiPublicV1Work_ordersRouteImport.update({
   path: '/api/public/v1/work_orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1Web_intakeRoute = ApiPublicV1Web_intakeRouteImport.update({
+  id: '/api/public/v1/web_intake',
+  path: '/api/public/v1/web_intake',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1Screening_ordersRoute =
   ApiPublicV1Screening_ordersRouteImport.update({
     id: '/api/public/v1/screening_orders',
@@ -209,8 +239,12 @@ const ApiPublicV1FleetIdLocationRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
+  '/clinics': typeof ClinicsRoute
+  '/contact': typeof ContactRoute
+  '/services': typeof ServicesRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/compliance': typeof AuthenticatedComplianceRoute
@@ -232,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
   '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
+  '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
@@ -242,8 +277,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
+  '/clinics': typeof ClinicsRoute
+  '/contact': typeof ContactRoute
+  '/services': typeof ServicesRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/compliance': typeof AuthenticatedComplianceRoute
@@ -265,6 +304,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
   '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
+  '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
@@ -277,8 +317,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/auth': typeof AuthRoute
+  '/clinics': typeof ClinicsRoute
+  '/contact': typeof ContactRoute
+  '/services': typeof ServicesRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
@@ -300,6 +344,7 @@ export interface FileRoutesById {
   '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
   '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
+  '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
@@ -312,8 +357,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/api-docs'
     | '/auth'
+    | '/clinics'
+    | '/contact'
+    | '/services'
     | '/admin'
     | '/audit'
     | '/compliance'
@@ -335,6 +384,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/incidents'
     | '/api/public/v1/openapi'
     | '/api/public/v1/screening_orders'
+    | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
@@ -345,8 +395,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/api-docs'
     | '/auth'
+    | '/clinics'
+    | '/contact'
+    | '/services'
     | '/admin'
     | '/audit'
     | '/compliance'
@@ -368,6 +422,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/incidents'
     | '/api/public/v1/openapi'
     | '/api/public/v1/screening_orders'
+    | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
@@ -379,8 +434,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/about'
     | '/api-docs'
     | '/auth'
+    | '/clinics'
+    | '/contact'
+    | '/services'
     | '/_authenticated/admin'
     | '/_authenticated/audit'
     | '/_authenticated/compliance'
@@ -402,6 +461,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/incidents'
     | '/api/public/v1/openapi'
     | '/api/public/v1/screening_orders'
+    | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
@@ -414,8 +474,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
   ApiDocsRoute: typeof ApiDocsRoute
   AuthRoute: typeof AuthRoute
+  ClinicsRoute: typeof ClinicsRoute
+  ContactRoute: typeof ContactRoute
+  ServicesRoute: typeof ServicesRoute
   TripTokenRoute: typeof TripTokenRoute
   ApiPublicV1ClinicsRoute: typeof ApiPublicV1ClinicsRoute
   ApiPublicV1CoursesRoute: typeof ApiPublicV1CoursesRoute
@@ -425,6 +489,7 @@ export interface RootRouteChildren {
   ApiPublicV1IncidentsRoute: typeof ApiPublicV1IncidentsRouteWithChildren
   ApiPublicV1OpenapiRoute: typeof ApiPublicV1OpenapiRoute
   ApiPublicV1Screening_ordersRoute: typeof ApiPublicV1Screening_ordersRoute
+  ApiPublicV1Web_intakeRoute: typeof ApiPublicV1Web_intakeRoute
   ApiPublicV1Work_ordersRoute: typeof ApiPublicV1Work_ordersRoute
   ApiPublicV1ShareTokenRoute: typeof ApiPublicV1ShareTokenRoute
   ApiPublicV1VehiclesIdCredentialsRoute: typeof ApiPublicV1VehiclesIdCredentialsRoute
@@ -434,6 +499,27 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clinics': {
+      id: '/clinics'
+      path: '/clinics'
+      fullPath: '/clinics'
+      preLoaderRoute: typeof ClinicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -446,6 +532,13 @@ declare module '@tanstack/react-router' {
       path: '/api-docs'
       fullPath: '/api-docs'
       preLoaderRoute: typeof ApiDocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -558,6 +651,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/v1/work_orders'
       fullPath: '/api/public/v1/work_orders'
       preLoaderRoute: typeof ApiPublicV1Work_ordersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/web_intake': {
+      id: '/api/public/v1/web_intake'
+      path: '/api/public/v1/web_intake'
+      fullPath: '/api/public/v1/web_intake'
+      preLoaderRoute: typeof ApiPublicV1Web_intakeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/screening_orders': {
@@ -719,8 +819,12 @@ const ApiPublicV1IncidentsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
   ApiDocsRoute: ApiDocsRoute,
   AuthRoute: AuthRoute,
+  ClinicsRoute: ClinicsRoute,
+  ContactRoute: ContactRoute,
+  ServicesRoute: ServicesRoute,
   TripTokenRoute: TripTokenRoute,
   ApiPublicV1ClinicsRoute: ApiPublicV1ClinicsRoute,
   ApiPublicV1CoursesRoute: ApiPublicV1CoursesRoute,
@@ -730,6 +834,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1IncidentsRoute: ApiPublicV1IncidentsRouteWithChildren,
   ApiPublicV1OpenapiRoute: ApiPublicV1OpenapiRoute,
   ApiPublicV1Screening_ordersRoute: ApiPublicV1Screening_ordersRoute,
+  ApiPublicV1Web_intakeRoute: ApiPublicV1Web_intakeRoute,
   ApiPublicV1Work_ordersRoute: ApiPublicV1Work_ordersRoute,
   ApiPublicV1ShareTokenRoute: ApiPublicV1ShareTokenRoute,
   ApiPublicV1VehiclesIdCredentialsRoute: ApiPublicV1VehiclesIdCredentialsRoute,
