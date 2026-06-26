@@ -1,6 +1,6 @@
+/// <reference types="google.maps" />
 import { useEffect, useRef } from "react";
 import type { MapMarker, MapPolyline } from "./LeafletMap";
-/// <reference types="google.maps" />
 
 declare global {
   interface Window {
