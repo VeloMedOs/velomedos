@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
 import { SITE, SERVICES, RESOURCES } from "@/lib/site-config";
 import { breadcrumbLd, jsonld } from "@/components/Jsonld";
@@ -34,14 +34,14 @@ function Section({ title, entries }: { title: string; entries: Entry[] }) {
       <ul className="space-y-px bg-hairline rounded-lg overflow-hidden border border-hairline">
         {entries.map((e) => (
           <li key={e.to}>
-            <Link to={e.to} className="group flex items-start justify-between gap-4 bg-panel hover:bg-panel-elevated px-4 py-3 transition">
+            <a href={e.to} className="group flex items-start justify-between gap-4 bg-panel hover:bg-panel-elevated px-4 py-3 transition">
               <div className="min-w-0">
                 <div className="text-sm font-semibold truncate">{e.label}</div>
                 {e.desc && <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{e.desc}</div>}
                 <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mt-1">{e.to}</div>
               </div>
               <ArrowRight className="size-4 text-muted-foreground group-hover:text-action shrink-0 mt-1" />
-            </Link>
+            </a>
           </li>
         ))}
       </ul>
