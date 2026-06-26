@@ -7,6 +7,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
 import { Search, MapPin, Calendar, Stethoscope } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { SITE } from "@/lib/site-config";
 
 export const listPublicClinics = createServerFn({ method: "GET" }).handler(async () => {
   const db = createClient<Database>(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
@@ -69,6 +70,14 @@ function Clinics() {
         <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground mb-2">Clinic directory</div>
         <h1 className="text-3xl lg:text-4xl font-bold tracking-tight">Find a clinic. See what's bookable.</h1>
         <p className="text-muted-foreground mt-3 max-w-2xl text-sm">Physical, mobile and remote/telehealth clinics across our operating regions. Booking opens after sign-in inside the patient app.</p>
+      </section>
+      <section className="max-w-[1400px] mx-auto px-4 lg:px-8 pb-6">
+        <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Browse by city</div>
+        <div className="flex flex-wrap gap-2">
+          {SITE.cities.map((c) => (
+            <Link key={c.slug} to="/clinics/$city" params={{ city: c.slug }} className="px-3 py-1.5 rounded-md border border-hairline bg-panel mono text-[11px] uppercase tracking-widest hover:bg-panel-elevated">{c.name}</Link>
+          ))}
+        </div>
       </section>
       <section className="max-w-[1400px] mx-auto px-4 lg:px-8 pb-4 flex flex-wrap gap-2">
         <label className="flex-1 min-w-[220px] relative">
