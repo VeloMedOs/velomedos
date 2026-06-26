@@ -23,7 +23,6 @@ import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedScreeningRouteImport } from './routes/_authenticated/screening'
 import { Route as AuthenticatedRentalsRouteImport } from './routes/_authenticated/rentals'
 import { Route as AuthenticatedProviderRouteImport } from './routes/_authenticated/provider'
-import { Route as AuthenticatedPatientRouteImport } from './routes/_authenticated/patient'
 import { Route as AuthenticatedFleetRouteImport } from './routes/_authenticated/fleet'
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
 import { Route as AuthenticatedDeveloperRouteImport } from './routes/_authenticated/developer'
@@ -114,11 +113,6 @@ const AuthenticatedRentalsRoute = AuthenticatedRentalsRouteImport.update({
 const AuthenticatedProviderRoute = AuthenticatedProviderRouteImport.update({
   id: '/provider',
   path: '/provider',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedPatientRoute = AuthenticatedPatientRouteImport.update({
-  id: '/patient',
-  path: '/patient',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFleetRoute = AuthenticatedFleetRouteImport.update({
@@ -251,7 +245,6 @@ export interface FileRoutesByFullPath {
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/fleet': typeof AuthenticatedFleetRoute
-  '/patient': typeof AuthenticatedPatientRoute
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
@@ -289,7 +282,6 @@ export interface FileRoutesByTo {
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/fleet': typeof AuthenticatedFleetRoute
-  '/patient': typeof AuthenticatedPatientRoute
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
@@ -329,7 +321,6 @@ export interface FileRoutesById {
   '/_authenticated/developer': typeof AuthenticatedDeveloperRoute
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
   '/_authenticated/fleet': typeof AuthenticatedFleetRoute
-  '/_authenticated/patient': typeof AuthenticatedPatientRoute
   '/_authenticated/provider': typeof AuthenticatedProviderRoute
   '/_authenticated/rentals': typeof AuthenticatedRentalsRoute
   '/_authenticated/screening': typeof AuthenticatedScreeningRoute
@@ -369,7 +360,6 @@ export interface FileRouteTypes {
     | '/developer'
     | '/dispatch'
     | '/fleet'
-    | '/patient'
     | '/provider'
     | '/rentals'
     | '/screening'
@@ -407,7 +397,6 @@ export interface FileRouteTypes {
     | '/developer'
     | '/dispatch'
     | '/fleet'
-    | '/patient'
     | '/provider'
     | '/rentals'
     | '/screening'
@@ -446,7 +435,6 @@ export interface FileRouteTypes {
     | '/_authenticated/developer'
     | '/_authenticated/dispatch'
     | '/_authenticated/fleet'
-    | '/_authenticated/patient'
     | '/_authenticated/provider'
     | '/_authenticated/rentals'
     | '/_authenticated/screening'
@@ -595,13 +583,6 @@ declare module '@tanstack/react-router' {
       path: '/provider'
       fullPath: '/provider'
       preLoaderRoute: typeof AuthenticatedProviderRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/patient': {
-      id: '/_authenticated/patient'
-      path: '/patient'
-      fullPath: '/patient'
-      preLoaderRoute: typeof AuthenticatedPatientRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fleet': {
@@ -768,7 +749,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDeveloperRoute: typeof AuthenticatedDeveloperRoute
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
   AuthenticatedFleetRoute: typeof AuthenticatedFleetRoute
-  AuthenticatedPatientRoute: typeof AuthenticatedPatientRoute
   AuthenticatedProviderRoute: typeof AuthenticatedProviderRoute
   AuthenticatedRentalsRoute: typeof AuthenticatedRentalsRoute
   AuthenticatedScreeningRoute: typeof AuthenticatedScreeningRoute
@@ -783,7 +763,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDeveloperRoute: AuthenticatedDeveloperRoute,
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
   AuthenticatedFleetRoute: AuthenticatedFleetRoute,
-  AuthenticatedPatientRoute: AuthenticatedPatientRoute,
   AuthenticatedProviderRoute: AuthenticatedProviderRoute,
   AuthenticatedRentalsRoute: AuthenticatedRentalsRoute,
   AuthenticatedScreeningRoute: AuthenticatedScreeningRoute,
