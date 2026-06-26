@@ -87,9 +87,9 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 type IncEvent = { id: string; kind: string; payload: any; actor_id: string | null; created_at: string };
-type IncEventRow = { id: string; event_type: string; payload: any; actor_id: string | null; at: string };
+type IncEventRow = { id: number | string; event_type: string; payload: any; actor_id: string | null; at: string };
 function toIncEvent(r: IncEventRow): IncEvent {
-  return { id: r.id, kind: r.event_type, payload: r.payload, actor_id: r.actor_id, created_at: r.at };
+  return { id: String(r.id), kind: r.event_type, payload: r.payload, actor_id: r.actor_id, created_at: r.at };
 }
 
 function LiveNow({ inc, onCancel }: { inc: Inc; onCancel: () => void }) {
@@ -127,7 +127,7 @@ function LiveNow({ inc, onCancel }: { inc: Inc; onCancel: () => void }) {
   // Incident events timeline
   useEffect(() => {
     supabase.from("incident_events").select("id, event_type, payload, actor_id, at").eq("incident_id", inc.id).order("at")
-      .then(({ data }) => setEvents(((data ?? []) as IncEventRow[]).map(toIncEvent)));
+      .then(({ data }) => setEvents(((data ?? []) as unknown as IncEventRow[]).map(toIncEvent)));
     const ch = supabase
       .channel(`patient-inc-${inc.id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "incident_events", filter: `incident_id=eq.${inc.id}` }, (payload) => {
