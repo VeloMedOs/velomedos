@@ -204,6 +204,7 @@ export type Database = {
           clinic_id: string
           created_at: string
           id: string
+          kind: string
           patient_id: string
           reason: string | null
           slot_at: string
@@ -213,6 +214,7 @@ export type Database = {
           clinic_id: string
           created_at?: string
           id?: string
+          kind?: string
           patient_id: string
           reason?: string | null
           slot_at: string
@@ -222,6 +224,7 @@ export type Database = {
           clinic_id?: string
           created_at?: string
           id?: string
+          kind?: string
           patient_id?: string
           reason?: string | null
           slot_at?: string
@@ -874,6 +877,7 @@ export type Database = {
           ended_at: string | null
           id: string
           notes: string | null
+          provider_user_id: string | null
           room_id: string
           started_at: string | null
           status: Database["public"]["Enums"]["telehealth_status"]
@@ -885,6 +889,7 @@ export type Database = {
           ended_at?: string | null
           id?: string
           notes?: string | null
+          provider_user_id?: string | null
           room_id: string
           started_at?: string | null
           status?: Database["public"]["Enums"]["telehealth_status"]
@@ -896,6 +901,7 @@ export type Database = {
           ended_at?: string | null
           id?: string
           notes?: string | null
+          provider_user_id?: string | null
           room_id?: string
           started_at?: string | null
           status?: Database["public"]["Enums"]["telehealth_status"]
