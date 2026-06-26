@@ -50,6 +50,13 @@ export type Database = {
             referencedRelation: "ambulances"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ambulance_locations_ambulance_id_fkey"
+            columns: ["ambulance_id"]
+            isOneToOne: false
+            referencedRelation: "dispatchable_ambulances"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ambulances: {
@@ -106,6 +113,8 @@ export type Database = {
           name: string
           owner_id: string
           prefix: string
+          rate_limit_per_min: number
+          scopes: string[]
         }
         Insert: {
           created_at?: string
@@ -115,6 +124,8 @@ export type Database = {
           name: string
           owner_id: string
           prefix: string
+          rate_limit_per_min?: number
+          scopes?: string[]
         }
         Update: {
           created_at?: string
@@ -124,6 +135,38 @@ export type Database = {
           name?: string
           owner_id?: string
           prefix?: string
+          rate_limit_per_min?: number
+          scopes?: string[]
+        }
+        Relationships: []
+      }
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          at: string
+          entity: string
+          entity_id: string | null
+          id: string
+          payload: Json | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          at?: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+          payload?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          payload?: Json | null
         }
         Relationships: []
       }
@@ -192,6 +235,13 @@ export type Database = {
             referencedRelation: "clinics"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "clinic_bookings_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       clinics: {
@@ -224,6 +274,36 @@ export type Database = {
           name?: string
           phone?: string | null
           specialties?: string[] | null
+        }
+        Relationships: []
+      }
+      corporate_accounts: {
+        Row: {
+          billing_ref: string | null
+          company_name: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          owner_user_id: string | null
+        }
+        Insert: {
+          billing_ref?: string | null
+          company_name: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          owner_user_id?: string | null
+        }
+        Update: {
+          billing_ref?: string | null
+          company_name?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          owner_user_id?: string | null
         }
         Relationships: []
       }
@@ -288,6 +368,114 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      credentials: {
+        Row: {
+          created_at: string
+          document_url: string | null
+          expires_on: string
+          id: string
+          issued_on: string | null
+          issuer: string | null
+          kind: Database["public"]["Enums"]["credential_kind"]
+          notes: string | null
+          reference: string
+          subject_ambulance_id: string | null
+          subject_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_url?: string | null
+          expires_on: string
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          kind: Database["public"]["Enums"]["credential_kind"]
+          notes?: string | null
+          reference: string
+          subject_ambulance_id?: string | null
+          subject_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_url?: string | null
+          expires_on?: string
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          kind?: Database["public"]["Enums"]["credential_kind"]
+          notes?: string | null
+          reference?: string
+          subject_ambulance_id?: string | null
+          subject_user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credentials_subject_ambulance_id_fkey"
+            columns: ["subject_ambulance_id"]
+            isOneToOne: false
+            referencedRelation: "ambulances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credentials_subject_ambulance_id_fkey"
+            columns: ["subject_ambulance_id"]
+            isOneToOne: false
+            referencedRelation: "dispatchable_ambulances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      defects: {
+        Row: {
+          blocks_service: boolean
+          created_at: string
+          description: string
+          id: string
+          reported_by: string | null
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["defect_severity"]
+          vehicle_id: string
+        }
+        Insert: {
+          blocks_service?: boolean
+          created_at?: string
+          description: string
+          id?: string
+          reported_by?: string | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["defect_severity"]
+          vehicle_id: string
+        }
+        Update: {
+          blocks_service?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          reported_by?: string | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["defect_severity"]
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "defects_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "ambulances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "defects_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "dispatchable_ambulances"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       enrollments: {
         Row: {
@@ -425,6 +613,13 @@ export type Database = {
             referencedRelation: "ambulances"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "incidents_assigned_ambulance_id_fkey"
+            columns: ["assigned_ambulance_id"]
+            isOneToOne: false
+            referencedRelation: "dispatchable_ambulances"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -499,6 +694,182 @@ export type Database = {
             referencedRelation: "ambulances"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "rentals_ambulance_id_fkey"
+            columns: ["ambulance_id"]
+            isOneToOne: false
+            referencedRelation: "dispatchable_ambulances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      screening_orders: {
+        Row: {
+          appointment_at: string | null
+          candidate_id_ref: string | null
+          candidate_name: string
+          corporate_account_id: string
+          created_at: string
+          id: string
+          package_id: string
+          status: Database["public"]["Enums"]["screening_order_status"]
+          updated_at: string
+        }
+        Insert: {
+          appointment_at?: string | null
+          candidate_id_ref?: string | null
+          candidate_name: string
+          corporate_account_id: string
+          created_at?: string
+          id?: string
+          package_id: string
+          status?: Database["public"]["Enums"]["screening_order_status"]
+          updated_at?: string
+        }
+        Update: {
+          appointment_at?: string | null
+          candidate_id_ref?: string | null
+          candidate_name?: string
+          corporate_account_id?: string
+          created_at?: string
+          id?: string
+          package_id?: string
+          status?: Database["public"]["Enums"]["screening_order_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screening_orders_corporate_account_id_fkey"
+            columns: ["corporate_account_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "screening_orders_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "screening_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      screening_packages: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          panel_tests: string[]
+          price: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          panel_tests?: string[]
+          price?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          panel_tests?: string[]
+          price?: number
+        }
+        Relationships: []
+      }
+      screening_results: {
+        Row: {
+          certificate_url: string | null
+          created_at: string
+          fitness_status: Database["public"]["Enums"]["fitness_status"]
+          id: string
+          order_id: string
+          outcome: string | null
+          recorded_by: string | null
+          test: string
+          value: string | null
+        }
+        Insert: {
+          certificate_url?: string | null
+          created_at?: string
+          fitness_status?: Database["public"]["Enums"]["fitness_status"]
+          id?: string
+          order_id: string
+          outcome?: string | null
+          recorded_by?: string | null
+          test: string
+          value?: string | null
+        }
+        Update: {
+          certificate_url?: string | null
+          created_at?: string
+          fitness_status?: Database["public"]["Enums"]["fitness_status"]
+          id?: string
+          order_id?: string
+          outcome?: string | null
+          recorded_by?: string | null
+          test?: string
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screening_results_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "screening_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      telehealth_sessions: {
+        Row: {
+          booking_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          notes: string | null
+          room_id: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["telehealth_status"]
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          notes?: string | null
+          room_id: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["telehealth_status"]
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          notes?: string | null
+          room_id?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["telehealth_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telehealth_sessions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "clinic_bookings"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_roles: {
@@ -522,9 +893,246 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_deliveries: {
+        Row: {
+          attempts: number
+          created_at: string
+          delivered_at: string | null
+          event: string
+          id: string
+          last_error: string | null
+          payload: Json
+          status: number | null
+          subscription_id: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          delivered_at?: string | null
+          event: string
+          id?: string
+          last_error?: string | null
+          payload: Json
+          status?: number | null
+          subscription_id: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          delivered_at?: string | null
+          event?: string
+          id?: string
+          last_error?: string | null
+          payload?: Json
+          status?: number | null
+          subscription_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_deliveries_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_subscriptions: {
+        Row: {
+          active: boolean
+          created_at: string
+          events: string[]
+          id: string
+          owner_id: string
+          secret: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          events?: string[]
+          id?: string
+          owner_id: string
+          secret: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          events?: string[]
+          id?: string
+          owner_id?: string
+          secret?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      work_order_items: {
+        Row: {
+          cost: number | null
+          created_at: string
+          description: string
+          id: string
+          part_no: string | null
+          work_order_id: string
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string
+          description: string
+          id?: string
+          part_no?: string | null
+          work_order_id: string
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string
+          description?: string
+          id?: string
+          part_no?: string | null
+          work_order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_order_items_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_orders: {
+        Row: {
+          closed_at: string | null
+          created_at: string
+          downtime_minutes: number | null
+          id: string
+          notes: string | null
+          odometer_km: number | null
+          opened_at: string
+          status: Database["public"]["Enums"]["work_order_status"]
+          type: Database["public"]["Enums"]["work_order_type"]
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          closed_at?: string | null
+          created_at?: string
+          downtime_minutes?: number | null
+          id?: string
+          notes?: string | null
+          odometer_km?: number | null
+          opened_at?: string
+          status?: Database["public"]["Enums"]["work_order_status"]
+          type?: Database["public"]["Enums"]["work_order_type"]
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          closed_at?: string | null
+          created_at?: string
+          downtime_minutes?: number | null
+          id?: string
+          notes?: string | null
+          odometer_km?: number | null
+          opened_at?: string
+          status?: Database["public"]["Enums"]["work_order_status"]
+          type?: Database["public"]["Enums"]["work_order_type"]
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_orders_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "ambulances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "dispatchable_ambulances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      clinics_public: {
+        Row: {
+          address: string | null
+          id: string | null
+          lat: number | null
+          lng: number | null
+          name: string | null
+          specialties: string[] | null
+        }
+        Insert: {
+          address?: string | null
+          id?: string | null
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+          specialties?: string[] | null
+        }
+        Update: {
+          address?: string | null
+          id?: string | null
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+          specialties?: string[] | null
+        }
+        Relationships: []
+      }
+      dispatchable_ambulances: {
+        Row: {
+          available_for_rent: boolean | null
+          code: string | null
+          created_at: string | null
+          current_lat: number | null
+          current_lng: number | null
+          daily_rate: number | null
+          driver_id: string | null
+          home_base: string | null
+          id: string | null
+          last_ping_at: string | null
+          status: Database["public"]["Enums"]["ambulance_status"] | null
+          type: Database["public"]["Enums"]["ambulance_type"] | null
+        }
+        Insert: {
+          available_for_rent?: boolean | null
+          code?: string | null
+          created_at?: string | null
+          current_lat?: number | null
+          current_lng?: number | null
+          daily_rate?: number | null
+          driver_id?: string | null
+          home_base?: string | null
+          id?: string | null
+          last_ping_at?: string | null
+          status?: Database["public"]["Enums"]["ambulance_status"] | null
+          type?: Database["public"]["Enums"]["ambulance_type"] | null
+        }
+        Update: {
+          available_for_rent?: boolean | null
+          code?: string | null
+          created_at?: string | null
+          current_lat?: number | null
+          current_lng?: number | null
+          daily_rate?: number | null
+          driver_id?: string | null
+          home_base?: string | null
+          id?: string | null
+          last_ping_at?: string | null
+          status?: Database["public"]["Enums"]["ambulance_status"] | null
+          type?: Database["public"]["Enums"]["ambulance_type"] | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_roles: {
@@ -555,6 +1163,14 @@ export type Database = {
         | "patient"
         | "developer"
       booking_status: "requested" | "confirmed" | "completed" | "cancelled"
+      credential_kind:
+        | "paramedic_license"
+        | "driver_license"
+        | "vehicle_registration"
+        | "operating_permit"
+        | "provider_license"
+      defect_severity: "minor" | "major" | "critical"
+      fitness_status: "fit" | "fit_with_restrictions" | "unfit" | "pending"
       incident_severity: "code_red" | "code_yellow" | "routine"
       incident_status:
         | "pending"
@@ -564,6 +1180,20 @@ export type Database = {
         | "transporting"
         | "completed"
         | "cancelled"
+      screening_order_status:
+        | "booked"
+        | "sample_collected"
+        | "results_ready"
+        | "certified"
+        | "cancelled"
+      telehealth_status:
+        | "scheduled"
+        | "live"
+        | "completed"
+        | "cancelled"
+        | "no_show"
+      work_order_status: "open" | "in_progress" | "closed" | "cancelled"
+      work_order_type: "preventive" | "corrective"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -708,6 +1338,15 @@ export const Constants = {
         "developer",
       ],
       booking_status: ["requested", "confirmed", "completed", "cancelled"],
+      credential_kind: [
+        "paramedic_license",
+        "driver_license",
+        "vehicle_registration",
+        "operating_permit",
+        "provider_license",
+      ],
+      defect_severity: ["minor", "major", "critical"],
+      fitness_status: ["fit", "fit_with_restrictions", "unfit", "pending"],
       incident_severity: ["code_red", "code_yellow", "routine"],
       incident_status: [
         "pending",
@@ -718,6 +1357,22 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      screening_order_status: [
+        "booked",
+        "sample_collected",
+        "results_ready",
+        "certified",
+        "cancelled",
+      ],
+      telehealth_status: [
+        "scheduled",
+        "live",
+        "completed",
+        "cancelled",
+        "no_show",
+      ],
+      work_order_status: ["open", "in_progress", "closed", "cancelled"],
+      work_order_type: ["preventive", "corrective"],
     },
   },
 } as const

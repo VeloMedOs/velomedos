@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { json, preflight, requireKey, serviceClient } from "@/lib/api-server";
+import { audit, json, preflight, requireKey, serviceClient } from "@/lib/api-server";
 
 export const Route = createFileRoute("/api/public/v1/incidents")({
   server: {
     handlers: {
       OPTIONS: () => preflight(),
       GET: async ({ request }) => {
-        const auth = await requireKey(request);
+        const auth = await requireKey(request, "incidents:read");
         if (!auth.ok) return auth.res;
         const { data, error } = await serviceClient()
           .from("incidents")
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/api/public/v1/incidents")({
         return json(data);
       },
       POST: async ({ request }) => {
-        const auth = await requireKey(request);
+        const auth = await requireKey(request, "incidents:write");
         if (!auth.ok) return auth.res;
         let body: Record<string, unknown>;
         try { body = await request.json(); } catch { return json({ error: "Invalid JSON body" }, 400); }
@@ -38,6 +38,7 @@ export const Route = createFileRoute("/api/public/v1/incidents")({
           sla_target_at: new Date(Date.now() + sevMap[sev]! * 60_000).toISOString(),
         }).select().single();
         if (error) return json({ error: error.message }, 500);
+        await audit(auth.ownerId, "incident.created", "incident", data.id, { source: "public_api", severity: sev });
         return json(data, 201);
       },
     },

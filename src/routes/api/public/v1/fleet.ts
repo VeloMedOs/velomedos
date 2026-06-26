@@ -6,7 +6,7 @@ export const Route = createFileRoute("/api/public/v1/fleet")({
     handlers: {
       OPTIONS: () => preflight(),
       GET: async ({ request }) => {
-        const auth = await requireKey(request);
+        const auth = await requireKey(request, "fleet:read");
         if (!auth.ok) return auth.res;
         const { data, error } = await serviceClient()
           .from("ambulances")

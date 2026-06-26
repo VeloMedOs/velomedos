@@ -10,6 +10,9 @@ const NAV = [
   { to: "/patient", label: "Patient" },
   { to: "/rentals", label: "Rentals" },
   { to: "/training", label: "Training" },
+  { to: "/compliance", label: "Compliance" },
+  { to: "/screening", label: "Screening" },
+  { to: "/audit", label: "Audit" },
   { to: "/developer", label: "API Keys" },
 ] as const;
 
