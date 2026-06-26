@@ -563,6 +563,7 @@ export type Database = {
           requested_by: string | null
           severity: Database["public"]["Enums"]["incident_severity"]
           sla_target_at: string | null
+          source: string
           status: Database["public"]["Enums"]["incident_status"]
           symptoms: string | null
           updated_at: string
@@ -582,6 +583,7 @@ export type Database = {
           requested_by?: string | null
           severity?: Database["public"]["Enums"]["incident_severity"]
           sla_target_at?: string | null
+          source?: string
           status?: Database["public"]["Enums"]["incident_status"]
           symptoms?: string | null
           updated_at?: string
@@ -601,6 +603,7 @@ export type Database = {
           requested_by?: string | null
           severity?: Database["public"]["Enums"]["incident_severity"]
           sla_target_at?: string | null
+          source?: string
           status?: Database["public"]["Enums"]["incident_status"]
           symptoms?: string | null
           updated_at?: string
@@ -1023,6 +1026,54 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      web_leads: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string | null
+          id: string
+          kind: string
+          message: string | null
+          name: string
+          payload: Json
+          phone: string | null
+          reference_code: string
+          service: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          kind: string
+          message?: string | null
+          name: string
+          payload?: Json
+          phone?: string | null
+          reference_code: string
+          service?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          kind?: string
+          message?: string | null
+          name?: string
+          payload?: Json
+          phone?: string | null
+          reference_code?: string
+          service?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
