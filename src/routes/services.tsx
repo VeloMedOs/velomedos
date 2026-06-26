@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Radio, ShieldCheck, Stethoscope, ClipboardCheck, GraduationCap, KeyRound, ArrowRight } from "lucide-react";
 import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
+import { breadcrumbLd, jsonld } from "@/components/Jsonld";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -9,18 +10,26 @@ export const Route = createFileRoute("/services")({
       { name: "description", content: "Emergency dispatch & live tracking, fleet compliance, remote clinics, mobile screening, training & certification, and the public developer API." },
       { property: "og:title", content: "VeloMed OS — Services" },
       { property: "og:description", content: "Six services, one platform: dispatch, compliance, clinics, screening, training, public API." },
+      { property: "og:url", content: "/services" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "index,follow" },
     ],
+    links: [{ rel: "canonical", href: "/services" }],
+    scripts: [{ type: "application/ld+json", children: jsonld(breadcrumbLd([
+      { name: "Home", href: "/" }, { name: "Services", href: "/services" },
+    ])) }],
   }),
   component: Services,
 });
 
 const SERVICES = [
-  { icon: Radio, title: "Emergency dispatch & live tracking", body: "24/7 call-center console with SLA timers, road-based ETA, and 5-second GPS from every unit, paramedic and doctor on shift.", cta: ["Request help", "/contact"] as const, hue: "text-emergency", border: "border-emergency/30" },
-  { icon: ShieldCheck, title: "Fleet compliance & maintenance", body: "Vehicle credentials with expiry alerts, defect intake from the field, and work-order tracking that gates dispatch when a unit isn't roadworthy.", cta: ["See the API", "/api-docs"] as const, hue: "text-action", border: "border-hairline" },
-  { icon: Stethoscope, title: "Remote clinics", body: "Bookable physical, mobile and telehealth clinics across the regions we cover — specialties, hours and live availability.", cta: ["Browse clinics", "/clinics"] as const, hue: "text-action", border: "border-hairline" },
-  { icon: ClipboardCheck, title: "Mobile pre-employment screening", body: "Corporate packages delivered on-site by our mobile units — bloods, vitals, drug & alcohol, occupational health.", cta: ["Contact our team", "/contact"] as const, hue: "text-action", border: "border-hairline" },
-  { icon: GraduationCap, title: "Training & certification", body: "ALS, EMT-Basic, Tactical Paramedic and refresher courses with verifiable certificates issued on completion.", cta: ["Explore courses", "/contact"] as const, hue: "text-emergency", border: "border-hairline" },
-  { icon: KeyRound, title: "Public developer API", body: "Documented OpenAPI 3.1 surface for fleet status, incident intake, clinic directory, courses, compliance and live ETA — with scoped API keys.", cta: ["Read the API", "/api-docs"] as const, hue: "text-action", border: "border-action/40" },
+  { icon: Radio, title: "Emergency dispatch & live tracking", body: "24/7 call-center console with SLA timers, road-based ETA, and 5-second GPS from every unit, paramedic and doctor on shift.", to: "/services/emergency-dispatch" as const, hue: "text-emergency", border: "border-emergency/30" },
+  { icon: ShieldCheck, title: "Fleet compliance & maintenance", body: "Vehicle credentials with expiry alerts, defect intake from the field, and work-order tracking that gates dispatch when a unit isn't roadworthy.", to: "/services/fleet-compliance" as const, hue: "text-action", border: "border-hairline" },
+  { icon: Stethoscope, title: "Remote clinics & telehealth", body: "Bookable physical, mobile and telehealth clinics across the regions we cover — specialties, hours and live availability.", to: "/services/remote-clinics" as const, hue: "text-action", border: "border-hairline" },
+  { icon: ClipboardCheck, title: "Mobile pre-employment screening", body: "Corporate packages delivered on-site by our mobile units — bloods, vitals, drug & alcohol, occupational health.", to: "/services/mobile-screening" as const, hue: "text-action", border: "border-hairline" },
+  { icon: GraduationCap, title: "Training & certification", body: "ALS, EMT-Basic, Tactical Paramedic and refresher courses with verifiable certificates issued on completion.", to: "/services/training-certification" as const, hue: "text-emergency", border: "border-hairline" },
+  { icon: KeyRound, title: "Public developer API", body: "Documented OpenAPI 3.1 surface for fleet status, incident intake, clinic directory, courses, compliance and live ETA — with scoped API keys.", to: "/services/developer-api" as const, hue: "text-action", border: "border-action/40" },
 ];
 
 function Services() {
@@ -39,8 +48,8 @@ function Services() {
             <s.icon className={`size-6 ${s.hue} mb-4`} />
             <h2 className="text-lg font-semibold leading-snug">{s.title}</h2>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed flex-1">{s.body}</p>
-            <Link to={s.cta[1]} className="mt-5 inline-flex items-center gap-1 mono text-[10px] uppercase tracking-widest text-action hover:gap-2 transition-all">
-              {s.cta[0]} <ArrowRight className="size-3" />
+            <Link to={s.to} className="mt-5 inline-flex items-center gap-1 mono text-[10px] uppercase tracking-widest text-action hover:gap-2 transition-all">
+              Learn more <ArrowRight className="size-3" />
             </Link>
           </article>
         ))}
