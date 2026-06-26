@@ -196,7 +196,7 @@ function Provider() {
     if (!activeAmbId) return;
     await supabase.from("ambulances").update({ status: next }).eq("id", activeAmbId);
     if (next === "out_of_service" && reason) {
-      await supabase.from("defects").insert({ ambulance_id: activeAmbId, summary: reason, severity: "minor" as never });
+      await supabase.from("defects").insert({ vehicle_id: activeAmbId, description: reason, severity: "minor" as never });
     }
     setOosOpen(false); setOosReason("");
     toast.success(`Unit ${next.replace("_", " ")}`);
