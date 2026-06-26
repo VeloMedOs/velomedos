@@ -14,6 +14,7 @@ import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TripTokenRouteImport } from './routes/trip.$token'
+import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
 import { Route as AuthenticatedScreeningRouteImport } from './routes/_authenticated/screening'
 import { Route as AuthenticatedRentalsRouteImport } from './routes/_authenticated/rentals'
@@ -64,6 +65,11 @@ const TripTokenRoute = TripTokenRouteImport.update({
   id: '/trip/$token',
   path: '/trip/$token',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedTripsRoute = AuthenticatedTripsRouteImport.update({
+  id: '/trips',
+  path: '/trips',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
   id: '/training',
@@ -216,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
   '/training': typeof AuthenticatedTrainingRoute
+  '/trips': typeof AuthenticatedTripsRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
@@ -248,6 +255,7 @@ export interface FileRoutesByTo {
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
   '/training': typeof AuthenticatedTrainingRoute
+  '/trips': typeof AuthenticatedTripsRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
@@ -282,6 +290,7 @@ export interface FileRoutesById {
   '/_authenticated/rentals': typeof AuthenticatedRentalsRoute
   '/_authenticated/screening': typeof AuthenticatedScreeningRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
+  '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
@@ -316,6 +325,7 @@ export interface FileRouteTypes {
     | '/rentals'
     | '/screening'
     | '/training'
+    | '/trips'
     | '/trip/$token'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/rentals'
     | '/screening'
     | '/training'
+    | '/trips'
     | '/trip/$token'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
@@ -381,6 +392,7 @@ export interface FileRouteTypes {
     | '/_authenticated/rentals'
     | '/_authenticated/screening'
     | '/_authenticated/training'
+    | '/_authenticated/trips'
     | '/trip/$token'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
@@ -456,6 +468,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/trip/$token'
       preLoaderRoute: typeof TripTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/trips': {
+      id: '/_authenticated/trips'
+      path: '/trips'
+      fullPath: '/trips'
+      preLoaderRoute: typeof AuthenticatedTripsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/training': {
       id: '/_authenticated/training'
@@ -654,6 +673,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRentalsRoute: typeof AuthenticatedRentalsRoute
   AuthenticatedScreeningRoute: typeof AuthenticatedScreeningRoute
   AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
+  AuthenticatedTripsRoute: typeof AuthenticatedTripsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -668,6 +688,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRentalsRoute: AuthenticatedRentalsRoute,
   AuthenticatedScreeningRoute: AuthenticatedScreeningRoute,
   AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
+  AuthenticatedTripsRoute: AuthenticatedTripsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
