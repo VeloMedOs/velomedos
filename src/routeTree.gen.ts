@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
@@ -48,6 +49,11 @@ import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/p
 import { Route as ApiPublicV1VehiclesIdCredentialsRouteImport } from './routes/api/public/v1/vehicles.$id.credentials'
 import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/public/v1/fleet.$id.location'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
@@ -251,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/clinics': typeof ClinicsRoute
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
@@ -290,6 +297,7 @@ export interface FileRoutesByTo {
   '/clinics': typeof ClinicsRoute
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
@@ -331,6 +339,7 @@ export interface FileRoutesById {
   '/clinics': typeof ClinicsRoute
   '/contact': typeof ContactRoute
   '/services': typeof ServicesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/call-center': typeof AuthenticatedCallCenterRoute
@@ -372,6 +381,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/services'
+    | '/sitemap.xml'
     | '/admin'
     | '/audit'
     | '/call-center'
@@ -411,6 +421,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/services'
+    | '/sitemap.xml'
     | '/admin'
     | '/audit'
     | '/call-center'
@@ -451,6 +462,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/services'
+    | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/audit'
     | '/_authenticated/call-center'
@@ -492,6 +504,7 @@ export interface RootRouteChildren {
   ClinicsRoute: typeof ClinicsRoute
   ContactRoute: typeof ContactRoute
   ServicesRoute: typeof ServicesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TripTokenRoute: typeof TripTokenRoute
   ApiPublicV1ClinicsRoute: typeof ApiPublicV1ClinicsRoute
   ApiPublicV1CoursesRoute: typeof ApiPublicV1CoursesRoute
@@ -511,6 +524,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services': {
       id: '/services'
       path: '/services'
@@ -846,6 +866,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClinicsRoute: ClinicsRoute,
   ContactRoute: ContactRoute,
   ServicesRoute: ServicesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TripTokenRoute: TripTokenRoute,
   ApiPublicV1ClinicsRoute: ApiPublicV1ClinicsRoute,
   ApiPublicV1CoursesRoute: ApiPublicV1CoursesRoute,
