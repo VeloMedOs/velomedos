@@ -21,6 +21,7 @@ import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ApiReferenceRouteImport } from './routes/api-reference'
 import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -117,6 +118,11 @@ const ClinicsRoute = ClinicsRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiReferenceRoute = ApiReferenceRouteImport.update({
+  id: '/api-reference',
+  path: '/api-reference',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiDocsRoute = ApiDocsRouteImport.update({
@@ -313,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
+  '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
@@ -363,6 +370,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
+  '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
@@ -415,6 +423,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
+  '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
@@ -467,6 +476,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/api-docs'
+    | '/api-reference'
     | '/auth'
     | '/clinics'
     | '/contact'
@@ -517,6 +527,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/api-docs'
+    | '/api-reference'
     | '/auth'
     | '/clinics'
     | '/contact'
@@ -568,6 +579,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/api-docs'
+    | '/api-reference'
     | '/auth'
     | '/clinics'
     | '/contact'
@@ -620,6 +632,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   ApiDocsRoute: typeof ApiDocsRoute
+  ApiReferenceRoute: typeof ApiReferenceRoute
   AuthRoute: typeof AuthRoute
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
@@ -733,6 +746,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api-reference': {
+      id: '/api-reference'
+      path: '/api-reference'
+      fullPath: '/api-reference'
+      preLoaderRoute: typeof ApiReferenceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api-docs': {
@@ -1094,6 +1114,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   ApiDocsRoute: ApiDocsRoute,
+  ApiReferenceRoute: ApiReferenceRoute,
   AuthRoute: AuthRoute,
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
