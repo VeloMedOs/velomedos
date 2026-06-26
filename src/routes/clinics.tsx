@@ -80,7 +80,7 @@ function Clinics() {
           <div className="rounded-xl border border-hairline bg-panel p-10 text-center text-sm text-muted-foreground">No clinics match those filters.</div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((c) => (
+                {filtered.map((c) => (
               <article key={c.id} className="rounded-xl border border-hairline bg-panel p-5 flex flex-col">
                 <div className="flex items-start justify-between gap-3">
                   <h2 className="text-base font-semibold">{c.name}</h2>
@@ -100,7 +100,7 @@ function Clinics() {
                 <div className="mt-4 pt-4 border-t border-hairline">
                   <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-1.5 mb-2"><Calendar className="size-3" /> Next available</div>
                   <div className="flex flex-wrap gap-1.5">
-                    {nextSlots(c.id).map((iso) => (
+                  {nextSlots(c.id ?? c.name ?? "x").map((iso) => (
                       <Link key={iso} to="/auth" className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-action/30 text-action hover:bg-action/10">
                         {new Date(iso).toLocaleString(undefined, { weekday: "short", hour: "2-digit", minute: "2-digit" })}
                       </Link>
