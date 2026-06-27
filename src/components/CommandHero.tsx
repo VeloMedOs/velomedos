@@ -825,7 +825,7 @@ function TeamLensRow() {
             ["Speed", `${Math.round(t.speedKmh)} km/h`],
             ["ETA", fmtMinSec(remainSec)],
             ["Distance left", `${distLeftKm.toFixed(1)} km`],
-            ["Trip time", fmtClock(t.elapsedSec)],
+            ["Trip time (HH:MM)", fmtHHMM(t.elapsedSec)],
             ["A → B progress", `${Math.round(t.progress * 100)}%`],
           ]}
           live
