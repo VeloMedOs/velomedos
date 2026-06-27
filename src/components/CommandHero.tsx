@@ -1358,17 +1358,20 @@ function TeamFallback() {
           <circle cx="60" cy="200" r="11" fill="#0A1118" stroke="#ffffff" strokeWidth="2.5" />
           <circle cx="60" cy="200" r="4.5" fill="#4FB6F7" />
         </g>
-        {/* destination teardrop */}
+        {/* destination teardrop — compact, jeweler-grade */}
         <g transform="translate(340 70)">
-          <ellipse cx="0" cy="26" rx="9" ry="2.2" fill="#000" opacity="0.45" />
-          <path d="M 0 -30 C -13 -30, -22 -21, -22 -8 C -22 7, 0 26, 0 26 S 22 7, 22 -8 C 22 -21, 13 -30, 0 -30 Z"
-            fill="#FF6E5B" stroke="white" strokeWidth="2.2" />
-          <g transform="translate(-6 -16)">
-            <rect x="0" y="2" width="12" height="10" rx="1.5" fill="white"/>
-            <rect x="3" y="0" width="6" height="3" rx="0.6" fill="white"/>
-            <rect x="5.2" y="4" width="1.6" height="6" fill="#FF6E5B"/>
-            <rect x="3" y="6.2" width="6" height="1.6" fill="#FF6E5B"/>
-          </g>
+          {/* contact shadow */}
+          <ellipse cx="0" cy="14" rx="5" ry="1.4" fill="#000" opacity="0.5" />
+          {/* pin body (smaller, refined silhouette) */}
+          <path d="M 0 -16 C -7 -16, -12 -11, -12 -4 C -12 4, 0 14, 0 14 S 12 4, 12 -4 C 12 -11, 7 -16, 0 -16 Z"
+            fill="#FF6E5B" stroke="white" strokeWidth="1.4" />
+          {/* inner highlight */}
+          <path d="M 0 -14 C -5 -14, -9 -10, -9.5 -5"
+            stroke="white" strokeOpacity="0.55" strokeWidth="1" fill="none" strokeLinecap="round" />
+          {/* white disc + medical cross */}
+          <circle cx="0" cy="-5" r="4.2" fill="white" />
+          <rect x="-0.7" y="-7.6" width="1.4" height="5.2" rx="0.3" fill="#FF6E5B"/>
+          <rect x="-2.6" y="-5.7" width="5.2" height="1.4" rx="0.3" fill="#FF6E5B"/>
         </g>
         {/* ambulance — positioned by progress so it can sit at destination */}
         <g transform={`translate(${p1.x} ${p1.y})`}>
