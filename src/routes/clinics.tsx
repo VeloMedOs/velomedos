@@ -72,7 +72,7 @@ function Clinics() {
         <p className="text-muted-foreground mt-3 max-w-2xl text-sm">Physical, mobile and remote/telehealth clinics across our operating regions. Booking opens after sign-in inside the patient app.</p>
       </section>
       <section className="max-w-[1400px] mx-auto px-4 lg:px-8 pb-6">
-        <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Browse by city</div>
+        <h2 className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2 font-normal">Browse by city</h2>
         <div className="flex flex-wrap gap-2">
           {SITE.cities.map((c) => (
             <Link key={c.slug} to="/clinics/$city" params={{ city: c.slug }} className="px-3 py-1.5 rounded-md border border-hairline bg-panel mono text-[11px] uppercase tracking-widest hover:bg-panel-elevated">{c.name}</Link>
@@ -90,6 +90,7 @@ function Clinics() {
         </select>
       </section>
       <section className="max-w-[1400px] mx-auto px-4 lg:px-8 pb-24">
+        <h2 className="sr-only">Clinic directory</h2>
         {filtered.length === 0 ? (
           <div className="rounded-xl border border-hairline bg-panel p-10 text-center text-sm text-muted-foreground">No clinics match those filters.</div>
         ) : (

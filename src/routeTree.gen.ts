@@ -29,6 +29,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TripTokenRouteImport } from './routes/trip.$token'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
+import { Route as ResourcesComparisonRouteImport } from './routes/resources.comparison'
 import { Route as ResourcesSlugRouteImport } from './routes/resources.$slug'
 import { Route as ClinicsCityRouteImport } from './routes/clinics.$city'
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
@@ -162,6 +163,11 @@ const ServicesSlugRoute = ServicesSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ServicesRoute,
+} as any)
+const ResourcesComparisonRoute = ResourcesComparisonRouteImport.update({
+  id: '/comparison',
+  path: '/comparison',
+  getParentRoute: () => ResourcesRoute,
 } as any)
 const ResourcesSlugRoute = ResourcesSlugRouteImport.update({
   id: '/$slug',
@@ -374,6 +380,7 @@ export interface FileRoutesByFullPath {
   '/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
   '/resources/$slug': typeof ResourcesSlugRoute
+  '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
@@ -429,6 +436,7 @@ export interface FileRoutesByTo {
   '/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
   '/resources/$slug': typeof ResourcesSlugRoute
+  '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
@@ -486,6 +494,7 @@ export interface FileRoutesById {
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
   '/resources/$slug': typeof ResourcesSlugRoute
+  '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
@@ -543,6 +552,7 @@ export interface FileRouteTypes {
     | '/trips'
     | '/clinics/$city'
     | '/resources/$slug'
+    | '/resources/comparison'
     | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
@@ -598,6 +608,7 @@ export interface FileRouteTypes {
     | '/trips'
     | '/clinics/$city'
     | '/resources/$slug'
+    | '/resources/comparison'
     | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
@@ -654,6 +665,7 @@ export interface FileRouteTypes {
     | '/_authenticated/trips'
     | '/clinics/$city'
     | '/resources/$slug'
+    | '/resources/comparison'
     | '/services/$slug'
     | '/trip/$token'
     | '/api/public/v1/clinics'
@@ -853,6 +865,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/services/$slug'
       preLoaderRoute: typeof ServicesSlugRouteImport
       parentRoute: typeof ServicesRoute
+    }
+    '/resources/comparison': {
+      id: '/resources/comparison'
+      path: '/comparison'
+      fullPath: '/resources/comparison'
+      preLoaderRoute: typeof ResourcesComparisonRouteImport
+      parentRoute: typeof ResourcesRoute
     }
     '/resources/$slug': {
       id: '/resources/$slug'
@@ -1147,10 +1166,12 @@ const ClinicsRouteWithChildren =
 
 interface ResourcesRouteChildren {
   ResourcesSlugRoute: typeof ResourcesSlugRoute
+  ResourcesComparisonRoute: typeof ResourcesComparisonRoute
 }
 
 const ResourcesRouteChildren: ResourcesRouteChildren = {
   ResourcesSlugRoute: ResourcesSlugRoute,
+  ResourcesComparisonRoute: ResourcesComparisonRoute,
 }
 
 const ResourcesRouteWithChildren = ResourcesRoute._addFileChildren(

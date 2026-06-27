@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { SERVICES, SITE, RESOURCES } from "@/lib/site-config";
 
-// TODO: replace with your project URL once a project name or custom domain is set.
-const BASE_URL = "";
+const BASE_URL = "https://velomedos.lovable.app";
 
 interface Entry { path: string; changefreq?: string; priority?: string }
 
@@ -13,17 +12,23 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: () => {
         const entries: Entry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
+          { path: "/platform", changefreq: "monthly", priority: "0.9" },
           { path: "/services", changefreq: "monthly", priority: "0.9" },
           ...SERVICES.map((s) => ({ path: `/services/${s.slug}`, changefreq: "monthly", priority: "0.8" })),
           { path: "/clinics", changefreq: "weekly", priority: "0.8" },
           ...SITE.cities.map((c) => ({ path: `/clinics/${c.slug}`, changefreq: "weekly", priority: "0.7" })),
           { path: "/developers", changefreq: "monthly", priority: "0.7" },
           { path: "/api-docs", changefreq: "monthly", priority: "0.6" },
+          { path: "/api-reference", changefreq: "monthly", priority: "0.6" },
           { path: "/resources", changefreq: "weekly", priority: "0.6" },
           ...RESOURCES.map((r) => ({ path: `/resources/${r.slug}`, changefreq: "monthly", priority: "0.5" })),
+          { path: "/resources/comparison", changefreq: "monthly", priority: "0.6" },
           { path: "/about", changefreq: "monthly", priority: "0.6" },
           { path: "/pricing", changefreq: "monthly", priority: "0.6" },
           { path: "/contact", changefreq: "monthly", priority: "0.7" },
+          { path: "/demo", changefreq: "monthly", priority: "0.6" },
+          { path: "/website", changefreq: "monthly", priority: "0.4" },
+          { path: "/auth", changefreq: "yearly", priority: "0.3" },
           { path: "/privacy", changefreq: "yearly", priority: "0.3" },
           { path: "/terms", changefreq: "yearly", priority: "0.3" },
         ];

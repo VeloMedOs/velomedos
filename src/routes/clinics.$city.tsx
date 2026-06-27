@@ -82,7 +82,7 @@ function CityPage() {
             <Stethoscope className="size-5 text-action mb-3" />
             <div className="text-sm font-semibold">{c.title}</div>
             <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{c.desc}</p>
-            <div className="mono text-[10px] text-action uppercase tracking-widest mt-3 inline-flex items-center gap-1">Learn more <ArrowRight className="size-3" /></div>
+            <div className="mono text-[10px] text-action uppercase tracking-widest mt-3 inline-flex items-center gap-1">Explore {c.title.toLowerCase()} <ArrowRight className="size-3" /></div>
           </Link>
         ))}
       </section>
