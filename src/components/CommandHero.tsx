@@ -110,6 +110,17 @@ function fmtMinSec(totalSec: number) {
   const sec = s % 60;
   return `${m}:${String(sec).padStart(2, "0")}`;
 }
+function fmtHHMM(totalSec: number) {
+  const s = Math.max(0, Math.floor(totalSec));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+/** Shortest signed angular delta in degrees, normalized to (-180, 180]. */
+function shortestAngleDelta(from: number, to: number) {
+  let d = ((to - from) % 360 + 540) % 360 - 180;
+  return d;
+}
 
 /* ---------- Google Maps loader (singleton) ---------- */
 declare global {
