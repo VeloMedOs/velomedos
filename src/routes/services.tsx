@@ -49,7 +49,7 @@ function Services() {
             <h2 className="text-lg font-semibold leading-snug">{s.title}</h2>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed flex-1">{s.body}</p>
             <Link to={s.to} className="mt-5 inline-flex items-center gap-1 mono text-[10px] uppercase tracking-widest text-action hover:gap-2 transition-all">
-              Learn more <ArrowRight className="size-3" />
+              Explore {s.title.toLowerCase()} <ArrowRight className="size-3" />
             </Link>
           </article>
         ))}

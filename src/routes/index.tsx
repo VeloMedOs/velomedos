@@ -16,7 +16,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "VeloMed OS — From your whole network down to one crew" },
-      { name: "description", content: "The branch-aware operating system for multi-branch medical mobility operators. Drill from your network, into a region's live cases, down to a single team and the patient in its care." },
+      { name: "description", content: "Branch-aware OS for multi-branch medical mobility operators: drill from your whole network into a region's live cases, down to a single crew." },
       { property: "og:title", content: "VeloMed OS — Network · Region · Team" },
       { property: "og:description", content: "Branch-aware OS for multi-branch medical mobility: dispatch, fleet, licensing, clinics and a public REST API." },
       { property: "og:url", content: "/" },

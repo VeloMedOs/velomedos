@@ -1,0 +1,30 @@
+# VeloMed OS
+
+> Branch-aware operating system for multi-branch medical mobility operators: ambulance dispatch, fleet compliance, remote clinics, mobile screening, training, and a public REST API.
+
+VeloMed OS gives operators one canvas that drills from the whole network into a region's live cases down to a single crew with patient vitals. Everything the apps do is exposed through a documented public REST API (OpenAPI 3.1).
+
+## Pages
+
+- [Home](/): Network · Region · Team overview of the platform.
+- [Platform](/platform): The branch hierarchy and three-level live map.
+- [Services](/services): Six services — dispatch, fleet compliance, clinics, screening, training, developer API.
+- [Clinics](/clinics): Directory of physical, mobile and telehealth clinics by city and specialty.
+- [Pricing](/pricing): Plans scoped to fleet size, cities and SLAs.
+- [About](/about): Who operates the platform and how it fits together.
+- [Contact](/contact): Branching intake for emergencies, clinic bookings, screening and leads.
+- [Request a demo](/demo): Sales-qualified demo intake for operators.
+- [Resources](/resources): Operator-grade writing on medical mobility.
+- [Comparison guide](/resources/comparison): How VeloMed OS compares to other ambulance dispatch software.
+
+## Developer surface
+
+- [Developers](/developers): API-first platform pitch and quickstart.
+- [API reference](/api-reference): Live example endpoints with request/response playground.
+- [Swagger UI](/api-docs): Full OpenAPI 3.1 reference.
+
+## Optional
+
+- [Website map](/website): Index of every public page.
+- [Privacy](/privacy)
+- [Terms](/terms)

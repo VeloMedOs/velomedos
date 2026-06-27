@@ -364,7 +364,7 @@ function NetworkView({ onPick }: { onPick: (id: string) => void }) {
         <button className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700" aria-label="Layers"><Layers className="size-4" /></button>
       </div>
       <div className="absolute bottom-3 right-3 flex flex-col gap-2">
-        <button className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-4" /></button>
+        <button aria-label="Reset map orientation" className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-4" /></button>
       </div>
     </div>
   );

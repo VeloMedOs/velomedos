@@ -5,7 +5,7 @@ import { ArrowRight, Building2, Layers, Users, Activity, ShieldCheck, Cable } fr
 import { breadcrumbLd, jsonld } from "@/components/Jsonld";
 
 const title = "Platform — Network · Region · Team | VeloMed OS";
-const desc = "VeloMed OS is the branch-aware operating system for multi-branch medical mobility: drill from the whole network into a region's live cases, down to a single crew with patient vitals and the next queued case.";
+const desc = "Branch-aware OS for multi-branch medical mobility: drill from the whole network into a region's live cases, down to a single crew on one canvas.";
 
 export const Route = createFileRoute("/platform")({
   head: () => ({
