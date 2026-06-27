@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { ArrowRight, Radio, Wrench, BadgeCheck, GraduationCap, Stethoscope, Code2, MapPin, AlertTriangle, ClipboardCheck } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { faqLd, jsonld } from "@/components/Jsonld";
@@ -30,6 +31,18 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const [stats, setStats] = useState<{ branches_live: number; active_cases: number; teams_live: number; credentials_expiring_7d: number } | null>(null);
+  useEffect(() => {
+    let cancel = false;
+    fetch("/api/public/v1/stats").then((r) => r.ok ? r.json() : null).then((d) => { if (!cancel && d) setStats(d); }).catch(() => {});
+    return () => { cancel = true; };
+  }, []);
+  const items = [
+    { kpi: stats?.branches_live ?? 5, label: "Branches live" },
+    { kpi: stats?.active_cases ?? 0, label: "Active cases across the network" },
+    { kpi: stats?.teams_live ?? 0, label: "Teams live now" },
+    { kpi: stats?.credentials_expiring_7d ?? 0, label: "Credentials expiring this week" },
+  ];
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
@@ -38,14 +51,9 @@ function Index() {
       {/* TRUST / STAT STRIP */}
       <section className="border-b border-hairline bg-panel/40">
         <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-10 grid grid-cols-2 md:grid-cols-4 gap-px bg-hairline">
-          {[
-            { kpi: "12", label: "Branches live" },
-            { kpi: "103", label: "Active cases across the network" },
-            { kpi: "144", label: "Teams live now" },
-            { kpi: "7", label: "Credentials expiring this week" },
-          ].map((k) => (
+          {items.map((k) => (
             <div key={k.label} className="bg-background/40 px-6 py-5">
-              <div className="text-3xl font-bold tracking-tight mono">{k.kpi}</div>
+              <div className="text-3xl font-bold tracking-tight mono">{String(k.kpi)}</div>
               <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1.5">{k.label}</div>
             </div>
           ))}
