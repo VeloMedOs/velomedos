@@ -498,7 +498,7 @@ function TeamView() {
       // Vehicle (teal)
       vehicleRef.current = new google.maps.Marker({
         map, position: TEAM_A,
-        icon: { url: ambulanceIcon(0), scaledSize: new google.maps.Size(40, 40), anchor: new google.maps.Point(20, 20) },
+        icon: { url: ambulanceIcon(0), scaledSize: new google.maps.Size(56, 56), anchor: new google.maps.Point(28, 28) },
         zIndex: 999,
       });
 
@@ -598,8 +598,8 @@ function TeamView() {
               lastHeadingRef.current = heading;
               vehicleRef.current.setIcon({
                 url: ambulanceIcon(heading),
-                scaledSize: new google.maps.Size(40, 40),
-                anchor: new google.maps.Point(20, 20),
+                scaledSize: new google.maps.Size(56, 56),
+                anchor: new google.maps.Point(28, 28),
               });
             }
           }
