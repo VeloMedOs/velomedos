@@ -5,8 +5,10 @@ import { toast } from "sonner";
 import {
   Shield, Building2, Activity, KeyRound, Webhook, Users, Server,
   CheckCircle2, XCircle, CreditCard, Package, UserCog, LayoutDashboard,
-  Plus, Trash2, Search, BadgeCheck, Pause, Play,
+  Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock,
 } from "lucide-react";
+import { openApiSpec } from "@/lib/openapi-spec";
+import { ROLE_META, ROLE_ORDER, CAPABILITIES, effectiveCapabilities, type AppRole } from "@/lib/role-matrix";
 
 export const Route = createFileRoute("/_authenticated/superadmin")({
   head: () => ({ meta: [{ title: "Superadmin · VeloMed OS" }] }),
@@ -19,8 +21,10 @@ type Plan = { id: string; code: string; name: string; description: string | null
 type Sub = { id: string; tenant_id: string; plan_id: string; status: string; seats: number; current_period_start: string; current_period_end: string | null; cancel_at_period_end: boolean; notes: string | null };
 type Profile = { id: string; full_name: string | null; email: string | null; default_role: string | null };
 type RoleRow = { user_id: string; role: string };
+type ApiKey = { id: string; name: string; prefix: string; scopes: string[]; rate_limit_per_min: number; tenant_id: string | null; owner_id: string; created_at: string; last_used_at: string | null };
 
 const ALL_ROLES = ["superadmin","admin","dispatcher","developer","business_admin","paramedic","driver","patient"] as const;
+const ALL_SCOPES = ["fleet:read","incidents:read","incidents:write","clinics:read","courses:read","compliance:read","screening:read","screening:write"] as const;
 const STATUS_COLORS: Record<string, string> = {
   trialing:   "bg-action/20 text-action",
   active:     "bg-stable/20 text-stable",
@@ -31,7 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
 const fmtMoney = (c: number, cur: string) =>
   c === 0 ? "Custom" : new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(c / 100);
 
-type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "requests";
+type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "apikeys" | "privileges" | "apidocs" | "requests";
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
@@ -42,6 +46,7 @@ function Superadmin() {
   const [subs, setSubs] = useState<Sub[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [roles, setRoles] = useState<RoleRow[]>([]);
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [stats, setStats] = useState({ users: 0, incidents: 0, ambulances: 0, apiKeys: 0, webhooks: 0 });
 
   useEffect(() => {
@@ -55,13 +60,14 @@ function Superadmin() {
   }, []);
 
   async function load() {
-    const [t, r, p, s, pr, ur, prof, inc, amb, ak, wh] = await Promise.all([
+    const [t, r, p, s, pr, ur, keys, prof, inc, amb, ak, wh] = await Promise.all([
       (supabase as any).from("corporate_accounts").select("*").order("created_at", { ascending: false }),
       (supabase as any).from("business_requests").select("*").order("created_at", { ascending: false }).limit(50),
       (supabase as any).from("subscription_plans").select("*").order("sort_order"),
       (supabase as any).from("tenant_subscriptions").select("*").order("created_at", { ascending: false }),
       (supabase as any).from("profiles").select("id,full_name,email,default_role").order("created_at", { ascending: false }).limit(500),
       (supabase as any).from("user_roles").select("user_id, role"),
+      (supabase as any).from("api_keys").select("id,name,prefix,scopes,rate_limit_per_min,tenant_id,owner_id,created_at,last_used_at").order("created_at", { ascending: false }),
       supabase.from("profiles").select("id", { count: "exact", head: true }),
       supabase.from("incidents").select("id", { count: "exact", head: true }),
       supabase.from("ambulances").select("id", { count: "exact", head: true }),
@@ -74,6 +80,7 @@ function Superadmin() {
     setSubs((s.data ?? []) as Sub[]);
     setProfiles((pr.data ?? []) as Profile[]);
     setRoles((ur.data ?? []) as RoleRow[]);
+    setApiKeys((keys.data ?? []) as ApiKey[]);
     setStats({
       users: prof.count ?? 0,
       incidents: inc.count ?? 0,
@@ -159,6 +166,15 @@ function Superadmin() {
     load();
   }
 
+  // ---------- API key mutations ----------
+  async function revokeKey(id: string) {
+    if (!confirm("Revoke this API key? Requests using it will fail immediately.")) return;
+    const { error } = await (supabase as any).from("api_keys").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Key revoked");
+    load();
+  }
+
   if (allowed === null) return <div className="p-10 mono text-xs text-muted-foreground">Verifying…</div>;
   if (!allowed) return (
     <div className="p-10 max-w-xl mx-auto text-center space-y-2">
@@ -185,6 +201,9 @@ function Superadmin() {
     { id: "subs",     label: "Subscriptions", icon: CreditCard, badge: activeSubs.length },
     { id: "plans",    label: "Plans",         icon: Package },
     { id: "roles",    label: "Roles & access",icon: UserCog },
+    { id: "apikeys",  label: "API keys",      icon: KeyRound, badge: apiKeys.length || undefined },
+    { id: "privileges",label:"Privileges",    icon: Lock },
+    { id: "apidocs",  label: "API docs",      icon: BookOpen },
     { id: "requests", label: "Requests",      icon: Webhook, badge: newReqs || undefined },
   ];
 
@@ -250,6 +269,15 @@ function Superadmin() {
       {tab === "roles" && (
         <RolesPane profiles={profiles} roles={roles} grantRole={grantRole} revokeRole={revokeRole} />
       )}
+      {tab === "apikeys" && (
+        <ApiKeysPane keys={apiKeys} tenants={tenants} profiles={profiles} revoke={revokeKey} reload={load} />
+      )}
+      {tab === "privileges" && (
+        <PrivilegesPane profiles={profiles} roles={roles} />
+      )}
+      {tab === "apidocs" && (
+        <ApiDocsPane />
+      )}
       {tab === "requests" && (
         <RequestsPane reqs={reqs} review={review} />
       )}
@@ -259,6 +287,8 @@ function Superadmin() {
         <div className="flex flex-wrap gap-2">
           {[
             ["/developer", "API keys & scopes"],
+            ["/privileges", "Role privileges matrix"],
+            ["/api-docs", "OpenAPI / Swagger"],
             ["/audit", "Audit log"],
             ["/admin", "Operations overview"],
             ["/compliance", "Compliance"],
@@ -547,5 +577,284 @@ function RequestsPane({ reqs, review }: { reqs: Req[]; review: (id: string, s: "
         ))}
       </div>
     </Card>
+  );
+}
+
+/* ============================== API keys ============================== */
+
+async function sha256Hex(input: string): Promise<string> {
+  const buf = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function randomKey(): string {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  const b64 = btoa(String.fromCharCode(...bytes)).replace(/\+/g, "").replace(/\//g, "").replace(/=/g, "");
+  return `vmk_${b64}`;
+}
+
+function ApiKeysPane({
+  keys, tenants, profiles, revoke, reload,
+}: { keys: ApiKey[]; tenants: Tenant[]; profiles: Profile[]; revoke: (id: string) => void; reload: () => void }) {
+  const [name, setName] = useState("");
+  const [tenantId, setTenantId] = useState<string>("");
+  const [scopes, setScopes] = useState<string[]>(["fleet:read","incidents:read"]);
+  const [rate, setRate] = useState<number>(600);
+  const [issued, setIssued] = useState<string | null>(null);
+  const [filterTenant, setFilterTenant] = useState<string>("");
+
+  async function issue(rotateOf?: ApiKey) {
+    const finalName = rotateOf ? rotateOf.name : name.trim();
+    if (!finalName) return toast.error("Name required");
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const raw = randomKey();
+    const prefix = raw.slice(0, 12);
+    const hashed = await sha256Hex(raw);
+    const { error } = await (supabase as any).from("api_keys").insert({
+      name: finalName, owner_id: user.id,
+      tenant_id: rotateOf ? rotateOf.tenant_id : (tenantId || null),
+      prefix, hashed_key: hashed,
+      scopes: rotateOf ? rotateOf.scopes : scopes,
+      rate_limit_per_min: rotateOf ? rotateOf.rate_limit_per_min : rate,
+    });
+    if (error) return toast.error(error.message);
+    if (rotateOf) await (supabase as any).from("api_keys").delete().eq("id", rotateOf.id);
+    setIssued(raw); setName("");
+    toast.success(rotateOf ? "Key rotated" : "Key issued");
+    reload();
+  }
+
+  const filtered = filterTenant === "_personal"
+    ? keys.filter((k) => !k.tenant_id)
+    : filterTenant
+    ? keys.filter((k) => k.tenant_id === filterTenant)
+    : keys;
+
+  return (
+    <div className="space-y-4">
+      <Card title="Issue API key">
+        <div className="p-4 space-y-3">
+          <div className="grid lg:grid-cols-[1fr_220px_120px_auto] gap-2">
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Connect Care – production server" className="h-10 px-3 rounded bg-input border border-hairline text-sm" />
+            <select value={tenantId} onChange={(e) => setTenantId(e.target.value)} className="h-10 px-2 rounded bg-input border border-hairline text-sm">
+              <option value="">Platform key (no tenant)</option>
+              {tenants.map((t) => <option key={t.id} value={t.id}>{t.company_name}</option>)}
+            </select>
+            <input type="number" min={1} max={6000} value={rate} onChange={(e) => setRate(Math.max(1, Number(e.target.value) || 60))} className="h-10 px-3 rounded bg-input border border-hairline text-sm mono" title="Rate limit per minute" />
+            <button onClick={() => issue()} className="h-10 px-4 rounded bg-action text-action-foreground mono text-xs uppercase tracking-widest font-bold whitespace-nowrap">Generate</button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {ALL_SCOPES.map((s) => {
+              const on = scopes.includes(s);
+              return (
+                <button key={s} type="button"
+                  onClick={() => setScopes(on ? scopes.filter((x) => x !== s) : [...scopes, s])}
+                  className={`mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border ${on ? "border-action/60 bg-action/20 text-action" : "border-hairline text-muted-foreground hover:text-foreground"}`}>
+                  {s}
+                </button>
+              );
+            })}
+          </div>
+          {issued && (
+            <div className="rounded-md border border-caution/50 bg-caution/10 p-3 space-y-2">
+              <div className="mono text-[10px] uppercase tracking-widest text-caution">Copy now — shown once</div>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 font-mono text-xs break-all">{issued}</code>
+                <button onClick={() => { navigator.clipboard.writeText(issued); toast.success("Copied"); }} className="size-8 grid place-items-center rounded hover:bg-panel-elevated"><Copy className="size-4" /></button>
+              </div>
+              <button onClick={() => setIssued(null)} className="mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground">I've saved it</button>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <Card title={`Active keys · ${filtered.length}`} right={
+        <select value={filterTenant} onChange={(e) => setFilterTenant(e.target.value)} className="bg-panel-elevated border border-hairline rounded px-2 py-0.5 mono text-[10px] uppercase normal-case">
+          <option value="">All tenants</option>
+          <option value="_personal">Personal / platform</option>
+          {tenants.map((t) => <option key={t.id} value={t.id}>{t.company_name}</option>)}
+        </select>
+      }>
+        <div className="divide-y divide-hairline">
+          {filtered.length === 0 && <div className="p-6 text-sm text-muted-foreground">No keys.</div>}
+          {filtered.map((k) => {
+            const tenant = tenants.find((t) => t.id === k.tenant_id);
+            const owner = profiles.find((p) => p.id === k.owner_id);
+            const stale = k.last_used_at && (Date.now() - new Date(k.last_used_at).getTime() > 30 * 864e5);
+            return (
+              <div key={k.id} className="px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+                <div className="min-w-0">
+                  <div className="font-semibold flex items-center gap-2"><KeyRound className="size-4 text-action" />{k.name}</div>
+                  <div className="mono text-[11px] text-muted-foreground truncate">
+                    {k.prefix}… · {tenant ? <span className="text-action">{tenant.company_name}</span> : <span>platform/personal</span>} · owner {owner?.email ?? k.owner_id.slice(0,8)} · {k.rate_limit_per_min}/min
+                  </div>
+                  <div className="mono text-[10px] text-action/80 mt-0.5">{(k.scopes ?? []).join(" · ")}</div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="mono text-[10px] uppercase text-right">
+                    <div className="text-muted-foreground">Last used</div>
+                    <div className={stale ? "text-caution" : "text-foreground"}>
+                      {k.last_used_at ? new Date(k.last_used_at).toLocaleString() : "never"}
+                    </div>
+                  </div>
+                  <button onClick={() => issue(k)} title="Rotate (issue new key, revoke this one)"
+                    className="size-9 grid place-items-center rounded text-muted-foreground hover:text-action hover:bg-action/10"><RefreshCw className="size-4" /></button>
+                  <button onClick={() => revoke(k.id)} title="Revoke"
+                    className="size-9 grid place-items-center rounded text-muted-foreground hover:text-emergency hover:bg-emergency/10"><Trash2 className="size-4" /></button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/* ============================== Privileges (preview) ============================== */
+
+function PrivilegesPane({ profiles, roles }: { profiles: Profile[]; roles: RoleRow[] }) {
+  const [q, setQ] = useState("");
+  const [selected, setSelected] = useState<string | null>(null);
+  const rolesByUser = useMemo(() => {
+    const m = new Map<string, AppRole[]>();
+    for (const r of roles) {
+      if (!m.has(r.user_id)) m.set(r.user_id, []);
+      m.get(r.user_id)!.push(r.role as AppRole);
+    }
+    return m;
+  }, [roles]);
+  const filteredProfiles = profiles
+    .filter((p) => ((p.email ?? "") + " " + (p.full_name ?? "")).toLowerCase().includes(q.toLowerCase()))
+    .slice(0, 20);
+  const selectedRoles = (selected && rolesByUser.get(selected)) || [];
+  const effective = effectiveCapabilities(selectedRoles);
+  return (
+    <div className="space-y-4">
+      <div className="grid lg:grid-cols-4 gap-3">
+        {ROLE_ORDER.map((r) => {
+          const m = ROLE_META[r];
+          const count = CAPABILITIES.filter((c) => c.roles.includes(r)).length;
+          return (
+            <div key={r} className="rounded-xl border border-hairline bg-panel p-3 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className={`mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded ${m.tone}`}>{m.label}</span>
+                <span className="mono text-[10px] text-muted-foreground">{count} caps</span>
+              </div>
+              <div className="text-[11px] text-muted-foreground leading-snug">{m.blurb}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      <Card title="Effective permissions resolver" right={
+        <div className="flex items-center gap-1 bg-panel-elevated rounded px-2 py-0.5 normal-case text-xs">
+          <Search className="size-3 text-muted-foreground" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="search user" className="bg-transparent outline-none w-56" />
+        </div>
+      }>
+        <div className="p-4 space-y-3">
+          {q && (
+            <div className="flex flex-wrap gap-1">
+              {filteredProfiles.map((p) => (
+                <button key={p.id} onClick={() => { setSelected(p.id); setQ(""); }}
+                  className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated">
+                  {p.email ?? p.id.slice(0,8)}
+                </button>
+              ))}
+              {filteredProfiles.length === 0 && <span className="text-xs text-muted-foreground">No matches</span>}
+            </div>
+          )}
+          {selected ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="font-semibold">{profiles.find(p => p.id === selected)?.email}</div>
+                <div className="flex flex-wrap gap-1">
+                  {selectedRoles.length === 0
+                    ? <span className="mono text-[10px] text-muted-foreground">No roles</span>
+                    : selectedRoles.map((r) => <span key={r} className={`mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded ${ROLE_META[r].tone}`}>{ROLE_META[r].label}</span>)}
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-1.5">
+                {effective.map((c) => (
+                  <div key={c.id} className="flex items-start gap-2 text-xs">
+                    <CheckCircle2 className="size-3.5 text-stable shrink-0 mt-0.5" />
+                    <div><span className="font-medium">{c.label}</span> <span className="text-muted-foreground">· {c.area}</span></div>
+                  </div>
+                ))}
+                {effective.length === 0 && <div className="text-xs text-muted-foreground">No capabilities — this user has no roles.</div>}
+              </div>
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground">Search and pick a user to see their effective permissions.</div>
+          )}
+          <div className="pt-2 border-t border-hairline">
+            <Link to="/privileges" className="mono text-[10px] uppercase tracking-widest text-action hover:underline">Open full privileges matrix →</Link>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/* ============================== API docs (Swagger snapshot) ============================== */
+
+function ApiDocsPane() {
+  const paths = Object.entries(openApiSpec.paths as Record<string, any>);
+  const totalOps = paths.reduce((acc, [, methods]) => acc + Object.keys(methods).length, 0);
+  return (
+    <div className="space-y-4">
+      <Card title={`OpenAPI ${openApiSpec.openapi} · ${openApiSpec.info.version}`} right={
+        <div className="flex items-center gap-2 normal-case">
+          <a href="/api/public/v1/openapi" target="_blank" rel="noreferrer" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-hairline hover:bg-panel-elevated">openapi.json ↗</a>
+          <Link to="/api-docs" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-action text-action-foreground font-bold">Open Swagger UI →</Link>
+        </div>
+      }>
+        <div className="p-4 grid sm:grid-cols-3 gap-px bg-hairline rounded overflow-hidden border border-hairline">
+          <div className="bg-panel p-3"><div className="mono text-[10px] uppercase text-muted-foreground">Endpoints</div><div className="text-2xl font-bold mono">{paths.length}</div></div>
+          <div className="bg-panel p-3"><div className="mono text-[10px] uppercase text-muted-foreground">Operations</div><div className="text-2xl font-bold mono">{totalOps}</div></div>
+          <div className="bg-panel p-3"><div className="mono text-[10px] uppercase text-muted-foreground">Scopes</div><div className="text-2xl font-bold mono">{ALL_SCOPES.length}</div></div>
+        </div>
+        <div className="p-4 text-xs text-muted-foreground border-t border-hairline whitespace-pre-line">
+          {openApiSpec.info.description}
+        </div>
+      </Card>
+
+      <Card title="Endpoints">
+        <div className="overflow-auto">
+          <table className="w-full text-sm">
+            <thead className="mono text-[10px] uppercase tracking-widest text-muted-foreground bg-panel-elevated/40">
+              <tr><th className="text-left p-2 w-20">Method</th><th className="text-left p-2">Path</th><th className="text-left p-2">Summary</th><th className="text-left p-2">Scope</th></tr>
+            </thead>
+            <tbody className="divide-y divide-hairline">
+              {paths.flatMap(([path, methods]) =>
+                Object.entries(methods as Record<string, any>).map(([m, op]) => {
+                  const scope = (op.description as string | undefined)?.match(/`([a-z]+:[a-z]+)`/)?.[1] ?? "public";
+                  return (
+                    <tr key={`${m}-${path}`}>
+                      <td className="p-2"><span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${m === "get" ? "bg-action/20 text-action" : m === "post" ? "bg-stable/20 text-stable" : "bg-caution/20 text-caution"}`}>{m}</span></td>
+                      <td className="p-2 mono text-xs">{path}</td>
+                      <td className="p-2 text-xs">{op.summary ?? ""}</td>
+                      <td className="p-2 mono text-[10px] text-muted-foreground">{scope}</td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <Card title="Scope catalogue">
+        <div className="p-4 flex flex-wrap gap-1.5">
+          {ALL_SCOPES.map((s) => (
+            <span key={s} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline">{s}</span>
+          ))}
+          <span className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-action/50 bg-action/10 text-action">*</span>
+        </div>
+      </Card>
+    </div>
   );
 }

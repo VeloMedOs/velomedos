@@ -2,9 +2,9 @@ export const openApiSpec = {
   openapi: "3.1.0",
   info: {
     title: "VeloMed OS Public API",
-    version: "1.1.0",
+    version: "1.2.0",
     description:
-      "Read-and-write REST API for ambulance fleet, incidents, clinics, courses, compliance and mobile screening. Authenticate with a key issued from the Developer console using `x-api-key`. Each key has an explicit scope set (e.g. `fleet:read`, `incidents:write`, `compliance:read`, `screening:write`) and a per-minute rate limit (HTTP 429 on overrun).",
+      "Read-and-write REST API for ambulance fleet, incidents, clinics, courses, compliance and mobile screening.\n\n## Authentication\nAuthenticate with a key issued from the Developer console using the `x-api-key` header. Keys come in three issuance scopes:\n- **Platform keys** — issued by VeloMed superadmins, not bound to a tenant.\n- **Tenant keys** — issued by a tenant's business admin or by a superadmin on the tenant's behalf, bound to the tenant's data.\n- **Personal keys** — issued by an individual developer for their own user.\n\n## Scopes\nEach key carries an explicit scope set; missing the required scope returns `403`. Available scopes: `fleet:read`, `incidents:read`, `incidents:write`, `clinics:read`, `courses:read`, `compliance:read`, `screening:read`, `screening:write`. A `*` scope grants all of the above.\n\n## Rate limiting\nEvery key has a per-minute rate limit. Overruns return `429` and reset on the next minute boundary. Default limit is 60 rpm; superadmin-issued platform keys default to 600 rpm.\n\n## Audit\nWrite endpoints record an `audit_log` row with the calling key id and request payload digest.",
     contact: { name: "VeloMed Infrastructure Group" },
   },
   servers: [{ url: "/api/public/v1", description: "Public v1" }],
