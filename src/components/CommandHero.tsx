@@ -439,7 +439,7 @@ function RegionView({ branch, onPickTeam }: { branch: Branch; onPickTeam: () => 
         <button onClick={() => zoomBy(-1)} className="size-9 grid place-items-center text-slate-700 hover:bg-slate-100" aria-label="Zoom out"><Minus className="size-4" /></button>
       </div>
       <div className="absolute bottom-3 right-3">
-        <button className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-4" /></button>
+        <button aria-label="Reset map orientation" className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-4" /></button>
       </div>
     </div>
   );
@@ -698,10 +698,10 @@ function TeamView() {
       </div>
       {/* Compass / layers */}
       <div className="absolute top-3 right-3 flex flex-col gap-2">
-        <button className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Layers className="size-4" /></button>
+        <button aria-label="Map layers" className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Layers className="size-4" /></button>
       </div>
       <div className="absolute bottom-3 right-3">
-        <button className="size-10 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-5" /></button>
+        <button aria-label="Reset map orientation" className="size-10 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-5" /></button>
       </div>
     </div>
   );
