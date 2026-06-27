@@ -647,3 +647,135 @@ function LensPanel({ title, icon, rows, note, accent = "teal" }: { title: string
     </div>
   );
 }
+
+/* ============================================================
+   Fallback satellite-style panels (used when Google Maps fails
+   to load — invalid key, billing not enabled, referrer block).
+   These mirror the real layout so the hero still feels alive.
+   ============================================================ */
+
+const SAT_BG: React.CSSProperties = {
+  backgroundColor: "#0b1f2a",
+  backgroundImage:
+    // soft satellite-like blotches + city glow + grid
+    "radial-gradient(60% 50% at 20% 30%, rgba(34,197,94,0.18), transparent 60%)," +
+    "radial-gradient(50% 40% at 75% 65%, rgba(234,179,8,0.14), transparent 60%)," +
+    "radial-gradient(35% 30% at 55% 20%, rgba(56,189,248,0.16), transparent 60%)," +
+    "radial-gradient(40% 35% at 30% 80%, rgba(244,114,182,0.10), transparent 60%)," +
+    "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)," +
+    "linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+  backgroundSize: "auto, auto, auto, auto, 40px 40px, 40px 40px",
+};
+
+function FallbackChrome({ children }: { children?: React.ReactNode }) {
+  return (
+    <div className="absolute inset-0" style={SAT_BG}>
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(120% 80% at 50% 50%, transparent 50%, rgba(0,0,0,0.55) 100%)" }} />
+      {children}
+      <div className="absolute bottom-1 right-2 mono text-[9px] uppercase tracking-widest text-white/40">
+        Offline preview · enable Maps billing for live satellite
+      </div>
+    </div>
+  );
+}
+
+function NetworkFallback({ onPick }: { onPick: (id: string) => void }) {
+  // Positions roughly mirror KSA branch geography on the rect.
+  const pts: Record<string, { top: string; left: string }> = {
+    northern: { top: "16%", left: "30%" },
+    western:  { top: "58%", left: "22%" },
+    southern: { top: "78%", left: "40%" },
+    central:  { top: "46%", left: "52%" },
+    eastern:  { top: "40%", left: "76%" },
+  };
+  return (
+    <FallbackChrome>
+      {BRANCHES.map((b) => {
+        const p = pts[b.id];
+        return (
+          <button key={b.id} onClick={() => onPick(b.id)}
+            className="absolute -translate-x-1/2 -translate-y-1/2 group"
+            style={{ top: p.top, left: p.left }}>
+            <span className="absolute inset-0 -m-3 rounded-full bg-sky-400/20 animate-pulse" />
+            <span className="relative grid place-items-center size-12 rounded-full bg-white border-2 border-blue-700 text-blue-900 font-bold text-sm shadow-lg">
+              {b.cases}
+            </span>
+            <span className="block mono text-[9px] uppercase tracking-widest text-white/80 mt-1.5 text-center">{b.name}</span>
+          </button>
+        );
+      })}
+    </FallbackChrome>
+  );
+}
+
+function RegionFallback({ branch, onPickTeam }: { branch: Branch; onPickTeam: () => void }) {
+  const cases = EASTERN_CASES.slice(0, 6).map((c, i) => ({
+    ...c,
+    top: `${18 + (i % 3) * 26}%`,
+    left: `${20 + Math.floor(i / 3) * 32 + (i % 2) * 14}%`,
+  }));
+  return (
+    <FallbackChrome>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mono text-[10px] uppercase tracking-[0.3em] text-white/30">
+        {branch.name} · region
+      </div>
+      {cases.map((c) => (
+        <button key={c.id} onClick={onPickTeam}
+          className="absolute -translate-x-1/2 -translate-y-1/2"
+          style={{ top: c.top, left: c.left }}>
+          <span className="absolute inset-0 -m-3 rounded-full animate-ping"
+            style={{ background: SEV_COLOR[c.severity], opacity: 0.25 }} />
+          <span className="relative block size-3.5 rounded-full border-2 border-white shadow"
+            style={{ background: SEV_COLOR[c.severity] }} />
+          <span className="block mono text-[9px] text-white/80 mt-1 whitespace-nowrap">{c.id}</span>
+        </button>
+      ))}
+    </FallbackChrome>
+  );
+}
+
+function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
+  // SVG mock route A→B with travelled segment + alternates
+  const pct = Math.max(0.02, Math.min(0.98, progress || 0.62));
+  return (
+    <FallbackChrome>
+      <svg viewBox="0 0 400 250" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+        {/* alternates */}
+        <path d="M 60 200 C 140 180, 200 100, 340 70" stroke="#a5b4fc" strokeWidth="6" strokeOpacity="0.55" fill="none" strokeLinecap="round" />
+        <path d="M 60 200 C 120 220, 260 200, 340 70" stroke="#a5b4fc" strokeWidth="6" strokeOpacity="0.45" fill="none" strokeLinecap="round" />
+        {/* primary remaining (light blue) */}
+        <path id="primary" d="M 60 200 C 160 200, 220 130, 340 70" stroke="#93c5fd" strokeWidth="9" fill="none" strokeLinecap="round" />
+        {/* primary travelled (dark blue), drawn via stroke-dasharray trick */}
+        <path d="M 60 200 C 160 200, 220 130, 340 70"
+          stroke="#1e3a8a" strokeWidth="9" fill="none" strokeLinecap="round"
+          pathLength={1} strokeDasharray={`${pct} 1`} />
+        {/* origin */}
+        <circle cx="60" cy="200" r="9" fill="#64748b" stroke="white" strokeWidth="3" />
+        {/* destination teardrop */}
+        <g transform="translate(340 70)">
+          <path d="M 0 -28 C -12 -28, -20 -20, -20 -8 C -20 6, 0 24, 0 24 S 20 6, 20 -8 C 20 -20, 12 -28, 0 -28 Z"
+            fill="#ea4335" stroke="white" strokeWidth="2" />
+          <circle cx="0" cy="-10" r="5" fill="white" />
+        </g>
+        {/* vehicle dot along primary */}
+        <circle r="7" fill="#06b6d4" stroke="white" strokeWidth="2.5">
+          <animateMotion dur="6s" repeatCount="indefinite"
+            path="M 60 200 C 160 200, 220 130, 340 70" />
+        </circle>
+      </svg>
+      {/* time bubbles */}
+      <div className="absolute" style={{ top: "12%", left: "62%" }}>
+        <div className="px-2.5 py-1 rounded-full border border-white bg-blue-700 text-white shadow-md text-[12px] font-semibold flex items-center gap-1.5">
+          {eta} <span className="inline-block size-1.5 rounded-full bg-emerald-300" />
+        </div>
+      </div>
+      <div className="absolute" style={{ top: "30%", left: "42%" }}>
+        <div className="px-2.5 py-1 rounded-full border border-slate-200 bg-white text-slate-900 shadow-md text-[12px] font-semibold">7 min</div>
+      </div>
+      <div className="absolute bottom-3 left-3 mono text-[9px] uppercase tracking-widest text-white/60 flex items-center gap-1.5">
+        <Radio className="size-3 text-teal" /> Crew 04 · A → B · {Math.round(pct * 100)}%
+      </div>
+    </FallbackChrome>
+  );
+}
