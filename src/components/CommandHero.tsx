@@ -789,7 +789,7 @@ function ambulanceIcon(heading: number) {
         <stop offset='1' stop-color='#e2e8f0'/>
       </linearGradient>
     </defs>
-    <circle cx='28' cy='28' r='22' fill='#06b6d4' fill-opacity='0.18'>
+    <circle cx='28' cy='28' r='22' fill='#28D6B6' fill-opacity='0.20'>
       <animate attributeName='r' values='18;24;18' dur='1.6s' repeatCount='indefinite'/>
       <animate attributeName='fill-opacity' values='0.32;0.04;0.32' dur='1.6s' repeatCount='indefinite'/>
     </circle>
@@ -799,21 +799,21 @@ function ambulanceIcon(heading: number) {
       <!-- hood seam -->
       <line x1='16' y1='17' x2='40' y2='17' stroke='#0f172a' stroke-width='0.6' stroke-opacity='0.4'/>
       <!-- windshield (front of vehicle = top in rotation 0) -->
-      <path d='M 18 14 Q 28 10 38 14 L 36 17 L 20 17 Z' fill='#7dd3fc' stroke='#0f172a' stroke-width='0.7'/>
+      <path d='M 18 14 Q 28 10 38 14 L 36 17 L 20 17 Z' fill='#4FB6F7' stroke='#0f172a' stroke-width='0.7'/>
       <!-- side red stripes -->
-      <rect x='16' y='25' width='24' height='2.8' fill='#ef4444'/>
-      <rect x='16' y='34' width='24' height='2.8' fill='#ef4444' fill-opacity='0.55'/>
+      <rect x='16' y='25' width='24' height='2.8' fill='#FF6E5B'/>
+      <rect x='16' y='34' width='24' height='2.8' fill='#FF6E5B' fill-opacity='0.55'/>
       <!-- red cross (center) -->
-      <rect x='26.7' y='28' width='2.6' height='10' fill='#ffffff' stroke='#ef4444' stroke-width='0.6'/>
-      <rect x='23' y='31.7' width='10' height='2.6' fill='#ffffff' stroke='#ef4444' stroke-width='0.6'/>
-      <rect x='26.9' y='28.2' width='2.2' height='9.6' fill='#ef4444'/>
-      <rect x='23.2' y='31.9' width='9.6' height='2.2' fill='#ef4444'/>
+      <rect x='26.7' y='28' width='2.6' height='10' fill='#ffffff' stroke='#FF6E5B' stroke-width='0.6'/>
+      <rect x='23' y='31.7' width='10' height='2.6' fill='#ffffff' stroke='#FF6E5B' stroke-width='0.6'/>
+      <rect x='26.9' y='28.2' width='2.2' height='9.6' fill='#FF6E5B'/>
+      <rect x='23.2' y='31.9' width='9.6' height='2.2' fill='#FF6E5B'/>
       <!-- roof lightbar -->
-      <rect x='19' y='11' width='8' height='2.4' rx='0.8' fill='#ef4444'>
-        <animate attributeName='fill' values='#ef4444;#7f1d1d;#ef4444' dur='0.7s' repeatCount='indefinite'/>
+      <rect x='19' y='11' width='8' height='2.4' rx='0.8' fill='#FF6E5B'>
+        <animate attributeName='fill' values='#FF6E5B;#7a2a20;#FF6E5B' dur='0.7s' repeatCount='indefinite'/>
       </rect>
-      <rect x='29' y='11' width='8' height='2.4' rx='0.8' fill='#06b6d4'>
-        <animate attributeName='fill' values='#06b6d4;#155e75;#06b6d4' dur='0.7s' repeatCount='indefinite'/>
+      <rect x='29' y='11' width='8' height='2.4' rx='0.8' fill='#28D6B6'>
+        <animate attributeName='fill' values='#28D6B6;#0f5b4d;#28D6B6' dur='0.7s' repeatCount='indefinite'/>
       </rect>
       <!-- rear bumper hint -->
       <rect x='18' y='44' width='20' height='2' rx='0.8' fill='#0f172a' fill-opacity='0.7'/>
