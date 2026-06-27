@@ -115,6 +115,7 @@ export type Database = {
           prefix: string
           rate_limit_per_min: number
           scopes: string[]
+          tenant_id: string | null
         }
         Insert: {
           created_at?: string
@@ -126,6 +127,7 @@ export type Database = {
           prefix: string
           rate_limit_per_min?: number
           scopes?: string[]
+          tenant_id?: string | null
         }
         Update: {
           created_at?: string
@@ -137,8 +139,17 @@ export type Database = {
           prefix?: string
           rate_limit_per_min?: number
           scopes?: string[]
+          tenant_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       audit_log: {
         Row: {
