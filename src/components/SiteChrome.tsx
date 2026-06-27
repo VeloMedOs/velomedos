@@ -1,43 +1,34 @@
 import { Link } from "@tanstack/react-router";
-import { Activity } from "lucide-react";
+import { Activity, ArrowRight } from "lucide-react";
 import { SITE } from "@/lib/site-config";
 
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 h-14 border-b border-hairline bg-background/85 backdrop-blur flex items-center justify-between px-4 lg:px-8">
       <Link to="/" className="flex items-center gap-2">
-        <div className="size-7 rounded-md bg-emergency grid place-items-center text-emergency-foreground shadow-[0_0_18px_oklch(0.62_0.22_27/0.5)]">
+        <div className="size-7 rounded-md bg-teal grid place-items-center text-background shadow-[0_0_18px_oklch(0.74_0.13_195/0.45)]">
           <Activity className="size-4" />
         </div>
-        <span className="font-bold tracking-tight">VELOMED <span className="text-emergency">OS</span></span>
+        <span className="font-bold tracking-tight">VELOMED <span className="text-teal">OS</span></span>
       </Link>
       <nav className="hidden md:flex items-center gap-6 mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-        <Link to="/services" className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>Services</Link>
-        <Link to="/clinics" className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>Clinics</Link>
-        <Link to="/resources" className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>Resources</Link>
+        <Link to="/platform" className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>Platform</Link>
+        <Link to="/services" className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>Solutions</Link>
+        <Link to="/developers" className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>Developers</Link>
         <Link to="/pricing" className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>Pricing</Link>
         <Link to="/about" className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>About</Link>
-        <Link to="/developers" className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>Developers</Link>
-        <Link to="/contact" className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>Contact</Link>
       </nav>
       <div className="flex items-center gap-2">
         <Link to="/auth" className="mono text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-md border border-hairline hover:bg-panel">Sign in</Link>
-        <Link to="/demo" className="mono text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-md bg-emergency text-emergency-foreground hover:bg-emergency/90">Request a demo</Link>
+        <Link to="/demo" className="mono text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-md bg-teal text-background hover:bg-teal/90 inline-flex items-center gap-1.5 font-semibold">Book a demo <ArrowRight className="size-3" /></Link>
       </div>
     </header>
   );
 }
 
-export function EmergencyBanner() {
-  return (
-    <div className="bg-emergency/10 border-b border-emergency/30 text-foreground">
-      <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-2.5 text-[12px] flex flex-wrap items-center justify-between gap-2">
-        <span><strong className="text-emergency">Life-threatening?</strong> Call your local emergency number directly. This site is for dispatchable non-911 requests inside our operating regions.</span>
-        <Link to="/contact" className="mono text-[10px] uppercase tracking-widest underline hover:text-emergency">Non-emergency request →</Link>
-      </div>
-    </div>
-  );
-}
+// VeloMed OS is a B2B platform for multi-branch operators — no patient-facing
+// emergency disclaimer. Kept as a no-op for callers; will be removed entirely.
+export function EmergencyBanner() { return null; }
 
 export function SiteFooter() {
   return (
