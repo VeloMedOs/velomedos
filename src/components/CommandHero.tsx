@@ -469,11 +469,14 @@ function TeamView() {
   const mapRef = useRef<google.maps.Map | null>(null);
   const vehicleRef = useRef<google.maps.Marker | null>(null);
   const travelledRef = useRef<google.maps.Polyline | null>(null);
-  const lastHeadingRef = useRef<number>(0);
+  const targetHeadingRef = useRef<number>(0);
+  const smoothedHeadingRef = useRef<number>(0);
+  const appliedHeadingRef = useRef<number>(0);
   const lastPosRef = useRef<google.maps.LatLng | null>(null);
   const [routes, setRoutes] = useState<{ path: google.maps.LatLng[]; minutes: number }[]>([]);
-  const [progress, setProgress] = useState(0);
-  const [eta, setEta] = useState<string>("12:30");
+  const [, setProgressTick] = useState(0);
+  const progressRef = useRef(0);
+  const tel = useTelemetry();
   const tripStartRef = useRef<number>(performance.now());
   const failed = useMapsFailed();
 
@@ -536,7 +539,7 @@ function TeamView() {
             const totalKm  = (leg?.distance?.value ?? 8400) / 1000;
             setTelemetry({ totalSec, totalKm, progress: 0, elapsedSec: 0 });
             tripStartRef.current = performance.now();
-            setEta(fmtMinSec(totalSec));
+            progressRef.current = 0;
 
             // Alt routes (light translucent blue, behind)
             all.slice(1).forEach((r) =>
@@ -580,42 +583,53 @@ function TeamView() {
     const total = routes[0].path.length;
     function tick(t: number) {
       const dt = (t - last) / 1000; last = t;
-      setProgress((p) => {
-        // Drive the trip from 0 → 1, hold at the destination for a short
-        // "arrived" beat, then reset for the next loop. Demo speed: ~28s.
-        const lap = Math.max(20, Math.min(120, TELEM.totalSec * 0.12));
-        let next = p + dt / lap;
-        const arrived = next >= 1;
-        if (next >= 1.18) {
-          // restart trip cleanly
-          tripStartRef.current = t;
-          next = 0;
-        } else if (arrived) {
-          next = 1;
+      // Drive the trip from 0 → 1, hold at the destination for a short
+      // "arrived" beat, then reset for the next loop.
+      const lap = Math.max(20, Math.min(120, TELEM.totalSec * 0.12));
+      const p = progressRef.current;
+      let next = p + dt / lap;
+      const arrived = next >= 1;
+      const justLooped = next >= 1.18;
+      if (justLooped) {
+        tripStartRef.current = t;
+        next = 0;
+        lastPosRef.current = null;
+      } else if (arrived) {
+        next = 1;
+      }
+      progressRef.current = next;
+      const idx = arrived
+        ? total
+        : Math.max(1, Math.floor(Math.min(next, 0.9999) * total));
+      const segment = routes[0].path.slice(0, idx);
+      if (travelledRef.current) travelledRef.current.setPath(segment);
+      const head = arrived
+        ? routes[0].path[routes[0].path.length - 1]
+        : segment[segment.length - 1];
+      if (head && vehicleRef.current) {
+        vehicleRef.current.setPosition(head);
+        // Target bearing from the previous frame's position.
+        const prev = lastPosRef.current;
+        if (prev && window.google?.maps?.geometry && !arrived) {
+          const heading = google.maps.geometry.spherical.computeHeading(prev, head);
+          if (!Number.isNaN(heading)) targetHeadingRef.current = heading;
         }
-        const idx = Math.max(1, Math.floor(Math.min(next, 0.9999) * total));
-        const segment = routes[0].path.slice(0, idx);
-        if (travelledRef.current) travelledRef.current.setPath(segment);
-        const head = arrived
-          ? routes[0].path[routes[0].path.length - 1]
-          : segment[segment.length - 1];
-        if (head && vehicleRef.current) {
-          vehicleRef.current.setPosition(head);
-          // Rotate ambulance along bearing of travel
-          const prev = lastPosRef.current;
-          if (prev && window.google?.maps?.geometry) {
-            const heading = google.maps.geometry.spherical.computeHeading(prev, head);
-            if (!Number.isNaN(heading) && Math.abs(heading - lastHeadingRef.current) > 4) {
-              lastHeadingRef.current = heading;
-              vehicleRef.current.setIcon({
-                url: ambulanceIcon(heading),
-                scaledSize: new google.maps.Size(56, 56),
-                anchor: new google.maps.Point(28, 28),
-              });
-            }
-          }
-          lastPosRef.current = head;
+        // Ease smoothed bearing toward target along the shortest arc.
+        const alpha = Math.min(1, dt * 6); // ~166ms time-constant
+        const delta = shortestAngleDelta(smoothedHeadingRef.current, targetHeadingRef.current);
+        smoothedHeadingRef.current = smoothedHeadingRef.current + delta * alpha;
+        // Only repaint the icon when the displayed bearing actually moves a
+        // noticeable amount — avoids re-encoding the SVG every frame.
+        if (Math.abs(shortestAngleDelta(appliedHeadingRef.current, smoothedHeadingRef.current)) > 1.5) {
+          appliedHeadingRef.current = smoothedHeadingRef.current;
+          vehicleRef.current.setIcon({
+            url: ambulanceIcon(smoothedHeadingRef.current),
+            scaledSize: new google.maps.Size(56, 56),
+            anchor: new google.maps.Point(28, 28),
+          });
         }
+        lastPosRef.current = head;
+      }
 
         // Publish telemetry: speed easing (climb → cruise → slow at arrival),
         // ETA countdown, distance left, elapsed trip time, vitals drift.
@@ -648,9 +662,7 @@ function TeamView() {
           elapsedSec: elapsed,
           ...vitals,
         });
-        setEta(arrived ? "Arrived" : fmtMinSec(remainSec));
-        return next;
-      });
+      setProgressTick((n) => (n + 1) & 0xffff);
       raf = requestAnimationFrame(tick);
     }
     raf = requestAnimationFrame(tick);
@@ -660,7 +672,7 @@ function TeamView() {
   return (
     <div className="absolute inset-0">
       {!failed && <div ref={ref} className="absolute inset-0" />}
-      {failed && <TeamFallback eta={eta} progress={progress} />}
+      {failed && <TeamFallback />}
       {/* Crew chip */}
       <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
         <span className="size-2 rounded-full bg-teal-500 animate-pulse" /> Crew 04 · ALS · 2 onboard
@@ -673,12 +685,14 @@ function TeamView() {
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 min-w-[260px]">
         <div>
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
-          <div className="text-xl font-bold text-blue-700">{eta}</div>
+          <div className="text-xl font-bold text-blue-700">
+            {tel.progress >= 0.999 ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
+          </div>
         </div>
         <div className="h-9 w-px bg-slate-200" />
         <div className="flex flex-col text-[11px] text-slate-700">
-          <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(Math.min(progress, 1) * 100)}%</span>
-          <span className="mono text-slate-500">{Math.max(0, TELEM.totalKm * (1 - Math.min(progress, 1))).toFixed(2)} km left · {Math.round(TELEM.speedKmh)} km/h</span>
+          <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(Math.min(tel.progress, 1) * 100)}%</span>
+          <span className="mono text-slate-500">{Math.max(0, tel.totalKm * (1 - Math.min(tel.progress, 1))).toFixed(2)} km left · {Math.round(tel.speedKmh)} km/h</span>
         </div>
       </div>
       {/* Compass / layers */}
