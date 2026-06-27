@@ -1400,32 +1400,33 @@ function TeamFallback() {
       </svg>
 
       {/* Iconic Google Maps landmarks — road labels + POIs */}
-      <div className="absolute pointer-events-none mono text-[9px] tracking-[0.18em] uppercase text-white/45"
+      <div className="absolute pointer-events-none z-[15] mono text-[9px] tracking-[0.18em] uppercase text-white/45"
         style={{ top: "70%", left: "8%", transform: "rotate(-6deg)" }}>
         King Fahd Rd
       </div>
-      <div className="absolute pointer-events-none mono text-[9px] tracking-[0.18em] uppercase text-white/40"
+      <div className="absolute pointer-events-none z-[15] mono text-[9px] tracking-[0.18em] uppercase text-white/40"
         style={{ top: "38%", left: "62%", transform: "rotate(86deg)" }}>
         Prince Sultan
       </div>
-      <div className="absolute pointer-events-none flex items-center gap-1.5"
+      <div className="absolute pointer-events-none z-[15] flex items-center gap-1.5"
         style={{ top: "20%", left: "18%" }}>
         <span className="size-1.5 rounded-[2px] bg-emerald-400/80" />
         <span className="mono text-[9px] uppercase tracking-widest text-emerald-200/70">Al Bandariyah Park</span>
       </div>
-      <div className="absolute pointer-events-none flex items-center gap-1.5"
+      <div className="absolute pointer-events-none z-[15] flex items-center gap-1.5"
         style={{ top: "80%", left: "55%" }}>
         <span className="size-1.5 rounded-full bg-sky-300/80" />
         <span className="mono text-[9px] uppercase tracking-widest text-sky-200/70">Half-Moon Bay</span>
       </div>
-      <div className="absolute pointer-events-none flex items-center gap-1.5"
+      <div className="absolute pointer-events-none z-[15] flex items-center gap-1.5"
         style={{ top: "55%", left: "33%" }}>
         <span className="size-1.5 rotate-45 bg-white/70" />
         <span className="mono text-[9px] uppercase tracking-widest text-white/55">Al Thuqbah · Origin</span>
       </div>
 
       {/* Destination ETA bubble (above the pin) */}
-      <div className="absolute -translate-y-full" style={{ top: "calc(10% - 22px)", left: "78%" }}>
+      <div className="absolute -translate-x-1/2 -translate-y-full pointer-events-none z-[30]"
+        style={{ top: "calc(10% - 18px)", left: "min(78%, calc(100% - 56px))" }}>
         <div
           className="px-2 py-[3px] rounded-full shadow-[0_6px_18px_-6px_rgba(31,111,235,0.55)] text-[10px] font-semibold flex items-center gap-1 ring-1 ring-white/30"
           style={{
@@ -1440,7 +1441,8 @@ function TeamFallback() {
       </div>
 
       {/* Alternate route ETA pill */}
-      <div className="absolute" style={{ top: "32%", left: "42%" }}>
+      <div className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[25]"
+        style={{ top: "32%", left: "42%" }}>
         <div className="px-2.5 py-1 rounded-full border border-white/70 bg-white/95 backdrop-blur text-slate-900 shadow-md text-[11px] font-semibold flex items-center gap-1.5"
           style={{ fontVariantNumeric: "tabular-nums" }}>
           7 min <span className="text-slate-400 font-normal">· alt</span>
@@ -1448,7 +1450,7 @@ function TeamFallback() {
       </div>
 
       {/* Bottom-left ETA card — Patek-grade telemetry */}
-      <div className="absolute bottom-3 left-3 right-3 sm:right-auto sm:w-[300px] rounded-2xl overflow-hidden border border-white/15 bg-white/[0.97] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+      <div className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[300px] z-[40] rounded-2xl overflow-hidden border border-white/15 bg-white/[0.97] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
         <div className="px-4 pt-3 pb-3">
           <div className="flex items-start justify-between">
             <div>
@@ -1491,15 +1493,15 @@ function TeamFallback() {
       </div>
 
       {/* Compass FAB */}
-      <div className="absolute bottom-3 right-3">
+      <div className="absolute bottom-3 right-3 z-[45]">
         <button aria-label="Recenter map"
           className="size-10 rounded-full bg-white/95 backdrop-blur shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)] border border-white/40 grid place-items-center text-slate-700 hover:scale-105 active:scale-95 transition-transform">
           <Compass className="size-5" />
         </button>
       </div>
 
-      {/* Crew tag */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-16 mono text-[9px] uppercase tracking-[0.25em] text-white/55 flex items-center gap-1.5">
+      {/* Crew tag — desktop only (mobile telemetry card spans the width) */}
+      <div className="hidden sm:flex absolute bottom-4 right-16 z-[35] pointer-events-none mono text-[9px] uppercase tracking-[0.25em] text-white/55 items-center gap-1.5">
         <Radio className="size-3 text-teal" /> Crew 04 · A → B
       </div>
     </FallbackChrome>
