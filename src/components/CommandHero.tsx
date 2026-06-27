@@ -1065,43 +1065,52 @@ function TeamFallback() {
     <FallbackChrome>
       <svg viewBox="0 0 400 250" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
         {/* alternates */}
-        <path d="M 60 200 C 140 180, 200 100, 340 70" stroke="#a5b4fc" strokeWidth="6" strokeOpacity="0.55" fill="none" strokeLinecap="round" />
-        <path d="M 60 200 C 120 220, 260 200, 340 70" stroke="#a5b4fc" strokeWidth="6" strokeOpacity="0.45" fill="none" strokeLinecap="round" />
+        <path d="M 60 200 C 140 180, 200 100, 340 70" stroke="#BCDCFB" strokeWidth="6" strokeOpacity="0.7" fill="none" strokeLinecap="round" />
+        <path d="M 60 200 C 120 220, 260 200, 340 70" stroke="#BCDCFB" strokeWidth="6" strokeOpacity="0.55" fill="none" strokeLinecap="round" />
         {/* primary remaining (light blue) */}
-        <path id="primary" d="M 60 200 C 160 200, 220 130, 340 70" stroke="#93c5fd" strokeWidth="9" fill="none" strokeLinecap="round" />
+        <path id="primary" d="M 60 200 C 160 200, 220 130, 340 70" stroke="#4FB6F7" strokeWidth="9" fill="none" strokeLinecap="round" />
         {/* primary travelled (dark blue), drawn via stroke-dasharray trick */}
         <path d="M 60 200 C 160 200, 220 130, 340 70"
-          stroke="#1e3a8a" strokeWidth="9" fill="none" strokeLinecap="round"
+          stroke="#1F6FEB" strokeWidth="9" fill="none" strokeLinecap="round"
           pathLength={1} strokeDasharray={`${pct} 1`} />
         {/* origin */}
         <circle cx="60" cy="200" r="9" fill="#64748b" stroke="white" strokeWidth="3" />
         {/* destination teardrop */}
         <g transform="translate(340 70)">
           <path d="M 0 -28 C -12 -28, -20 -20, -20 -8 C -20 6, 0 24, 0 24 S 20 6, 20 -8 C 20 -20, 12 -28, 0 -28 Z"
-            fill="#ea4335" stroke="white" strokeWidth="2" />
-          <circle cx="0" cy="-10" r="5" fill="white" />
+            fill="#FF6E5B" stroke="white" strokeWidth="2" />
+          <g transform="translate(-6 -16)">
+            <rect x="0" y="2" width="12" height="10" rx="1.5" fill="white"/>
+            <rect x="3" y="0" width="6" height="3" rx="0.6" fill="white"/>
+            <rect x="5.2" y="4" width="1.6" height="6" fill="#FF6E5B"/>
+            <rect x="3" y="6.2" width="6" height="1.6" fill="#FF6E5B"/>
+          </g>
         </g>
         {/* ambulance — positioned by progress so it can sit at destination */}
         <g transform={`translate(${p1.x} ${p1.y})`}>
-          <circle r="14" fill="#06b6d4" fillOpacity="0.22">
+          <circle r="14" fill="#28D6B6" fillOpacity="0.25">
             <animate attributeName="r" values="11;15;11" dur="1.6s" repeatCount="indefinite" />
             <animate attributeName="fill-opacity" values="0.35;0.05;0.35" dur="1.6s" repeatCount="indefinite" />
           </circle>
           <g transform={`rotate(${angle.toFixed(1)})`}>
             <rect x="-8" y="-12" width="16" height="24" rx="3" fill="#ffffff" stroke="#0f172a" strokeWidth="1.2" />
-            <path d="M -7 -8 Q 0 -11 7 -8 L 6 -6 L -6 -6 Z" fill="#7dd3fc" stroke="#0f172a" strokeWidth="0.5" />
-            <rect x="-8" y="-2" width="16" height="2" fill="#ef4444" />
-            <rect x="-1" y="1" width="2" height="8" fill="#ef4444" />
-            <rect x="-4.5" y="4" width="9" height="2" fill="#ef4444" />
-            <rect x="-6.5" y="-11" width="5" height="1.6" rx="0.4" fill="#ef4444" />
-            <rect x="1.5" y="-11" width="5" height="1.6" rx="0.4" fill="#06b6d4" />
+            <path d="M -7 -8 Q 0 -11 7 -8 L 6 -6 L -6 -6 Z" fill="#4FB6F7" stroke="#0f172a" strokeWidth="0.5" />
+            <rect x="-8" y="-2" width="16" height="2" fill="#FF6E5B" />
+            <rect x="-1" y="1" width="2" height="8" fill="#FF6E5B" />
+            <rect x="-4.5" y="4" width="9" height="2" fill="#FF6E5B" />
+            <rect x="-6.5" y="-11" width="5" height="1.6" rx="0.4" fill="#FF6E5B" />
+            <rect x="1.5" y="-11" width="5" height="1.6" rx="0.4" fill="#28D6B6" />
           </g>
         </g>
       </svg>
       {/* time bubbles */}
       <div className="absolute" style={{ top: "12%", left: "62%" }}>
-        <div className="px-2.5 py-1 rounded-full border border-white bg-blue-700 text-white shadow-md text-[12px] font-semibold flex items-center gap-1.5">
-          {etaStr} <span className="inline-block size-1.5 rounded-full bg-emerald-300" />
+        <div
+          className="px-2.5 py-1 rounded-full border border-white shadow-md text-[12px] font-semibold flex items-center gap-1.5"
+          style={{ background: arrived ? "#28D6B6" : "#1F6FEB", color: arrived ? "#080B11" : "#fff" }}
+        >
+          {etaStr}
+          <span className="inline-block size-1.5 rounded-full" style={{ background: arrived ? "#080B11" : "#28D6B6" }} />
         </div>
       </div>
       <div className="absolute" style={{ top: "30%", left: "42%" }}>
