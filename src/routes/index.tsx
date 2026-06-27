@@ -14,13 +14,13 @@ const HOME_FAQS = [
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "VeloMed OS — API-first medical mobility infrastructure" },
-      { name: "description", content: "Ambulance dispatch with live tracking, fleet compliance, telehealth, mobile screening, EMS training and a public REST API — across the Middle East & Africa." },
-      { property: "og:title", content: "VeloMed OS — Medical mobility infrastructure" },
-      { property: "og:description", content: "Live ambulance dispatch, telehealth, mobile screening, EMS training and a documented REST API." },
+      { title: "VeloMed OS — From your whole network down to one crew" },
+      { name: "description", content: "The branch-aware operating system for multi-branch medical mobility operators. Drill from your network, into a region's live cases, down to a single team and the patient in its care." },
+      { property: "og:title", content: "VeloMed OS — Network · Region · Team" },
+      { property: "og:description", content: "Branch-aware OS for multi-branch medical mobility: dispatch, fleet, licensing, clinics and a public REST API." },
       { property: "og:url", content: "/" },
-      { name: "twitter:title", content: "VeloMed OS — Medical mobility infrastructure" },
-      { name: "twitter:description", content: "Live dispatch, telehealth, screening, training and a public REST API." },
+      { name: "twitter:title", content: "VeloMed OS — Network · Region · Team" },
+      { name: "twitter:description", content: "Branch-aware OS for multi-branch medical mobility operators." },
       { name: "robots", content: "index,follow" },
     ],
     links: [{ rel: "canonical", href: "/" }],
