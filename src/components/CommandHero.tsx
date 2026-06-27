@@ -976,7 +976,7 @@ function RegionFallback({ branch, onPickTeam }: { branch: Branch; onPickTeam: ()
   );
 }
 
-function TeamFallback(_props: { eta: string; progress: number }) {
+function TeamFallback() {
   const tel = useTelemetry();
   // Drive the shared telemetry store so the lens row animates even when
   // Google Maps fails (billing/key/referrer). A 60s loop with the same
