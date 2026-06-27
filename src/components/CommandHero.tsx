@@ -1,7 +1,8 @@
 /// <reference types="google.maps" />
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, ChevronRight, Heart, Stethoscope, Navigation, Clock, MapPin, Zap, Compass, Layers, Plus, Minus, Radio, Activity } from "lucide-react";
+import { ArrowRight, ChevronRight, Heart, Stethoscope, Navigation, Clock, MapPin, Zap, Compass, Layers, Plus, Minus, Radio, Activity, Gauge, Siren, Wind, Wifi } from "lucide-react";
+import { BRAND as SHARED_BRAND } from "@/lib/brand";
 
 /**
  * VeloMed OS Command Hero — Network → Region → Team
@@ -50,20 +51,9 @@ const SEV_COLOR: Record<Case["severity"], string> = {
   routine:  "#4FB6F7",
 };
 
-// VeloMed brand palette — kept aligned with the brand book so every
-// map overlay (routes, pins, halos, pills) reads as one system.
-const BRAND = {
-  teal:        "#28D6B6",
-  tealSoft:    "rgba(40,214,182,0.18)",
-  blue:        "#4FB6F7",
-  blueDeep:    "#1F6FEB",
-  blueSoft:    "#BCDCFB",
-  coral:       "#FF6E5B",
-  coralDeep:   "#D94A38",
-  ink:         "#080B11",
-  inkSoft:     "#1A2230",
-  paper:       "#EAF0F7",
-} as const;
+// VeloMed brand palette — re-exported from the shared brand module so every
+// map overlay (routes, pins, halos, pills) reads as one system across the app.
+const BRAND = SHARED_BRAND;
 
 /* ============================================================
    Team telemetry store — single source of truth for the Team
