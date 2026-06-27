@@ -50,6 +50,67 @@ const SEV_COLOR: Record<Case["severity"], string> = {
   routine:  "#3b9eff",
 };
 
+/* ============================================================
+   Team telemetry store — single source of truth for the Team
+   lens. TeamView publishes here every animation tick; the
+   bottom-sheet ETA chip and the TeamLensRow subscribe so every
+   metric (speed, distance left, vitals, next-request countdown)
+   updates live as the crew moves toward the destination.
+   ============================================================ */
+type Telemetry = {
+  progress: number;        // 0..1 along primary route
+  totalKm: number;         // total trip distance
+  totalSec: number;        // total estimated trip seconds
+  elapsedSec: number;      // since trip start (this session)
+  speedKmh: number;        // instantaneous, with noise + slowdown near end
+  hr: number;              // patient HR
+  spo2: number;            // %
+  bpSys: number;
+  bpDia: number;
+  gcs: number;
+};
+const DEFAULT_TOTAL_KM = 8.4;
+const DEFAULT_TOTAL_SEC = 12 * 60 + 30; // ~12:30 baseline
+let TELEM: Telemetry = {
+  progress: 0,
+  totalKm: DEFAULT_TOTAL_KM,
+  totalSec: DEFAULT_TOTAL_SEC,
+  elapsedSec: 0,
+  speedKmh: 62,
+  hr: 132,
+  spo2: 91,
+  bpSys: 92,
+  bpDia: 58,
+  gcs: 11,
+};
+const telemListeners = new Set<() => void>();
+function setTelemetry(patch: Partial<Telemetry>) {
+  TELEM = { ...TELEM, ...patch };
+  telemListeners.forEach((l) => l());
+}
+function subscribeTelemetry(l: () => void) {
+  telemListeners.add(l);
+  return () => telemListeners.delete(l);
+}
+function useTelemetry() {
+  return useSyncExternalStore(subscribeTelemetry, () => TELEM, () => TELEM);
+}
+function fmtClock(totalSec: number) {
+  const s = Math.max(0, Math.floor(totalSec));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`
+    : `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+function fmtMinSec(totalSec: number) {
+  const s = Math.max(0, Math.ceil(totalSec));
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${String(sec).padStart(2, "0")}`;
+}
+
 /* ---------- Google Maps loader (singleton) ---------- */
 declare global {
   interface Window {
