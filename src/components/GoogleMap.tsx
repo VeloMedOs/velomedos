@@ -1,6 +1,7 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef } from "react";
 import type { MapMarker, MapPolyline } from "./LeafletMap";
+import { BRAND, MARKER_COLOR, ROUTE_COLOR } from "@/lib/brand";
 
 declare global {
   interface Window {
@@ -11,12 +12,12 @@ declare global {
 }
 
 const variantColor: Record<NonNullable<MapMarker["variant"]>, string> = {
-  ambulance: "#3b9eff",
-  incident: "#ef4444",
-  patient: "#22c55e",
-  clinic: "#f59e0b",
-  paramedic: "#06b6d4",
-  doctor: "#a855f7",
+  ambulance: MARKER_COLOR.ambulance,
+  incident:  MARKER_COLOR.incident,
+  patient:   MARKER_COLOR.patient,
+  clinic:    MARKER_COLOR.clinic,
+  paramedic: MARKER_COLOR.paramedic,
+  doctor:    MARKER_COLOR.doctor,
 };
 
 function loadMaps(): Promise<void> {
@@ -39,7 +40,7 @@ function loadMaps(): Promise<void> {
 
 function svgPin(color: string, glyph: string, pulse: boolean): string {
   const ring = pulse ? `<circle cx="22" cy="22" r="18" fill="${color}" fill-opacity="0.18"><animate attributeName="r" values="14;22;14" dur="1.6s" repeatCount="indefinite"/><animate attributeName="fill-opacity" values="0.35;0.05;0.35" dur="1.6s" repeatCount="indefinite"/></circle>` : "";
-  return `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">${ring}<circle cx="22" cy="22" r="11" fill="${color}" stroke="#0b1220" stroke-width="2"/><text x="22" y="26" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" fill="#0b1220">${glyph}</text></svg>`)}`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">${ring}<circle cx="22" cy="22" r="11" fill="${color}" stroke="${BRAND.ink}" stroke-width="2"/><text x="22" y="26" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" fill="${BRAND.ink}">${glyph}</text></svg>`)}`;
 }
 
 function glyphFor(v?: MapMarker["variant"]): string {
@@ -170,7 +171,7 @@ export function GoogleMap({
       } else {
         const line = new google.maps.Polyline({
           map, path,
-          strokeColor: p.color ?? "#3b9eff",
+          strokeColor: p.color ?? ROUTE_COLOR,
           strokeOpacity: 0.85,
           strokeWeight: p.width ?? 4,
         });

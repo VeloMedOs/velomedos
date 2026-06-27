@@ -1,3 +1,4 @@
+import { ROUTE_COLOR } from "@/lib/brand";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -170,7 +171,7 @@ function LiveNow({ inc, onCancel }: { inc: Inc; onCancel: () => void }) {
   const polylines = useMemo<MapPolyline[]>(() => {
     if (!eta?.polyline) return [];
     const path = decodePolyline(eta.polyline);
-    return [{ id: "route", path, color: "#3b9eff", width: 4 }];
+    return [{ id: "route", path, color: ROUTE_COLOR, width: 4 }];
   }, [eta?.polyline]);
 
   const km = (amb?.current_lat != null && inc.pickup_lat != null)

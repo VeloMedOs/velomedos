@@ -1,3 +1,4 @@
+import { ROUTE_COLOR } from "@/lib/brand";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { MapClient } from "@/components/MapClient";
@@ -55,7 +56,7 @@ function TripShare() {
   const markers: MapMarker[] = [];
   if (snap.current) markers.push({ id: "unit", lat: snap.current.lat, lng: snap.current.lng, variant: snap.trip.resource_kind === "vehicle" ? "ambulance" : (snap.trip.resource_kind as "paramedic" | "doctor"), pulse: snap.trip.status === "active", label: `${Math.round(snap.current.speed_kmh ?? 0)} km/h` });
   if (snap.pickup) markers.push({ id: "dest", lat: snap.pickup.lat, lng: snap.pickup.lng, variant: "patient", label: "Destination" });
-  const polylines: MapPolyline[] = snap.trip.polyline ? [{ id: "route", path: decodePolyline(snap.trip.polyline), color: "#3b9eff", width: 5 }] : [];
+  const polylines: MapPolyline[] = snap.trip.polyline ? [{ id: "route", path: decodePolyline(snap.trip.polyline), color: ROUTE_COLOR, width: 5 }] : [];
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">

@@ -1,3 +1,4 @@
+import { ROUTE_COLOR } from "@/lib/brand";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,7 +37,7 @@ function Trips() {
   }, [from, to]);
 
   const polylines: MapPolyline[] = selected?.polyline
-    ? [{ id: selected.id, path: decodePolyline(selected.polyline), color: "#3b9eff", width: 5 }]
+    ? [{ id: selected.id, path: decodePolyline(selected.polyline), color: ROUTE_COLOR, width: 5 }]
     : [];
 
   return (

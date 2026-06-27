@@ -1,3 +1,4 @@
+import { ROUTE_COLOR } from "@/lib/brand";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,7 +86,7 @@ function Dispatch() {
     computeRouteEta({ data: { origin: { lat: amb.current_lat, lng: amb.current_lng }, destination: { lat: active.pickup_lat, lng: active.pickup_lng } } })
       .then((res) => {
         if (cancelled || !res?.polyline) return;
-        setPolylines([{ id: `route-${active.id}`, path: decodePolyline(res.polyline), color: "#3b9eff", width: 5 }]);
+        setPolylines([{ id: `route-${active.id}`, path: decodePolyline(res.polyline), color: ROUTE_COLOR, width: 5 }]);
       })
       .catch(() => { /* fallback: empty */ });
     return () => { cancelled = true; };
