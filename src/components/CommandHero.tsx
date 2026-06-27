@@ -498,7 +498,7 @@ function TeamView() {
       // Vehicle (teal)
       vehicleRef.current = new google.maps.Marker({
         map, position: TEAM_A,
-        icon: { url: ambulanceIcon(0), scaledSize: new google.maps.Size(40, 40), anchor: new google.maps.Point(20, 20) },
+        icon: { url: ambulanceIcon(0), scaledSize: new google.maps.Size(56, 56), anchor: new google.maps.Point(28, 28) },
         zIndex: 999,
       });
 
@@ -570,14 +570,24 @@ function TeamView() {
     function tick(t: number) {
       const dt = (t - last) / 1000; last = t;
       setProgress((p) => {
-        // Wrap a full lap every ~60s for the demo so users see motion;
-        // realistic clamp uses totalSec when the API returns a real route.
+        // Drive the trip from 0 → 1, hold at the destination for a short
+        // "arrived" beat, then reset for the next loop. Demo speed: ~28s.
         const lap = Math.max(20, Math.min(120, TELEM.totalSec * 0.12));
-        const next = (p + dt / lap) % 1;
-        const idx = Math.max(1, Math.floor(next * total));
+        let next = p + dt / lap;
+        const arrived = next >= 1;
+        if (next >= 1.18) {
+          // restart trip cleanly
+          tripStartRef.current = t;
+          next = 0;
+        } else if (arrived) {
+          next = 1;
+        }
+        const idx = Math.max(1, Math.floor(Math.min(next, 0.9999) * total));
         const segment = routes[0].path.slice(0, idx);
         if (travelledRef.current) travelledRef.current.setPath(segment);
-        const head = segment[segment.length - 1];
+        const head = arrived
+          ? routes[0].path[routes[0].path.length - 1]
+          : segment[segment.length - 1];
         if (head && vehicleRef.current) {
           vehicleRef.current.setPosition(head);
           // Rotate ambulance along bearing of travel
@@ -588,8 +598,8 @@ function TeamView() {
               lastHeadingRef.current = heading;
               vehicleRef.current.setIcon({
                 url: ambulanceIcon(heading),
-                scaledSize: new google.maps.Size(40, 40),
-                anchor: new google.maps.Point(20, 20),
+                scaledSize: new google.maps.Size(56, 56),
+                anchor: new google.maps.Point(28, 28),
               });
             }
           }
@@ -600,11 +610,11 @@ function TeamView() {
         // ETA countdown, distance left, elapsed trip time, vitals drift.
         const cruise = 68;
         const startCurve = Math.min(1, next / 0.08);                  // ramp up
-        const arrivalCurve = next > 0.85 ? Math.max(0, (1 - next) / 0.15) : 1; // slow down
+        const arrivalCurve = next > 0.85 ? Math.max(0, (1 - Math.min(next, 1)) / 0.15) : 1;
         const noise = Math.sin(t / 700) * 3 + Math.sin(t / 230) * 1.5;
-        const speed = Math.max(0, cruise * startCurve * arrivalCurve + noise);
+        const speed = arrived ? 0 : Math.max(0, cruise * startCurve * arrivalCurve + noise);
         const elapsed = (t - tripStartRef.current) / 1000;
-        const remainSec = Math.max(0, TELEM.totalSec * (1 - next));
+        const remainSec = arrived ? 0 : Math.max(0, TELEM.totalSec * (1 - next));
 
         // Patient vitals drift modestly (HR rises slightly under transit,
         // SpO2 holds, BP narrows pulse pressure on critical cases).
@@ -622,12 +632,12 @@ function TeamView() {
           };
         }
         setTelemetry({
-          progress: next,
+          progress: Math.min(next, 1),
           speedKmh: speed,
           elapsedSec: elapsed,
           ...vitals,
         });
-        setEta(fmtMinSec(remainSec));
+        setEta(arrived ? "Arrived" : fmtMinSec(remainSec));
         return next;
       });
       raf = requestAnimationFrame(tick);
@@ -656,8 +666,8 @@ function TeamView() {
         </div>
         <div className="h-9 w-px bg-slate-200" />
         <div className="flex flex-col text-[11px] text-slate-700">
-          <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(progress * 100)}%</span>
-          <span className="mono text-slate-500">{(TELEM.totalKm * (1 - progress)).toFixed(2)} km left · {Math.round(TELEM.speedKmh)} km/h</span>
+          <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(Math.min(progress, 1) * 100)}%</span>
+          <span className="mono text-slate-500">{Math.max(0, TELEM.totalKm * (1 - Math.min(progress, 1))).toFixed(2)} km left · {Math.round(TELEM.speedKmh)} km/h</span>
         </div>
       </div>
       {/* Compass / layers */}
@@ -707,32 +717,54 @@ function originDot() {
 }
 /** Top-down ambulance icon, rotated by bearing (deg, 0 = north). */
 function ambulanceIcon(heading: number) {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'>
+  // Top-down ambulance, designed to read cleanly at 56px on retina:
+  // bold white body, cyan windshield strip up front, full-width red side
+  // stripes, a large red cross, blue/red roof lightbar, and a soft pulse
+  // halo. Rotated to match the direction of travel.
+  const h = heading.toFixed(1);
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'>
     <defs>
       <filter id='amb-sh' x='-50%' y='-50%' width='200%' height='200%'>
-        <feDropShadow dx='0' dy='1' stdDeviation='1.2' flood-color='#000' flood-opacity='0.45'/>
+        <feDropShadow dx='0' dy='1.2' stdDeviation='1.6' flood-color='#000' flood-opacity='0.55'/>
       </filter>
+      <linearGradient id='amb-roof' x1='0' x2='0' y1='0' y2='1'>
+        <stop offset='0' stop-color='#ffffff'/>
+        <stop offset='1' stop-color='#e2e8f0'/>
+      </linearGradient>
     </defs>
-    <circle cx='20' cy='20' r='17' fill='#06b6d4' fill-opacity='0.22'>
-      <animate attributeName='r' values='14;18;14' dur='1.6s' repeatCount='indefinite'/>
-      <animate attributeName='fill-opacity' values='0.35;0.05;0.35' dur='1.6s' repeatCount='indefinite'/>
+    <circle cx='28' cy='28' r='22' fill='#06b6d4' fill-opacity='0.18'>
+      <animate attributeName='r' values='18;24;18' dur='1.6s' repeatCount='indefinite'/>
+      <animate attributeName='fill-opacity' values='0.32;0.04;0.32' dur='1.6s' repeatCount='indefinite'/>
     </circle>
-    <g transform='rotate(${heading.toFixed(1)} 20 20)' filter='url(#amb-sh)'>
-      <!-- body -->
-      <rect x='12' y='7' width='16' height='26' rx='3' fill='#ffffff' stroke='#0f172a' stroke-width='1.4'/>
-      <!-- cab / windshield -->
-      <rect x='13.5' y='9' width='13' height='6' rx='1.2' fill='#bae6fd' stroke='#0f172a' stroke-width='0.6'/>
-      <!-- light bar -->
-      <rect x='13' y='6.2' width='6.5' height='2' rx='0.6' fill='#ef4444'/>
-      <rect x='20.5' y='6.2' width='6.5' height='2' rx='0.6' fill='#06b6d4'/>
-      <!-- red cross -->
-      <rect x='18.7' y='18' width='2.6' height='10' fill='#ef4444'/>
-      <rect x='15' y='21.7' width='10' height='2.6' fill='#ef4444'/>
+    <g transform='rotate(${h} 28 28)' filter='url(#amb-sh)'>
+      <!-- body / roof -->
+      <rect x='16' y='9' width='24' height='38' rx='4.5' fill='url(#amb-roof)' stroke='#0f172a' stroke-width='1.4'/>
+      <!-- hood seam -->
+      <line x1='16' y1='17' x2='40' y2='17' stroke='#0f172a' stroke-width='0.6' stroke-opacity='0.4'/>
+      <!-- windshield (front of vehicle = top in rotation 0) -->
+      <path d='M 18 14 Q 28 10 38 14 L 36 17 L 20 17 Z' fill='#7dd3fc' stroke='#0f172a' stroke-width='0.7'/>
+      <!-- side red stripes -->
+      <rect x='16' y='25' width='24' height='2.8' fill='#ef4444'/>
+      <rect x='16' y='34' width='24' height='2.8' fill='#ef4444' fill-opacity='0.55'/>
+      <!-- red cross (center) -->
+      <rect x='26.7' y='28' width='2.6' height='10' fill='#ffffff' stroke='#ef4444' stroke-width='0.6'/>
+      <rect x='23' y='31.7' width='10' height='2.6' fill='#ffffff' stroke='#ef4444' stroke-width='0.6'/>
+      <rect x='26.9' y='28.2' width='2.2' height='9.6' fill='#ef4444'/>
+      <rect x='23.2' y='31.9' width='9.6' height='2.2' fill='#ef4444'/>
+      <!-- roof lightbar -->
+      <rect x='19' y='11' width='8' height='2.4' rx='0.8' fill='#ef4444'>
+        <animate attributeName='fill' values='#ef4444;#7f1d1d;#ef4444' dur='0.7s' repeatCount='indefinite'/>
+      </rect>
+      <rect x='29' y='11' width='8' height='2.4' rx='0.8' fill='#06b6d4'>
+        <animate attributeName='fill' values='#06b6d4;#155e75;#06b6d4' dur='0.7s' repeatCount='indefinite'/>
+      </rect>
+      <!-- rear bumper hint -->
+      <rect x='18' y='44' width='20' height='2' rx='0.8' fill='#0f172a' fill-opacity='0.7'/>
       <!-- wheels -->
-      <rect x='10.5' y='14' width='2' height='5' rx='0.6' fill='#0f172a'/>
-      <rect x='27.5' y='14' width='2' height='5' rx='0.6' fill='#0f172a'/>
-      <rect x='10.5' y='24' width='2' height='5' rx='0.6' fill='#0f172a'/>
-      <rect x='27.5' y='24' width='2' height='5' rx='0.6' fill='#0f172a'/>
+      <rect x='13.5' y='20' width='3' height='6' rx='0.8' fill='#0f172a'/>
+      <rect x='39.5' y='20' width='3' height='6' rx='0.8' fill='#0f172a'/>
+      <rect x='13.5' y='34' width='3' height='6' rx='0.8' fill='#0f172a'/>
+      <rect x='39.5' y='34' width='3' height='6' rx='0.8' fill='#0f172a'/>
     </g>
   </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
@@ -919,24 +951,30 @@ function RegionFallback({ branch, onPickTeam }: { branch: Branch; onPickTeam: ()
   );
 }
 
-function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
+function TeamFallback(_props: { eta: string; progress: number }) {
+  const tel = useTelemetry();
   // Drive the shared telemetry store so the lens row animates even when
   // Google Maps fails (billing/key/referrer). A 60s loop with the same
   // ease curves used by the real map keeps the dashboard alive.
   useEffect(() => {
     const start = performance.now();
     let raf = 0;
+    let tripStart = start;
     setTelemetry({ totalSec: 12 * 60 + 30, totalKm: 8.4 });
     const loop = (t: number) => {
-      const elapsed = (t - start) / 1000;
-      const next = (elapsed / 60) % 1;
+      const elapsed = (t - tripStart) / 1000;
+      const lap = 28; // seconds per trip in fallback demo
+      let next = elapsed / lap;
+      const arrived = next >= 1;
+      if (next >= 1.25) { tripStart = t; next = 0; }
+      else if (arrived) { next = 1; }
       const startCurve = Math.min(1, next / 0.08);
-      const arrivalCurve = next > 0.85 ? Math.max(0, (1 - next) / 0.15) : 1;
+      const arrivalCurve = next > 0.85 ? Math.max(0, (1 - Math.min(next, 1)) / 0.15) : 1;
       const noise = Math.sin(t / 700) * 3 + Math.sin(t / 230) * 1.5;
       setTelemetry({
-        progress: next,
+        progress: Math.min(next, 1),
         elapsedSec: elapsed,
-        speedKmh: Math.max(0, 68 * startCurve * arrivalCurve + noise),
+        speedKmh: arrived ? 0 : Math.max(0, 68 * startCurve * arrivalCurve + noise),
         hr: Math.round(132 + Math.sin(t / 4000) * 6),
         spo2: Math.max(86, Math.min(96, Math.round(91 + Math.sin(t / 6500) * 1.5))),
         bpSys: 92 + Math.round(Math.sin(t / 5200) * 4),
@@ -948,8 +986,24 @@ function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  // SVG mock route A→B with travelled segment + alternates
-  const pct = Math.max(0.02, Math.min(0.98, progress || 0.62));
+  // SVG mock route A→B with travelled segment + alternates.
+  // Read live progress from the shared telemetry store so values update.
+  const pct = Math.max(0, Math.min(1, tel.progress || 0));
+  const arrived = pct >= 0.999;
+  const remainSec = Math.max(0, tel.totalSec * (1 - pct));
+  const etaStr = arrived ? "Arrived" : fmtMinSec(remainSec);
+  // Position the ambulance manually along the path so it can sit exactly
+  // at the destination on arrival, instead of looping with animateMotion.
+  // Cubic Bezier P0(60,200) P1(160,200) P2(220,130) P3(340,70).
+  const bezier = (u: number) => {
+    const mu = 1 - u;
+    const x = mu*mu*mu*60 + 3*mu*mu*u*160 + 3*mu*u*u*220 + u*u*u*340;
+    const y = mu*mu*mu*200 + 3*mu*mu*u*200 + 3*mu*u*u*130 + u*u*u*70;
+    return { x, y };
+  };
+  const p1 = bezier(Math.max(0.0001, pct));
+  const p0 = bezier(Math.max(0, pct - 0.02));
+  const angle = (Math.atan2(p1.y - p0.y, p1.x - p0.x) * 180) / Math.PI + 90;
   return (
     <FallbackChrome>
       <svg viewBox="0 0 400 250" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
@@ -970,26 +1024,27 @@ function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
             fill="#ea4335" stroke="white" strokeWidth="2" />
           <circle cx="0" cy="-10" r="5" fill="white" />
         </g>
-        {/* ambulance along primary, auto-rotated to path direction */}
-        <g>
-          <circle r="10" fill="#06b6d4" fillOpacity="0.25">
-            <animateMotion dur="9s" repeatCount="indefinite" rotate="auto"
-              path="M 60 200 C 160 200, 220 130, 340 70" />
+        {/* ambulance — positioned by progress so it can sit at destination */}
+        <g transform={`translate(${p1.x} ${p1.y})`}>
+          <circle r="14" fill="#06b6d4" fillOpacity="0.22">
+            <animate attributeName="r" values="11;15;11" dur="1.6s" repeatCount="indefinite" />
+            <animate attributeName="fill-opacity" values="0.35;0.05;0.35" dur="1.6s" repeatCount="indefinite" />
           </circle>
-          <g>
-            <rect x="-6" y="-9" width="12" height="18" rx="2" fill="#fff" stroke="#0f172a" strokeWidth="1" />
-            <rect x="-5" y="-7.5" width="10" height="5" rx="0.8" fill="#bae6fd" />
-            <rect x="-1" y="-1" width="2" height="7" fill="#ef4444" />
-            <rect x="-3.5" y="1.5" width="7" height="2" fill="#ef4444" />
-            <animateMotion dur="9s" repeatCount="indefinite" rotate="auto"
-              path="M 60 200 C 160 200, 220 130, 340 70" />
+          <g transform={`rotate(${angle.toFixed(1)})`}>
+            <rect x="-8" y="-12" width="16" height="24" rx="3" fill="#ffffff" stroke="#0f172a" strokeWidth="1.2" />
+            <path d="M -7 -8 Q 0 -11 7 -8 L 6 -6 L -6 -6 Z" fill="#7dd3fc" stroke="#0f172a" strokeWidth="0.5" />
+            <rect x="-8" y="-2" width="16" height="2" fill="#ef4444" />
+            <rect x="-1" y="1" width="2" height="8" fill="#ef4444" />
+            <rect x="-4.5" y="4" width="9" height="2" fill="#ef4444" />
+            <rect x="-6.5" y="-11" width="5" height="1.6" rx="0.4" fill="#ef4444" />
+            <rect x="1.5" y="-11" width="5" height="1.6" rx="0.4" fill="#06b6d4" />
           </g>
         </g>
       </svg>
       {/* time bubbles */}
       <div className="absolute" style={{ top: "12%", left: "62%" }}>
         <div className="px-2.5 py-1 rounded-full border border-white bg-blue-700 text-white shadow-md text-[12px] font-semibold flex items-center gap-1.5">
-          {eta} <span className="inline-block size-1.5 rounded-full bg-emerald-300" />
+          {etaStr} <span className="inline-block size-1.5 rounded-full bg-emerald-300" />
         </div>
       </div>
       <div className="absolute" style={{ top: "30%", left: "42%" }}>
