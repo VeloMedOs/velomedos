@@ -185,8 +185,8 @@ export function CommandHero() {
         <div className="lg:col-span-7">
           <div className="rounded-2xl border border-hairline bg-panel overflow-hidden shadow-[0_0_120px_-40px_oklch(0.74_0.13_195/0.35)]">
             {/* switch + breadcrumb */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-hairline bg-background/40">
-              <div className="inline-flex rounded-md border border-hairline overflow-hidden mono text-[10px] uppercase tracking-widest">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-b border-hairline bg-background/40">
+              <div className="inline-flex self-start rounded-md border border-hairline overflow-hidden mono text-[10px] uppercase tracking-widest shrink-0">
                 {(["network","region","team"] as Level[]).map((l) => (
                   <button key={l} onClick={() => go(l)}
                     className={`px-3 py-1.5 transition-colors ${level===l ? "bg-teal text-background font-bold" : "text-muted-foreground hover:bg-panel-elevated"}`}>{l}</button>
@@ -216,7 +216,7 @@ export function CommandHero() {
 
 function Breadcrumb({ level, branch, onJump }: { level: Level; branch: string; onJump: (l: Level) => void }) {
   return (
-    <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+    <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground flex flex-wrap items-center gap-1 min-w-0">
       <button onClick={() => onJump("network")} className={`hover:text-foreground ${level==="network"?"text-foreground":""}`}>Network</button>
       {level !== "network" && (<>
         <ChevronRight className="size-3" />
