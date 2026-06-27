@@ -33,6 +33,7 @@ import { Route as ResourcesSlugRouteImport } from './routes/resources.$slug'
 import { Route as ClinicsCityRouteImport } from './routes/clinics.$city'
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
+import { Route as AuthenticatedSuperadminRouteImport } from './routes/_authenticated/superadmin'
 import { Route as AuthenticatedScreeningRouteImport } from './routes/_authenticated/screening'
 import { Route as AuthenticatedRentalsRouteImport } from './routes/_authenticated/rentals'
 import { Route as AuthenticatedProviderRouteImport } from './routes/_authenticated/provider'
@@ -179,6 +180,11 @@ const AuthenticatedTripsRoute = AuthenticatedTripsRouteImport.update({
 const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
   id: '/training',
   path: '/training',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSuperadminRoute = AuthenticatedSuperadminRouteImport.update({
+  id: '/superadmin',
+  path: '/superadmin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedScreeningRoute = AuthenticatedScreeningRouteImport.update({
@@ -356,6 +362,7 @@ export interface FileRoutesByFullPath {
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
+  '/superadmin': typeof AuthenticatedSuperadminRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
@@ -409,6 +416,7 @@ export interface FileRoutesByTo {
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
+  '/superadmin': typeof AuthenticatedSuperadminRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
@@ -464,6 +472,7 @@ export interface FileRoutesById {
   '/_authenticated/provider': typeof AuthenticatedProviderRoute
   '/_authenticated/rentals': typeof AuthenticatedRentalsRoute
   '/_authenticated/screening': typeof AuthenticatedScreeningRoute
+  '/_authenticated/superadmin': typeof AuthenticatedSuperadminRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
@@ -519,6 +528,7 @@ export interface FileRouteTypes {
     | '/provider'
     | '/rentals'
     | '/screening'
+    | '/superadmin'
     | '/training'
     | '/trips'
     | '/clinics/$city'
@@ -572,6 +582,7 @@ export interface FileRouteTypes {
     | '/provider'
     | '/rentals'
     | '/screening'
+    | '/superadmin'
     | '/training'
     | '/trips'
     | '/clinics/$city'
@@ -626,6 +637,7 @@ export interface FileRouteTypes {
     | '/_authenticated/provider'
     | '/_authenticated/rentals'
     | '/_authenticated/screening'
+    | '/_authenticated/superadmin'
     | '/_authenticated/training'
     | '/_authenticated/trips'
     | '/clinics/$city'
@@ -858,6 +870,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTrainingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/superadmin': {
+      id: '/_authenticated/superadmin'
+      path: '/superadmin'
+      fullPath: '/superadmin'
+      preLoaderRoute: typeof AuthenticatedSuperadminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/screening': {
       id: '/_authenticated/screening'
       path: '/screening'
@@ -1069,6 +1088,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProviderRoute: typeof AuthenticatedProviderRoute
   AuthenticatedRentalsRoute: typeof AuthenticatedRentalsRoute
   AuthenticatedScreeningRoute: typeof AuthenticatedScreeningRoute
+  AuthenticatedSuperadminRoute: typeof AuthenticatedSuperadminRoute
   AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
   AuthenticatedTripsRoute: typeof AuthenticatedTripsRoute
 }
@@ -1085,6 +1105,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProviderRoute: AuthenticatedProviderRoute,
   AuthenticatedRentalsRoute: AuthenticatedRentalsRoute,
   AuthenticatedScreeningRoute: AuthenticatedScreeningRoute,
+  AuthenticatedSuperadminRoute: AuthenticatedSuperadminRoute,
   AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
   AuthenticatedTripsRoute: AuthenticatedTripsRoute,
 }
