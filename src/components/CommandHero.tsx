@@ -717,32 +717,54 @@ function originDot() {
 }
 /** Top-down ambulance icon, rotated by bearing (deg, 0 = north). */
 function ambulanceIcon(heading: number) {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'>
+  // Top-down ambulance, designed to read cleanly at 56px on retina:
+  // bold white body, cyan windshield strip up front, full-width red side
+  // stripes, a large red cross, blue/red roof lightbar, and a soft pulse
+  // halo. Rotated to match the direction of travel.
+  const h = heading.toFixed(1);
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'>
     <defs>
       <filter id='amb-sh' x='-50%' y='-50%' width='200%' height='200%'>
-        <feDropShadow dx='0' dy='1' stdDeviation='1.2' flood-color='#000' flood-opacity='0.45'/>
+        <feDropShadow dx='0' dy='1.2' stdDeviation='1.6' flood-color='#000' flood-opacity='0.55'/>
       </filter>
+      <linearGradient id='amb-roof' x1='0' x2='0' y1='0' y2='1'>
+        <stop offset='0' stop-color='#ffffff'/>
+        <stop offset='1' stop-color='#e2e8f0'/>
+      </linearGradient>
     </defs>
-    <circle cx='20' cy='20' r='17' fill='#06b6d4' fill-opacity='0.22'>
-      <animate attributeName='r' values='14;18;14' dur='1.6s' repeatCount='indefinite'/>
-      <animate attributeName='fill-opacity' values='0.35;0.05;0.35' dur='1.6s' repeatCount='indefinite'/>
+    <circle cx='28' cy='28' r='22' fill='#06b6d4' fill-opacity='0.18'>
+      <animate attributeName='r' values='18;24;18' dur='1.6s' repeatCount='indefinite'/>
+      <animate attributeName='fill-opacity' values='0.32;0.04;0.32' dur='1.6s' repeatCount='indefinite'/>
     </circle>
-    <g transform='rotate(${heading.toFixed(1)} 20 20)' filter='url(#amb-sh)'>
-      <!-- body -->
-      <rect x='12' y='7' width='16' height='26' rx='3' fill='#ffffff' stroke='#0f172a' stroke-width='1.4'/>
-      <!-- cab / windshield -->
-      <rect x='13.5' y='9' width='13' height='6' rx='1.2' fill='#bae6fd' stroke='#0f172a' stroke-width='0.6'/>
-      <!-- light bar -->
-      <rect x='13' y='6.2' width='6.5' height='2' rx='0.6' fill='#ef4444'/>
-      <rect x='20.5' y='6.2' width='6.5' height='2' rx='0.6' fill='#06b6d4'/>
-      <!-- red cross -->
-      <rect x='18.7' y='18' width='2.6' height='10' fill='#ef4444'/>
-      <rect x='15' y='21.7' width='10' height='2.6' fill='#ef4444'/>
+    <g transform='rotate(${h} 28 28)' filter='url(#amb-sh)'>
+      <!-- body / roof -->
+      <rect x='16' y='9' width='24' height='38' rx='4.5' fill='url(#amb-roof)' stroke='#0f172a' stroke-width='1.4'/>
+      <!-- hood seam -->
+      <line x1='16' y1='17' x2='40' y2='17' stroke='#0f172a' stroke-width='0.6' stroke-opacity='0.4'/>
+      <!-- windshield (front of vehicle = top in rotation 0) -->
+      <path d='M 18 14 Q 28 10 38 14 L 36 17 L 20 17 Z' fill='#7dd3fc' stroke='#0f172a' stroke-width='0.7'/>
+      <!-- side red stripes -->
+      <rect x='16' y='25' width='24' height='2.8' fill='#ef4444'/>
+      <rect x='16' y='34' width='24' height='2.8' fill='#ef4444' fill-opacity='0.55'/>
+      <!-- red cross (center) -->
+      <rect x='26.7' y='28' width='2.6' height='10' fill='#ffffff' stroke='#ef4444' stroke-width='0.6'/>
+      <rect x='23' y='31.7' width='10' height='2.6' fill='#ffffff' stroke='#ef4444' stroke-width='0.6'/>
+      <rect x='26.9' y='28.2' width='2.2' height='9.6' fill='#ef4444'/>
+      <rect x='23.2' y='31.9' width='9.6' height='2.2' fill='#ef4444'/>
+      <!-- roof lightbar -->
+      <rect x='19' y='11' width='8' height='2.4' rx='0.8' fill='#ef4444'>
+        <animate attributeName='fill' values='#ef4444;#7f1d1d;#ef4444' dur='0.7s' repeatCount='indefinite'/>
+      </rect>
+      <rect x='29' y='11' width='8' height='2.4' rx='0.8' fill='#06b6d4'>
+        <animate attributeName='fill' values='#06b6d4;#155e75;#06b6d4' dur='0.7s' repeatCount='indefinite'/>
+      </rect>
+      <!-- rear bumper hint -->
+      <rect x='18' y='44' width='20' height='2' rx='0.8' fill='#0f172a' fill-opacity='0.7'/>
       <!-- wheels -->
-      <rect x='10.5' y='14' width='2' height='5' rx='0.6' fill='#0f172a'/>
-      <rect x='27.5' y='14' width='2' height='5' rx='0.6' fill='#0f172a'/>
-      <rect x='10.5' y='24' width='2' height='5' rx='0.6' fill='#0f172a'/>
-      <rect x='27.5' y='24' width='2' height='5' rx='0.6' fill='#0f172a'/>
+      <rect x='13.5' y='20' width='3' height='6' rx='0.8' fill='#0f172a'/>
+      <rect x='39.5' y='20' width='3' height='6' rx='0.8' fill='#0f172a'/>
+      <rect x='13.5' y='34' width='3' height='6' rx='0.8' fill='#0f172a'/>
+      <rect x='39.5' y='34' width='3' height='6' rx='0.8' fill='#0f172a'/>
     </g>
   </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
