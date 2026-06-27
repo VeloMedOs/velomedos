@@ -1309,22 +1309,62 @@ function TeamFallback() {
   const angle = (Math.atan2(p1.y - p0.y, p1.x - p0.x) * 180) / Math.PI + 90;
   return (
     <FallbackChrome>
+      {/* Iconic Google-Maps style road network underneath the trip */}
       <svg viewBox="0 0 400 250" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-        {/* alternates */}
-        <path d="M 60 200 C 140 180, 200 100, 340 70" stroke="#BCDCFB" strokeWidth="6" strokeOpacity="0.7" fill="none" strokeLinecap="round" />
-        <path d="M 60 200 C 120 220, 260 200, 340 70" stroke="#BCDCFB" strokeWidth="6" strokeOpacity="0.55" fill="none" strokeLinecap="round" />
-        {/* primary remaining (light blue) */}
-        <path id="primary" d="M 60 200 C 160 200, 220 130, 340 70" stroke="#4FB6F7" strokeWidth="9" fill="none" strokeLinecap="round" />
-        {/* primary travelled (dark blue), drawn via stroke-dasharray trick */}
+        <defs>
+          <filter id="routeGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="2.4" />
+          </filter>
+          <linearGradient id="routeGrad" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stopColor="#1F6FEB" />
+            <stop offset="100%" stopColor="#4FB6F7" />
+          </linearGradient>
+        </defs>
+        {/* arterial roads (warm beige like Maps) */}
+        <g stroke="#2a3340" strokeLinecap="round" fill="none">
+          <path d="M -10 215 L 410 175" strokeWidth="10" />
+          <path d="M 90 260 L 130 -10" strokeWidth="9" />
+          <path d="M 250 260 L 290 -10" strokeWidth="8" />
+          <path d="M -10 110 L 410 90"  strokeWidth="8" />
+        </g>
+        <g stroke="#3a4555" strokeLinecap="round" fill="none" strokeWidth="1.2">
+          <path d="M -10 215 L 410 175" />
+          <path d="M 90 260 L 130 -10" />
+          <path d="M 250 260 L 290 -10" />
+          <path d="M -10 110 L 410 90" />
+        </g>
+        {/* alternates — thin grey ghost routes */}
+        <path d="M 60 200 C 140 180, 200 100, 340 70" stroke="#94a3b8" strokeOpacity="0.35" strokeWidth="5" fill="none" strokeLinecap="round" />
+        <path d="M 60 200 C 120 220, 260 200, 340 70" stroke="#94a3b8" strokeOpacity="0.28" strokeWidth="5" fill="none" strokeLinecap="round" />
+        {/* PRIMARY ROUTE — dotted line per direction (Google Maps walking style) */}
+        {/* soft glow casing */}
+        <path d="M 60 200 C 160 200, 220 130, 340 70" stroke="url(#routeGrad)" strokeOpacity="0.35"
+          strokeWidth="14" fill="none" strokeLinecap="round" filter="url(#routeGlow)" />
+        {/* remaining route — light brand blue dotted */}
         <path d="M 60 200 C 160 200, 220 130, 340 70"
-          stroke="#1F6FEB" strokeWidth="9" fill="none" strokeLinecap="round"
-          pathLength={1} strokeDasharray={`${pct} 1`} />
+          stroke="#4FB6F7" strokeWidth="5.5" fill="none"
+          strokeLinecap="round" strokeDasharray="0.1 5" />
+        {/* travelled route — deep brand blue solid dots, advancing */}
+        <path d="M 60 200 C 160 200, 220 130, 340 70"
+          stroke="#1F6FEB" strokeWidth="6" fill="none"
+          strokeLinecap="round" strokeDasharray="0.1 5"
+          pathLength={1} strokeDashoffset={0}
+          style={{ strokeDasharray: undefined as unknown as string }} />
+        <path d="M 60 200 C 160 200, 220 130, 340 70"
+          stroke="#1F6FEB" strokeWidth="6" fill="none"
+          strokeLinecap="round"
+          pathLength={1}
+          strokeDasharray={`${pct} 1`} />
         {/* origin */}
-        <circle cx="60" cy="200" r="9" fill="#64748b" stroke="white" strokeWidth="3" />
+        <g>
+          <circle cx="60" cy="200" r="11" fill="#0A1118" stroke="#ffffff" strokeWidth="2.5" />
+          <circle cx="60" cy="200" r="4.5" fill="#4FB6F7" />
+        </g>
         {/* destination teardrop */}
         <g transform="translate(340 70)">
-          <path d="M 0 -28 C -12 -28, -20 -20, -20 -8 C -20 6, 0 24, 0 24 S 20 6, 20 -8 C 20 -20, 12 -28, 0 -28 Z"
-            fill="#FF6E5B" stroke="white" strokeWidth="2" />
+          <ellipse cx="0" cy="26" rx="9" ry="2.2" fill="#000" opacity="0.45" />
+          <path d="M 0 -30 C -13 -30, -22 -21, -22 -8 C -22 7, 0 26, 0 26 S 22 7, 22 -8 C 22 -21, 13 -30, 0 -30 Z"
+            fill="#FF6E5B" stroke="white" strokeWidth="2.2" />
           <g transform="translate(-6 -16)">
             <rect x="0" y="2" width="12" height="10" rx="1.5" fill="white"/>
             <rect x="3" y="0" width="6" height="3" rx="0.6" fill="white"/>
@@ -1349,21 +1389,109 @@ function TeamFallback() {
           </g>
         </g>
       </svg>
-      {/* time bubbles */}
-      <div className="absolute" style={{ top: "12%", left: "62%" }}>
+
+      {/* Iconic Google Maps landmarks — road labels + POIs */}
+      <div className="absolute pointer-events-none mono text-[9px] tracking-[0.18em] uppercase text-white/45"
+        style={{ top: "70%", left: "8%", transform: "rotate(-6deg)" }}>
+        King Fahd Rd
+      </div>
+      <div className="absolute pointer-events-none mono text-[9px] tracking-[0.18em] uppercase text-white/40"
+        style={{ top: "38%", left: "62%", transform: "rotate(86deg)" }}>
+        Prince Sultan
+      </div>
+      <div className="absolute pointer-events-none flex items-center gap-1.5"
+        style={{ top: "20%", left: "18%" }}>
+        <span className="size-1.5 rounded-[2px] bg-emerald-400/80" />
+        <span className="mono text-[9px] uppercase tracking-widest text-emerald-200/70">Al Bandariyah Park</span>
+      </div>
+      <div className="absolute pointer-events-none flex items-center gap-1.5"
+        style={{ top: "80%", left: "55%" }}>
+        <span className="size-1.5 rounded-full bg-sky-300/80" />
+        <span className="mono text-[9px] uppercase tracking-widest text-sky-200/70">Half-Moon Bay</span>
+      </div>
+      <div className="absolute pointer-events-none flex items-center gap-1.5"
+        style={{ top: "55%", left: "33%" }}>
+        <span className="size-1.5 rotate-45 bg-white/70" />
+        <span className="mono text-[9px] uppercase tracking-widest text-white/55">Al Thuqbah · Origin</span>
+      </div>
+
+      {/* Destination ETA bubble (over the pin) */}
+      <div className="absolute" style={{ top: "10%", left: "78%" }}>
         <div
-          className="px-2.5 py-1 rounded-full border border-white shadow-md text-[12px] font-semibold flex items-center gap-1.5"
-          style={{ background: arrived ? "#28D6B6" : "#1F6FEB", color: arrived ? "#080B11" : "#fff" }}
+          className="px-3 py-1 rounded-full shadow-[0_8px_24px_-6px_rgba(31,111,235,0.55)] text-[12px] font-semibold flex items-center gap-1.5 ring-1 ring-white/30"
+          style={{
+            background: arrived ? "#28D6B6" : "#1F6FEB",
+            color: arrived ? "#080B11" : "#fff",
+            fontVariantNumeric: "tabular-nums",
+          }}
         >
-          {etaStr}
+          <Clock className="size-3 opacity-80" /> {etaStr}
           <span className="inline-block size-1.5 rounded-full" style={{ background: arrived ? "#080B11" : "#28D6B6" }} />
         </div>
       </div>
-      <div className="absolute" style={{ top: "30%", left: "42%" }}>
-        <div className="px-2.5 py-1 rounded-full border border-slate-200 bg-white text-slate-900 shadow-md text-[12px] font-semibold">7 min</div>
+
+      {/* Alternate route ETA pill */}
+      <div className="absolute" style={{ top: "32%", left: "42%" }}>
+        <div className="px-2.5 py-1 rounded-full border border-white/70 bg-white/95 backdrop-blur text-slate-900 shadow-md text-[11px] font-semibold flex items-center gap-1.5"
+          style={{ fontVariantNumeric: "tabular-nums" }}>
+          7 min <span className="text-slate-400 font-normal">· alt</span>
+        </div>
       </div>
-      <div className="absolute bottom-3 left-3 mono text-[9px] uppercase tracking-widest text-white/60 flex items-center gap-1.5">
-        <Radio className="size-3 text-teal" /> Crew 04 · A → B · {Math.round(pct * 100)}%
+
+      {/* Bottom-left ETA card — Patek-grade telemetry */}
+      <div className="absolute bottom-3 left-3 right-3 sm:right-auto sm:w-[300px] rounded-2xl overflow-hidden border border-white/15 bg-white/[0.97] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+        <div className="px-4 pt-3 pb-3">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="mono text-[9px] font-bold tracking-[0.22em] uppercase text-slate-400 leading-none mb-1">
+                ETA · Al Mana
+              </div>
+              <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight leading-tight">
+                General Hospital
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-slate-500">
+              <Clock className="size-3" />
+              <span className="mono text-[11px] font-bold" style={{ fontVariantNumeric: "tabular-nums" }}>
+                {Math.round(pct * 100)}%
+              </span>
+            </div>
+          </div>
+          <div className="mt-2 flex items-end justify-between gap-3">
+            <div className="text-[34px] font-bold tracking-tighter leading-none"
+              style={{ color: arrived ? "#0F7F66" : "#1F6FEB", fontVariantNumeric: "tabular-nums" }}>
+              {arrived ? "0:00" : etaStr}
+            </div>
+            <div className="text-right mono text-[10px] text-slate-500 leading-tight"
+              style={{ fontVariantNumeric: "tabular-nums" }}>
+              <div>{Math.max(0, tel.totalKm * (1 - pct)).toFixed(2)} km left</div>
+              <div className="mt-0.5">{Math.round(tel.speedKmh)} km/h</div>
+            </div>
+          </div>
+        </div>
+        <div className="h-1 w-full bg-slate-100 relative">
+          <div className="absolute inset-y-0 left-0 transition-[width] duration-300"
+            style={{
+              width: `${Math.round(pct * 100)}%`,
+              background: arrived ? "#28D6B6" : "#1F6FEB",
+              boxShadow: arrived
+                ? "0 0 12px rgba(40,214,182,0.55)"
+                : "0 0 12px rgba(31,111,235,0.55)",
+            }} />
+        </div>
+      </div>
+
+      {/* Compass FAB */}
+      <div className="absolute bottom-3 right-3">
+        <button aria-label="Recenter map"
+          className="size-10 rounded-full bg-white/95 backdrop-blur shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)] border border-white/40 grid place-items-center text-slate-700 hover:scale-105 active:scale-95 transition-transform">
+          <Compass className="size-5" />
+        </button>
+      </div>
+
+      {/* Crew tag */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-16 mono text-[9px] uppercase tracking-[0.25em] text-white/55 flex items-center gap-1.5">
+        <Radio className="size-3 text-teal" /> Crew 04 · A → B
       </div>
     </FallbackChrome>
   );
