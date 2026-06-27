@@ -951,7 +951,8 @@ function RegionFallback({ branch, onPickTeam }: { branch: Branch; onPickTeam: ()
   );
 }
 
-function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
+function TeamFallback(_props: { eta: string; progress: number }) {
+  const tel = useTelemetry();
   // Drive the shared telemetry store so the lens row animates even when
   // Google Maps fails (billing/key/referrer). A 60s loop with the same
   // ease curves used by the real map keeps the dashboard alive.
@@ -986,9 +987,11 @@ function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
   }, []);
 
   // SVG mock route A→B with travelled segment + alternates.
-  // Allow the full 0..1 range so the dashboard actually shows arrival.
-  const pct = Math.max(0, Math.min(1, progress || 0));
+  // Read live progress from the shared telemetry store so values update.
+  const pct = Math.max(0, Math.min(1, tel.progress || 0));
   const arrived = pct >= 0.999;
+  const remainSec = Math.max(0, tel.totalSec * (1 - pct));
+  const etaStr = arrived ? "Arrived" : fmtMinSec(remainSec);
   // Position the ambulance manually along the path so it can sit exactly
   // at the destination on arrival, instead of looping with animateMotion.
   // Cubic Bezier P0(60,200) P1(160,200) P2(220,130) P3(340,70).
@@ -1041,7 +1044,7 @@ function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
       {/* time bubbles */}
       <div className="absolute" style={{ top: "12%", left: "62%" }}>
         <div className="px-2.5 py-1 rounded-full border border-white bg-blue-700 text-white shadow-md text-[12px] font-semibold flex items-center gap-1.5">
-          {arrived ? "Arrived" : eta} <span className="inline-block size-1.5 rounded-full bg-emerald-300" />
+          {etaStr} <span className="inline-block size-1.5 rounded-full bg-emerald-300" />
         </div>
       </div>
       <div className="absolute" style={{ top: "30%", left: "42%" }}>
