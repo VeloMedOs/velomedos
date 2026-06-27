@@ -1,7 +1,7 @@
 /// <reference types="google.maps" />
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, ChevronRight, Heart, Stethoscope, Navigation, Clock, MapPin, Zap, Compass, Layers, Plus, Minus, Radio } from "lucide-react";
+import { ArrowRight, ChevronRight, Heart, Stethoscope, Navigation, Clock, MapPin, Zap, Compass, Layers, Plus, Minus, Radio, Activity } from "lucide-react";
 
 /**
  * VeloMed OS Command Hero — Network → Region → Team
