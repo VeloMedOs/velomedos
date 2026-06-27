@@ -958,17 +958,22 @@ function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
   useEffect(() => {
     const start = performance.now();
     let raf = 0;
+    let tripStart = start;
     setTelemetry({ totalSec: 12 * 60 + 30, totalKm: 8.4 });
     const loop = (t: number) => {
-      const elapsed = (t - start) / 1000;
-      const next = (elapsed / 60) % 1;
+      const elapsed = (t - tripStart) / 1000;
+      const lap = 28; // seconds per trip in fallback demo
+      let next = elapsed / lap;
+      const arrived = next >= 1;
+      if (next >= 1.25) { tripStart = t; next = 0; }
+      else if (arrived) { next = 1; }
       const startCurve = Math.min(1, next / 0.08);
-      const arrivalCurve = next > 0.85 ? Math.max(0, (1 - next) / 0.15) : 1;
+      const arrivalCurve = next > 0.85 ? Math.max(0, (1 - Math.min(next, 1)) / 0.15) : 1;
       const noise = Math.sin(t / 700) * 3 + Math.sin(t / 230) * 1.5;
       setTelemetry({
-        progress: next,
+        progress: Math.min(next, 1),
         elapsedSec: elapsed,
-        speedKmh: Math.max(0, 68 * startCurve * arrivalCurve + noise),
+        speedKmh: arrived ? 0 : Math.max(0, 68 * startCurve * arrivalCurve + noise),
         hr: Math.round(132 + Math.sin(t / 4000) * 6),
         spo2: Math.max(86, Math.min(96, Math.round(91 + Math.sin(t / 6500) * 1.5))),
         bpSys: 92 + Math.round(Math.sin(t / 5200) * 4),
@@ -980,8 +985,22 @@ function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  // SVG mock route A→B with travelled segment + alternates
-  const pct = Math.max(0.02, Math.min(0.98, progress || 0.62));
+  // SVG mock route A→B with travelled segment + alternates.
+  // Allow the full 0..1 range so the dashboard actually shows arrival.
+  const pct = Math.max(0, Math.min(1, progress || 0));
+  const arrived = pct >= 0.999;
+  // Position the ambulance manually along the path so it can sit exactly
+  // at the destination on arrival, instead of looping with animateMotion.
+  // Cubic Bezier P0(60,200) P1(160,200) P2(220,130) P3(340,70).
+  const bezier = (u: number) => {
+    const mu = 1 - u;
+    const x = mu*mu*mu*60 + 3*mu*mu*u*160 + 3*mu*u*u*220 + u*u*u*340;
+    const y = mu*mu*mu*200 + 3*mu*mu*u*200 + 3*mu*u*u*130 + u*u*u*70;
+    return { x, y };
+  };
+  const p1 = bezier(Math.max(0.0001, pct));
+  const p0 = bezier(Math.max(0, pct - 0.02));
+  const angle = (Math.atan2(p1.y - p0.y, p1.x - p0.x) * 180) / Math.PI + 90;
   return (
     <FallbackChrome>
       <svg viewBox="0 0 400 250" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
@@ -1002,26 +1021,27 @@ function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
             fill="#ea4335" stroke="white" strokeWidth="2" />
           <circle cx="0" cy="-10" r="5" fill="white" />
         </g>
-        {/* ambulance along primary, auto-rotated to path direction */}
-        <g>
-          <circle r="10" fill="#06b6d4" fillOpacity="0.25">
-            <animateMotion dur="9s" repeatCount="indefinite" rotate="auto"
-              path="M 60 200 C 160 200, 220 130, 340 70" />
+        {/* ambulance — positioned by progress so it can sit at destination */}
+        <g transform={`translate(${p1.x} ${p1.y})`}>
+          <circle r="14" fill="#06b6d4" fillOpacity="0.22">
+            <animate attributeName="r" values="11;15;11" dur="1.6s" repeatCount="indefinite" />
+            <animate attributeName="fill-opacity" values="0.35;0.05;0.35" dur="1.6s" repeatCount="indefinite" />
           </circle>
-          <g>
-            <rect x="-6" y="-9" width="12" height="18" rx="2" fill="#fff" stroke="#0f172a" strokeWidth="1" />
-            <rect x="-5" y="-7.5" width="10" height="5" rx="0.8" fill="#bae6fd" />
-            <rect x="-1" y="-1" width="2" height="7" fill="#ef4444" />
-            <rect x="-3.5" y="1.5" width="7" height="2" fill="#ef4444" />
-            <animateMotion dur="9s" repeatCount="indefinite" rotate="auto"
-              path="M 60 200 C 160 200, 220 130, 340 70" />
+          <g transform={`rotate(${angle.toFixed(1)})`}>
+            <rect x="-8" y="-12" width="16" height="24" rx="3" fill="#ffffff" stroke="#0f172a" strokeWidth="1.2" />
+            <path d="M -7 -8 Q 0 -11 7 -8 L 6 -6 L -6 -6 Z" fill="#7dd3fc" stroke="#0f172a" strokeWidth="0.5" />
+            <rect x="-8" y="-2" width="16" height="2" fill="#ef4444" />
+            <rect x="-1" y="1" width="2" height="8" fill="#ef4444" />
+            <rect x="-4.5" y="4" width="9" height="2" fill="#ef4444" />
+            <rect x="-6.5" y="-11" width="5" height="1.6" rx="0.4" fill="#ef4444" />
+            <rect x="1.5" y="-11" width="5" height="1.6" rx="0.4" fill="#06b6d4" />
           </g>
         </g>
       </svg>
       {/* time bubbles */}
       <div className="absolute" style={{ top: "12%", left: "62%" }}>
         <div className="px-2.5 py-1 rounded-full border border-white bg-blue-700 text-white shadow-md text-[12px] font-semibold flex items-center gap-1.5">
-          {eta} <span className="inline-block size-1.5 rounded-full bg-emerald-300" />
+          {arrived ? "Arrived" : eta} <span className="inline-block size-1.5 rounded-full bg-emerald-300" />
         </div>
       </div>
       <div className="absolute" style={{ top: "30%", left: "42%" }}>
