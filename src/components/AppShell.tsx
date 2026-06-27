@@ -2,7 +2,8 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { Activity, LogOut, Shield } from "lucide-react";
+import { LogOut, Shield } from "lucide-react";
+import { BrandMark, BrandWordmark } from "@/components/BrandMark";
 
 const VELOMED_NAV = [
   { to: "/superadmin", label: "Superadmin" },
@@ -69,12 +70,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       <nav className="sticky top-0 z-50 h-14 border-b border-hairline bg-panel/95 backdrop-blur flex items-center justify-between px-4 lg:px-6">
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2">
-            <div className="size-7 rounded-md bg-emergency grid place-items-center text-emergency-foreground font-bold shadow-[0_0_18px_oklch(0.62_0.22_27/0.5)]">
-              <Activity className="size-4" />
-            </div>
-            <span className="font-bold tracking-tight text-base">
-              VELOMED <span className="text-emergency">OS</span>
-            </span>
+            <BrandMark className="size-7" />
+            <BrandWordmark className="text-base" />
           </Link>
           <div className="hidden md:flex gap-1 mono text-[11px] uppercase tracking-[0.14em]">
             {NAV.map((n) => {
