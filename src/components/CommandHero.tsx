@@ -682,7 +682,7 @@ function TeamView() {
       {!failed && (
         <>
           {/* Crew chip */}
-          <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
+          <div className="absolute top-3 left-3 z-[40] max-w-[calc(100%-96px)] rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[11px] sm:text-[12px] font-medium flex items-center gap-2 truncate">
             <span className="size-2 rounded-full animate-pulse" style={{ background: BRAND.teal }} /> Crew 04 · ALS · 2 onboard
           </div>
           {/* Route time bubbles — Google Maps style */}
@@ -690,7 +690,7 @@ function TeamView() {
             <RouteBubble key={i} minutes={r.minutes} primary={i === 0} index={i} total={routes.length} />
           ))}
           {/* Bottom sheet: ETA + actions */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 min-w-[260px]">
+          <div className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 sm:min-w-[260px]">
             <div>
               <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
               <div
@@ -701,16 +701,16 @@ function TeamView() {
               </div>
             </div>
             <div className="h-9 w-px bg-slate-200" />
-            <div className="flex flex-col text-[11px] text-slate-700">
+            <div className="flex flex-col text-[11px] text-slate-700 min-w-0">
               <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(Math.min(tel.progress, 1) * 100)}%</span>
               <span className="mono text-slate-500">{Math.max(0, tel.totalKm * (1 - Math.min(tel.progress, 1))).toFixed(2)} km left · {Math.round(tel.speedKmh)} km/h</span>
             </div>
           </div>
           {/* Compass / layers */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2">
+          <div className="absolute top-3 right-3 z-[45] flex flex-col gap-2">
             <button aria-label="Map layers" className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Layers className="size-4" /></button>
           </div>
-          <div className="absolute bottom-3 right-3">
+          <div className="absolute bottom-3 right-3 z-[45]">
             <button aria-label="Reset map orientation" className="size-10 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-5" /></button>
           </div>
         </>
