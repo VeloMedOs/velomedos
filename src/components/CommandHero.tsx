@@ -1315,7 +1315,7 @@ function TeamFallback() {
   return (
     <FallbackChrome>
       {/* Iconic Google-Maps style road network underneath the trip */}
-      <svg viewBox="0 0 400 250" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+      <svg viewBox="0 0 400 250" className="absolute inset-0 w-full h-full pointer-events-none z-[10]" preserveAspectRatio="none">
         <defs>
           <filter id="routeGlow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="2.4" />
@@ -1324,6 +1324,10 @@ function TeamFallback() {
             <stop offset="0%" stopColor="#1F6FEB" />
             <stop offset="100%" stopColor="#4FB6F7" />
           </linearGradient>
+          {/* soft contact shadow for the destination pin */}
+          <filter id="pinShadow" x="-60%" y="-40%" width="220%" height="200%">
+            <feGaussianBlur stdDeviation="1.2" />
+          </filter>
         </defs>
         {/* arterial roads (warm beige like Maps) */}
         <g stroke="#2a3340" strokeLinecap="round" fill="none">
@@ -1361,18 +1365,21 @@ function TeamFallback() {
         </g>
         {/* destination teardrop — compact, jeweler-grade */}
         <g transform="translate(340 70)">
-          {/* contact shadow */}
-          <ellipse cx="0" cy="14" rx="5" ry="1.4" fill="#000" opacity="0.5" />
-          {/* pin body (smaller, refined silhouette) */}
-          <path d="M 0 -16 C -7 -16, -12 -11, -12 -4 C -12 4, 0 14, 0 14 S 12 4, 12 -4 C 12 -11, 7 -16, 0 -16 Z"
-            fill="#FF6E5B" stroke="white" strokeWidth="1.4" />
-          {/* inner highlight */}
-          <path d="M 0 -14 C -5 -14, -9 -10, -9.5 -5"
-            stroke="white" strokeOpacity="0.55" strokeWidth="1" fill="none" strokeLinecap="round" />
-          {/* white disc + medical cross */}
-          <circle cx="0" cy="-5" r="4.2" fill="white" />
-          <rect x="-0.7" y="-7.6" width="1.4" height="5.2" rx="0.3" fill="#FF6E5B"/>
-          <rect x="-2.6" y="-5.7" width="5.2" height="1.4" rx="0.3" fill="#FF6E5B"/>
+          {/* diffuse drop shadow under the pin (filter-based, no harsh ellipse) */}
+          <path d="M 0 -14 C -6 -14, -10.5 -9.5, -10.5 -3.5 C -10.5 3.5, 0 12, 0 12 S 10.5 3.5, 10.5 -3.5 C 10.5 -9.5, 6 -14, 0 -14 Z"
+            fill="#000" opacity="0.45" filter="url(#pinShadow)" transform="translate(0.6 1.4)" />
+          {/* pin body — slightly tighter silhouette, jeweler stroke */}
+          <path d="M 0 -14 C -6 -14, -10.5 -9.5, -10.5 -3.5 C -10.5 3.5, 0 12, 0 12 S 10.5 3.5, 10.5 -3.5 C 10.5 -9.5, 6 -14, 0 -14 Z"
+            fill="#FF6E5B" stroke="#ffffff" strokeWidth="0.9" />
+          {/* subtle inner gradient highlight for depth */}
+          <path d="M 0 -12.6 C -4.4 -12.6, -8 -9.2, -8.4 -4.6"
+            stroke="#ffffff" strokeOpacity="0.6" strokeWidth="0.7" fill="none" strokeLinecap="round" />
+          {/* white disc with hairline ring */}
+          <circle cx="0" cy="-4.5" r="3.7" fill="#ffffff" />
+          <circle cx="0" cy="-4.5" r="3.7" fill="none" stroke="#FF6E5B" strokeOpacity="0.25" strokeWidth="0.4" />
+          {/* medical cross — perfectly centered, tighter proportions */}
+          <rect x="-0.55" y="-6.6" width="1.1" height="4.2" rx="0.25" fill="#FF6E5B"/>
+          <rect x="-2.1"  y="-5.05" width="4.2" height="1.1" rx="0.25" fill="#FF6E5B"/>
         </g>
         {/* ambulance — positioned by progress so it can sit at destination */}
         <g transform={`translate(${p1.x} ${p1.y})`}>
