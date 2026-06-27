@@ -458,6 +458,8 @@ function TeamView() {
   const mapRef = useRef<google.maps.Map | null>(null);
   const vehicleRef = useRef<google.maps.Marker | null>(null);
   const travelledRef = useRef<google.maps.Polyline | null>(null);
+  const lastHeadingRef = useRef<number>(0);
+  const lastPosRef = useRef<google.maps.LatLng | null>(null);
   const [routes, setRoutes] = useState<{ path: google.maps.LatLng[]; minutes: number }[]>([]);
   const [progress, setProgress] = useState(0);
   const [eta, setEta] = useState<string>("12:30");
@@ -496,7 +498,7 @@ function TeamView() {
       // Vehicle (teal)
       vehicleRef.current = new google.maps.Marker({
         map, position: TEAM_A,
-        icon: { url: vehicleDot(), scaledSize: new google.maps.Size(28, 28), anchor: new google.maps.Point(14, 14) },
+        icon: { url: ambulanceIcon(0), scaledSize: new google.maps.Size(40, 40), anchor: new google.maps.Point(20, 20) },
         zIndex: 999,
       });
 
@@ -576,7 +578,23 @@ function TeamView() {
         const segment = routes[0].path.slice(0, idx);
         if (travelledRef.current) travelledRef.current.setPath(segment);
         const head = segment[segment.length - 1];
-        if (head && vehicleRef.current) vehicleRef.current.setPosition(head);
+        if (head && vehicleRef.current) {
+          vehicleRef.current.setPosition(head);
+          // Rotate ambulance along bearing of travel
+          const prev = lastPosRef.current;
+          if (prev && window.google?.maps?.geometry) {
+            const heading = google.maps.geometry.spherical.computeHeading(prev, head);
+            if (!Number.isNaN(heading) && Math.abs(heading - lastHeadingRef.current) > 4) {
+              lastHeadingRef.current = heading;
+              vehicleRef.current.setIcon({
+                url: ambulanceIcon(heading),
+                scaledSize: new google.maps.Size(40, 40),
+                anchor: new google.maps.Point(20, 20),
+              });
+            }
+          }
+          lastPosRef.current = head;
+        }
 
         // Publish telemetry: speed easing (climb → cruise → slow at arrival),
         // ETA countdown, distance left, elapsed trip time, vitals drift.
@@ -639,7 +657,7 @@ function TeamView() {
         <div className="h-9 w-px bg-slate-200" />
         <div className="flex flex-col text-[11px] text-slate-700">
           <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(progress * 100)}%</span>
-          <span className="mono text-slate-500">{(TELEM.totalKm * (1 - progress)).toFixed(1)} km left</span>
+          <span className="mono text-slate-500">{(TELEM.totalKm * (1 - progress)).toFixed(2)} km left · {Math.round(TELEM.speedKmh)} km/h</span>
         </div>
       </div>
       {/* Compass / layers */}
@@ -687,10 +705,35 @@ function originDot() {
   </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
-function vehicleDot() {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'>
-    <circle cx='14' cy='14' r='12' fill='#06b6d4' fill-opacity='0.3'/>
-    <circle cx='14' cy='14' r='7' fill='#06b6d4' stroke='white' stroke-width='2.5'/>
+/** Top-down ambulance icon, rotated by bearing (deg, 0 = north). */
+function ambulanceIcon(heading: number) {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'>
+    <defs>
+      <filter id='amb-sh' x='-50%' y='-50%' width='200%' height='200%'>
+        <feDropShadow dx='0' dy='1' stdDeviation='1.2' flood-color='#000' flood-opacity='0.45'/>
+      </filter>
+    </defs>
+    <circle cx='20' cy='20' r='17' fill='#06b6d4' fill-opacity='0.22'>
+      <animate attributeName='r' values='14;18;14' dur='1.6s' repeatCount='indefinite'/>
+      <animate attributeName='fill-opacity' values='0.35;0.05;0.35' dur='1.6s' repeatCount='indefinite'/>
+    </circle>
+    <g transform='rotate(${heading.toFixed(1)} 20 20)' filter='url(#amb-sh)'>
+      <!-- body -->
+      <rect x='12' y='7' width='16' height='26' rx='3' fill='#ffffff' stroke='#0f172a' stroke-width='1.4'/>
+      <!-- cab / windshield -->
+      <rect x='13.5' y='9' width='13' height='6' rx='1.2' fill='#bae6fd' stroke='#0f172a' stroke-width='0.6'/>
+      <!-- light bar -->
+      <rect x='13' y='6.2' width='6.5' height='2' rx='0.6' fill='#ef4444'/>
+      <rect x='20.5' y='6.2' width='6.5' height='2' rx='0.6' fill='#06b6d4'/>
+      <!-- red cross -->
+      <rect x='18.7' y='18' width='2.6' height='10' fill='#ef4444'/>
+      <rect x='15' y='21.7' width='10' height='2.6' fill='#ef4444'/>
+      <!-- wheels -->
+      <rect x='10.5' y='14' width='2' height='5' rx='0.6' fill='#0f172a'/>
+      <rect x='27.5' y='14' width='2' height='5' rx='0.6' fill='#0f172a'/>
+      <rect x='10.5' y='24' width='2' height='5' rx='0.6' fill='#0f172a'/>
+      <rect x='27.5' y='24' width='2' height='5' rx='0.6' fill='#0f172a'/>
+    </g>
   </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
@@ -927,11 +970,21 @@ function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
             fill="#ea4335" stroke="white" strokeWidth="2" />
           <circle cx="0" cy="-10" r="5" fill="white" />
         </g>
-        {/* vehicle dot along primary */}
-        <circle r="7" fill="#06b6d4" stroke="white" strokeWidth="2.5">
-          <animateMotion dur="6s" repeatCount="indefinite"
-            path="M 60 200 C 160 200, 220 130, 340 70" />
-        </circle>
+        {/* ambulance along primary, auto-rotated to path direction */}
+        <g>
+          <circle r="10" fill="#06b6d4" fillOpacity="0.25">
+            <animateMotion dur="9s" repeatCount="indefinite" rotate="auto"
+              path="M 60 200 C 160 200, 220 130, 340 70" />
+          </circle>
+          <g>
+            <rect x="-6" y="-9" width="12" height="18" rx="2" fill="#fff" stroke="#0f172a" strokeWidth="1" />
+            <rect x="-5" y="-7.5" width="10" height="5" rx="0.8" fill="#bae6fd" />
+            <rect x="-1" y="-1" width="2" height="7" fill="#ef4444" />
+            <rect x="-3.5" y="1.5" width="7" height="2" fill="#ef4444" />
+            <animateMotion dur="9s" repeatCount="indefinite" rotate="auto"
+              path="M 60 200 C 160 200, 220 130, 340 70" />
+          </g>
+        </g>
       </svg>
       {/* time bubbles */}
       <div className="absolute" style={{ top: "12%", left: "62%" }}>
