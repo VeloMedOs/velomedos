@@ -33,30 +33,43 @@ export function EmergencyBanner() { return null; }
 export function SiteFooter() {
   return (
     <footer className="border-t border-hairline bg-panel/30">
-      <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-12 grid md:grid-cols-5 gap-8">
+      <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-12 grid md:grid-cols-4 gap-8">
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <div className="size-7 rounded-md bg-emergency grid place-items-center text-emergency-foreground"><Activity className="size-4" /></div>
-            <span className="font-bold">VELOMED <span className="text-emergency">OS</span></span>
+            <div className="size-7 rounded-md bg-teal grid place-items-center text-background"><Activity className="size-4" /></div>
+            <span className="font-bold">VELOMED <span className="text-teal">OS</span></span>
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">Medical mobility infrastructure for dispatch, providers, patients, and partners — on one documented REST API.</p>
+          <p className="text-xs text-muted-foreground leading-relaxed">The branch-aware operating system for multi-branch medical mobility operators. From your whole network down to one crew.</p>
         </div>
-        <FooterCol title="Services" links={[
-          ["Emergency dispatch","/services/emergency-dispatch"],
-          ["Fleet compliance","/services/fleet-compliance"],
+        <FooterCol title="Platform" links={[
+          ["Network → Region → Team", "/platform"],
+          ["Cases & dispatch","/services/emergency-dispatch"],
+          ["Fleet & maintenance","/services/fleet-compliance"],
+          ["Licensing & certification","/services/training-certification"],
           ["Remote clinics","/services/remote-clinics"],
           ["Mobile screening","/services/mobile-screening"],
-          ["Training","/services/training-certification"],
-          ["Developer API","/services/developer-api"],
         ]} />
-        <FooterCol title="Cities served" links={SITE.cities.map((c) => [c.name, `/clinics/${c.slug}`])} />
-        <FooterCol title="Platform" links={[["Resources","/resources"],["Pricing","/pricing"],["About","/about"],["Developers","/developers"],["API reference","/api-reference"],["API Docs","/api-docs"],["Website map","/website"]]} />
-        <FooterCol title="Get in touch" links={[["Request a demo","/demo"],["Request help","/contact"],["Sign in","/auth"],["Privacy","/privacy"],["Terms","/terms"]]} />
+        <FooterCol title="Developer" links={[
+          ["API overview","/developers"],
+          ["API reference","/api-reference"],
+          ["OpenAPI / Swagger","/api-docs"],
+          ["Resources","/resources"],
+          ["Website map","/website"],
+        ]} />
+        <FooterCol title="Company" links={[
+          ["About","/about"],
+          ["Pricing","/pricing"],
+          ["Book a demo","/demo"],
+          ["Talk to us","/contact"],
+          ["Sign in","/auth"],
+          ["Privacy","/privacy"],
+          ["Terms","/terms"],
+        ]} />
       </div>
       <div className="border-t border-hairline">
         <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-4 mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground flex flex-wrap items-center justify-between gap-2">
           <span>© {new Date().getFullYear()} {SITE.legal} · All core systems operational</span>
-          <span className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-stable animate-pulse" /> API v1.2</span>
+          <span className="flex items-center gap-2"><span className="size-1.5 rounded-full bg-teal animate-pulse" /> Network · operational</span>
         </div>
       </div>
     </footer>
