@@ -696,55 +696,89 @@ function vehicleDot() {
 }
 
 function TeamLensRow() {
+  const t = useTelemetry();
+  const remainSec = Math.max(0, t.totalSec * (1 - t.progress));
+  const distLeftKm = Math.max(0, t.totalKm * (1 - t.progress));
+  // After handoff, the next call lights up as the crew nears destination.
+  const nextRespondSec = Math.max(60, 14 * 60 - t.elapsedSec * 0.6);
+  const nearArrival = t.progress > 0.9;
+  const acuity = t.spo2 < 90 || t.hr > 140 ? "P1 Critical · deteriorating" : "P1 Critical";
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 border-t border-hairline">
-      <LensPanel
-        title="Movement"
-        icon={<Navigation className="size-3.5" />}
-        rows={[
-          ["Speed", "68 km/h"],
-          ["ETA",   "4:12"],
-          ["Distance left", "3.2 km"],
-          ["Trip time", "00:11:42"],
-          ["A → B progress", "62%"],
-        ]}
-      />
-      <LensPanel
-        title="Patient onboard"
-        icon={<Heart className="size-3.5" />}
-        accent="coral"
-        rows={[
-          ["Acuity", "P1 Critical"],
-          ["HR", "132 bpm"],
-          ["BP", "92 / 58"],
-          ["SpO₂", "91%"],
-          ["GCS", "11"],
-        ]}
-        note="Suspected internal bleeding · pre-alert sent to trauma bay"
-      />
-      <LensPanel
-        title="Next request"
-        icon={<Zap className="size-3.5" />}
-        rows={[
-          ["Case", "C-2039 · Transfer"],
-          ["Pickup", "Dammam Medical Tower"],
-          ["Destination", "King Fahd Specialist"],
-          ["Time to respond", "~14 min"],
-          ["After handoff", "Auto-queue"],
-        ]}
-      />
+    <div className="border-t border-hairline">
+      {/* Live A→B progress bar — feels like a vehicle dashboard */}
+      <div className="h-0.5 bg-panel-elevated relative overflow-hidden">
+        <div
+          className="absolute inset-y-0 left-0 bg-teal transition-[width] duration-200"
+          style={{ width: `${(t.progress * 100).toFixed(2)}%` }}
+        />
+        <div
+          className="absolute top-1/2 -translate-y-1/2 size-1.5 rounded-full bg-teal shadow-[0_0_8px_rgba(20,184,166,0.9)]"
+          style={{ left: `calc(${(t.progress * 100).toFixed(2)}% - 3px)` }}
+        />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3">
+        <LensPanel
+          title="Movement"
+          icon={<Navigation className="size-3.5" />}
+          rows={[
+            ["Speed", `${Math.round(t.speedKmh)} km/h`],
+            ["ETA", fmtMinSec(remainSec)],
+            ["Distance left", `${distLeftKm.toFixed(1)} km`],
+            ["Trip time", fmtClock(t.elapsedSec)],
+            ["A → B progress", `${Math.round(t.progress * 100)}%`],
+          ]}
+          live
+        />
+        <LensPanel
+          title="Patient onboard"
+          icon={<Heart className="size-3.5" />}
+          accent="coral"
+          rows={[
+            ["Acuity", acuity],
+            ["HR", `${t.hr} bpm`],
+            ["BP", `${t.bpSys} / ${t.bpDia}`],
+            ["SpO₂", `${t.spo2}%`],
+            ["GCS", `${t.gcs}`],
+          ]}
+          note={
+            nearArrival
+              ? "Approaching Al Mana · trauma bay 2 reserved · doors opening"
+              : "Suspected internal bleeding · pre-alert sent to trauma bay"
+          }
+          live
+        />
+        <LensPanel
+          title="Next request"
+          icon={<Zap className="size-3.5" />}
+          rows={[
+            ["Case", "C-2039 · Transfer"],
+            ["Pickup", "Dammam Medical Tower"],
+            ["Destination", "King Fahd Specialist"],
+            ["Time to respond", `~${Math.ceil(nextRespondSec / 60)} min`],
+            ["After handoff", nearArrival ? "Dispatch ready" : "Auto-queue"],
+          ]}
+        />
+      </div>
     </div>
   );
 }
 
-function LensPanel({ title, icon, rows, note, accent = "teal" }: { title: string; icon: React.ReactNode; rows: [string, string][]; note?: string; accent?: "teal" | "coral" }) {
+function LensPanel({ title, icon, rows, note, accent = "teal", live = false }: { title: string; icon: React.ReactNode; rows: [string, string][]; note?: string; accent?: "teal" | "coral"; live?: boolean }) {
   const accentClass = accent === "coral" ? "text-coral" : "text-teal";
   return (
     <div className="p-4 border-r border-hairline last:border-r-0">
-      <div className={`mono text-[10px] uppercase tracking-widest ${accentClass} flex items-center gap-1.5`}>{icon}{title}</div>
+      <div className={`mono text-[10px] uppercase tracking-widest ${accentClass} flex items-center gap-1.5`}>
+        {icon}{title}
+        {live && (
+          <span className="ml-auto inline-flex items-center gap-1 text-muted-foreground">
+            <span className="size-1.5 rounded-full bg-teal animate-pulse" /> LIVE
+          </span>
+        )}
+      </div>
       <dl className="mt-3 space-y-1.5">
         {rows.map(([k,v]) => (
-          <div key={k} className="flex items-baseline justify-between gap-3">
+          <div key={k} className="flex items-baseline justify-between gap-3 tabular-nums">
             <dt className="mono text-[10px] uppercase tracking-widest text-muted-foreground">{k}</dt>
             <dd className="mono text-sm font-semibold">{v}</dd>
           </div>
