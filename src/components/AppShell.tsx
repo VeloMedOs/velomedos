@@ -2,9 +2,10 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { Activity, LogOut } from "lucide-react";
+import { Activity, LogOut, Shield } from "lucide-react";
 
-const NAV = [
+const VELOMED_NAV = [
+  { to: "/superadmin", label: "Superadmin" },
   { to: "/admin", label: "Overview" },
   { to: "/fleet", label: "Fleet" },
   { to: "/dispatch", label: "Dispatch" },
@@ -20,14 +21,35 @@ const NAV = [
   { to: "/developer", label: "API Keys" },
 ] as const;
 
+const BUSINESS_NAV = [
+  { to: "/business", label: "Workspace" },
+  { to: "/dispatch", label: "Dispatch" },
+  { to: "/fleet", label: "Fleet" },
+  { to: "/call-center", label: "Call Center" },
+  { to: "/trips", label: "Trips" },
+  { to: "/compliance", label: "Compliance" },
+  { to: "/screening", label: "Screening" },
+  { to: "/training", label: "Training" },
+] as const;
+
+const PATIENT_NAV = [
+  { to: "/patient", label: "My care" },
+] as const;
+
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [email, setEmail] = useState<string | null>(null);
+  const [roles, setRoles] = useState<string[]>([]);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
+    supabase.auth.getUser().then(async ({ data }) => {
+      setEmail(data.user?.email ?? null);
+      if (!data.user) return;
+      const { data: rs } = await (supabase as any).rpc("get_user_roles", { _user_id: data.user.id });
+      setRoles((rs ?? []).map((r: any) => (typeof r === "string" ? r : r.role)));
+    });
   }, []);
 
   async function signOut() {
@@ -36,6 +58,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   }
+
+  const isSuper = roles.includes("superadmin");
+  const isBiz = roles.includes("business_admin");
+  const isVeloStaff = isSuper || roles.includes("admin") || roles.includes("dispatcher") || roles.includes("developer");
+  const NAV = isVeloStaff ? VELOMED_NAV.filter((n) => n.to !== "/superadmin" || isSuper) : isBiz ? BUSINESS_NAV : PATIENT_NAV;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -52,12 +79,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="hidden md:flex gap-1 mono text-[11px] uppercase tracking-[0.14em]">
             {NAV.map((n) => {
               const active = pathname.startsWith(n.to);
+              const isSuperLink = n.to === "/superadmin";
               return (
                 <Link
                   key={n.to}
                   to={n.to}
-                  className={`px-3 py-1.5 rounded-md transition-colors ${active ? "bg-panel-elevated text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1 ${active ? "bg-panel-elevated text-foreground" : "text-muted-foreground hover:text-foreground"} ${isSuperLink ? "text-emergency hover:text-emergency" : ""}`}
                 >
+                  {isSuperLink && <Shield className="size-3" />}
                   {n.label}
                 </Link>
               );
@@ -65,6 +94,16 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          {isSuper && (
+            <span className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded mono text-[9px] uppercase tracking-widest bg-emergency/15 text-emergency border border-emergency/30">
+              <Shield className="size-3" /> Superadmin
+            </span>
+          )}
+          {isBiz && !isSuper && (
+            <span className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded mono text-[9px] uppercase tracking-widest bg-action/15 text-action border border-action/30">
+              Business
+            </span>
+          )}
           <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-full bg-panel-elevated mono text-[10px] uppercase tracking-widest text-stable">
             <span className="size-1.5 rounded-full bg-stable shadow-[0_0_8px_oklch(0.7_0.16_155/0.8)] animate-pulse" />
             System Live

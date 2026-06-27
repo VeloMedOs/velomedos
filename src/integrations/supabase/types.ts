@@ -170,6 +170,54 @@ export type Database = {
         }
         Relationships: []
       }
+      business_requests: {
+        Row: {
+          company_name: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string | null
+          country: string | null
+          created_at: string
+          fleet_size: number | null
+          id: string
+          notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          use_case: string | null
+        }
+        Insert: {
+          company_name: string
+          contact_email: string
+          contact_name: string
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          fleet_size?: number | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          use_case?: string | null
+        }
+        Update: {
+          company_name?: string
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          fleet_size?: number | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          use_case?: string | null
+        }
+        Relationships: []
+      }
       certificates: {
         Row: {
           code: string
@@ -282,31 +330,52 @@ export type Database = {
       }
       corporate_accounts: {
         Row: {
+          accent_color: string | null
           billing_ref: string | null
           company_name: string
           contact_email: string | null
           contact_phone: string | null
+          country: string | null
           created_at: string
           id: string
+          logo_url: string | null
           owner_user_id: string | null
+          plan_tier: string
+          primary_color: string | null
+          slug: string | null
+          status: string
         }
         Insert: {
+          accent_color?: string | null
           billing_ref?: string | null
           company_name: string
           contact_email?: string | null
           contact_phone?: string | null
+          country?: string | null
           created_at?: string
           id?: string
+          logo_url?: string | null
           owner_user_id?: string | null
+          plan_tier?: string
+          primary_color?: string | null
+          slug?: string | null
+          status?: string
         }
         Update: {
+          accent_color?: string | null
           billing_ref?: string | null
           company_name?: string
           contact_email?: string | null
           contact_phone?: string | null
+          country?: string | null
           created_at?: string
           id?: string
+          logo_url?: string | null
           owner_user_id?: string | null
+          plan_tier?: string
+          primary_color?: string | null
+          slug?: string | null
+          status?: string
         }
         Relationships: []
       }
@@ -628,6 +697,27 @@ export type Database = {
           },
         ]
       }
+      platform_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -913,6 +1003,38 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "clinic_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_members: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: string
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_members_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
             referencedColumns: ["id"]
           },
         ]
@@ -1352,6 +1474,8 @@ export type Database = {
         | "driver"
         | "patient"
         | "developer"
+        | "superadmin"
+        | "business_admin"
       booking_status: "requested" | "confirmed" | "completed" | "cancelled"
       credential_kind:
         | "paramedic_license"
@@ -1526,6 +1650,8 @@ export const Constants = {
         "driver",
         "patient",
         "developer",
+        "superadmin",
+        "business_admin",
       ],
       booking_status: ["requested", "confirmed", "completed", "cancelled"],
       credential_kind: [

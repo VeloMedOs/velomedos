@@ -33,6 +33,7 @@ import { Route as ResourcesSlugRouteImport } from './routes/resources.$slug'
 import { Route as ClinicsCityRouteImport } from './routes/clinics.$city'
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
+import { Route as AuthenticatedSuperadminRouteImport } from './routes/_authenticated/superadmin'
 import { Route as AuthenticatedScreeningRouteImport } from './routes/_authenticated/screening'
 import { Route as AuthenticatedRentalsRouteImport } from './routes/_authenticated/rentals'
 import { Route as AuthenticatedProviderRouteImport } from './routes/_authenticated/provider'
@@ -42,6 +43,7 @@ import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDeveloperRouteImport } from './routes/_authenticated/developer'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
 import { Route as AuthenticatedCallCenterRouteImport } from './routes/_authenticated/call-center'
+import { Route as AuthenticatedBusinessRouteImport } from './routes/_authenticated/business'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicV1Work_ordersRouteImport } from './routes/api/public/v1/work_orders'
@@ -181,6 +183,11 @@ const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
   path: '/training',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSuperadminRoute = AuthenticatedSuperadminRouteImport.update({
+  id: '/superadmin',
+  path: '/superadmin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedScreeningRoute = AuthenticatedScreeningRouteImport.update({
   id: '/screening',
   path: '/screening',
@@ -224,6 +231,11 @@ const AuthenticatedComplianceRoute = AuthenticatedComplianceRouteImport.update({
 const AuthenticatedCallCenterRoute = AuthenticatedCallCenterRouteImport.update({
   id: '/call-center',
   path: '/call-center',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBusinessRoute = AuthenticatedBusinessRouteImport.update({
+  id: '/business',
+  path: '/business',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
@@ -347,6 +359,7 @@ export interface FileRoutesByFullPath {
   '/website': typeof WebsiteRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
+  '/business': typeof AuthenticatedBusinessRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/developer': typeof AuthenticatedDeveloperRoute
@@ -356,6 +369,7 @@ export interface FileRoutesByFullPath {
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
+  '/superadmin': typeof AuthenticatedSuperadminRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
@@ -400,6 +414,7 @@ export interface FileRoutesByTo {
   '/website': typeof WebsiteRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
+  '/business': typeof AuthenticatedBusinessRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/developer': typeof AuthenticatedDeveloperRoute
@@ -409,6 +424,7 @@ export interface FileRoutesByTo {
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
+  '/superadmin': typeof AuthenticatedSuperadminRoute
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
@@ -455,6 +471,7 @@ export interface FileRoutesById {
   '/website': typeof WebsiteRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
+  '/_authenticated/business': typeof AuthenticatedBusinessRoute
   '/_authenticated/call-center': typeof AuthenticatedCallCenterRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/developer': typeof AuthenticatedDeveloperRoute
@@ -464,6 +481,7 @@ export interface FileRoutesById {
   '/_authenticated/provider': typeof AuthenticatedProviderRoute
   '/_authenticated/rentals': typeof AuthenticatedRentalsRoute
   '/_authenticated/screening': typeof AuthenticatedScreeningRoute
+  '/_authenticated/superadmin': typeof AuthenticatedSuperadminRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
@@ -510,6 +528,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/admin'
     | '/audit'
+    | '/business'
     | '/call-center'
     | '/compliance'
     | '/developer'
@@ -519,6 +538,7 @@ export interface FileRouteTypes {
     | '/provider'
     | '/rentals'
     | '/screening'
+    | '/superadmin'
     | '/training'
     | '/trips'
     | '/clinics/$city'
@@ -563,6 +583,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/admin'
     | '/audit'
+    | '/business'
     | '/call-center'
     | '/compliance'
     | '/developer'
@@ -572,6 +593,7 @@ export interface FileRouteTypes {
     | '/provider'
     | '/rentals'
     | '/screening'
+    | '/superadmin'
     | '/training'
     | '/trips'
     | '/clinics/$city'
@@ -617,6 +639,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/_authenticated/admin'
     | '/_authenticated/audit'
+    | '/_authenticated/business'
     | '/_authenticated/call-center'
     | '/_authenticated/compliance'
     | '/_authenticated/developer'
@@ -626,6 +649,7 @@ export interface FileRouteTypes {
     | '/_authenticated/provider'
     | '/_authenticated/rentals'
     | '/_authenticated/screening'
+    | '/_authenticated/superadmin'
     | '/_authenticated/training'
     | '/_authenticated/trips'
     | '/clinics/$city'
@@ -858,6 +882,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTrainingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/superadmin': {
+      id: '/_authenticated/superadmin'
+      path: '/superadmin'
+      fullPath: '/superadmin'
+      preLoaderRoute: typeof AuthenticatedSuperadminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/screening': {
       id: '/_authenticated/screening'
       path: '/screening'
@@ -919,6 +950,13 @@ declare module '@tanstack/react-router' {
       path: '/call-center'
       fullPath: '/call-center'
       preLoaderRoute: typeof AuthenticatedCallCenterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/business': {
+      id: '/_authenticated/business'
+      path: '/business'
+      fullPath: '/business'
+      preLoaderRoute: typeof AuthenticatedBusinessRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/audit': {
@@ -1060,6 +1098,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
+  AuthenticatedBusinessRoute: typeof AuthenticatedBusinessRoute
   AuthenticatedCallCenterRoute: typeof AuthenticatedCallCenterRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedDeveloperRoute: typeof AuthenticatedDeveloperRoute
@@ -1069,6 +1108,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProviderRoute: typeof AuthenticatedProviderRoute
   AuthenticatedRentalsRoute: typeof AuthenticatedRentalsRoute
   AuthenticatedScreeningRoute: typeof AuthenticatedScreeningRoute
+  AuthenticatedSuperadminRoute: typeof AuthenticatedSuperadminRoute
   AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
   AuthenticatedTripsRoute: typeof AuthenticatedTripsRoute
 }
@@ -1076,6 +1116,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
+  AuthenticatedBusinessRoute: AuthenticatedBusinessRoute,
   AuthenticatedCallCenterRoute: AuthenticatedCallCenterRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedDeveloperRoute: AuthenticatedDeveloperRoute,
@@ -1085,6 +1126,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProviderRoute: AuthenticatedProviderRoute,
   AuthenticatedRentalsRoute: AuthenticatedRentalsRoute,
   AuthenticatedScreeningRoute: AuthenticatedScreeningRoute,
+  AuthenticatedSuperadminRoute: AuthenticatedSuperadminRoute,
   AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
   AuthenticatedTripsRoute: AuthenticatedTripsRoute,
 }
