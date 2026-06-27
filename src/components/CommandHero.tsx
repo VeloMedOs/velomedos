@@ -187,159 +187,342 @@ function Lens({ icon, label, value, hint }: { icon: React.ReactNode; label: stri
 }
 
 /* ----------------- NETWORK ----------------- */
+/* ----------------- NETWORK (real Google Maps, kingdom-wide) ----------------- */
 function NetworkView({ onPick }: { onPick: (id: string) => void }) {
-  return (
-    <svg viewBox="0 0 100 62" className="absolute inset-0 w-full h-full">
-      {/* faint kingdom outline */}
-      <defs>
-        <radialGradient id="gNet" cx="50%" cy="40%" r="60%">
-          <stop offset="0%" stopColor="oklch(0.30 0.04 220)" />
-          <stop offset="100%" stopColor="oklch(0.18 0.02 240)" />
-        </radialGradient>
-      </defs>
-      <rect x="0" y="0" width="100" height="62" fill="url(#gNet)" />
-      <path d="M8,32 Q18,12 38,10 Q60,8 70,14 Q86,20 90,34 Q92,46 78,54 Q60,60 42,58 Q22,56 12,46 Z"
-        fill="oklch(0.24 0.03 220)" stroke="oklch(0.34 0.04 210)" strokeWidth="0.3" />
+  const ref = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const [ready, setReady] = useState(false);
 
-      {/* connecting lines */}
-      {BRANCHES.map((b, i) => BRANCHES.slice(i+1).map((c) => (
-        <line key={b.id+c.id} x1={b.x} y1={b.y} x2={c.x} y2={c.y} stroke="oklch(0.74 0.13 195 / 0.18)" strokeWidth="0.18" strokeDasharray="0.6 0.6" />
-      )))}
+  useEffect(() => {
+    let cancel = false;
+    loadMaps().then(() => {
+      if (cancel || !ref.current) return;
+      const map = new google.maps.Map(ref.current, {
+        center: { lat: 24.0, lng: 45.0 },
+        zoom: 5,
+        mapTypeId: google.maps.MapTypeId.HYBRID,
+        disableDefaultUI: true,
+        gestureHandling: "cooperative",
+        backgroundColor: "#0b1220",
+      });
+      mapRef.current = map;
+      for (const b of BRANCHES) {
+        const marker = new google.maps.Marker({
+          map, position: { lat: b.lat, lng: b.lng }, title: `${b.name} branch`,
+          icon: {
+            url: branchPin(b.cases),
+            scaledSize: new google.maps.Size(64, 64),
+            anchor: new google.maps.Point(32, 32),
+          },
+        });
+        marker.addListener("click", () => onPick(b.id));
+      }
+      setReady(true);
+    }).catch(() => setReady(true));
+    return () => { cancel = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-      {BRANCHES.map((b) => (
-        <g key={b.id} className="cursor-pointer" onClick={() => onPick(b.id)}>
-          <circle cx={b.x} cy={b.y} r="3.6" fill="oklch(0.74 0.13 195 / 0.18)" />
-          <circle cx={b.x} cy={b.y} r="1.6" fill="var(--color-teal)" />
-          <text x={b.x} y={b.y - 4.4} textAnchor="middle" fill="var(--color-foreground)" fontSize="2.4" fontFamily="Inter" fontWeight="600">{b.name}</text>
-          <text x={b.x} y={b.y + 6.2} textAnchor="middle" fill="var(--color-muted-foreground)" fontSize="1.8" fontFamily="JetBrains Mono">{b.cases} cases · {b.teams} teams</text>
-        </g>
-      ))}
-    </svg>
-  );
-}
-
-/* ----------------- REGION ----------------- */
-function RegionView({ branch, onPickTeam }: { branch: Branch; onPickTeam: () => void }) {
   return (
     <div className="absolute inset-0">
-      <svg viewBox="0 0 100 62" className="absolute inset-0 w-full h-full">
-        <defs>
-          <pattern id="sat" width="6" height="6" patternUnits="userSpaceOnUse">
-            <rect width="6" height="6" fill="oklch(0.24 0.025 145)" />
-            <circle cx="2" cy="3" r="0.4" fill="oklch(0.30 0.03 140)" />
-            <circle cx="4.5" cy="1.5" r="0.3" fill="oklch(0.32 0.03 150)" />
-          </pattern>
-        </defs>
-        <rect width="100" height="62" fill="url(#sat)" />
-        {/* coastline */}
-        <path d="M0,0 L66,0 Q70,18 60,30 Q52,42 60,54 Q66,62 100,62 L100,0 Z" fill="oklch(0.22 0.04 230)" opacity="0.7" />
-        {/* district overlays */}
-        {EASTERN_DISTRICTS.map((d) => (
-          <g key={d.name}>
-            <circle cx={d.x} cy={d.y} r="6" fill="oklch(0.74 0.13 195 / 0.07)" stroke="oklch(0.74 0.13 195 / 0.35)" strokeWidth="0.15" strokeDasharray="0.5 0.5" />
-            <text x={d.x} y={d.y + 0.8} textAnchor="middle" fill="oklch(0.85 0.01 240)" fontSize="1.8" fontFamily="JetBrains Mono">{d.name}</text>
-          </g>
-        ))}
-        {/* cases */}
-        {EASTERN_CASES.map((c) => (
-          <g key={c.id} className="cursor-pointer" onClick={onPickTeam}>
-            <circle cx={c.x} cy={c.y} r="2.4" fill={SEV_COLOR[c.severity]} opacity="0.25" />
-            <circle cx={c.x} cy={c.y} r="1.1" fill={SEV_COLOR[c.severity]}>
-              <animate attributeName="r" values="1.1;1.6;1.1" dur="1.8s" repeatCount="indefinite" />
-            </circle>
-          </g>
-        ))}
-      </svg>
-
-      {/* legend */}
-      <div className="absolute bottom-3 left-3 rounded-md bg-background/70 border border-hairline p-2 mono text-[10px] uppercase tracking-widest space-y-1">
-        <div className="flex items-center gap-2"><span className="size-2 rounded-full" style={{ background: SEV_COLOR.critical }} /> Critical</div>
-        <div className="flex items-center gap-2"><span className="size-2 rounded-full" style={{ background: SEV_COLOR.transfer }} /> Transfer</div>
-        <div className="flex items-center gap-2"><span className="size-2 rounded-full" style={{ background: SEV_COLOR.routine }} /> Routine</div>
+      <div ref={ref} className="absolute inset-0" />
+      {!ready && <div className="absolute inset-0 grid place-items-center mono text-[10px] uppercase tracking-widest text-muted-foreground">Loading satellite…</div>}
+      <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
+        <span className="size-2 rounded-full bg-teal-500" /> 5 branches · 103 active cases · 144 teams
       </div>
-      <div className="absolute top-3 left-3 rounded-md bg-background/70 border border-hairline px-2 py-1 mono text-[10px] uppercase tracking-widest">
-        {branch.name} Region · {EASTERN_CASES.length} live cases · {branch.teams} teams
+      <div className="absolute top-3 right-3 flex flex-col gap-2">
+        <button className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700" aria-label="Layers"><Layers className="size-4" /></button>
       </div>
-      <div className="absolute bottom-3 right-3 rounded-md bg-background/70 border border-hairline overflow-hidden mono text-xs">
-        <button className="px-2 py-1 hover:bg-panel-elevated">+</button>
-        <span className="px-2 py-1 border-l border-hairline">−</span>
+      <div className="absolute bottom-3 right-3 flex flex-col gap-2">
+        <button className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-4" /></button>
       </div>
     </div>
   );
 }
 
-/* ----------------- TEAM ----------------- */
-function TeamView() {
-  // Path A→B along Al Thuqbah → Al Mana General Hospital
-  const path = "M14,52 C26,46 34,40 44,36 C56,32 64,28 78,24";
-  const [progress, setProgress] = useState(0.18);
+function branchPin(cases: number) {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'>
+    <circle cx='32' cy='32' r='22' fill='#3b9eff' fill-opacity='0.18'/>
+    <circle cx='32' cy='32' r='14' fill='white' stroke='#1e40af' stroke-width='3'/>
+    <text x='32' y='37' text-anchor='middle' font-family='Inter,system-ui' font-size='14' font-weight='700' fill='#1e40af'>${cases}</text>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+/* ----------------- REGION (real Google Maps satellite + live cases) ----------------- */
+function RegionView({ branch, onPickTeam }: { branch: Branch; onPickTeam: () => void }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
+
   useEffect(() => {
+    let cancel = false;
+    loadMaps().then(() => {
+      if (cancel || !ref.current) return;
+      const map = new google.maps.Map(ref.current, {
+        center: { lat: branch.lat, lng: branch.lng },
+        zoom: 9,
+        mapTypeId: google.maps.MapTypeId.HYBRID,
+        disableDefaultUI: true,
+        zoomControl: false,
+        backgroundColor: "#0b1220",
+      });
+      mapRef.current = map;
+      for (const d of EASTERN_DISTRICTS) {
+        new google.maps.Marker({
+          map, position: { lat: d.lat, lng: d.lng },
+          icon: { url: districtLabel(d.name), scaledSize: new google.maps.Size(d.name.length * 7 + 24, 22), anchor: new google.maps.Point((d.name.length * 7 + 24) / 2, 11) },
+        });
+      }
+      for (const c of EASTERN_CASES) {
+        const m = new google.maps.Marker({
+          map, position: { lat: c.lat, lng: c.lng }, title: `${c.id} · ${c.district}`,
+          icon: { url: casePin(SEV_COLOR[c.severity]), scaledSize: new google.maps.Size(36, 36), anchor: new google.maps.Point(18, 18) },
+        });
+        m.addListener("click", onPickTeam);
+      }
+    }).catch(() => {});
+    return () => { cancel = true; };
+  }, [branch.lat, branch.lng, onPickTeam]);
+
+  const zoomBy = (delta: number) => mapRef.current?.setZoom((mapRef.current?.getZoom() ?? 9) + delta);
+
+  return (
+    <div className="absolute inset-0">
+      <div ref={ref} className="absolute inset-0" />
+      {/* Top left badge */}
+      <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
+        <MapPin className="size-3.5 text-rose-500" /> {branch.name} Region · {EASTERN_CASES.length} live · {branch.teams} teams
+      </div>
+      {/* Legend (Google-style pill row) */}
+      <div className="absolute bottom-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[11px] flex items-center gap-3">
+        <span className="flex items-center gap-1.5"><span className="size-2 rounded-full" style={{ background: SEV_COLOR.critical }} /> Critical</span>
+        <span className="flex items-center gap-1.5"><span className="size-2 rounded-full" style={{ background: SEV_COLOR.transfer }} /> Transfer</span>
+        <span className="flex items-center gap-1.5"><span className="size-2 rounded-full" style={{ background: SEV_COLOR.routine }} /> Routine</span>
+      </div>
+      {/* Zoom controls (Google-style) */}
+      <div className="absolute top-3 right-3 flex flex-col rounded-md bg-white shadow-md overflow-hidden">
+        <button onClick={() => zoomBy(1)} className="size-9 grid place-items-center text-slate-700 hover:bg-slate-100" aria-label="Zoom in"><Plus className="size-4" /></button>
+        <div className="h-px bg-slate-200" />
+        <button onClick={() => zoomBy(-1)} className="size-9 grid place-items-center text-slate-700 hover:bg-slate-100" aria-label="Zoom out"><Minus className="size-4" /></button>
+      </div>
+      <div className="absolute bottom-3 right-3">
+        <button className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-4" /></button>
+      </div>
+    </div>
+  );
+}
+
+function districtLabel(name: string) {
+  const w = name.length * 7 + 24;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='22' viewBox='0 0 ${w} 22'>
+    <rect x='1' y='1' width='${w - 2}' height='20' rx='10' fill='white' opacity='0.92' stroke='#cbd5e1'/>
+    <text x='${w / 2}' y='15' text-anchor='middle' font-family='Inter,system-ui' font-size='11' font-weight='600' fill='#0f172a'>${name}</text>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+function casePin(color: string) {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'>
+    <circle cx='18' cy='18' r='14' fill='${color}' fill-opacity='0.25'>
+      <animate attributeName='r' values='10;15;10' dur='1.8s' repeatCount='indefinite'/>
+    </circle>
+    <circle cx='18' cy='18' r='7' fill='${color}' stroke='white' stroke-width='2'/>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+/* ----------------- TEAM (real Google Maps + Directions, mirrors Google Maps mobile) ----------------- */
+function TeamView() {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const vehicleRef = useRef<google.maps.Marker | null>(null);
+  const travelledRef = useRef<google.maps.Polyline | null>(null);
+  const [routes, setRoutes] = useState<{ path: google.maps.LatLng[]; minutes: number }[]>([]);
+  const [progress, setProgress] = useState(0);
+  const [eta, setEta] = useState<string>("4:12");
+
+  useEffect(() => {
+    let cancel = false;
+    loadMaps().then(() => {
+      if (cancel || !ref.current) return;
+      const map = new google.maps.Map(ref.current, {
+        center: { lat: (TEAM_A.lat + TEAM_B.lat) / 2, lng: (TEAM_A.lng + TEAM_B.lng) / 2 },
+        zoom: 12,
+        mapTypeId: google.maps.MapTypeId.HYBRID,
+        disableDefaultUI: true,
+        backgroundColor: "#0b1220",
+      });
+      mapRef.current = map;
+
+      // Destination teardrop (Google red pin look)
+      new google.maps.Marker({
+        map, position: TEAM_B,
+        icon: {
+          url: destPin(),
+          scaledSize: new google.maps.Size(44, 56),
+          anchor: new google.maps.Point(22, 52),
+        },
+      });
+      // Origin "you are here" gray dot
+      new google.maps.Marker({
+        map, position: TEAM_A,
+        icon: { url: originDot(), scaledSize: new google.maps.Size(28, 28), anchor: new google.maps.Point(14, 14) },
+      });
+
+      // Vehicle (teal)
+      vehicleRef.current = new google.maps.Marker({
+        map, position: TEAM_A,
+        icon: { url: vehicleDot(), scaledSize: new google.maps.Size(28, 28), anchor: new google.maps.Point(14, 14) },
+        zIndex: 999,
+      });
+
+      // Fetch routes (Directions API via JS lib; primary + alternatives).
+      const svc = new google.maps.DirectionsService();
+      svc.route(
+        {
+          origin: TEAM_A,
+          destination: TEAM_B,
+          travelMode: google.maps.TravelMode.DRIVING,
+          provideRouteAlternatives: true,
+        },
+        (res, status) => {
+          if (status === "OK" && res?.routes?.length) {
+            const all = res.routes.map((r) => ({
+              path: r.overview_path,
+              minutes: Math.round((r.legs[0]?.duration?.value ?? 0) / 60),
+            }));
+            // primary first (shortest duration)
+            all.sort((a, b) => a.minutes - b.minutes);
+            setRoutes(all);
+            setEta(`${all[0].minutes} min`);
+
+            // Alt routes (light translucent blue, behind)
+            all.slice(1).forEach((r) =>
+              new google.maps.Polyline({
+                map, path: r.path,
+                strokeColor: "#a5b4fc", strokeOpacity: 0.85, strokeWeight: 7, zIndex: 1,
+              })
+            );
+            // Primary remaining (lighter blue background)
+            new google.maps.Polyline({
+              map, path: all[0].path,
+              strokeColor: "#93c5fd", strokeOpacity: 1, strokeWeight: 9, zIndex: 2,
+            });
+            // Primary travelled (solid bold blue, will be updated as progress advances)
+            travelledRef.current = new google.maps.Polyline({
+              map, path: [all[0].path[0]],
+              strokeColor: "#1e3a8a", strokeOpacity: 1, strokeWeight: 9, zIndex: 3,
+            });
+
+            const bounds = new google.maps.LatLngBounds();
+            all[0].path.forEach((p) => bounds.extend(p));
+            map.fitBounds(bounds, 56);
+          } else {
+            // Fallback: straight geodesic + estimate
+            const path = [new google.maps.LatLng(TEAM_A.lat, TEAM_A.lng), new google.maps.LatLng(TEAM_B.lat, TEAM_B.lng)];
+            setRoutes([{ path, minutes: 12 }]);
+            new google.maps.Polyline({ map, path, strokeColor: "#93c5fd", strokeWeight: 9, zIndex: 2, geodesic: true });
+            travelledRef.current = new google.maps.Polyline({ map, path: [path[0]], strokeColor: "#1e3a8a", strokeWeight: 9, zIndex: 3, geodesic: true });
+          }
+        }
+      );
+    }).catch(() => {});
+    return () => { cancel = true; };
+  }, []);
+
+  // Animate progress along primary route
+  useEffect(() => {
+    if (!routes.length) return;
     let raf = 0; let last = performance.now();
+    const total = routes[0].path.length;
     function tick(t: number) {
       const dt = (t - last) / 1000; last = t;
-      setProgress((p) => (p + dt * 0.04) % 1);
+      setProgress((p) => {
+        const next = (p + dt * 0.05) % 1;
+        const idx = Math.max(1, Math.floor(next * total));
+        const segment = routes[0].path.slice(0, idx);
+        if (travelledRef.current) travelledRef.current.setPath(segment);
+        const head = segment[segment.length - 1];
+        if (head && vehicleRef.current) vehicleRef.current.setPosition(head);
+        return next;
+      });
       raf = requestAnimationFrame(tick);
     }
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, []);
-
-  const pos = useMemo(() => sampleCubicBezier(progress), [progress]);
+  }, [routes]);
 
   return (
     <div className="absolute inset-0">
-      <svg viewBox="0 0 100 62" className="absolute inset-0 w-full h-full">
-        <defs>
-          <pattern id="sat2" width="6" height="6" patternUnits="userSpaceOnUse">
-            <rect width="6" height="6" fill="oklch(0.23 0.025 150)" />
-            <circle cx="2" cy="3" r="0.4" fill="oklch(0.30 0.03 145)" />
-          </pattern>
-        </defs>
-        <rect width="100" height="62" fill="url(#sat2)" />
-        <path d="M0,0 L66,0 Q70,18 60,30 Q52,42 60,54 Q66,62 100,62 L100,0 Z" fill="oklch(0.22 0.04 230)" opacity="0.7" />
-
-        {/* alternative faint routes */}
-        <path d="M14,52 C30,52 50,46 78,24" stroke="oklch(0.74 0.13 195 / 0.25)" strokeWidth="0.45" fill="none" strokeDasharray="0.8 0.8" />
-        <path d="M14,52 C20,40 42,30 78,24" stroke="oklch(0.74 0.13 195 / 0.25)" strokeWidth="0.45" fill="none" strokeDasharray="0.8 0.8" />
-
-        {/* full route (light remaining) */}
-        <path d={path} stroke="oklch(0.74 0.13 195 / 0.45)" strokeWidth="0.9" fill="none" strokeLinecap="round" />
-        {/* travelled part filling behind vehicle */}
-        <path d={path} stroke="var(--color-teal)" strokeWidth="0.9" fill="none" strokeLinecap="round"
-              pathLength={1} strokeDasharray={`${progress} ${1 - progress}`} />
-
-        {/* origin A */}
-        <circle cx={14} cy={52} r="1.6" fill="var(--color-sky)" />
-        <text x={14} y={50} textAnchor="middle" fill="var(--color-foreground)" fontSize="1.8" fontFamily="JetBrains Mono">A · Al Thuqbah</text>
-
-        {/* destination B */}
-        <g>
-          <circle cx={78} cy={24} r="2.4" fill="var(--color-coral)" opacity="0.25">
-            <animate attributeName="r" values="2.4;3.4;2.4" dur="1.6s" repeatCount="indefinite" />
-          </circle>
-          <circle cx={78} cy={24} r="1.4" fill="var(--color-coral)" />
-          <text x={78} y={20} textAnchor="middle" fill="var(--color-foreground)" fontSize="1.8" fontFamily="Inter" fontWeight="600">B · Al Mana General</text>
-        </g>
-
-        {/* moving vehicle */}
-        <g transform={`translate(${pos.x} ${pos.y})`}>
-          <circle r="2.6" fill="var(--color-teal)" opacity="0.25" />
-          <circle r="1.3" fill="var(--color-teal)" />
-        </g>
-      </svg>
-
-      {/* ETA bubble pinned to B */}
-      <div className="absolute" style={{ left: "78%", top: "10%" }}>
-        <div className="rounded-md bg-background/80 border border-coral/40 px-2 py-1 mono text-[10px] uppercase tracking-widest text-coral flex items-center gap-1">
-          <Clock className="size-3" /> ETA 4:12
-        </div>
+      <div ref={ref} className="absolute inset-0" />
+      {/* Crew chip */}
+      <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
+        <span className="size-2 rounded-full bg-teal-500 animate-pulse" /> Crew 04 · ALS · 2 onboard
       </div>
-
-      <div className="absolute top-3 left-3 rounded-md bg-background/70 border border-hairline px-2 py-1 mono text-[10px] uppercase tracking-widest flex items-center gap-2">
-        <MapPin className="size-3 text-teal" /> Crew 04 · ALS · 2 onboard
+      {/* Route time bubbles — Google Maps style */}
+      {routes.map((r, i) => (
+        <RouteBubble key={i} minutes={r.minutes} primary={i === 0} index={i} total={routes.length} />
+      ))}
+      {/* Bottom sheet: ETA + actions */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 min-w-[260px]">
+        <div>
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
+          <div className="text-xl font-bold text-blue-700">{eta}</div>
+        </div>
+        <div className="h-9 w-px bg-slate-200" />
+        <div className="flex items-center gap-1.5 text-[12px] text-slate-700"><Clock className="size-3.5" /> {Math.round(progress * 100)}%</div>
+      </div>
+      {/* Compass / layers */}
+      <div className="absolute top-3 right-3 flex flex-col gap-2">
+        <button className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Layers className="size-4" /></button>
+      </div>
+      <div className="absolute bottom-3 right-3">
+        <button className="size-10 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-5" /></button>
       </div>
     </div>
   );
+}
+
+function RouteBubble({ minutes, primary, index, total }: { minutes: number; primary: boolean; index: number; total: number }) {
+  // distribute alternates around upper-center
+  const slots = total === 1 ? [{ top: "12%", left: "50%" }]
+    : total === 2 ? [{ top: "20%", left: "44%" }, { top: "12%", left: "62%" }]
+    : [{ top: "22%", left: "40%" }, { top: "10%", left: "60%" }, { top: "34%", left: "18%" }];
+  const s = slots[index] ?? slots[slots.length - 1];
+  const cls = primary
+    ? "bg-blue-700 text-white border-white"
+    : "bg-white text-slate-900 border-slate-200";
+  return (
+    <div className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ top: s.top, left: s.left }}>
+      <div className={`px-2.5 py-1 rounded-full border shadow-md text-[12px] font-semibold ${cls} flex items-center gap-1.5`}>
+        {minutes} min {primary && <span className="inline-block size-1.5 rounded-full bg-emerald-300" />}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Google-style pin / dot data URIs ---------- */
+function destPin() {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='44' height='56' viewBox='0 0 44 56'>
+    <defs><filter id='s' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='2' stdDeviation='1.5' flood-color='#000' flood-opacity='0.35'/></filter></defs>
+    <path filter='url(#s)' d='M22 2 C10 2 2 10 2 22 c0 14 20 32 20 32 s20-18 20-32 C42 10 34 2 22 2 z' fill='#ea4335' stroke='white' stroke-width='2'/>
+    <circle cx='22' cy='21' r='6' fill='white'/>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+function originDot() {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'>
+    <circle cx='14' cy='14' r='12' fill='#94a3b8' fill-opacity='0.35'/>
+    <circle cx='14' cy='14' r='6' fill='#64748b' stroke='white' stroke-width='2'/>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+function vehicleDot() {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'>
+    <circle cx='14' cy='14' r='12' fill='#06b6d4' fill-opacity='0.3'/>
+    <circle cx='14' cy='14' r='7' fill='#06b6d4' stroke='white' stroke-width='2.5'/>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
 function TeamLensRow() {
@@ -400,20 +583,4 @@ function LensPanel({ title, icon, rows, note, accent = "teal" }: { title: string
       {note && <p className="mt-3 text-xs text-muted-foreground italic border-l-2 border-hairline pl-2">{note}</p>}
     </div>
   );
-}
-
-// Sample a cubic bezier approximation of "M14,52 C26,46 34,40 44,36 C56,32 64,28 78,24"
-function sampleCubicBezier(t: number) {
-  // two cubic segments
-  const seg = t < 0.5 ? 0 : 1;
-  const localT = (t - seg * 0.5) * 2;
-  const segs = [
-    [[14,52],[26,46],[34,40],[44,36]],
-    [[44,36],[56,32],[64,28],[78,24]],
-  ];
-  const [p0,p1,p2,p3] = segs[seg];
-  const u = 1 - localT;
-  const x = u*u*u*p0[0] + 3*u*u*localT*p1[0] + 3*u*localT*localT*p2[0] + localT*localT*localT*p3[0];
-  const y = u*u*u*p0[1] + 3*u*u*localT*p1[1] + 3*u*localT*localT*p2[1] + localT*localT*localT*p3[1];
-  return { x, y };
 }
