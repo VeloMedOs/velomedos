@@ -1,49 +1,79 @@
+/// <reference types="google.maps" />
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, ChevronRight, Activity, Heart, Wind, Stethoscope, Navigation, Clock, MapPin, Zap } from "lucide-react";
+import { ArrowRight, ChevronRight, Heart, Stethoscope, Navigation, Clock, MapPin, Zap, Compass, Layers, Plus, Minus } from "lucide-react";
 
 /**
  * VeloMed OS Command Hero — Network → Region → Team
- * Auto-demos on load; visitor can click any level.
- * No real map dependency; uses a styled satellite-ground SVG so the page
- * renders without a Google Maps key. The /platform route wires the real map.
+ * Region + Team render on the REAL Google Maps satellite/hybrid base, mirroring
+ * the Google Maps mobile layout (primary blue route + lighter alternates with
+ * time bubbles + red destination teardrop). Network is a kingdom-wide overview.
  */
 
 type Level = "network" | "region" | "team";
 
-type Branch = { id: string; name: string; x: number; y: number; cases: number; teams: number };
+type Branch = { id: string; name: string; lat: number; lng: number; cases: number; teams: number };
 
 const BRANCHES: Branch[] = [
-  { id: "eastern",  name: "Eastern",  x: 78, y: 40, cases: 24, teams: 31 },
-  { id: "central",  name: "Central",  x: 52, y: 48, cases: 41, teams: 58 },
-  { id: "northern", name: "Northern", x: 48, y: 18, cases: 9,  teams: 14 },
-  { id: "western",  name: "Western",  x: 20, y: 52, cases: 17, teams: 22 },
-  { id: "southern", name: "Southern", x: 44, y: 82, cases: 12, teams: 19 },
+  { id: "eastern",  name: "Eastern",  lat: 26.43, lng: 50.10, cases: 24, teams: 31 },
+  { id: "central",  name: "Central",  lat: 24.71, lng: 46.68, cases: 41, teams: 58 },
+  { id: "northern", name: "Northern", lat: 28.38, lng: 36.57, cases: 9,  teams: 14 },
+  { id: "western",  name: "Western",  lat: 21.49, lng: 39.19, cases: 17, teams: 22 },
+  { id: "southern", name: "Southern", lat: 18.21, lng: 42.50, cases: 12, teams: 19 },
 ];
 
-type Case = { id: string; district: string; x: number; y: number; severity: "critical" | "transfer" | "routine" };
+type Case = { id: string; district: string; lat: number; lng: number; severity: "critical" | "transfer" | "routine" };
 const EASTERN_DISTRICTS = [
-  { name: "Jubail",    x: 30, y: 18 },
-  { name: "Dammam",    x: 48, y: 36 },
-  { name: "Qatif",     x: 38, y: 30 },
-  { name: "Al Khobar", x: 56, y: 52 },
-  { name: "Dhahran",   x: 50, y: 60 },
-  { name: "Al Ahsa",   x: 78, y: 78 },
+  { name: "Jubail",    lat: 27.011, lng: 49.660 },
+  { name: "Dammam",    lat: 26.434, lng: 50.103 },
+  { name: "Qatif",     lat: 26.565, lng: 49.996 },
+  { name: "Al Khobar", lat: 26.279, lng: 50.209 },
+  { name: "Dhahran",   lat: 26.288, lng: 50.114 },
+  { name: "Al Ahsa",   lat: 25.380, lng: 49.587 },
 ];
 const EASTERN_CASES: Case[] = [
-  { id: "C-2041", district: "Al Khobar", x: 58, y: 50, severity: "critical" },
-  { id: "C-2039", district: "Dammam",    x: 46, y: 38, severity: "transfer" },
-  { id: "C-2037", district: "Dhahran",   x: 52, y: 62, severity: "routine" },
-  { id: "C-2034", district: "Qatif",     x: 36, y: 30, severity: "routine" },
-  { id: "C-2030", district: "Jubail",    x: 32, y: 16, severity: "transfer" },
-  { id: "C-2028", district: "Al Ahsa",   x: 76, y: 78, severity: "critical" },
+  { id: "C-2041", district: "Al Khobar", lat: 26.281, lng: 50.207, severity: "critical" },
+  { id: "C-2039", district: "Dammam",    lat: 26.440, lng: 50.099, severity: "transfer" },
+  { id: "C-2037", district: "Dhahran",   lat: 26.292, lng: 50.118, severity: "routine" },
+  { id: "C-2034", district: "Qatif",     lat: 26.568, lng: 50.001, severity: "routine" },
+  { id: "C-2030", district: "Jubail",    lat: 27.014, lng: 49.663, severity: "transfer" },
+  { id: "C-2028", district: "Al Ahsa",   lat: 25.383, lng: 49.590, severity: "critical" },
 ];
 
+// Team A→B: Al Thuqbah (Al Khobar) → Al Mana General Hospital (Al Khobar)
+const TEAM_A = { lat: 26.2541, lng: 50.2024, label: "Al Thuqbah" };
+const TEAM_B = { lat: 26.2986, lng: 50.1903, label: "Al Mana General" };
+
 const SEV_COLOR: Record<Case["severity"], string> = {
-  critical: "var(--color-coral)",
-  transfer: "var(--color-caution)",
-  routine:  "var(--color-sky)",
+  critical: "#ef4444",
+  transfer: "#f59e0b",
+  routine:  "#3b9eff",
 };
+
+/* ---------- Google Maps loader (singleton) ---------- */
+declare global {
+  interface Window {
+    google?: typeof google;
+    __velomedMapsCallback?: () => void;
+    __velomedMapsLoading?: Promise<void>;
+  }
+}
+function loadMaps(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  if (window.google?.maps) return Promise.resolve();
+  if (window.__velomedMapsLoading) return window.__velomedMapsLoading;
+  const key = (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined) ?? "";
+  const ch  = (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined) ?? "";
+  window.__velomedMapsLoading = new Promise<void>((resolve, reject) => {
+    window.__velomedMapsCallback = () => resolve();
+    const s = document.createElement("script");
+    s.async = true; s.defer = true;
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&loading=async&libraries=geometry&callback=__velomedMapsCallback${ch ? `&channel=${encodeURIComponent(ch)}` : ""}`;
+    s.onerror = () => reject(new Error("Failed to load Google Maps"));
+    document.head.appendChild(s);
+  });
+  return window.__velomedMapsLoading;
+}
 
 export function CommandHero() {
   const [level, setLevel] = useState<Level>("network");
@@ -52,8 +82,8 @@ export function CommandHero() {
 
   // Auto-demo: network → region → team, once, unless user clicks.
   useEffect(() => {
-    const t1 = setTimeout(() => { if (!interacted.current) setLevel("region"); }, 2400);
-    const t2 = setTimeout(() => { if (!interacted.current) setLevel("team"); },   4800);
+    const t1 = setTimeout(() => { if (!interacted.current) setLevel("region"); }, 3200);
+    const t2 = setTimeout(() => { if (!interacted.current) setLevel("team"); },   6800);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
@@ -111,7 +141,7 @@ export function CommandHero() {
               <Breadcrumb level={level} branch={branch.name} onJump={go} />
             </div>
 
-            <div className="relative aspect-[16/10] bg-[oklch(0.22_0.02_240)]">
+            <div className="relative aspect-[16/10] bg-[oklch(0.18_0.02_240)]">
               {level === "network" && <NetworkView onPick={(b) => { setBranchId(b); go("region"); }} />}
               {level === "region"  && <RegionView branch={branch} onPickTeam={() => go("team")} />}
               {level === "team"    && <TeamView />}
