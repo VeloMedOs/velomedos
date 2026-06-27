@@ -570,14 +570,24 @@ function TeamView() {
     function tick(t: number) {
       const dt = (t - last) / 1000; last = t;
       setProgress((p) => {
-        // Wrap a full lap every ~60s for the demo so users see motion;
-        // realistic clamp uses totalSec when the API returns a real route.
+        // Drive the trip from 0 → 1, hold at the destination for a short
+        // "arrived" beat, then reset for the next loop. Demo speed: ~28s.
         const lap = Math.max(20, Math.min(120, TELEM.totalSec * 0.12));
-        const next = (p + dt / lap) % 1;
-        const idx = Math.max(1, Math.floor(next * total));
+        let next = p + dt / lap;
+        const arrived = next >= 1;
+        if (next >= 1.18) {
+          // restart trip cleanly
+          tripStartRef.current = t;
+          next = 0;
+        } else if (arrived) {
+          next = 1;
+        }
+        const idx = Math.max(1, Math.floor(Math.min(next, 0.9999) * total));
         const segment = routes[0].path.slice(0, idx);
         if (travelledRef.current) travelledRef.current.setPath(segment);
-        const head = segment[segment.length - 1];
+        const head = arrived
+          ? routes[0].path[routes[0].path.length - 1]
+          : segment[segment.length - 1];
         if (head && vehicleRef.current) {
           vehicleRef.current.setPosition(head);
           // Rotate ambulance along bearing of travel
@@ -600,11 +610,11 @@ function TeamView() {
         // ETA countdown, distance left, elapsed trip time, vitals drift.
         const cruise = 68;
         const startCurve = Math.min(1, next / 0.08);                  // ramp up
-        const arrivalCurve = next > 0.85 ? Math.max(0, (1 - next) / 0.15) : 1; // slow down
+        const arrivalCurve = next > 0.85 ? Math.max(0, (1 - Math.min(next, 1)) / 0.15) : 1;
         const noise = Math.sin(t / 700) * 3 + Math.sin(t / 230) * 1.5;
-        const speed = Math.max(0, cruise * startCurve * arrivalCurve + noise);
+        const speed = arrived ? 0 : Math.max(0, cruise * startCurve * arrivalCurve + noise);
         const elapsed = (t - tripStartRef.current) / 1000;
-        const remainSec = Math.max(0, TELEM.totalSec * (1 - next));
+        const remainSec = arrived ? 0 : Math.max(0, TELEM.totalSec * (1 - next));
 
         // Patient vitals drift modestly (HR rises slightly under transit,
         // SpO2 holds, BP narrows pulse pressure on critical cases).
@@ -622,12 +632,12 @@ function TeamView() {
           };
         }
         setTelemetry({
-          progress: next,
+          progress: Math.min(next, 1),
           speedKmh: speed,
           elapsedSec: elapsed,
           ...vitals,
         });
-        setEta(fmtMinSec(remainSec));
+        setEta(arrived ? "Arrived" : fmtMinSec(remainSec));
         return next;
       });
       raf = requestAnimationFrame(tick);
@@ -656,8 +666,8 @@ function TeamView() {
         </div>
         <div className="h-9 w-px bg-slate-200" />
         <div className="flex flex-col text-[11px] text-slate-700">
-          <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(progress * 100)}%</span>
-          <span className="mono text-slate-500">{(TELEM.totalKm * (1 - progress)).toFixed(2)} km left · {Math.round(TELEM.speedKmh)} km/h</span>
+          <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(Math.min(progress, 1) * 100)}%</span>
+          <span className="mono text-slate-500">{Math.max(0, TELEM.totalKm * (1 - Math.min(progress, 1))).toFixed(2)} km left · {Math.round(TELEM.speedKmh)} km/h</span>
         </div>
       </div>
       {/* Compass / layers */}
