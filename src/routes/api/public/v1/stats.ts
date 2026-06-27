@@ -13,7 +13,7 @@ export const Route = createFileRoute("/api/public/v1/stats")({
         const sb = serviceClient();
         const [fleet, incidents, expiring, clinics] = await Promise.all([
           sb.from("ambulances").select("id,status", { count: "exact", head: false }),
-          sb.from("incidents").select("id,status", { count: "exact", head: false }).in("status", ["new", "assigned", "en_route", "on_scene", "transporting"]),
+          sb.from("incidents").select("id,status", { count: "exact", head: false }).in("status", ["pending", "assigned", "en_route", "on_scene", "transporting"]),
           sb.from("credentials").select("id", { count: "exact", head: true }).lte("expires_at", new Date(Date.now() + 7 * 24 * 3600_000).toISOString()),
           sb.from("clinics").select("id", { count: "exact", head: true }),
         ]);
