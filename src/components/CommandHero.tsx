@@ -1196,7 +1196,8 @@ function FallbackChrome({ children }: { children?: React.ReactNode }) {
         style={{ background:
           "linear-gradient(115deg, transparent 49.7%, rgba(255,255,255,0.7) 50%, transparent 50.3%)" }} />
       {children}
-      <div className="absolute bottom-1.5 right-2.5 mono text-[9px] uppercase tracking-[0.25em] text-white/35">
+      {/* Offline footer — hidden on mobile to avoid telemetry-card overlap */}
+      <div className="hidden sm:block absolute bottom-1.5 right-2.5 mono text-[9px] uppercase tracking-[0.25em] text-white/35 pointer-events-none z-[5]">
         Offline preview · enable Maps billing for live satellite
       </div>
     </div>
