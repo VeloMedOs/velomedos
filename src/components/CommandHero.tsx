@@ -114,7 +114,8 @@ function fmtHHMM(totalSec: number) {
   const s = Math.max(0, Math.floor(totalSec));
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  const sec = s % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 /** Shortest signed angular delta in degrees, normalized to (-180, 180]. */
 function shortestAngleDelta(from: number, to: number) {
@@ -825,7 +826,7 @@ function TeamLensRow() {
             ["Speed", `${Math.round(t.speedKmh)} km/h`],
             ["ETA", fmtMinSec(remainSec)],
             ["Distance left", `${distLeftKm.toFixed(1)} km`],
-            ["Trip time (HH:MM)", fmtHHMM(t.elapsedSec)],
+            ["Trip time (HH:MM:SS)", fmtHHMM(t.elapsedSec)],
             ["A → B progress", `${Math.round(t.progress * 100)}%`],
           ]}
           live
