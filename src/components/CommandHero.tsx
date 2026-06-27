@@ -45,10 +45,25 @@ const TEAM_A = { lat: 26.2541, lng: 50.2024, label: "Al Thuqbah" };
 const TEAM_B = { lat: 26.2986, lng: 50.1903, label: "Al Mana General" };
 
 const SEV_COLOR: Record<Case["severity"], string> = {
-  critical: "#ef4444",
-  transfer: "#f59e0b",
-  routine:  "#3b9eff",
+  critical: "#FF6E5B",
+  transfer: "#F5B544",
+  routine:  "#4FB6F7",
 };
+
+// VeloMed brand palette — kept aligned with the brand book so every
+// map overlay (routes, pins, halos, pills) reads as one system.
+const BRAND = {
+  teal:        "#28D6B6",
+  tealSoft:    "rgba(40,214,182,0.18)",
+  blue:        "#4FB6F7",
+  blueDeep:    "#1F6FEB",
+  blueSoft:    "#BCDCFB",
+  coral:       "#FF6E5B",
+  coralDeep:   "#D94A38",
+  ink:         "#080B11",
+  inkSoft:     "#1A2230",
+  paper:       "#EAF0F7",
+} as const;
 
 /* ============================================================
    Team telemetry store — single source of truth for the Team
@@ -542,22 +557,22 @@ function TeamView() {
             tripStartRef.current = performance.now();
             progressRef.current = 0;
 
-            // Alt routes (light translucent blue, behind)
+            // Alt routes (faded brand blue, behind)
             all.slice(1).forEach((r) =>
               new google.maps.Polyline({
                 map, path: r.path,
-                strokeColor: "#a5b4fc", strokeOpacity: 0.85, strokeWeight: 7, zIndex: 1,
+                strokeColor: BRAND.blueSoft, strokeOpacity: 0.85, strokeWeight: 7, zIndex: 1,
               })
             );
-            // Primary remaining (lighter blue background)
+            // Primary remaining (brand blue, Google-route weight)
             new google.maps.Polyline({
               map, path: all[0].path,
-              strokeColor: "#93c5fd", strokeOpacity: 1, strokeWeight: 9, zIndex: 2,
+              strokeColor: BRAND.blue, strokeOpacity: 1, strokeWeight: 9, zIndex: 2,
             });
-            // Primary travelled (solid bold blue, will be updated as progress advances)
+            // Primary travelled (deep brand blue, advances with the crew)
             travelledRef.current = new google.maps.Polyline({
               map, path: [all[0].path[0]],
-              strokeColor: "#1e3a8a", strokeOpacity: 1, strokeWeight: 9, zIndex: 3,
+              strokeColor: BRAND.blueDeep, strokeOpacity: 1, strokeWeight: 9, zIndex: 3,
             });
 
             const bounds = new google.maps.LatLngBounds();
@@ -567,8 +582,8 @@ function TeamView() {
             // Fallback: straight geodesic + estimate
             const path = [new google.maps.LatLng(TEAM_A.lat, TEAM_A.lng), new google.maps.LatLng(TEAM_B.lat, TEAM_B.lng)];
             setRoutes([{ path, minutes: 12 }]);
-            new google.maps.Polyline({ map, path, strokeColor: "#93c5fd", strokeWeight: 9, zIndex: 2, geodesic: true });
-            travelledRef.current = new google.maps.Polyline({ map, path: [path[0]], strokeColor: "#1e3a8a", strokeWeight: 9, zIndex: 3, geodesic: true });
+            new google.maps.Polyline({ map, path, strokeColor: BRAND.blue, strokeWeight: 9, zIndex: 2, geodesic: true });
+            travelledRef.current = new google.maps.Polyline({ map, path: [path[0]], strokeColor: BRAND.blueDeep, strokeWeight: 9, zIndex: 3, geodesic: true });
           }
         }
       );
@@ -676,7 +691,7 @@ function TeamView() {
       {failed && <TeamFallback />}
       {/* Crew chip */}
       <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
-        <span className="size-2 rounded-full bg-teal-500 animate-pulse" /> Crew 04 · ALS · 2 onboard
+        <span className="size-2 rounded-full animate-pulse" style={{ background: BRAND.teal }} /> Crew 04 · ALS · 2 onboard
       </div>
       {/* Route time bubbles — Google Maps style */}
       {routes.map((r, i) => (
@@ -686,7 +701,10 @@ function TeamView() {
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 min-w-[260px]">
         <div>
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
-          <div className="text-xl font-bold text-blue-700">
+          <div
+            className="text-xl font-bold"
+            style={{ color: tel.progress >= 0.999 ? BRAND.teal : BRAND.blueDeep }}
+          >
             {tel.progress >= 0.999 ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
           </div>
         </div>
@@ -708,18 +726,26 @@ function TeamView() {
 }
 
 function RouteBubble({ minutes, primary, index, total }: { minutes: number; primary: boolean; index: number; total: number }) {
+  const tel = useTelemetry();
+  const arrived = primary && tel.progress >= 0.999;
   // distribute alternates around upper-center
   const slots = total === 1 ? [{ top: "12%", left: "50%" }]
     : total === 2 ? [{ top: "20%", left: "44%" }, { top: "12%", left: "62%" }]
     : [{ top: "22%", left: "40%" }, { top: "10%", left: "60%" }, { top: "34%", left: "18%" }];
   const s = slots[index] ?? slots[slots.length - 1];
-  const cls = primary
-    ? "bg-blue-700 text-white border-white"
-    : "bg-white text-slate-900 border-slate-200";
+  const style: React.CSSProperties = primary
+    ? { background: arrived ? BRAND.teal : BRAND.blueDeep, color: arrived ? BRAND.ink : "#fff", borderColor: "#fff" }
+    : { background: "#fff", color: "#0f172a", borderColor: "#e2e8f0" };
   return (
     <div className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ top: s.top, left: s.left }}>
-      <div className={`px-2.5 py-1 rounded-full border shadow-md text-[12px] font-semibold ${cls} flex items-center gap-1.5`}>
-        {minutes} min {primary && <span className="inline-block size-1.5 rounded-full bg-emerald-300" />}
+      <div className="px-2.5 py-1 rounded-full border shadow-md text-[12px] font-semibold flex items-center gap-1.5" style={style}>
+        {arrived ? "Arrived" : `${minutes} min`}
+        {primary && (
+          <span
+            className="inline-block size-1.5 rounded-full"
+            style={{ background: arrived ? BRAND.ink : BRAND.teal }}
+          />
+        )}
       </div>
     </div>
   );
@@ -729,8 +755,13 @@ function RouteBubble({ minutes, primary, index, total }: { minutes: number; prim
 function destPin() {
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='44' height='56' viewBox='0 0 44 56'>
     <defs><filter id='s' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='2' stdDeviation='1.5' flood-color='#000' flood-opacity='0.35'/></filter></defs>
-    <path filter='url(#s)' d='M22 2 C10 2 2 10 2 22 c0 14 20 32 20 32 s20-18 20-32 C42 10 34 2 22 2 z' fill='#ea4335' stroke='white' stroke-width='2'/>
-    <circle cx='22' cy='21' r='6' fill='white'/>
+    <path filter='url(#s)' d='M22 2 C10 2 2 10 2 22 c0 14 20 32 20 32 s20-18 20-32 C42 10 34 2 22 2 z' fill='#FF6E5B' stroke='white' stroke-width='2'/>
+    <g transform='translate(13 12)'>
+      <rect x='3' y='3' width='12' height='10' rx='1.5' fill='white'/>
+      <rect x='6' y='1' width='6' height='3' rx='0.6' fill='white'/>
+      <rect x='8.2' y='5' width='1.6' height='6' fill='#FF6E5B'/>
+      <rect x='6' y='7.2' width='6' height='1.6' fill='#FF6E5B'/>
+    </g>
   </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
@@ -758,7 +789,7 @@ function ambulanceIcon(heading: number) {
         <stop offset='1' stop-color='#e2e8f0'/>
       </linearGradient>
     </defs>
-    <circle cx='28' cy='28' r='22' fill='#06b6d4' fill-opacity='0.18'>
+    <circle cx='28' cy='28' r='22' fill='#28D6B6' fill-opacity='0.20'>
       <animate attributeName='r' values='18;24;18' dur='1.6s' repeatCount='indefinite'/>
       <animate attributeName='fill-opacity' values='0.32;0.04;0.32' dur='1.6s' repeatCount='indefinite'/>
     </circle>
@@ -768,21 +799,21 @@ function ambulanceIcon(heading: number) {
       <!-- hood seam -->
       <line x1='16' y1='17' x2='40' y2='17' stroke='#0f172a' stroke-width='0.6' stroke-opacity='0.4'/>
       <!-- windshield (front of vehicle = top in rotation 0) -->
-      <path d='M 18 14 Q 28 10 38 14 L 36 17 L 20 17 Z' fill='#7dd3fc' stroke='#0f172a' stroke-width='0.7'/>
+      <path d='M 18 14 Q 28 10 38 14 L 36 17 L 20 17 Z' fill='#4FB6F7' stroke='#0f172a' stroke-width='0.7'/>
       <!-- side red stripes -->
-      <rect x='16' y='25' width='24' height='2.8' fill='#ef4444'/>
-      <rect x='16' y='34' width='24' height='2.8' fill='#ef4444' fill-opacity='0.55'/>
+      <rect x='16' y='25' width='24' height='2.8' fill='#FF6E5B'/>
+      <rect x='16' y='34' width='24' height='2.8' fill='#FF6E5B' fill-opacity='0.55'/>
       <!-- red cross (center) -->
-      <rect x='26.7' y='28' width='2.6' height='10' fill='#ffffff' stroke='#ef4444' stroke-width='0.6'/>
-      <rect x='23' y='31.7' width='10' height='2.6' fill='#ffffff' stroke='#ef4444' stroke-width='0.6'/>
-      <rect x='26.9' y='28.2' width='2.2' height='9.6' fill='#ef4444'/>
-      <rect x='23.2' y='31.9' width='9.6' height='2.2' fill='#ef4444'/>
+      <rect x='26.7' y='28' width='2.6' height='10' fill='#ffffff' stroke='#FF6E5B' stroke-width='0.6'/>
+      <rect x='23' y='31.7' width='10' height='2.6' fill='#ffffff' stroke='#FF6E5B' stroke-width='0.6'/>
+      <rect x='26.9' y='28.2' width='2.2' height='9.6' fill='#FF6E5B'/>
+      <rect x='23.2' y='31.9' width='9.6' height='2.2' fill='#FF6E5B'/>
       <!-- roof lightbar -->
-      <rect x='19' y='11' width='8' height='2.4' rx='0.8' fill='#ef4444'>
-        <animate attributeName='fill' values='#ef4444;#7f1d1d;#ef4444' dur='0.7s' repeatCount='indefinite'/>
+      <rect x='19' y='11' width='8' height='2.4' rx='0.8' fill='#FF6E5B'>
+        <animate attributeName='fill' values='#FF6E5B;#7a2a20;#FF6E5B' dur='0.7s' repeatCount='indefinite'/>
       </rect>
-      <rect x='29' y='11' width='8' height='2.4' rx='0.8' fill='#06b6d4'>
-        <animate attributeName='fill' values='#06b6d4;#155e75;#06b6d4' dur='0.7s' repeatCount='indefinite'/>
+      <rect x='29' y='11' width='8' height='2.4' rx='0.8' fill='#28D6B6'>
+        <animate attributeName='fill' values='#28D6B6;#0f5b4d;#28D6B6' dur='0.7s' repeatCount='indefinite'/>
       </rect>
       <!-- rear bumper hint -->
       <rect x='18' y='44' width='20' height='2' rx='0.8' fill='#0f172a' fill-opacity='0.7'/>
@@ -1034,43 +1065,52 @@ function TeamFallback() {
     <FallbackChrome>
       <svg viewBox="0 0 400 250" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
         {/* alternates */}
-        <path d="M 60 200 C 140 180, 200 100, 340 70" stroke="#a5b4fc" strokeWidth="6" strokeOpacity="0.55" fill="none" strokeLinecap="round" />
-        <path d="M 60 200 C 120 220, 260 200, 340 70" stroke="#a5b4fc" strokeWidth="6" strokeOpacity="0.45" fill="none" strokeLinecap="round" />
+        <path d="M 60 200 C 140 180, 200 100, 340 70" stroke="#BCDCFB" strokeWidth="6" strokeOpacity="0.7" fill="none" strokeLinecap="round" />
+        <path d="M 60 200 C 120 220, 260 200, 340 70" stroke="#BCDCFB" strokeWidth="6" strokeOpacity="0.55" fill="none" strokeLinecap="round" />
         {/* primary remaining (light blue) */}
-        <path id="primary" d="M 60 200 C 160 200, 220 130, 340 70" stroke="#93c5fd" strokeWidth="9" fill="none" strokeLinecap="round" />
+        <path id="primary" d="M 60 200 C 160 200, 220 130, 340 70" stroke="#4FB6F7" strokeWidth="9" fill="none" strokeLinecap="round" />
         {/* primary travelled (dark blue), drawn via stroke-dasharray trick */}
         <path d="M 60 200 C 160 200, 220 130, 340 70"
-          stroke="#1e3a8a" strokeWidth="9" fill="none" strokeLinecap="round"
+          stroke="#1F6FEB" strokeWidth="9" fill="none" strokeLinecap="round"
           pathLength={1} strokeDasharray={`${pct} 1`} />
         {/* origin */}
         <circle cx="60" cy="200" r="9" fill="#64748b" stroke="white" strokeWidth="3" />
         {/* destination teardrop */}
         <g transform="translate(340 70)">
           <path d="M 0 -28 C -12 -28, -20 -20, -20 -8 C -20 6, 0 24, 0 24 S 20 6, 20 -8 C 20 -20, 12 -28, 0 -28 Z"
-            fill="#ea4335" stroke="white" strokeWidth="2" />
-          <circle cx="0" cy="-10" r="5" fill="white" />
+            fill="#FF6E5B" stroke="white" strokeWidth="2" />
+          <g transform="translate(-6 -16)">
+            <rect x="0" y="2" width="12" height="10" rx="1.5" fill="white"/>
+            <rect x="3" y="0" width="6" height="3" rx="0.6" fill="white"/>
+            <rect x="5.2" y="4" width="1.6" height="6" fill="#FF6E5B"/>
+            <rect x="3" y="6.2" width="6" height="1.6" fill="#FF6E5B"/>
+          </g>
         </g>
         {/* ambulance — positioned by progress so it can sit at destination */}
         <g transform={`translate(${p1.x} ${p1.y})`}>
-          <circle r="14" fill="#06b6d4" fillOpacity="0.22">
+          <circle r="14" fill="#28D6B6" fillOpacity="0.25">
             <animate attributeName="r" values="11;15;11" dur="1.6s" repeatCount="indefinite" />
             <animate attributeName="fill-opacity" values="0.35;0.05;0.35" dur="1.6s" repeatCount="indefinite" />
           </circle>
           <g transform={`rotate(${angle.toFixed(1)})`}>
             <rect x="-8" y="-12" width="16" height="24" rx="3" fill="#ffffff" stroke="#0f172a" strokeWidth="1.2" />
-            <path d="M -7 -8 Q 0 -11 7 -8 L 6 -6 L -6 -6 Z" fill="#7dd3fc" stroke="#0f172a" strokeWidth="0.5" />
-            <rect x="-8" y="-2" width="16" height="2" fill="#ef4444" />
-            <rect x="-1" y="1" width="2" height="8" fill="#ef4444" />
-            <rect x="-4.5" y="4" width="9" height="2" fill="#ef4444" />
-            <rect x="-6.5" y="-11" width="5" height="1.6" rx="0.4" fill="#ef4444" />
-            <rect x="1.5" y="-11" width="5" height="1.6" rx="0.4" fill="#06b6d4" />
+            <path d="M -7 -8 Q 0 -11 7 -8 L 6 -6 L -6 -6 Z" fill="#4FB6F7" stroke="#0f172a" strokeWidth="0.5" />
+            <rect x="-8" y="-2" width="16" height="2" fill="#FF6E5B" />
+            <rect x="-1" y="1" width="2" height="8" fill="#FF6E5B" />
+            <rect x="-4.5" y="4" width="9" height="2" fill="#FF6E5B" />
+            <rect x="-6.5" y="-11" width="5" height="1.6" rx="0.4" fill="#FF6E5B" />
+            <rect x="1.5" y="-11" width="5" height="1.6" rx="0.4" fill="#28D6B6" />
           </g>
         </g>
       </svg>
       {/* time bubbles */}
       <div className="absolute" style={{ top: "12%", left: "62%" }}>
-        <div className="px-2.5 py-1 rounded-full border border-white bg-blue-700 text-white shadow-md text-[12px] font-semibold flex items-center gap-1.5">
-          {etaStr} <span className="inline-block size-1.5 rounded-full bg-emerald-300" />
+        <div
+          className="px-2.5 py-1 rounded-full border border-white shadow-md text-[12px] font-semibold flex items-center gap-1.5"
+          style={{ background: arrived ? "#28D6B6" : "#1F6FEB", color: arrived ? "#080B11" : "#fff" }}
+        >
+          {etaStr}
+          <span className="inline-block size-1.5 rounded-full" style={{ background: arrived ? "#080B11" : "#28D6B6" }} />
         </div>
       </div>
       <div className="absolute" style={{ top: "30%", left: "42%" }}>
