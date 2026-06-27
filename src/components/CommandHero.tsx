@@ -400,8 +400,10 @@ function TeamView() {
   const [routes, setRoutes] = useState<{ path: google.maps.LatLng[]; minutes: number }[]>([]);
   const [progress, setProgress] = useState(0);
   const [eta, setEta] = useState<string>("4:12");
+  const failed = useMapsFailed();
 
   useEffect(() => {
+    if (failed) return;
     let cancel = false;
     loadMaps().then(() => {
       if (cancel || !ref.current) return;
@@ -488,7 +490,7 @@ function TeamView() {
       );
     }).catch(() => {});
     return () => { cancel = true; };
-  }, []);
+  }, [failed]);
 
   // Animate progress along primary route
   useEffect(() => {
@@ -514,7 +516,8 @@ function TeamView() {
 
   return (
     <div className="absolute inset-0">
-      <div ref={ref} className="absolute inset-0" />
+      {!failed && <div ref={ref} className="absolute inset-0" />}
+      {failed && <TeamFallback eta={eta} progress={progress} />}
       {/* Crew chip */}
       <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
         <span className="size-2 rounded-full bg-teal-500 animate-pulse" /> Crew 04 · ALS · 2 onboard
