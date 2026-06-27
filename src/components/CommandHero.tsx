@@ -1,7 +1,7 @@
 /// <reference types="google.maps" />
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, ChevronRight, Heart, Stethoscope, Navigation, Clock, MapPin, Zap, Compass, Layers, Plus, Minus, Radio } from "lucide-react";
+import { ArrowRight, ChevronRight, Heart, Stethoscope, Navigation, Clock, MapPin, Zap, Compass, Layers, Plus, Minus, Radio, Activity } from "lucide-react";
 
 /**
  * VeloMed OS Command Hero — Network → Region → Team
@@ -49,6 +49,67 @@ const SEV_COLOR: Record<Case["severity"], string> = {
   transfer: "#f59e0b",
   routine:  "#3b9eff",
 };
+
+/* ============================================================
+   Team telemetry store — single source of truth for the Team
+   lens. TeamView publishes here every animation tick; the
+   bottom-sheet ETA chip and the TeamLensRow subscribe so every
+   metric (speed, distance left, vitals, next-request countdown)
+   updates live as the crew moves toward the destination.
+   ============================================================ */
+type Telemetry = {
+  progress: number;        // 0..1 along primary route
+  totalKm: number;         // total trip distance
+  totalSec: number;        // total estimated trip seconds
+  elapsedSec: number;      // since trip start (this session)
+  speedKmh: number;        // instantaneous, with noise + slowdown near end
+  hr: number;              // patient HR
+  spo2: number;            // %
+  bpSys: number;
+  bpDia: number;
+  gcs: number;
+};
+const DEFAULT_TOTAL_KM = 8.4;
+const DEFAULT_TOTAL_SEC = 12 * 60 + 30; // ~12:30 baseline
+let TELEM: Telemetry = {
+  progress: 0,
+  totalKm: DEFAULT_TOTAL_KM,
+  totalSec: DEFAULT_TOTAL_SEC,
+  elapsedSec: 0,
+  speedKmh: 62,
+  hr: 132,
+  spo2: 91,
+  bpSys: 92,
+  bpDia: 58,
+  gcs: 11,
+};
+const telemListeners = new Set<() => void>();
+function setTelemetry(patch: Partial<Telemetry>) {
+  TELEM = { ...TELEM, ...patch };
+  telemListeners.forEach((l) => l());
+}
+function subscribeTelemetry(l: () => void) {
+  telemListeners.add(l);
+  return () => telemListeners.delete(l);
+}
+function useTelemetry() {
+  return useSyncExternalStore(subscribeTelemetry, () => TELEM, () => TELEM);
+}
+function fmtClock(totalSec: number) {
+  const s = Math.max(0, Math.floor(totalSec));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`
+    : `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+function fmtMinSec(totalSec: number) {
+  const s = Math.max(0, Math.ceil(totalSec));
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${String(sec).padStart(2, "0")}`;
+}
 
 /* ---------- Google Maps loader (singleton) ---------- */
 declare global {
@@ -399,7 +460,8 @@ function TeamView() {
   const travelledRef = useRef<google.maps.Polyline | null>(null);
   const [routes, setRoutes] = useState<{ path: google.maps.LatLng[]; minutes: number }[]>([]);
   const [progress, setProgress] = useState(0);
-  const [eta, setEta] = useState<string>("4:12");
+  const [eta, setEta] = useState<string>("12:30");
+  const tripStartRef = useRef<number>(performance.now());
   const failed = useMapsFailed();
 
   useEffect(() => {
@@ -456,7 +518,12 @@ function TeamView() {
             // primary first (shortest duration)
             all.sort((a, b) => a.minutes - b.minutes);
             setRoutes(all);
-            setEta(`${all[0].minutes} min`);
+            const leg = res.routes[0].legs[0];
+            const totalSec = leg?.duration?.value ?? all[0].minutes * 60;
+            const totalKm  = (leg?.distance?.value ?? 8400) / 1000;
+            setTelemetry({ totalSec, totalKm, progress: 0, elapsedSec: 0 });
+            tripStartRef.current = performance.now();
+            setEta(fmtMinSec(totalSec));
 
             // Alt routes (light translucent blue, behind)
             all.slice(1).forEach((r) =>
@@ -496,16 +563,53 @@ function TeamView() {
   useEffect(() => {
     if (!routes.length) return;
     let raf = 0; let last = performance.now();
+    let vitalsAccum = 0;
     const total = routes[0].path.length;
     function tick(t: number) {
       const dt = (t - last) / 1000; last = t;
       setProgress((p) => {
-        const next = (p + dt * 0.05) % 1;
+        // Wrap a full lap every ~60s for the demo so users see motion;
+        // realistic clamp uses totalSec when the API returns a real route.
+        const lap = Math.max(20, Math.min(120, TELEM.totalSec * 0.12));
+        const next = (p + dt / lap) % 1;
         const idx = Math.max(1, Math.floor(next * total));
         const segment = routes[0].path.slice(0, idx);
         if (travelledRef.current) travelledRef.current.setPath(segment);
         const head = segment[segment.length - 1];
         if (head && vehicleRef.current) vehicleRef.current.setPosition(head);
+
+        // Publish telemetry: speed easing (climb → cruise → slow at arrival),
+        // ETA countdown, distance left, elapsed trip time, vitals drift.
+        const cruise = 68;
+        const startCurve = Math.min(1, next / 0.08);                  // ramp up
+        const arrivalCurve = next > 0.85 ? Math.max(0, (1 - next) / 0.15) : 1; // slow down
+        const noise = Math.sin(t / 700) * 3 + Math.sin(t / 230) * 1.5;
+        const speed = Math.max(0, cruise * startCurve * arrivalCurve + noise);
+        const elapsed = (t - tripStartRef.current) / 1000;
+        const remainSec = Math.max(0, TELEM.totalSec * (1 - next));
+
+        // Patient vitals drift modestly (HR rises slightly under transit,
+        // SpO2 holds, BP narrows pulse pressure on critical cases).
+        vitalsAccum += dt;
+        let vitals: Partial<Telemetry> = {};
+        if (vitalsAccum > 1.2) {
+          vitalsAccum = 0;
+          const hrTrend = 132 + Math.sin(t / 4000) * 6 + (Math.random() - 0.5) * 3;
+          const spo2Trend = 91 + Math.sin(t / 6500) * 1.5 + (Math.random() - 0.5);
+          vitals = {
+            hr: Math.round(hrTrend),
+            spo2: Math.max(86, Math.min(96, Math.round(spo2Trend))),
+            bpSys: 92 + Math.round(Math.sin(t / 5200) * 4),
+            bpDia: 58 + Math.round(Math.sin(t / 4700) * 3),
+          };
+        }
+        setTelemetry({
+          progress: next,
+          speedKmh: speed,
+          elapsedSec: elapsed,
+          ...vitals,
+        });
+        setEta(fmtMinSec(remainSec));
         return next;
       });
       raf = requestAnimationFrame(tick);
@@ -533,7 +637,10 @@ function TeamView() {
           <div className="text-xl font-bold text-blue-700">{eta}</div>
         </div>
         <div className="h-9 w-px bg-slate-200" />
-        <div className="flex items-center gap-1.5 text-[12px] text-slate-700"><Clock className="size-3.5" /> {Math.round(progress * 100)}%</div>
+        <div className="flex flex-col text-[11px] text-slate-700">
+          <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(progress * 100)}%</span>
+          <span className="mono text-slate-500">{(TELEM.totalKm * (1 - progress)).toFixed(1)} km left</span>
+        </div>
       </div>
       {/* Compass / layers */}
       <div className="absolute top-3 right-3 flex flex-col gap-2">
@@ -589,55 +696,89 @@ function vehicleDot() {
 }
 
 function TeamLensRow() {
+  const t = useTelemetry();
+  const remainSec = Math.max(0, t.totalSec * (1 - t.progress));
+  const distLeftKm = Math.max(0, t.totalKm * (1 - t.progress));
+  // After handoff, the next call lights up as the crew nears destination.
+  const nextRespondSec = Math.max(60, 14 * 60 - t.elapsedSec * 0.6);
+  const nearArrival = t.progress > 0.9;
+  const acuity = t.spo2 < 90 || t.hr > 140 ? "P1 Critical · deteriorating" : "P1 Critical";
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 border-t border-hairline">
-      <LensPanel
-        title="Movement"
-        icon={<Navigation className="size-3.5" />}
-        rows={[
-          ["Speed", "68 km/h"],
-          ["ETA",   "4:12"],
-          ["Distance left", "3.2 km"],
-          ["Trip time", "00:11:42"],
-          ["A → B progress", "62%"],
-        ]}
-      />
-      <LensPanel
-        title="Patient onboard"
-        icon={<Heart className="size-3.5" />}
-        accent="coral"
-        rows={[
-          ["Acuity", "P1 Critical"],
-          ["HR", "132 bpm"],
-          ["BP", "92 / 58"],
-          ["SpO₂", "91%"],
-          ["GCS", "11"],
-        ]}
-        note="Suspected internal bleeding · pre-alert sent to trauma bay"
-      />
-      <LensPanel
-        title="Next request"
-        icon={<Zap className="size-3.5" />}
-        rows={[
-          ["Case", "C-2039 · Transfer"],
-          ["Pickup", "Dammam Medical Tower"],
-          ["Destination", "King Fahd Specialist"],
-          ["Time to respond", "~14 min"],
-          ["After handoff", "Auto-queue"],
-        ]}
-      />
+    <div className="border-t border-hairline">
+      {/* Live A→B progress bar — feels like a vehicle dashboard */}
+      <div className="h-0.5 bg-panel-elevated relative overflow-hidden">
+        <div
+          className="absolute inset-y-0 left-0 bg-teal transition-[width] duration-200"
+          style={{ width: `${(t.progress * 100).toFixed(2)}%` }}
+        />
+        <div
+          className="absolute top-1/2 -translate-y-1/2 size-1.5 rounded-full bg-teal shadow-[0_0_8px_rgba(20,184,166,0.9)]"
+          style={{ left: `calc(${(t.progress * 100).toFixed(2)}% - 3px)` }}
+        />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3">
+        <LensPanel
+          title="Movement"
+          icon={<Navigation className="size-3.5" />}
+          rows={[
+            ["Speed", `${Math.round(t.speedKmh)} km/h`],
+            ["ETA", fmtMinSec(remainSec)],
+            ["Distance left", `${distLeftKm.toFixed(1)} km`],
+            ["Trip time", fmtClock(t.elapsedSec)],
+            ["A → B progress", `${Math.round(t.progress * 100)}%`],
+          ]}
+          live
+        />
+        <LensPanel
+          title="Patient onboard"
+          icon={<Heart className="size-3.5" />}
+          accent="coral"
+          rows={[
+            ["Acuity", acuity],
+            ["HR", `${t.hr} bpm`],
+            ["BP", `${t.bpSys} / ${t.bpDia}`],
+            ["SpO₂", `${t.spo2}%`],
+            ["GCS", `${t.gcs}`],
+          ]}
+          note={
+            nearArrival
+              ? "Approaching Al Mana · trauma bay 2 reserved · doors opening"
+              : "Suspected internal bleeding · pre-alert sent to trauma bay"
+          }
+          live
+        />
+        <LensPanel
+          title="Next request"
+          icon={<Zap className="size-3.5" />}
+          rows={[
+            ["Case", "C-2039 · Transfer"],
+            ["Pickup", "Dammam Medical Tower"],
+            ["Destination", "King Fahd Specialist"],
+            ["Time to respond", `~${Math.ceil(nextRespondSec / 60)} min`],
+            ["After handoff", nearArrival ? "Dispatch ready" : "Auto-queue"],
+          ]}
+        />
+      </div>
     </div>
   );
 }
 
-function LensPanel({ title, icon, rows, note, accent = "teal" }: { title: string; icon: React.ReactNode; rows: [string, string][]; note?: string; accent?: "teal" | "coral" }) {
+function LensPanel({ title, icon, rows, note, accent = "teal", live = false }: { title: string; icon: React.ReactNode; rows: [string, string][]; note?: string; accent?: "teal" | "coral"; live?: boolean }) {
   const accentClass = accent === "coral" ? "text-coral" : "text-teal";
   return (
     <div className="p-4 border-r border-hairline last:border-r-0">
-      <div className={`mono text-[10px] uppercase tracking-widest ${accentClass} flex items-center gap-1.5`}>{icon}{title}</div>
+      <div className={`mono text-[10px] uppercase tracking-widest ${accentClass} flex items-center gap-1.5`}>
+        {icon}{title}
+        {live && (
+          <span className="ml-auto inline-flex items-center gap-1 text-muted-foreground">
+            <span className="size-1.5 rounded-full bg-teal animate-pulse" /> LIVE
+          </span>
+        )}
+      </div>
       <dl className="mt-3 space-y-1.5">
         {rows.map(([k,v]) => (
-          <div key={k} className="flex items-baseline justify-between gap-3">
+          <div key={k} className="flex items-baseline justify-between gap-3 tabular-nums">
             <dt className="mono text-[10px] uppercase tracking-widest text-muted-foreground">{k}</dt>
             <dd className="mono text-sm font-semibold">{v}</dd>
           </div>
@@ -736,6 +877,34 @@ function RegionFallback({ branch, onPickTeam }: { branch: Branch; onPickTeam: ()
 }
 
 function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
+  // Drive the shared telemetry store so the lens row animates even when
+  // Google Maps fails (billing/key/referrer). A 60s loop with the same
+  // ease curves used by the real map keeps the dashboard alive.
+  useEffect(() => {
+    const start = performance.now();
+    let raf = 0;
+    setTelemetry({ totalSec: 12 * 60 + 30, totalKm: 8.4 });
+    const loop = (t: number) => {
+      const elapsed = (t - start) / 1000;
+      const next = (elapsed / 60) % 1;
+      const startCurve = Math.min(1, next / 0.08);
+      const arrivalCurve = next > 0.85 ? Math.max(0, (1 - next) / 0.15) : 1;
+      const noise = Math.sin(t / 700) * 3 + Math.sin(t / 230) * 1.5;
+      setTelemetry({
+        progress: next,
+        elapsedSec: elapsed,
+        speedKmh: Math.max(0, 68 * startCurve * arrivalCurve + noise),
+        hr: Math.round(132 + Math.sin(t / 4000) * 6),
+        spo2: Math.max(86, Math.min(96, Math.round(91 + Math.sin(t / 6500) * 1.5))),
+        bpSys: 92 + Math.round(Math.sin(t / 5200) * 4),
+        bpDia: 58 + Math.round(Math.sin(t / 4700) * 3),
+      });
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   // SVG mock route A→B with travelled segment + alternates
   const pct = Math.max(0.02, Math.min(0.98, progress || 0.62));
   return (
