@@ -970,11 +970,21 @@ function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
             fill="#ea4335" stroke="white" strokeWidth="2" />
           <circle cx="0" cy="-10" r="5" fill="white" />
         </g>
-        {/* vehicle dot along primary */}
-        <circle r="7" fill="#06b6d4" stroke="white" strokeWidth="2.5">
-          <animateMotion dur="6s" repeatCount="indefinite"
-            path="M 60 200 C 160 200, 220 130, 340 70" />
-        </circle>
+        {/* ambulance along primary, auto-rotated to path direction */}
+        <g>
+          <circle r="10" fill="#06b6d4" fillOpacity="0.25">
+            <animateMotion dur="9s" repeatCount="indefinite" rotate="auto"
+              path="M 60 200 C 160 200, 220 130, 340 70" />
+          </circle>
+          <g>
+            <rect x="-6" y="-9" width="12" height="18" rx="2" fill="#fff" stroke="#0f172a" strokeWidth="1" />
+            <rect x="-5" y="-7.5" width="10" height="5" rx="0.8" fill="#bae6fd" />
+            <rect x="-1" y="-1" width="2" height="7" fill="#ef4444" />
+            <rect x="-3.5" y="1.5" width="7" height="2" fill="#ef4444" />
+            <animateMotion dur="9s" repeatCount="indefinite" rotate="auto"
+              path="M 60 200 C 160 200, 220 130, 340 70" />
+          </g>
+        </g>
       </svg>
       {/* time bubbles */}
       <div className="absolute" style={{ top: "12%", left: "62%" }}>
