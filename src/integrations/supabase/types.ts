@@ -960,6 +960,54 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          billing_period: string
+          code: string
+          created_at: string
+          currency: string
+          description: string | null
+          features: Json
+          id: string
+          included_seats: number
+          is_active: boolean
+          name: string
+          price_cents: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          billing_period?: string
+          code: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: Json
+          id?: string
+          included_seats?: number
+          is_active?: boolean
+          name: string
+          price_cents?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          billing_period?: string
+          code?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          features?: Json
+          id?: string
+          included_seats?: number
+          is_active?: boolean
+          name?: string
+          price_cents?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       telehealth_sessions: {
         Row: {
           booking_id: string
@@ -1032,6 +1080,66 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tenant_members_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_subscriptions: {
+        Row: {
+          assigned_by: string | null
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string
+          id: string
+          notes: string | null
+          plan_id: string
+          seats: number
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string
+          id?: string
+          notes?: string | null
+          plan_id: string
+          seats?: number
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_by?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string
+          id?: string
+          notes?: string | null
+          plan_id?: string
+          seats?: number
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenant_subscriptions_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
