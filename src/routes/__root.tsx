@@ -86,11 +86,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "author", content: "VeloMed Infrastructure Group" },
       { name: "robots", content: "index,follow" },
       { property: "og:site_name", content: SITE.brand },
-      { property: "og:title", content: "VeloMed OS — Medical mobility infrastructure" },
-      { property: "og:description", content: "Dispatch, providers, patients, rentals, training, and a public REST API." },
+      { property: "og:title", content: "VeloMed OS — API-first medical mobility platform" },
+      { property: "og:description", content: "Live ambulance dispatch, paramedic & driver tooling, patient app, fleet compliance, telehealth, training & certification — all on one documented REST API." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "theme-color", content: "#0b0d10" },
+      { name: "twitter:title", content: "VeloMed OS — API-first medical mobility platform" },
+      { name: "twitter:description", content: "Live ambulance dispatch, paramedic & driver tooling, patient app, fleet compliance, telehealth, training & certification — all on one documented REST API." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/95877bc1-2b10-4007-9f5f-08de39114cf3" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/95877bc1-2b10-4007-9f5f-08de39114cf3" },
     ],
     links: [
       {
