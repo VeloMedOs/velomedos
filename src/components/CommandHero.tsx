@@ -679,38 +679,42 @@ function TeamView() {
     <div className="absolute inset-0">
       {!failed && <div ref={ref} className="absolute inset-0" />}
       {failed && <TeamFallback />}
-      {/* Crew chip */}
-      <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
-        <span className="size-2 rounded-full animate-pulse" style={{ background: BRAND.teal }} /> Crew 04 · ALS · 2 onboard
-      </div>
-      {/* Route time bubbles — Google Maps style */}
-      {routes.map((r, i) => (
-        <RouteBubble key={i} minutes={r.minutes} primary={i === 0} index={i} total={routes.length} />
-      ))}
-      {/* Bottom sheet: ETA + actions */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 min-w-[260px]">
-        <div>
-          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
-          <div
-            className="text-xl font-bold"
-            style={{ color: tel.progress >= 0.999 ? BRAND.teal : BRAND.blueDeep }}
-          >
-            {tel.progress >= 0.999 ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
+      {!failed && (
+        <>
+          {/* Crew chip */}
+          <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
+            <span className="size-2 rounded-full animate-pulse" style={{ background: BRAND.teal }} /> Crew 04 · ALS · 2 onboard
           </div>
-        </div>
-        <div className="h-9 w-px bg-slate-200" />
-        <div className="flex flex-col text-[11px] text-slate-700">
-          <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(Math.min(tel.progress, 1) * 100)}%</span>
-          <span className="mono text-slate-500">{Math.max(0, tel.totalKm * (1 - Math.min(tel.progress, 1))).toFixed(2)} km left · {Math.round(tel.speedKmh)} km/h</span>
-        </div>
-      </div>
-      {/* Compass / layers */}
-      <div className="absolute top-3 right-3 flex flex-col gap-2">
-        <button aria-label="Map layers" className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Layers className="size-4" /></button>
-      </div>
-      <div className="absolute bottom-3 right-3">
-        <button aria-label="Reset map orientation" className="size-10 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-5" /></button>
-      </div>
+          {/* Route time bubbles — Google Maps style */}
+          {routes.map((r, i) => (
+            <RouteBubble key={i} minutes={r.minutes} primary={i === 0} index={i} total={routes.length} />
+          ))}
+          {/* Bottom sheet: ETA + actions */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 min-w-[260px]">
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
+              <div
+                className="text-xl font-bold"
+                style={{ color: tel.progress >= 0.999 ? BRAND.teal : BRAND.blueDeep }}
+              >
+                {tel.progress >= 0.999 ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
+              </div>
+            </div>
+            <div className="h-9 w-px bg-slate-200" />
+            <div className="flex flex-col text-[11px] text-slate-700">
+              <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(Math.min(tel.progress, 1) * 100)}%</span>
+              <span className="mono text-slate-500">{Math.max(0, tel.totalKm * (1 - Math.min(tel.progress, 1))).toFixed(2)} km left · {Math.round(tel.speedKmh)} km/h</span>
+            </div>
+          </div>
+          {/* Compass / layers */}
+          <div className="absolute top-3 right-3 flex flex-col gap-2">
+            <button aria-label="Map layers" className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Layers className="size-4" /></button>
+          </div>
+          <div className="absolute bottom-3 right-3">
+            <button aria-label="Reset map orientation" className="size-10 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-5" /></button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -1354,17 +1358,20 @@ function TeamFallback() {
           <circle cx="60" cy="200" r="11" fill="#0A1118" stroke="#ffffff" strokeWidth="2.5" />
           <circle cx="60" cy="200" r="4.5" fill="#4FB6F7" />
         </g>
-        {/* destination teardrop */}
+        {/* destination teardrop — compact, jeweler-grade */}
         <g transform="translate(340 70)">
-          <ellipse cx="0" cy="26" rx="9" ry="2.2" fill="#000" opacity="0.45" />
-          <path d="M 0 -30 C -13 -30, -22 -21, -22 -8 C -22 7, 0 26, 0 26 S 22 7, 22 -8 C 22 -21, 13 -30, 0 -30 Z"
-            fill="#FF6E5B" stroke="white" strokeWidth="2.2" />
-          <g transform="translate(-6 -16)">
-            <rect x="0" y="2" width="12" height="10" rx="1.5" fill="white"/>
-            <rect x="3" y="0" width="6" height="3" rx="0.6" fill="white"/>
-            <rect x="5.2" y="4" width="1.6" height="6" fill="#FF6E5B"/>
-            <rect x="3" y="6.2" width="6" height="1.6" fill="#FF6E5B"/>
-          </g>
+          {/* contact shadow */}
+          <ellipse cx="0" cy="14" rx="5" ry="1.4" fill="#000" opacity="0.5" />
+          {/* pin body (smaller, refined silhouette) */}
+          <path d="M 0 -16 C -7 -16, -12 -11, -12 -4 C -12 4, 0 14, 0 14 S 12 4, 12 -4 C 12 -11, 7 -16, 0 -16 Z"
+            fill="#FF6E5B" stroke="white" strokeWidth="1.4" />
+          {/* inner highlight */}
+          <path d="M 0 -14 C -5 -14, -9 -10, -9.5 -5"
+            stroke="white" strokeOpacity="0.55" strokeWidth="1" fill="none" strokeLinecap="round" />
+          {/* white disc + medical cross */}
+          <circle cx="0" cy="-5" r="4.2" fill="white" />
+          <rect x="-0.7" y="-7.6" width="1.4" height="5.2" rx="0.3" fill="#FF6E5B"/>
+          <rect x="-2.6" y="-5.7" width="5.2" height="1.4" rx="0.3" fill="#FF6E5B"/>
         </g>
         {/* ambulance — positioned by progress so it can sit at destination */}
         <g transform={`translate(${p1.x} ${p1.y})`}>
@@ -1409,18 +1416,18 @@ function TeamFallback() {
         <span className="mono text-[9px] uppercase tracking-widest text-white/55">Al Thuqbah · Origin</span>
       </div>
 
-      {/* Destination ETA bubble (over the pin) */}
-      <div className="absolute" style={{ top: "10%", left: "78%" }}>
+      {/* Destination ETA bubble (above the pin) */}
+      <div className="absolute -translate-y-full" style={{ top: "calc(10% - 22px)", left: "78%" }}>
         <div
-          className="px-3 py-1 rounded-full shadow-[0_8px_24px_-6px_rgba(31,111,235,0.55)] text-[12px] font-semibold flex items-center gap-1.5 ring-1 ring-white/30"
+          className="px-2 py-[3px] rounded-full shadow-[0_6px_18px_-6px_rgba(31,111,235,0.55)] text-[10px] font-semibold flex items-center gap-1 ring-1 ring-white/30"
           style={{
             background: arrived ? "#28D6B6" : "#1F6FEB",
             color: arrived ? "#080B11" : "#fff",
             fontVariantNumeric: "tabular-nums",
           }}
         >
-          <Clock className="size-3 opacity-80" /> {etaStr}
-          <span className="inline-block size-1.5 rounded-full" style={{ background: arrived ? "#080B11" : "#28D6B6" }} />
+          <Clock className="size-2.5 opacity-80" /> {etaStr}
+          <span className="inline-block size-1 rounded-full" style={{ background: arrived ? "#080B11" : "#28D6B6" }} />
         </div>
       </div>
 
