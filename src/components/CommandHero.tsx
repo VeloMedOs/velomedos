@@ -1416,18 +1416,18 @@ function TeamFallback() {
         <span className="mono text-[9px] uppercase tracking-widest text-white/55">Al Thuqbah · Origin</span>
       </div>
 
-      {/* Destination ETA bubble (over the pin) */}
-      <div className="absolute" style={{ top: "10%", left: "78%" }}>
+      {/* Destination ETA bubble (above the pin) */}
+      <div className="absolute -translate-y-full" style={{ top: "calc(10% - 22px)", left: "78%" }}>
         <div
-          className="px-3 py-1 rounded-full shadow-[0_8px_24px_-6px_rgba(31,111,235,0.55)] text-[12px] font-semibold flex items-center gap-1.5 ring-1 ring-white/30"
+          className="px-2 py-[3px] rounded-full shadow-[0_6px_18px_-6px_rgba(31,111,235,0.55)] text-[10px] font-semibold flex items-center gap-1 ring-1 ring-white/30"
           style={{
             background: arrived ? "#28D6B6" : "#1F6FEB",
             color: arrived ? "#080B11" : "#fff",
             fontVariantNumeric: "tabular-nums",
           }}
         >
-          <Clock className="size-3 opacity-80" /> {etaStr}
-          <span className="inline-block size-1.5 rounded-full" style={{ background: arrived ? "#080B11" : "#28D6B6" }} />
+          <Clock className="size-2.5 opacity-80" /> {etaStr}
+          <span className="inline-block size-1 rounded-full" style={{ background: arrived ? "#080B11" : "#28D6B6" }} />
         </div>
       </div>
 
