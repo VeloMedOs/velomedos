@@ -1,7 +1,7 @@
 /// <reference types="google.maps" />
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, ChevronRight, Heart, Stethoscope, Navigation, Clock, MapPin, Zap, Compass, Layers, Plus, Minus } from "lucide-react";
+import { ArrowRight, ChevronRight, Heart, Stethoscope, Navigation, Clock, MapPin, Zap, Compass, Layers, Plus, Minus, Radio } from "lucide-react";
 
 /**
  * VeloMed OS Command Hero — Network → Region → Team
@@ -56,20 +56,74 @@ declare global {
     google?: typeof google;
     __velomedMapsCallback?: () => void;
     __velomedMapsLoading?: Promise<void>;
+    __velomedMapsFailed?: boolean;
+    gm_authFailure?: () => void;
   }
 }
+
+/* ---------- Failure plumbing: suppress Google's modal + signal views ---------- */
+const MAPS_FAILED_EVENT = "velomed:maps-failed";
+function markMapsFailed() {
+  if (typeof window === "undefined") return;
+  if (window.__velomedMapsFailed) return;
+  window.__velomedMapsFailed = true;
+  window.dispatchEvent(new CustomEvent(MAPS_FAILED_EVENT));
+}
+function installMapsErrorGuards() {
+  if (typeof window === "undefined") return;
+  if ((window as any).__velomedMapsGuards) return;
+  (window as any).__velomedMapsGuards = true;
+  // Auth / referrer / invalid key errors fire this hook.
+  window.gm_authFailure = () => markMapsFailed();
+  // Billing-not-enabled and similar errors inject a fixed overlay div with
+  // class `gm-err-container` (or similar) into <body>. Strip it and signal.
+  const obs = new MutationObserver((muts) => {
+    for (const m of muts) {
+      m.addedNodes.forEach((n) => {
+        if (!(n instanceof HTMLElement)) return;
+        const html = n.outerHTML || "";
+        const looksLikeMapsError =
+          n.classList?.contains("gm-err-container") ||
+          n.querySelector?.(".gm-err-container, .gm-err-content") ||
+          /This page can't load Google Maps correctly/i.test(n.textContent || "") ||
+          /BillingNotEnabledMapError|ApiNotActivatedMapError|InvalidKeyMapError|RefererNotAllowedMapError/i.test(html);
+        if (looksLikeMapsError) {
+          n.remove();
+          markMapsFailed();
+        }
+      });
+    }
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
+}
+function useMapsFailed() {
+  const [failed, setFailed] = useState<boolean>(
+    typeof window !== "undefined" && !!window.__velomedMapsFailed,
+  );
+  useEffect(() => {
+    installMapsErrorGuards();
+    const onFail = () => setFailed(true);
+    window.addEventListener(MAPS_FAILED_EVENT, onFail);
+    return () => window.removeEventListener(MAPS_FAILED_EVENT, onFail);
+  }, []);
+  return failed;
+}
+
 function loadMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
+  installMapsErrorGuards();
+  if (window.__velomedMapsFailed) return Promise.reject(new Error("maps_failed"));
   if (window.google?.maps) return Promise.resolve();
   if (window.__velomedMapsLoading) return window.__velomedMapsLoading;
   const key = (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined) ?? "";
   const ch  = (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined) ?? "";
+  if (!key) { markMapsFailed(); return Promise.reject(new Error("maps_no_key")); }
   window.__velomedMapsLoading = new Promise<void>((resolve, reject) => {
     window.__velomedMapsCallback = () => resolve();
     const s = document.createElement("script");
     s.async = true; s.defer = true;
     s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&loading=async&libraries=geometry&callback=__velomedMapsCallback${ch ? `&channel=${encodeURIComponent(ch)}` : ""}`;
-    s.onerror = () => reject(new Error("Failed to load Google Maps"));
+    s.onerror = () => { markMapsFailed(); reject(new Error("Failed to load Google Maps")); };
     document.head.appendChild(s);
   });
   return window.__velomedMapsLoading;
