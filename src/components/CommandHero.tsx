@@ -821,64 +821,95 @@ function TeamLensRow() {
   const t = useTelemetry();
   const remainSec = Math.max(0, t.totalSec * (1 - t.progress));
   const distLeftKm = Math.max(0, t.totalKm * (1 - t.progress));
-  // After handoff, the next call lights up as the crew nears destination.
   const nextRespondSec = Math.max(60, 14 * 60 - t.elapsedSec * 0.6);
   const nearArrival = t.progress > 0.9;
-  const acuity = t.spo2 < 90 || t.hr > 140 ? "P1 Critical · deteriorating" : "P1 Critical";
+  const arrived = t.progress >= 0.999;
+  const deteriorating = t.spo2 < 90 || t.hr > 140;
+  const acuityLabel = deteriorating ? "P1 · Deteriorating" : "P1 · Critical";
 
   return (
-    <div className="border-t border-hairline">
-      {/* Live A→B progress bar — feels like a vehicle dashboard */}
-      <div className="h-0.5 bg-panel-elevated relative overflow-hidden">
-        <div
-          className="absolute inset-y-0 left-0 bg-teal transition-[width] duration-200"
-          style={{ width: `${(t.progress * 100).toFixed(2)}%` }}
+    <div className="border-t border-hairline bg-gradient-to-b from-[oklch(0.16_0.02_240)] to-[oklch(0.13_0.02_240)]">
+      {/* Live A→B rail — vehicle dashboard feel with milestone ticks */}
+      <ProgressRail progress={t.progress} arrived={arrived} />
+
+      {/* ============ INSTRUMENT CLUSTER ============ */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-hairline">
+        <Gauge360
+          label="Speed"
+          unit="km/h"
+          value={Math.round(t.speedKmh)}
+          max={120}
+          color={arrived ? BRAND.teal : BRAND.blue}
+          icon={<Wind className="size-3" />}
         />
-        <div
-          className="absolute top-1/2 -translate-y-1/2 size-1.5 rounded-full bg-teal shadow-[0_0_8px_rgba(20,184,166,0.9)]"
-          style={{ left: `calc(${(t.progress * 100).toFixed(2)}% - 3px)` }}
+        <EtaCluster
+          remainSec={remainSec}
+          progress={t.progress}
+          distLeftKm={distLeftKm}
+          arrived={arrived}
+        />
+        <VitalsCluster
+          hr={t.hr}
+          spo2={t.spo2}
+          bpSys={t.bpSys}
+          bpDia={t.bpDia}
+          gcs={t.gcs}
+          deteriorating={deteriorating}
+        />
+        <NextCallCluster
+          secs={nextRespondSec}
+          armed={nearArrival || arrived}
         />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3">
-        <LensPanel
+
+      {/* ============ DETAIL STRIP ============ */}
+      <div className="grid grid-cols-1 md:grid-cols-3 border-t border-hairline">
+        <DetailColumn
           title="Movement"
           icon={<Navigation className="size-3.5" />}
+          accent={BRAND.blue}
           rows={[
-            ["Speed", `${Math.round(t.speedKmh)} km/h`],
-            ["ETA", fmtMinSec(remainSec)],
-            ["Distance left", `${distLeftKm.toFixed(1)} km`],
-            ["Trip time (HH:MM:SS)", fmtHHMM(t.elapsedSec)],
-            ["A → B progress", `${Math.round(t.progress * 100)}%`],
+            ["Heading", "NNE · 014°"],
+            ["Trip time", fmtHHMM(t.elapsedSec)],
+            ["A → B", `${Math.round(t.progress * 100)}% · ${distLeftKm.toFixed(1)} km left`],
+            ["Route", "Primary · King Fahd Rd"],
           ]}
-          live
+          chips={[
+            { label: "Lights · Siren", tone: "coral" },
+            { label: "Lane assist", tone: "teal" },
+            { label: "5 Hz GPS", tone: "mute" },
+          ]}
         />
-        <LensPanel
+        <DetailColumn
           title="Patient onboard"
           icon={<Heart className="size-3.5" />}
-          accent="coral"
+          accent={BRAND.coral}
           rows={[
-            ["Acuity", acuity],
-            ["HR", `${t.hr} bpm`],
-            ["BP", `${t.bpSys} / ${t.bpDia}`],
-            ["SpO₂", `${t.spo2}%`],
-            ["GCS", `${t.gcs}`],
+            ["Case", "C-2041 · Al Khobar"],
+            ["Acuity", acuityLabel],
+            ["Disposition", arrived ? "Handoff in progress" : nearArrival ? "Trauma bay 2 · doors opening" : "Pre-alert sent · bay 2 reserved"],
+            ["Care path", "ALS · IV access · 12-lead pushed"],
           ]}
-          note={
-            nearArrival
-              ? "Approaching Al Mana · trauma bay 2 reserved · doors opening"
-              : "Suspected internal bleeding · pre-alert sent to trauma bay"
-          }
-          live
+          chips={[
+            { label: "Internal bleed (susp.)", tone: "coral" },
+            { label: "O₂ 6 L/min", tone: "blue" },
+            { label: "Saline 500 mL", tone: "teal" },
+          ]}
         />
-        <LensPanel
+        <DetailColumn
           title="Next request"
           icon={<Zap className="size-3.5" />}
+          accent={BRAND.teal}
           rows={[
             ["Case", "C-2039 · Transfer"],
             ["Pickup", "Dammam Medical Tower"],
             ["Destination", "King Fahd Specialist"],
-            ["Time to respond", `~${Math.ceil(nextRespondSec / 60)} min`],
-            ["After handoff", nearArrival ? "Dispatch ready" : "Auto-queue"],
+            ["Status", nearArrival || arrived ? "Crew armed · auto-accept in 60s" : "Queued · auto-assign on handoff"],
+          ]}
+          chips={[
+            { label: "ETA ~14 min", tone: "blue" },
+            { label: "Cardiology", tone: "teal" },
+            { label: "Sedated", tone: "mute" },
           ]}
         />
       </div>
@@ -886,27 +917,249 @@ function TeamLensRow() {
   );
 }
 
-function LensPanel({ title, icon, rows, note, accent = "teal", live = false }: { title: string; icon: React.ReactNode; rows: [string, string][]; note?: string; accent?: "teal" | "coral"; live?: boolean }) {
-  const accentClass = accent === "coral" ? "text-coral" : "text-teal";
+/* ---------- Instrument cluster primitives ---------- */
+
+function ProgressRail({ progress, arrived }: { progress: number; arrived: boolean }) {
+  const pct = Math.max(0, Math.min(1, progress));
+  const color = arrived ? BRAND.teal : BRAND.blue;
   return (
-    <div className="p-4 border-r border-hairline last:border-r-0">
-      <div className={`mono text-[10px] uppercase tracking-widest ${accentClass} flex items-center gap-1.5`}>
-        {icon}{title}
+    <div className="relative h-1.5 bg-[oklch(0.18_0.02_240)] overflow-hidden">
+      {/* milestone ticks */}
+      {[0.25, 0.5, 0.75].map((m) => (
+        <span key={m} className="absolute top-0 bottom-0 w-px bg-white/10" style={{ left: `${m * 100}%` }} />
+      ))}
+      <div
+        className="absolute inset-y-0 left-0 transition-[width] duration-150"
+        style={{
+          width: `${(pct * 100).toFixed(2)}%`,
+          background: `linear-gradient(90deg, ${BRAND.blueDeep}, ${color})`,
+          boxShadow: `0 0 14px ${color}80`,
+        }}
+      />
+      <span
+        className="absolute top-1/2 -translate-y-1/2 size-2.5 rounded-full border-2"
+        style={{
+          left: `calc(${(pct * 100).toFixed(2)}% - 5px)`,
+          background: color,
+          borderColor: "#fff",
+          boxShadow: `0 0 12px ${color}`,
+        }}
+      />
+    </div>
+  );
+}
+
+function ClusterShell({ children, label, live = true }: { children: React.ReactNode; label: string; live?: boolean }) {
+  return (
+    <div className="bg-panel p-4 relative">
+      <div className="mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground flex items-center gap-1.5">
+        {label}
         {live && (
-          <span className="ml-auto inline-flex items-center gap-1 text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-teal animate-pulse" /> LIVE
+          <span className="ml-auto inline-flex items-center gap-1 text-teal">
+            <span className="size-1 rounded-full bg-teal animate-pulse" /> LIVE
           </span>
         )}
       </div>
+      {children}
+    </div>
+  );
+}
+
+function Gauge360({ label, unit, value, max, color, icon }: { label: string; unit: string; value: number; max: number; color: string; icon?: React.ReactNode }) {
+  const pct = Math.max(0, Math.min(1, value / max));
+  const R = 34;
+  const C = 2 * Math.PI * R;
+  // 270° arc starting at 135°
+  const arc = C * 0.75;
+  const filled = arc * pct;
+  return (
+    <ClusterShell label={label}>
+      <div className="mt-2 grid place-items-center">
+        <div className="relative size-[110px]">
+          <svg viewBox="0 0 80 80" className="absolute inset-0 -rotate-[135deg]">
+            <circle cx="40" cy="40" r={R} fill="none" stroke="oklch(0.22 0.02 240)" strokeWidth="6" strokeDasharray={`${arc} ${C}`} strokeLinecap="round" />
+            <circle cx="40" cy="40" r={R} fill="none" stroke={color} strokeWidth="6" strokeDasharray={`${filled} ${C}`} strokeLinecap="round" style={{ filter: `drop-shadow(0 0 6px ${color}90)`, transition: "stroke-dasharray 200ms linear" }} />
+          </svg>
+          <div className="absolute inset-0 grid place-items-center text-center">
+            <div>
+              <div className="mono text-[9px] uppercase tracking-widest text-muted-foreground flex items-center gap-1 justify-center">{icon}{unit}</div>
+              <div className="font-serif text-3xl tabular-nums leading-none mt-0.5" style={{ color }}>{value}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ClusterShell>
+  );
+}
+
+function EtaCluster({ remainSec, progress, distLeftKm, arrived }: { remainSec: number; progress: number; distLeftKm: number; arrived: boolean }) {
+  const pct = Math.max(0, Math.min(1, progress));
+  const R = 34, C = 2 * Math.PI * R;
+  const filled = C * pct;
+  const color = arrived ? BRAND.teal : BRAND.blueDeep;
+  return (
+    <ClusterShell label="ETA · Al Mana General">
+      <div className="mt-2 grid place-items-center">
+        <div className="relative size-[110px]">
+          <svg viewBox="0 0 80 80" className="absolute inset-0 -rotate-90">
+            <circle cx="40" cy="40" r={R} fill="none" stroke="oklch(0.22 0.02 240)" strokeWidth="6" />
+            <circle cx="40" cy="40" r={R} fill="none" stroke={color} strokeWidth="6" strokeDasharray={`${filled} ${C}`} strokeLinecap="round" style={{ filter: `drop-shadow(0 0 8px ${color}90)`, transition: "stroke-dasharray 200ms linear" }} />
+          </svg>
+          <div className="absolute inset-0 grid place-items-center text-center">
+            <div>
+              <div className="mono text-[9px] uppercase tracking-widest text-muted-foreground">{arrived ? "Status" : "Arriving in"}</div>
+              <div className="font-serif text-3xl tabular-nums leading-none mt-0.5" style={{ color }}>
+                {arrived ? "✓" : fmtMinSec(remainSec)}
+              </div>
+              <div className="mono text-[10px] text-muted-foreground mt-1 tabular-nums">{distLeftKm.toFixed(1)} km · {Math.round(pct * 100)}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ClusterShell>
+  );
+}
+
+function VitalsCluster({ hr, spo2, bpSys, bpDia, gcs, deteriorating }: { hr: number; spo2: number; bpSys: number; bpDia: number; gcs: number; deteriorating: boolean }) {
+  const color = deteriorating ? BRAND.coral : BRAND.teal;
+  return (
+    <ClusterShell label="Patient vitals">
+      <div className="mt-2">
+        <EcgStrip hr={hr} color={BRAND.coral} />
+        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2">
+          <VitalBox label="HR" value={hr} unit="bpm" color={BRAND.coral} alarm={hr > 140} />
+          <VitalBox label="SpO₂" value={spo2} unit="%" color={spo2 < 90 ? BRAND.coral : BRAND.teal} alarm={spo2 < 90} />
+          <VitalBox label="BP" value={`${bpSys}/${bpDia}`} unit="mmHg" color={BRAND.blue} />
+          <VitalBox label="GCS" value={gcs} unit="/15" color={BRAND.amber} />
+        </div>
+        <div className="mono text-[9px] uppercase tracking-widest mt-2 px-2 py-1 rounded inline-flex items-center gap-1.5"
+          style={{ background: `${color}22`, color }}>
+          <span className="size-1.5 rounded-full animate-pulse" style={{ background: color }} />
+          {deteriorating ? "Deteriorating" : "Stable on transport"}
+        </div>
+      </div>
+    </ClusterShell>
+  );
+}
+
+function VitalBox({ label, value, unit, color, alarm = false }: { label: string; value: number | string; unit: string; color: string; alarm?: boolean }) {
+  return (
+    <div className={`relative rounded border border-hairline px-2 py-1 ${alarm ? "animate-pulse" : ""}`} style={{ background: "oklch(0.14 0.02 240)" }}>
+      <div className="mono text-[8px] uppercase tracking-widest text-muted-foreground">{label}</div>
+      <div className="mono tabular-nums text-sm font-bold leading-tight" style={{ color }}>{value}<span className="text-[9px] text-muted-foreground font-normal ml-0.5">{unit}</span></div>
+    </div>
+  );
+}
+
+/** Tiny live ECG strip — synthetic QRS that scrolls right-to-left at the
+ *  current heart rate. SVG path animated via stroke-dashoffset. */
+function EcgStrip({ hr, color }: { hr: number; color: string }) {
+  const [, force] = useState(0);
+  const tRef = useRef(performance.now());
+  useEffect(() => {
+    let raf = 0;
+    const loop = () => { force((n) => (n + 1) & 0xffff); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  // beats per second
+  const bps = Math.max(0.5, hr / 60);
+  const W = 220, H = 36;
+  const beats = 4;
+  const beatW = W / beats;
+  // phase advances with time → wave scrolls
+  const phase = ((performance.now() - tRef.current) / 1000 * bps) % 1;
+  const offset = -phase * beatW;
+  // single QRS template path
+  const qrs = (x0: number) => {
+    const x = (dx: number) => (x0 + dx).toFixed(1);
+    const mid = H / 2;
+    return `M ${x(0)} ${mid} L ${x(beatW * 0.25)} ${mid} L ${x(beatW * 0.30)} ${mid - 2} L ${x(beatW * 0.34)} ${mid + 4} L ${x(beatW * 0.36)} ${mid - 14} L ${x(beatW * 0.40)} ${mid + 10} L ${x(beatW * 0.44)} ${mid + 1} L ${x(beatW * 0.55)} ${mid} L ${x(beatW * 0.62)} ${mid - 3} L ${x(beatW * 0.70)} ${mid} L ${x(beatW)} ${mid}`;
+  };
+  const d = Array.from({ length: beats + 2 }, (_, i) => qrs(beatW * i + offset)).join(" ");
+  return (
+    <div className="relative h-9 rounded overflow-hidden border border-hairline" style={{ background: "oklch(0.10 0.02 240)" }}>
+      {/* grid */}
+      <div className="absolute inset-0 opacity-30" style={{
+        backgroundImage: "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)",
+        backgroundSize: "12px 12px",
+      }} />
+      <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+        <path d={d} fill="none" stroke={color} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" style={{ filter: `drop-shadow(0 0 4px ${color}b0)` }} />
+      </svg>
+      <div className="absolute left-1.5 top-1 mono text-[8px] uppercase tracking-widest text-muted-foreground">ECG · II</div>
+      <div className="absolute right-1.5 bottom-0.5 mono text-[8px] uppercase tracking-widest" style={{ color }}>{hr} bpm</div>
+    </div>
+  );
+}
+
+function NextCallCluster({ secs, armed }: { secs: number; armed: boolean }) {
+  const max = 15 * 60;
+  const pct = Math.max(0, Math.min(1, 1 - secs / max));
+  const color = armed ? BRAND.teal : BRAND.amber;
+  const R = 34, C = 2 * Math.PI * R;
+  const filled = C * pct;
+  return (
+    <ClusterShell label="Next request">
+      <div className="mt-2 grid place-items-center">
+        <div className="relative size-[110px]">
+          <svg viewBox="0 0 80 80" className="absolute inset-0 -rotate-90">
+            <circle cx="40" cy="40" r={R} fill="none" stroke="oklch(0.22 0.02 240)" strokeWidth="6" />
+            <circle cx="40" cy="40" r={R} fill="none" stroke={color} strokeWidth="6" strokeDasharray={`${filled} ${C}`} strokeLinecap="round" style={{ filter: `drop-shadow(0 0 6px ${color}90)`, transition: "stroke-dasharray 300ms linear" }} />
+          </svg>
+          <div className="absolute inset-0 grid place-items-center text-center">
+            <div>
+              <div className="mono text-[9px] uppercase tracking-widest text-muted-foreground flex items-center gap-1 justify-center">
+                <Siren className="size-3" /> C-2039
+              </div>
+              <div className="font-serif text-3xl tabular-nums leading-none mt-0.5" style={{ color }}>
+                {fmtMinSec(secs)}
+              </div>
+              <div className="mono text-[10px] text-muted-foreground mt-1">{armed ? "Crew armed" : "Auto-queue"}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ClusterShell>
+  );
+}
+
+function DetailColumn({ title, icon, accent, rows, chips }: {
+  title: string;
+  icon: React.ReactNode;
+  accent: string;
+  rows: [string, string][];
+  chips?: { label: string; tone: "teal" | "coral" | "blue" | "mute" }[];
+}) {
+  const toneStyle = (tone: "teal" | "coral" | "blue" | "mute") => {
+    switch (tone) {
+      case "teal":  return { background: `${BRAND.teal}1f`,  color: BRAND.teal,  borderColor: `${BRAND.teal}55` };
+      case "coral": return { background: `${BRAND.coral}1f`, color: BRAND.coral, borderColor: `${BRAND.coral}55` };
+      case "blue":  return { background: `${BRAND.blue}1f`,  color: BRAND.blue,  borderColor: `${BRAND.blue}55` };
+      default:      return { background: "oklch(0.20 0.02 240)", color: "var(--color-muted-foreground)", borderColor: "var(--color-hairline)" };
+    }
+  };
+  return (
+    <div className="p-4 border-r border-hairline last:border-r-0 relative">
+      <span className="absolute left-0 top-4 bottom-4 w-px" style={{ background: accent, opacity: 0.7 }} />
+      <div className="mono text-[10px] uppercase tracking-widest flex items-center gap-1.5" style={{ color: accent }}>
+        {icon}{title}
+      </div>
       <dl className="mt-3 space-y-1.5">
-        {rows.map(([k,v]) => (
+        {rows.map(([k, v]) => (
           <div key={k} className="flex items-baseline justify-between gap-3 tabular-nums">
             <dt className="mono text-[10px] uppercase tracking-widest text-muted-foreground">{k}</dt>
-            <dd className="mono text-sm font-semibold">{v}</dd>
+            <dd className="mono text-xs font-semibold text-foreground text-right">{v}</dd>
           </div>
         ))}
       </dl>
-      {note && <p className="mt-3 text-xs text-muted-foreground italic border-l-2 border-hairline pl-2">{note}</p>}
+      {chips && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {chips.map((c) => (
+            <span key={c.label} className="mono text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded border" style={toneStyle(c.tone)}>{c.label}</span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
