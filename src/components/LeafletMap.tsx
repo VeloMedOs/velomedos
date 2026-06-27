@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
+import { MARKER_COLOR } from "@/lib/brand";
 
 export type MapMarker = {
   id: string;
@@ -20,12 +21,12 @@ export type MapPolyline = {
 };
 
 const variantColor: Record<NonNullable<MapMarker["variant"]>, string> = {
-  ambulance: "oklch(0.72 0.16 230)",
-  incident: "oklch(0.62 0.22 27)",
-  patient: "oklch(0.70 0.16 155)",
-  clinic: "oklch(0.78 0.16 75)",
-  paramedic: "oklch(0.78 0.16 200)",
-  doctor: "oklch(0.76 0.16 280)",
+  ambulance: MARKER_COLOR.ambulance,
+  incident:  MARKER_COLOR.incident,
+  patient:   MARKER_COLOR.patient,
+  clinic:    MARKER_COLOR.clinic,
+  paramedic: MARKER_COLOR.paramedic,
+  doctor:    MARKER_COLOR.doctor,
 };
 
 function iconFor(m: MapMarker): L.DivIcon {
