@@ -682,7 +682,7 @@ function TeamView() {
       {!failed && (
         <>
           {/* Crew chip */}
-          <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
+          <div className="absolute top-3 left-3 z-[40] max-w-[calc(100%-96px)] rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[11px] sm:text-[12px] font-medium flex items-center gap-2 truncate">
             <span className="size-2 rounded-full animate-pulse" style={{ background: BRAND.teal }} /> Crew 04 · ALS · 2 onboard
           </div>
           {/* Route time bubbles — Google Maps style */}
@@ -690,7 +690,7 @@ function TeamView() {
             <RouteBubble key={i} minutes={r.minutes} primary={i === 0} index={i} total={routes.length} />
           ))}
           {/* Bottom sheet: ETA + actions */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 min-w-[260px]">
+          <div className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 sm:min-w-[260px]">
             <div>
               <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
               <div
@@ -701,16 +701,16 @@ function TeamView() {
               </div>
             </div>
             <div className="h-9 w-px bg-slate-200" />
-            <div className="flex flex-col text-[11px] text-slate-700">
+            <div className="flex flex-col text-[11px] text-slate-700 min-w-0">
               <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(Math.min(tel.progress, 1) * 100)}%</span>
               <span className="mono text-slate-500">{Math.max(0, tel.totalKm * (1 - Math.min(tel.progress, 1))).toFixed(2)} km left · {Math.round(tel.speedKmh)} km/h</span>
             </div>
           </div>
           {/* Compass / layers */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2">
+          <div className="absolute top-3 right-3 z-[45] flex flex-col gap-2">
             <button aria-label="Map layers" className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Layers className="size-4" /></button>
           </div>
-          <div className="absolute bottom-3 right-3">
+          <div className="absolute bottom-3 right-3 z-[45]">
             <button aria-label="Reset map orientation" className="size-10 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Compass className="size-5" /></button>
           </div>
         </>
@@ -1196,7 +1196,8 @@ function FallbackChrome({ children }: { children?: React.ReactNode }) {
         style={{ background:
           "linear-gradient(115deg, transparent 49.7%, rgba(255,255,255,0.7) 50%, transparent 50.3%)" }} />
       {children}
-      <div className="absolute bottom-1.5 right-2.5 mono text-[9px] uppercase tracking-[0.25em] text-white/35">
+      {/* Offline footer — hidden on mobile to avoid telemetry-card overlap */}
+      <div className="hidden sm:block absolute bottom-1.5 right-2.5 mono text-[9px] uppercase tracking-[0.25em] text-white/35 pointer-events-none z-[5]">
         Offline preview · enable Maps billing for live satellite
       </div>
     </div>
@@ -1314,7 +1315,7 @@ function TeamFallback() {
   return (
     <FallbackChrome>
       {/* Iconic Google-Maps style road network underneath the trip */}
-      <svg viewBox="0 0 400 250" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+      <svg viewBox="0 0 400 250" className="absolute inset-0 w-full h-full pointer-events-none z-[10]" preserveAspectRatio="none">
         <defs>
           <filter id="routeGlow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="2.4" />
@@ -1323,6 +1324,10 @@ function TeamFallback() {
             <stop offset="0%" stopColor="#1F6FEB" />
             <stop offset="100%" stopColor="#4FB6F7" />
           </linearGradient>
+          {/* soft contact shadow for the destination pin */}
+          <filter id="pinShadow" x="-60%" y="-40%" width="220%" height="200%">
+            <feGaussianBlur stdDeviation="1.2" />
+          </filter>
         </defs>
         {/* arterial roads (warm beige like Maps) */}
         <g stroke="#2a3340" strokeLinecap="round" fill="none">
@@ -1360,18 +1365,21 @@ function TeamFallback() {
         </g>
         {/* destination teardrop — compact, jeweler-grade */}
         <g transform="translate(340 70)">
-          {/* contact shadow */}
-          <ellipse cx="0" cy="14" rx="5" ry="1.4" fill="#000" opacity="0.5" />
-          {/* pin body (smaller, refined silhouette) */}
-          <path d="M 0 -16 C -7 -16, -12 -11, -12 -4 C -12 4, 0 14, 0 14 S 12 4, 12 -4 C 12 -11, 7 -16, 0 -16 Z"
-            fill="#FF6E5B" stroke="white" strokeWidth="1.4" />
-          {/* inner highlight */}
-          <path d="M 0 -14 C -5 -14, -9 -10, -9.5 -5"
-            stroke="white" strokeOpacity="0.55" strokeWidth="1" fill="none" strokeLinecap="round" />
-          {/* white disc + medical cross */}
-          <circle cx="0" cy="-5" r="4.2" fill="white" />
-          <rect x="-0.7" y="-7.6" width="1.4" height="5.2" rx="0.3" fill="#FF6E5B"/>
-          <rect x="-2.6" y="-5.7" width="5.2" height="1.4" rx="0.3" fill="#FF6E5B"/>
+          {/* diffuse drop shadow under the pin (filter-based, no harsh ellipse) */}
+          <path d="M 0 -14 C -6 -14, -10.5 -9.5, -10.5 -3.5 C -10.5 3.5, 0 12, 0 12 S 10.5 3.5, 10.5 -3.5 C 10.5 -9.5, 6 -14, 0 -14 Z"
+            fill="#000" opacity="0.45" filter="url(#pinShadow)" transform="translate(0.6 1.4)" />
+          {/* pin body — slightly tighter silhouette, jeweler stroke */}
+          <path d="M 0 -14 C -6 -14, -10.5 -9.5, -10.5 -3.5 C -10.5 3.5, 0 12, 0 12 S 10.5 3.5, 10.5 -3.5 C 10.5 -9.5, 6 -14, 0 -14 Z"
+            fill="#FF6E5B" stroke="#ffffff" strokeWidth="0.9" />
+          {/* subtle inner gradient highlight for depth */}
+          <path d="M 0 -12.6 C -4.4 -12.6, -8 -9.2, -8.4 -4.6"
+            stroke="#ffffff" strokeOpacity="0.6" strokeWidth="0.7" fill="none" strokeLinecap="round" />
+          {/* white disc with hairline ring */}
+          <circle cx="0" cy="-4.5" r="3.7" fill="#ffffff" />
+          <circle cx="0" cy="-4.5" r="3.7" fill="none" stroke="#FF6E5B" strokeOpacity="0.25" strokeWidth="0.4" />
+          {/* medical cross — perfectly centered, tighter proportions */}
+          <rect x="-0.55" y="-6.6" width="1.1" height="4.2" rx="0.25" fill="#FF6E5B"/>
+          <rect x="-2.1"  y="-5.05" width="4.2" height="1.1" rx="0.25" fill="#FF6E5B"/>
         </g>
         {/* ambulance — positioned by progress so it can sit at destination */}
         <g transform={`translate(${p1.x} ${p1.y})`}>
@@ -1392,32 +1400,33 @@ function TeamFallback() {
       </svg>
 
       {/* Iconic Google Maps landmarks — road labels + POIs */}
-      <div className="absolute pointer-events-none mono text-[9px] tracking-[0.18em] uppercase text-white/45"
+      <div className="absolute pointer-events-none z-[15] mono text-[9px] tracking-[0.18em] uppercase text-white/45"
         style={{ top: "70%", left: "8%", transform: "rotate(-6deg)" }}>
         King Fahd Rd
       </div>
-      <div className="absolute pointer-events-none mono text-[9px] tracking-[0.18em] uppercase text-white/40"
+      <div className="absolute pointer-events-none z-[15] mono text-[9px] tracking-[0.18em] uppercase text-white/40"
         style={{ top: "38%", left: "62%", transform: "rotate(86deg)" }}>
         Prince Sultan
       </div>
-      <div className="absolute pointer-events-none flex items-center gap-1.5"
+      <div className="absolute pointer-events-none z-[15] flex items-center gap-1.5"
         style={{ top: "20%", left: "18%" }}>
         <span className="size-1.5 rounded-[2px] bg-emerald-400/80" />
         <span className="mono text-[9px] uppercase tracking-widest text-emerald-200/70">Al Bandariyah Park</span>
       </div>
-      <div className="absolute pointer-events-none flex items-center gap-1.5"
+      <div className="absolute pointer-events-none z-[15] flex items-center gap-1.5"
         style={{ top: "80%", left: "55%" }}>
         <span className="size-1.5 rounded-full bg-sky-300/80" />
         <span className="mono text-[9px] uppercase tracking-widest text-sky-200/70">Half-Moon Bay</span>
       </div>
-      <div className="absolute pointer-events-none flex items-center gap-1.5"
+      <div className="absolute pointer-events-none z-[15] flex items-center gap-1.5"
         style={{ top: "55%", left: "33%" }}>
         <span className="size-1.5 rotate-45 bg-white/70" />
         <span className="mono text-[9px] uppercase tracking-widest text-white/55">Al Thuqbah · Origin</span>
       </div>
 
       {/* Destination ETA bubble (above the pin) */}
-      <div className="absolute -translate-y-full" style={{ top: "calc(10% - 22px)", left: "78%" }}>
+      <div className="absolute -translate-x-1/2 -translate-y-full pointer-events-none z-[30]"
+        style={{ top: "calc(10% - 18px)", left: "min(78%, calc(100% - 56px))" }}>
         <div
           className="px-2 py-[3px] rounded-full shadow-[0_6px_18px_-6px_rgba(31,111,235,0.55)] text-[10px] font-semibold flex items-center gap-1 ring-1 ring-white/30"
           style={{
@@ -1432,7 +1441,8 @@ function TeamFallback() {
       </div>
 
       {/* Alternate route ETA pill */}
-      <div className="absolute" style={{ top: "32%", left: "42%" }}>
+      <div className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[25]"
+        style={{ top: "32%", left: "42%" }}>
         <div className="px-2.5 py-1 rounded-full border border-white/70 bg-white/95 backdrop-blur text-slate-900 shadow-md text-[11px] font-semibold flex items-center gap-1.5"
           style={{ fontVariantNumeric: "tabular-nums" }}>
           7 min <span className="text-slate-400 font-normal">· alt</span>
@@ -1440,7 +1450,7 @@ function TeamFallback() {
       </div>
 
       {/* Bottom-left ETA card — Patek-grade telemetry */}
-      <div className="absolute bottom-3 left-3 right-3 sm:right-auto sm:w-[300px] rounded-2xl overflow-hidden border border-white/15 bg-white/[0.97] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+      <div className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[300px] z-[40] rounded-2xl overflow-hidden border border-white/15 bg-white/[0.97] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
         <div className="px-4 pt-3 pb-3">
           <div className="flex items-start justify-between">
             <div>
@@ -1483,15 +1493,15 @@ function TeamFallback() {
       </div>
 
       {/* Compass FAB */}
-      <div className="absolute bottom-3 right-3">
+      <div className="absolute bottom-3 right-3 z-[45]">
         <button aria-label="Recenter map"
           className="size-10 rounded-full bg-white/95 backdrop-blur shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)] border border-white/40 grid place-items-center text-slate-700 hover:scale-105 active:scale-95 transition-transform">
           <Compass className="size-5" />
         </button>
       </div>
 
-      {/* Crew tag */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-16 mono text-[9px] uppercase tracking-[0.25em] text-white/55 flex items-center gap-1.5">
+      {/* Crew tag — desktop only (mobile telemetry card spans the width) */}
+      <div className="hidden sm:flex absolute bottom-4 right-16 z-[35] pointer-events-none mono text-[9px] uppercase tracking-[0.25em] text-white/55 items-center gap-1.5">
         <Radio className="size-3 text-teal" /> Crew 04 · A → B
       </div>
     </FallbackChrome>
