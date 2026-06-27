@@ -246,8 +246,10 @@ function NetworkView({ onPick }: { onPick: (id: string) => void }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const [ready, setReady] = useState(false);
+  const failed = useMapsFailed();
 
   useEffect(() => {
+    if (failed) { setReady(true); return; }
     let cancel = false;
     loadMaps().then(() => {
       if (cancel || !ref.current) return;
@@ -275,12 +277,13 @@ function NetworkView({ onPick }: { onPick: (id: string) => void }) {
     }).catch(() => setReady(true));
     return () => { cancel = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [failed]);
 
   return (
     <div className="absolute inset-0">
-      <div ref={ref} className="absolute inset-0" />
-      {!ready && <div className="absolute inset-0 grid place-items-center mono text-[10px] uppercase tracking-widest text-muted-foreground">Loading satellite…</div>}
+      {!failed && <div ref={ref} className="absolute inset-0" />}
+      {failed && <NetworkFallback onPick={onPick} />}
+      {!failed && !ready && <div className="absolute inset-0 grid place-items-center mono text-[10px] uppercase tracking-widest text-muted-foreground">Loading satellite…</div>}
       <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
         <span className="size-2 rounded-full bg-teal-500" /> 5 branches · 103 active cases · 144 teams
       </div>
@@ -307,8 +310,10 @@ function branchPin(cases: number) {
 function RegionView({ branch, onPickTeam }: { branch: Branch; onPickTeam: () => void }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
+  const failed = useMapsFailed();
 
   useEffect(() => {
+    if (failed) return;
     let cancel = false;
     loadMaps().then(() => {
       if (cancel || !ref.current) return;
@@ -336,13 +341,14 @@ function RegionView({ branch, onPickTeam }: { branch: Branch; onPickTeam: () => 
       }
     }).catch(() => {});
     return () => { cancel = true; };
-  }, [branch.lat, branch.lng, onPickTeam]);
+  }, [branch.lat, branch.lng, onPickTeam, failed]);
 
   const zoomBy = (delta: number) => mapRef.current?.setZoom((mapRef.current?.getZoom() ?? 9) + delta);
 
   return (
     <div className="absolute inset-0">
-      <div ref={ref} className="absolute inset-0" />
+      {!failed && <div ref={ref} className="absolute inset-0" />}
+      {failed && <RegionFallback branch={branch} onPickTeam={onPickTeam} />}
       {/* Top left badge */}
       <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
         <MapPin className="size-3.5 text-rose-500" /> {branch.name} Region · {EASTERN_CASES.length} live · {branch.teams} teams
