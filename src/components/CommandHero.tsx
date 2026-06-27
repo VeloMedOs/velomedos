@@ -726,18 +726,26 @@ function TeamView() {
 }
 
 function RouteBubble({ minutes, primary, index, total }: { minutes: number; primary: boolean; index: number; total: number }) {
+  const tel = useTelemetry();
+  const arrived = primary && tel.progress >= 0.999;
   // distribute alternates around upper-center
   const slots = total === 1 ? [{ top: "12%", left: "50%" }]
     : total === 2 ? [{ top: "20%", left: "44%" }, { top: "12%", left: "62%" }]
     : [{ top: "22%", left: "40%" }, { top: "10%", left: "60%" }, { top: "34%", left: "18%" }];
   const s = slots[index] ?? slots[slots.length - 1];
-  const cls = primary
-    ? "bg-blue-700 text-white border-white"
-    : "bg-white text-slate-900 border-slate-200";
+  const style: React.CSSProperties = primary
+    ? { background: arrived ? BRAND.teal : BRAND.blueDeep, color: arrived ? BRAND.ink : "#fff", borderColor: "#fff" }
+    : { background: "#fff", color: "#0f172a", borderColor: "#e2e8f0" };
   return (
     <div className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none" style={{ top: s.top, left: s.left }}>
-      <div className={`px-2.5 py-1 rounded-full border shadow-md text-[12px] font-semibold ${cls} flex items-center gap-1.5`}>
-        {minutes} min {primary && <span className="inline-block size-1.5 rounded-full bg-emerald-300" />}
+      <div className="px-2.5 py-1 rounded-full border shadow-md text-[12px] font-semibold flex items-center gap-1.5" style={style}>
+        {arrived ? "Arrived" : `${minutes} min`}
+        {primary && (
+          <span
+            className="inline-block size-1.5 rounded-full"
+            style={{ background: arrived ? BRAND.ink : BRAND.teal }}
+          />
+        )}
       </div>
     </div>
   );
@@ -747,8 +755,13 @@ function RouteBubble({ minutes, primary, index, total }: { minutes: number; prim
 function destPin() {
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='44' height='56' viewBox='0 0 44 56'>
     <defs><filter id='s' x='-50%' y='-50%' width='200%' height='200%'><feDropShadow dx='0' dy='2' stdDeviation='1.5' flood-color='#000' flood-opacity='0.35'/></filter></defs>
-    <path filter='url(#s)' d='M22 2 C10 2 2 10 2 22 c0 14 20 32 20 32 s20-18 20-32 C42 10 34 2 22 2 z' fill='#ea4335' stroke='white' stroke-width='2'/>
-    <circle cx='22' cy='21' r='6' fill='white'/>
+    <path filter='url(#s)' d='M22 2 C10 2 2 10 2 22 c0 14 20 32 20 32 s20-18 20-32 C42 10 34 2 22 2 z' fill='#FF6E5B' stroke='white' stroke-width='2'/>
+    <g transform='translate(13 12)'>
+      <rect x='3' y='3' width='12' height='10' rx='1.5' fill='white'/>
+      <rect x='6' y='1' width='6' height='3' rx='0.6' fill='white'/>
+      <rect x='8.2' y='5' width='1.6' height='6' fill='#FF6E5B'/>
+      <rect x='6' y='7.2' width='6' height='1.6' fill='#FF6E5B'/>
+    </g>
   </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
