@@ -1347,13 +1347,7 @@ function TeamFallback() {
         {/* travelled route — deep brand blue solid dots, advancing */}
         <path d="M 60 200 C 160 200, 220 130, 340 70"
           stroke="#1F6FEB" strokeWidth="6" fill="none"
-          strokeLinecap="round" strokeDasharray="0.1 5"
-          pathLength={1} strokeDashoffset={0}
-          style={{ strokeDasharray: undefined as unknown as string }} />
-        <path d="M 60 200 C 160 200, 220 130, 340 70"
-          stroke="#1F6FEB" strokeWidth="6" fill="none"
-          strokeLinecap="round"
-          pathLength={1}
+          strokeLinecap="round" pathLength={1}
           strokeDasharray={`${pct} 1`} />
         {/* origin */}
         <g>
