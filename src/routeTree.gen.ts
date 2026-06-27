@@ -43,6 +43,7 @@ import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDeveloperRouteImport } from './routes/_authenticated/developer'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
 import { Route as AuthenticatedCallCenterRouteImport } from './routes/_authenticated/call-center'
+import { Route as AuthenticatedBusinessRouteImport } from './routes/_authenticated/business'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicV1Work_ordersRouteImport } from './routes/api/public/v1/work_orders'
@@ -232,6 +233,11 @@ const AuthenticatedCallCenterRoute = AuthenticatedCallCenterRouteImport.update({
   path: '/call-center',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBusinessRoute = AuthenticatedBusinessRouteImport.update({
+  id: '/business',
+  path: '/business',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAuditRoute = AuthenticatedAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -353,6 +359,7 @@ export interface FileRoutesByFullPath {
   '/website': typeof WebsiteRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
+  '/business': typeof AuthenticatedBusinessRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/developer': typeof AuthenticatedDeveloperRoute
@@ -407,6 +414,7 @@ export interface FileRoutesByTo {
   '/website': typeof WebsiteRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
+  '/business': typeof AuthenticatedBusinessRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/developer': typeof AuthenticatedDeveloperRoute
@@ -463,6 +471,7 @@ export interface FileRoutesById {
   '/website': typeof WebsiteRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
+  '/_authenticated/business': typeof AuthenticatedBusinessRoute
   '/_authenticated/call-center': typeof AuthenticatedCallCenterRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/developer': typeof AuthenticatedDeveloperRoute
@@ -519,6 +528,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/admin'
     | '/audit'
+    | '/business'
     | '/call-center'
     | '/compliance'
     | '/developer'
@@ -573,6 +583,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/admin'
     | '/audit'
+    | '/business'
     | '/call-center'
     | '/compliance'
     | '/developer'
@@ -628,6 +639,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/_authenticated/admin'
     | '/_authenticated/audit'
+    | '/_authenticated/business'
     | '/_authenticated/call-center'
     | '/_authenticated/compliance'
     | '/_authenticated/developer'
@@ -940,6 +952,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCallCenterRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/business': {
+      id: '/_authenticated/business'
+      path: '/business'
+      fullPath: '/business'
+      preLoaderRoute: typeof AuthenticatedBusinessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/audit': {
       id: '/_authenticated/audit'
       path: '/audit'
@@ -1079,6 +1098,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
+  AuthenticatedBusinessRoute: typeof AuthenticatedBusinessRoute
   AuthenticatedCallCenterRoute: typeof AuthenticatedCallCenterRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedDeveloperRoute: typeof AuthenticatedDeveloperRoute
@@ -1096,6 +1116,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
+  AuthenticatedBusinessRoute: AuthenticatedBusinessRoute,
   AuthenticatedCallCenterRoute: AuthenticatedCallCenterRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedDeveloperRoute: AuthenticatedDeveloperRoute,
