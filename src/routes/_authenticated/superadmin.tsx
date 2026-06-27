@@ -5,8 +5,10 @@ import { toast } from "sonner";
 import {
   Shield, Building2, Activity, KeyRound, Webhook, Users, Server,
   CheckCircle2, XCircle, CreditCard, Package, UserCog, LayoutDashboard,
-  Plus, Trash2, Search, BadgeCheck, Pause, Play,
+  Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock,
 } from "lucide-react";
+import { openApiSpec } from "@/lib/openapi-spec";
+import { ROLE_META, ROLE_ORDER, CAPABILITIES, effectiveCapabilities, type AppRole } from "@/lib/role-matrix";
 
 export const Route = createFileRoute("/_authenticated/superadmin")({
   head: () => ({ meta: [{ title: "Superadmin · VeloMed OS" }] }),
@@ -19,8 +21,10 @@ type Plan = { id: string; code: string; name: string; description: string | null
 type Sub = { id: string; tenant_id: string; plan_id: string; status: string; seats: number; current_period_start: string; current_period_end: string | null; cancel_at_period_end: boolean; notes: string | null };
 type Profile = { id: string; full_name: string | null; email: string | null; default_role: string | null };
 type RoleRow = { user_id: string; role: string };
+type ApiKey = { id: string; name: string; prefix: string; scopes: string[]; rate_limit_per_min: number; tenant_id: string | null; owner_id: string; created_at: string; last_used_at: string | null };
 
 const ALL_ROLES = ["superadmin","admin","dispatcher","developer","business_admin","paramedic","driver","patient"] as const;
+const ALL_SCOPES = ["fleet:read","incidents:read","incidents:write","clinics:read","courses:read","compliance:read","screening:read","screening:write"] as const;
 const STATUS_COLORS: Record<string, string> = {
   trialing:   "bg-action/20 text-action",
   active:     "bg-stable/20 text-stable",
@@ -31,7 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
 const fmtMoney = (c: number, cur: string) =>
   c === 0 ? "Custom" : new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(c / 100);
 
-type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "requests";
+type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "apikeys" | "privileges" | "apidocs" | "requests";
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
@@ -42,6 +46,7 @@ function Superadmin() {
   const [subs, setSubs] = useState<Sub[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [roles, setRoles] = useState<RoleRow[]>([]);
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [stats, setStats] = useState({ users: 0, incidents: 0, ambulances: 0, apiKeys: 0, webhooks: 0 });
 
   useEffect(() => {
@@ -55,13 +60,14 @@ function Superadmin() {
   }, []);
 
   async function load() {
-    const [t, r, p, s, pr, ur, prof, inc, amb, ak, wh] = await Promise.all([
+    const [t, r, p, s, pr, ur, keys, prof, inc, amb, ak, wh] = await Promise.all([
       (supabase as any).from("corporate_accounts").select("*").order("created_at", { ascending: false }),
       (supabase as any).from("business_requests").select("*").order("created_at", { ascending: false }).limit(50),
       (supabase as any).from("subscription_plans").select("*").order("sort_order"),
       (supabase as any).from("tenant_subscriptions").select("*").order("created_at", { ascending: false }),
       (supabase as any).from("profiles").select("id,full_name,email,default_role").order("created_at", { ascending: false }).limit(500),
       (supabase as any).from("user_roles").select("user_id, role"),
+      (supabase as any).from("api_keys").select("id,name,prefix,scopes,rate_limit_per_min,tenant_id,owner_id,created_at,last_used_at").order("created_at", { ascending: false }),
       supabase.from("profiles").select("id", { count: "exact", head: true }),
       supabase.from("incidents").select("id", { count: "exact", head: true }),
       supabase.from("ambulances").select("id", { count: "exact", head: true }),
@@ -74,6 +80,7 @@ function Superadmin() {
     setSubs((s.data ?? []) as Sub[]);
     setProfiles((pr.data ?? []) as Profile[]);
     setRoles((ur.data ?? []) as RoleRow[]);
+    setApiKeys((keys.data ?? []) as ApiKey[]);
     setStats({
       users: prof.count ?? 0,
       incidents: inc.count ?? 0,
@@ -159,6 +166,15 @@ function Superadmin() {
     load();
   }
 
+  // ---------- API key mutations ----------
+  async function revokeKey(id: string) {
+    if (!confirm("Revoke this API key? Requests using it will fail immediately.")) return;
+    const { error } = await (supabase as any).from("api_keys").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Key revoked");
+    load();
+  }
+
   if (allowed === null) return <div className="p-10 mono text-xs text-muted-foreground">Verifying…</div>;
   if (!allowed) return (
     <div className="p-10 max-w-xl mx-auto text-center space-y-2">
@@ -185,6 +201,9 @@ function Superadmin() {
     { id: "subs",     label: "Subscriptions", icon: CreditCard, badge: activeSubs.length },
     { id: "plans",    label: "Plans",         icon: Package },
     { id: "roles",    label: "Roles & access",icon: UserCog },
+    { id: "apikeys",  label: "API keys",      icon: KeyRound, badge: apiKeys.length || undefined },
+    { id: "privileges",label:"Privileges",    icon: Lock },
+    { id: "apidocs",  label: "API docs",      icon: BookOpen },
     { id: "requests", label: "Requests",      icon: Webhook, badge: newReqs || undefined },
   ];
 
@@ -250,6 +269,15 @@ function Superadmin() {
       {tab === "roles" && (
         <RolesPane profiles={profiles} roles={roles} grantRole={grantRole} revokeRole={revokeRole} />
       )}
+      {tab === "apikeys" && (
+        <ApiKeysPane keys={apiKeys} tenants={tenants} profiles={profiles} revoke={revokeKey} reload={load} />
+      )}
+      {tab === "privileges" && (
+        <PrivilegesPane profiles={profiles} roles={roles} />
+      )}
+      {tab === "apidocs" && (
+        <ApiDocsPane />
+      )}
       {tab === "requests" && (
         <RequestsPane reqs={reqs} review={review} />
       )}
@@ -259,6 +287,8 @@ function Superadmin() {
         <div className="flex flex-wrap gap-2">
           {[
             ["/developer", "API keys & scopes"],
+            ["/privileges", "Role privileges matrix"],
+            ["/api-docs", "OpenAPI / Swagger"],
             ["/audit", "Audit log"],
             ["/admin", "Operations overview"],
             ["/compliance", "Compliance"],
