@@ -1,15 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { Activity, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { SITE } from "@/lib/site-config";
+import { BrandMark, BrandWordmark } from "@/components/BrandMark";
 
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 h-14 border-b border-hairline bg-background/85 backdrop-blur flex items-center justify-between px-4 lg:px-8">
       <Link to="/" className="flex items-center gap-2">
-        <div className="size-7 rounded-md bg-teal grid place-items-center text-background shadow-[0_0_18px_oklch(0.74_0.13_195/0.45)]">
-          <Activity className="size-4" />
-        </div>
-        <span className="font-bold tracking-tight">VELOMED <span className="text-teal">OS</span></span>
+        <BrandMark className="size-7" />
+        <BrandWordmark />
       </Link>
       <nav className="hidden md:flex items-center gap-6 mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
         <Link to="/platform" className="hover:text-foreground" activeProps={{ className: "text-foreground" }}>Platform</Link>
@@ -35,8 +34,8 @@ export function SiteFooter() {
       <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-12 grid md:grid-cols-4 gap-8">
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <div className="size-7 rounded-md bg-teal grid place-items-center text-background"><Activity className="size-4" /></div>
-            <span className="font-bold">VELOMED <span className="text-teal">OS</span></span>
+            <BrandMark className="size-7" />
+            <BrandWordmark />
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">The branch-aware operating system for multi-branch medical mobility operators. From your whole network down to one crew.</p>
         </div>
