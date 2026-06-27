@@ -1,14 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Ambulance, Radio, Stethoscope, GraduationCap, KeyRound, ArrowRight, Hospital } from "lucide-react";
-import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
+import { ArrowRight, Radio, Wrench, BadgeCheck, GraduationCap, Stethoscope, Code2, MapPin, AlertTriangle, ClipboardCheck } from "lucide-react";
+import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { faqLd, jsonld } from "@/components/Jsonld";
-import { SITE } from "@/lib/site-config";
+import { CommandHero } from "@/components/CommandHero";
 
 const HOME_FAQS = [
-  { q: "Where does VeloMed OS operate?", a: `VeloMed OS is live across ${SITE.cities.map((c) => c.name).join(", ")} with new cities onboarding each quarter.` },
-  { q: "Is the platform really API-first?", a: "Yes — our dispatch console, provider app and patient app all read and write through the same documented REST endpoints we expose to partners." },
-  { q: "Can I integrate VeloMed with our existing CAD or EHR?", a: "Yes. Every surface is available on the public REST API with scoped keys and webhooks for incident, trip and compliance events." },
-  { q: "How do you handle ambulance compliance?", a: "Vehicle credentials, defects and work orders feed a database-level dispatch gate; non-compliant units cannot be assigned." },
+  { q: "Who is VeloMed OS built for?", a: "Multi-branch care operators: ambulance services running many branches, mobile-clinic companies, home/remote care providers, and site/occupational health teams in mining, construction, camps and clubs." },
+  { q: "How does the branch hierarchy work?", a: "Every view, queue, permission, report and alert is scoped to Organisation → Branch → Region/District → Team → Case. A regional manager sees the branches their role grants; org admins see the whole network." },
+  { q: "What does the three-level map actually show?", a: "Network: all your branches across the kingdom. Region: a real satellite map of one branch with live cases by severity. Team: one crew running A→B with the destination pinned, live vitals and the next queued case." },
+  { q: "Do you offer an API?", a: "Yes — a documented public REST API (OpenAPI 3.1) powers the same surfaces our own apps use, with scoped keys and webhooks for incident, trip and compliance events." },
 ];
 
 export const Route = createFileRoute("/")({
