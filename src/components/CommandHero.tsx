@@ -1171,25 +1171,28 @@ function DetailColumn({ title, icon, accent, rows, chips }: {
    ============================================================ */
 
 const SAT_BG: React.CSSProperties = {
-  backgroundColor: "#0b1f2a",
+  backgroundColor: "#0A1118",
   backgroundImage:
-    // soft satellite-like blotches + city glow + grid
-    "radial-gradient(60% 50% at 20% 30%, rgba(34,197,94,0.18), transparent 60%)," +
-    "radial-gradient(50% 40% at 75% 65%, rgba(234,179,8,0.14), transparent 60%)," +
-    "radial-gradient(35% 30% at 55% 20%, rgba(56,189,248,0.16), transparent 60%)," +
-    "radial-gradient(40% 35% at 30% 80%, rgba(244,114,182,0.10), transparent 60%)," +
-    "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)," +
-    "linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
-  backgroundSize: "auto, auto, auto, auto, 40px 40px, 40px 40px",
+    // jeweler-grade satellite mirror: vignette glow + faint city blooms
+    // + ultra-fine grid that reads like a survey overlay
+    "radial-gradient(55% 45% at 22% 28%, rgba(40,214,182,0.10), transparent 65%)," +
+    "radial-gradient(45% 35% at 78% 68%, rgba(79,182,247,0.10), transparent 65%)," +
+    "radial-gradient(35% 30% at 58% 22%, rgba(255,110,91,0.06), transparent 65%)," +
+    "radial-gradient(120% 80% at 50% 55%, transparent 55%, rgba(0,0,0,0.55) 100%)," +
+    "linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px)," +
+    "linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)",
+  backgroundSize: "auto, auto, auto, auto, 28px 28px, 28px 28px",
 };
 
 function FallbackChrome({ children }: { children?: React.ReactNode }) {
   return (
     <div className="absolute inset-0" style={SAT_BG}>
-      <div className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(120% 80% at 50% 50%, transparent 50%, rgba(0,0,0,0.55) 100%)" }} />
+      {/* faint compass meridian */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.07]"
+        style={{ background:
+          "linear-gradient(115deg, transparent 49.7%, rgba(255,255,255,0.7) 50%, transparent 50.3%)" }} />
       {children}
-      <div className="absolute bottom-1 right-2 mono text-[9px] uppercase tracking-widest text-white/40">
+      <div className="absolute bottom-1.5 right-2.5 mono text-[9px] uppercase tracking-[0.25em] text-white/35">
         Offline preview · enable Maps billing for live satellite
       </div>
     </div>
