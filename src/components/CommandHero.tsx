@@ -45,10 +45,25 @@ const TEAM_A = { lat: 26.2541, lng: 50.2024, label: "Al Thuqbah" };
 const TEAM_B = { lat: 26.2986, lng: 50.1903, label: "Al Mana General" };
 
 const SEV_COLOR: Record<Case["severity"], string> = {
-  critical: "#ef4444",
-  transfer: "#f59e0b",
-  routine:  "#3b9eff",
+  critical: "#FF6E5B",
+  transfer: "#F5B544",
+  routine:  "#4FB6F7",
 };
+
+// VeloMed brand palette — kept aligned with the brand book so every
+// map overlay (routes, pins, halos, pills) reads as one system.
+const BRAND = {
+  teal:        "#28D6B6",
+  tealSoft:    "rgba(40,214,182,0.18)",
+  blue:        "#4FB6F7",
+  blueDeep:    "#1F6FEB",
+  blueSoft:    "#BCDCFB",
+  coral:       "#FF6E5B",
+  coralDeep:   "#D94A38",
+  ink:         "#080B11",
+  inkSoft:     "#1A2230",
+  paper:       "#EAF0F7",
+} as const;
 
 /* ============================================================
    Team telemetry store — single source of truth for the Team
@@ -542,22 +557,22 @@ function TeamView() {
             tripStartRef.current = performance.now();
             progressRef.current = 0;
 
-            // Alt routes (light translucent blue, behind)
+            // Alt routes (faded brand blue, behind)
             all.slice(1).forEach((r) =>
               new google.maps.Polyline({
                 map, path: r.path,
-                strokeColor: "#a5b4fc", strokeOpacity: 0.85, strokeWeight: 7, zIndex: 1,
+                strokeColor: BRAND.blueSoft, strokeOpacity: 0.85, strokeWeight: 7, zIndex: 1,
               })
             );
-            // Primary remaining (lighter blue background)
+            // Primary remaining (brand blue, Google-route weight)
             new google.maps.Polyline({
               map, path: all[0].path,
-              strokeColor: "#93c5fd", strokeOpacity: 1, strokeWeight: 9, zIndex: 2,
+              strokeColor: BRAND.blue, strokeOpacity: 1, strokeWeight: 9, zIndex: 2,
             });
-            // Primary travelled (solid bold blue, will be updated as progress advances)
+            // Primary travelled (deep brand blue, advances with the crew)
             travelledRef.current = new google.maps.Polyline({
               map, path: [all[0].path[0]],
-              strokeColor: "#1e3a8a", strokeOpacity: 1, strokeWeight: 9, zIndex: 3,
+              strokeColor: BRAND.blueDeep, strokeOpacity: 1, strokeWeight: 9, zIndex: 3,
             });
 
             const bounds = new google.maps.LatLngBounds();
@@ -567,8 +582,8 @@ function TeamView() {
             // Fallback: straight geodesic + estimate
             const path = [new google.maps.LatLng(TEAM_A.lat, TEAM_A.lng), new google.maps.LatLng(TEAM_B.lat, TEAM_B.lng)];
             setRoutes([{ path, minutes: 12 }]);
-            new google.maps.Polyline({ map, path, strokeColor: "#93c5fd", strokeWeight: 9, zIndex: 2, geodesic: true });
-            travelledRef.current = new google.maps.Polyline({ map, path: [path[0]], strokeColor: "#1e3a8a", strokeWeight: 9, zIndex: 3, geodesic: true });
+            new google.maps.Polyline({ map, path, strokeColor: BRAND.blue, strokeWeight: 9, zIndex: 2, geodesic: true });
+            travelledRef.current = new google.maps.Polyline({ map, path: [path[0]], strokeColor: BRAND.blueDeep, strokeWeight: 9, zIndex: 3, geodesic: true });
           }
         }
       );
@@ -676,7 +691,7 @@ function TeamView() {
       {failed && <TeamFallback />}
       {/* Crew chip */}
       <div className="absolute top-3 left-3 rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[12px] font-medium flex items-center gap-2">
-        <span className="size-2 rounded-full bg-teal-500 animate-pulse" /> Crew 04 · ALS · 2 onboard
+        <span className="size-2 rounded-full animate-pulse" style={{ background: BRAND.teal }} /> Crew 04 · ALS · 2 onboard
       </div>
       {/* Route time bubbles — Google Maps style */}
       {routes.map((r, i) => (
@@ -686,7 +701,10 @@ function TeamView() {
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 min-w-[260px]">
         <div>
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
-          <div className="text-xl font-bold text-blue-700">
+          <div
+            className="text-xl font-bold"
+            style={{ color: tel.progress >= 0.999 ? BRAND.teal : BRAND.blueDeep }}
+          >
             {tel.progress >= 0.999 ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
           </div>
         </div>
