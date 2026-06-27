@@ -1352,6 +1352,8 @@ export type Database = {
         | "driver"
         | "patient"
         | "developer"
+        | "superadmin"
+        | "business_admin"
       booking_status: "requested" | "confirmed" | "completed" | "cancelled"
       credential_kind:
         | "paramedic_license"
@@ -1526,6 +1528,8 @@ export const Constants = {
         "driver",
         "patient",
         "developer",
+        "superadmin",
+        "business_admin",
       ],
       booking_status: ["requested", "confirmed", "completed", "cancelled"],
       credential_kind: [
