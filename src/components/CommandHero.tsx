@@ -877,6 +877,34 @@ function RegionFallback({ branch, onPickTeam }: { branch: Branch; onPickTeam: ()
 }
 
 function TeamFallback({ eta, progress }: { eta: string; progress: number }) {
+  // Drive the shared telemetry store so the lens row animates even when
+  // Google Maps fails (billing/key/referrer). A 60s loop with the same
+  // ease curves used by the real map keeps the dashboard alive.
+  useEffect(() => {
+    const start = performance.now();
+    let raf = 0;
+    setTelemetry({ totalSec: 12 * 60 + 30, totalKm: 8.4 });
+    const loop = (t: number) => {
+      const elapsed = (t - start) / 1000;
+      const next = (elapsed / 60) % 1;
+      const startCurve = Math.min(1, next / 0.08);
+      const arrivalCurve = next > 0.85 ? Math.max(0, (1 - next) / 0.15) : 1;
+      const noise = Math.sin(t / 700) * 3 + Math.sin(t / 230) * 1.5;
+      setTelemetry({
+        progress: next,
+        elapsedSec: elapsed,
+        speedKmh: Math.max(0, 68 * startCurve * arrivalCurve + noise),
+        hr: Math.round(132 + Math.sin(t / 4000) * 6),
+        spo2: Math.max(86, Math.min(96, Math.round(91 + Math.sin(t / 6500) * 1.5))),
+        bpSys: 92 + Math.round(Math.sin(t / 5200) * 4),
+        bpDia: 58 + Math.round(Math.sin(t / 4700) * 3),
+      });
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   // SVG mock route A→B with travelled segment + alternates
   const pct = Math.max(0.02, Math.min(0.98, progress || 0.62));
   return (
