@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { Activity } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -21,7 +22,14 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/dispatch", replace: true });
+      if (data.user) {
+        let dest = "/dispatch";
+        try {
+          const saved = sessionStorage.getItem("velomed:post_auth");
+          if (saved && saved.startsWith("/")) { dest = saved; sessionStorage.removeItem("velomed:post_auth"); }
+        } catch { /* noop */ }
+        navigate({ to: dest, replace: true });
+      }
     });
   }, [navigate]);
 
@@ -51,11 +59,13 @@ function AuthPage() {
   }
 
   async function google() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/dispatch` },
+    try { sessionStorage.setItem("velomed:post_auth", "/dispatch"); } catch { /* noop */ }
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}/auth`,
     });
-    if (error) toast.error(error.message);
+    if (result.error) { toast.error(result.error.message); return; }
+    if (result.redirected) return;
+    navigate({ to: "/dispatch", replace: true });
   }
 
   return (
