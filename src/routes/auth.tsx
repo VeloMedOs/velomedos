@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useServerFn } from "@tanstack/react-start";
 import { recordOAuthOutcome } from "@/lib/oauth-diagnostics.functions";
-import { Activity, User, Stethoscope, Building2, ArrowLeft, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Activity, User, Stethoscope, Building2, ArrowLeft, AlertTriangle, CheckCircle2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -148,10 +148,11 @@ function AuthPage() {
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: `${window.location.origin}/auth`,
       });
+      const redirectUri = `${window.location.origin}/auth`;
       if (result.error) {
         const code = (result.error.message || "").toLowerCase().includes("client") ? "invalid_client" : "unknown";
         setOauthError({ code, attempt: attemptId });
-        record({ data: { attemptId, outcome: ERROR_COPY[code].outcome, code: result.error.message, intendedRole: audience ?? undefined } }).catch(() => {});
+        record({ data: { attemptId, outcome: ERROR_COPY[code].outcome, code: result.error.message, intendedRole: audience ?? undefined, redirectUri, scopes: "openid email profile", referrer: document.referrer || undefined } }).catch(() => {});
         return;
       }
       if (result.redirected) return;
@@ -188,10 +189,15 @@ function AuthPage() {
         <div className="flex items-center gap-2 text-emergency font-semibold"><AlertTriangle className="size-4" />{e.title}</div>
         <div className="text-foreground/80">{e.body}</div>
         {oauthError.attempt && <div className="mono text-[10px] text-muted-foreground">Diagnostic ID: {oauthError.attempt}</div>}
-        <button onClick={() => setOauthError(null)} className="mono text-[10px] uppercase tracking-widest text-action hover:underline">Dismiss</button>
+        <div className="flex items-center gap-3 pt-1">
+          <Link to="/auth/error" search={{ code: oauthError.code, attempt: oauthError.attempt ?? undefined, as: audience ?? undefined }} className="mono text-[10px] uppercase tracking-widest text-action hover:underline inline-flex items-center gap-1">
+            View details <ExternalLink className="size-3" />
+          </Link>
+          <button onClick={() => setOauthError(null)} className="mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground">Dismiss</button>
+        </div>
       </div>
     );
-  }, [oauthError]);
+  }, [oauthError, audience]);
 
   // STEP 1 — audience chooser (no audience selected)
   if (!audience) {
