@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { organizationLd, jsonld } from "@/components/Jsonld";
 import { SITE } from "@/lib/site-config";
+import { DebugOverlay } from "@/components/DebugOverlay";
 
 function NotFoundComponent() {
   return (
@@ -146,6 +147,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <Toaster theme="dark" position="top-right" />
+      <DebugOverlay />
     </QueryClientProvider>
   );
 }
