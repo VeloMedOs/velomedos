@@ -1,112 +1,67 @@
-## 1. Plans vs Subscriptions — merge
+# Superadmin Access Hardening
 
-**Difference today**
+## Why /superadmin shows 404 today
 
-- **Plans** = the catalog (Starter / Operator / Network / Sovereign) — pricing, included seats, features. Editable templates.
-- **Subscriptions** = a tenant=Businesses's assignment of a plan (status, seats, renew_at, billing).
-- &nbsp;
+The route exists at `src/routes/_authenticated/superadmin.tsx` and works on the latest preview build. `www.velomedos.com/superadmin` returns 404 because the **published** deployment is older than the route. After this change lands we re‑publish and the URL resolves.
 
-They are related but not the same. The fix is not to delete one — it's to stop showing them as two top-level entries. They will live under one **Subscriptions** module with two sub-tabs.
+## Goals
 
-**Side nav change** (`src/components/superadmin/SideNav.tsx`)
+1. `/superadmin` is reachable, but never publicly self‑service.
+2. Exactly one superadmin identity exists: `Superadmin@velomedOs.com`, credentials sourced from a project secret named `SUPERADMIN_SECRET` (label shown to user as “Superadmin Secret”). and the secret wil lbe used as the Password [Later on OTP linked to One Mobile number or 2FA for extra security layer]
+3. Superadmin password can be reset only via a numeric verification code emailed to that exact mailbox. or infuture through Superadmin Mobile Number OTP
+4. All other portal users (developers, call‑center agents, future roles) are provisioned by the superadmin and sign in with the credentials the superadmin gives them in the respected Role & Rospensibility Table — no public sign‑up for any portal role.
 
-- Revenue group becomes:
-  - **Subscriptions** (parent)
-    - Active subscriptions
-    - Plans & pricing
-    - Add-ons
-  - **Financials** (new — see §3)
-  - Refunds (soon)
-- Drop the standalone `plans` item.
+## Plan
 
-**Superadmin page** (`src/routes/_authenticated/superadmin.tsx`)
+### 1. Secret + bootstrap
 
-- New `SubscriptionsPane` wrapping internal tabs: `Subscriptions | Plans | Add-ons`, reusing existing `SubsPane` and `PlansPane` and adding an `AddonsPane`.
-- Old `tab === "plans"` route stays valid (deep links) but renders inside the new pane with the Plans sub-tab pre-selected.
+- Add a project secret `**SUPERADMIN_SECRET**` (the value is the initial superadmin password). Stored server‑side only, never sent to the browser.
+- Add server function `bootstrapSuperadmin()` that runs on first hit to `/superadmin/login`:
+  - If no `auth.users` row exists for `superadmin@velomedos.com`, create one via `supabaseAdmin.auth.admin.createUser` with `email_confirm: true` and password = `SUPERADMIN_SECRET`.
+  - Insert `user_roles(role='superadmin')` for that user.
+  - Idempotent — safe on every cold start.
 
-## 2. Wire pricing + add-ons as single source of truth
+### 2. Sign‑up lockdown
 
-**Schema** (`subscription_plans` already exists)
+- Call `supabase--configure_auth` with `disable_signup: true` so no one can create accounts from the client SDK.
+- Strip the “Create account” tab from `src/routes/auth.tsx`; keep sign‑in + Google for the operational portals only.
+- Add a guard on `/auth` that refuses sign‑in attempts for `superadmin@velomedos.com` and redirects them to `/superadmin/login`.
 
-- Seed/upsert the 4 agreed tiers from the public pricing page: `starter`, `operator`, `network`, `sovereign` — monthly USD, included seats/units, features[], `is_public` flag, `sort_order`.
-- New table `subscription_addons` (code, name, unit_label, price, unit_type enum [`per_month`,`per_year`,`pct_gmv`,`per_1k_calls`,`per_claim`], is_active, sort_order). GRANT to authenticated + service_role; RLS: superadmin write, anyone read where `is_active`.
+### 3. Dedicated superadmin login surface
 
-**Admin API**
+- New public route `src/routes/superadmin.login.tsx`:
+  - Email is locked to `superadmin@velomedos.com` (read‑only).
+  - Password field + “Forgot password”.
+  - On submit calls `supabase.auth.signInWithPassword`. Server‑side `requireSuperadmin` middleware confirms the `superadmin` role before allowing the session to land on `/superadmin`.
+- `_authenticated/superadmin.tsx` keeps the existing `AUTH_MISSING / ROLE_INSUFFICIENT` denial screen as defense in depth.
 
-- Extend `/api/admin/v1/plans` to include the public-facing fields above.
-- New `/api/admin/v1/addons` + `/api/admin/v1/addons.$id` (full CRUD).
+### 4. Email‑code password reset (no magic links)
 
-**Public API**
+- New table `superadmin_reset_codes(id, code_hash, expires_at, consumed_at, attempts)`.
+- Server functions:
+  - `requestSuperadminReset()` → generates a 6‑digit code, stores SHA‑256 hash with 10‑min TTL, sends the code to `superadmin@velomedos.com` via the Lovable email infra (auth template scaffolded with `email_domain--scaffold_auth_email_templates`).
+  - `confirmSuperadminReset({ code, newPassword })` → verifies hash, marks consumed, calls `supabaseAdmin.auth.admin.updateUserById` to set the new password, then rotates `SUPERADMIN_SECRET` value in memory only (the secret remains the *initial* bootstrap; live password lives in auth).
+- UI: `/superadmin/reset` two‑step form (request code → enter code + new password).
+- Rate‑limited (max 5 attempts / 15 min per IP) and only ever targets the single hard‑coded mailbox.
 
-- New `/api/public/v1/pricing` returning `{ plans: [...], addons: [...], always_included: [...] }` for the website.
+### 5. Operator‑managed credentials for other roles
 
-**Website pricing page** (`src/routes/pricing.tsx`)
+- Superadmin → **Roles & access** pane gains an “Invite operator” action:
+  - Inputs: email, display name, role (developer, call‑center, dispatcher, …).
+  - Calls new admin endpoint `POST /api/admin/v1/operators` which uses `supabaseAdmin.auth.admin.createUser` with a generated strong password, inserts the matching `user_roles` row, and returns the one‑time credentials for the superadmin to hand off.
+  - Optional “force password change on first login” flag stored on `profiles`; enforced by a middleware redirect to `/account/change-password` until cleared.
+- Existing operators list shows status, last sign‑in, and a “Reset password” action that regenerates a one‑time password (same handoff flow). No self‑service signup anywhere.
 
-- Replace hardcoded `TIERS` and `ADDONS` constants with a loader that calls `/api/public/v1/pricing` (TanStack Query `ensureQueryData` + `useSuspenseQuery`, per project convention).
-- Keep the existing UI 1:1 — only data source changes. FAQ/matrix stays hardcoded.
-- Add `errorComponent` + `notFoundComponent` for the route loader.
+### 6. Verification
 
-**Superadmin Plans editor** (existing `PlanEditor`)
+- After build: visit `/superadmin/login`, sign in with `SUPERADMIN_SECRET`, confirm `/superadmin` loads and identity panel shows `superadmin` role from `user_roles`.
+- Trigger password reset, receive the 6‑digit code at the mailbox, set a new password, sign in again.
+- Create a test call‑center operator from the Roles pane, confirm they can sign in at `/auth` with the granted password and cannot reach `/superadmin`.
+- Re‑publish so `www.velomedos.com/superadmin` stops 404’ing.
 
-- Add fields: `eyebrow`, `tagline`, `units_label`, `seats_label`, `api_label`, `is_public`, `highlight`, `cta_label`, `cta_to`. So edits in Superadmin update the public pricing page immediately.
+## Technical notes (for reference)
 
-## 3. Revenue Center — simple financial module
-
-New side-nav entry **Financials** under Revenue, mapped to `tab === "finance"`.
-
-`FinancePane` (read-only v1, no new write surface):
-
-- **KPI strip**: MRR, ARR, active subs, churn (current month), outstanding invoices.
-- **Revenue chart**: monthly revenue last 12 months (bar) — derived from `portal_invoices.paid_at` + `amount`.
-- **P&L table** (simple, single-currency USD): Revenue (sum of paid invoices) − Refunds (sum of `portal_payments` where `status='refunded'`) − COGS estimate (configurable %, default 18%) = Gross. Then − Opex (manual input from `platform_settings` key `finance.opex_monthly`) = Net.
-- **Top tenants by revenue** (last 90 days).
-- **Recent invoices** list (10 rows) with status pills.
-
-New endpoint `/api/admin/v1/analytics.finance.ts` returning the aggregates above so the UI does no raw SQL.
-
-No new billing engine — purely a reporting view over data already captured in `portal_invoices` / `portal_payments` / `tenant_subscriptions`.
-
-## 4. Business workspace — same side-nav language
-
-`src/routes/_authenticated/business.tsx` is a single dashboard today. Add a vertical icon-rail + label panel mirroring `SuperadminSideNav` (same collapse behaviour, same teal accent, same grouping pattern).
-
-New component: `src/components/business/BusinessSideNav.tsx` with these groups (only items the subscribed business sees, gated by plan/role):
-
-- **Operations**: Dashboard, Dispatch, Trips, Fleet
-- **Care**: Provider, Patient, Telehealth (soon if no add-on), Remote clinics (soon if no add-on)
-- **Workforce**: Team & roles, Training (soon unless LMS add-on)
-- **Revenue**: My subscription, Invoices, Add-ons marketplace
-- **Developer**: API keys, Webhooks, API docs
-- **Settings**: Workspace, Branding, Security
-
-Refactor: introduce `src/routes/_authenticated/business/route.tsx` pathless layout that renders the sidebar + `<Outlet />`, move current page to `business/index.tsx`. Stub routes for the new tabs (each marked "Coming soon" if no data wired yet) so the nav works end-to-end without breaking links.
-
-Plan/role gating: items disabled with a small lock icon when the tenant's `subscription_plans.features` doesn't include the corresponding key (e.g. `telehealth`, `lms`). Driven by the same `/api/public/v1/pricing` + the tenant's current subscription.
-
-## Technical notes
-
-- One Supabase migration: `subscription_addons` table + columns added to `subscription_plans` + seed of the 4 tiers and 6 add-ons from the current `/pricing` constants. Followed by GRANTs + RLS policies (superadmin write, public select on `is_public`/`is_active`).
-- `/api/public/v1/pricing` uses the **server publishable client** (anon SELECT, no service role) — public read-only data.
-- `/api/admin/v1/analytics.finance.ts` uses `requireSupabaseAuth` + superadmin check, returns aggregates only.
-- Pricing page route gets a loader + `useSuspenseQuery`; constants removed.
-- Business sub-routes use file-based routing (`business/route.tsx` layout + `business/dispatch.tsx` etc.), not directory shims.
-
-```text
-SideNav (Superadmin)              SideNav (Business)
-├─ Command Center                 ├─ Operations
-│  └─ Overview                    │  ├─ Dashboard · Dispatch · Trips · Fleet
-├─ Accounts                       ├─ Care
-│  └─ Tenants · Requests          │  ├─ Provider · Patient · Telehealth · Clinics
-├─ Revenue                        ├─ Workforce
-│  ├─ Subscriptions               │  ├─ Team · Training
-│  │   ├─ Active · Plans · Add-ons├─ Revenue
-│  ├─ Financials  (new)           │  ├─ My subscription · Invoices · Marketplace
-│  └─ Refunds (soon)              ├─ Developer · Settings
-├─ Access · Developer · …
-```
-
-
-
-- Multi-currency P&L, accounting export, real invoicing engine — Financials v1 is reporting only.
-- New billing/checkout flow.
-- Wiring Telehealth/LMS feature toggles to actual capability gates beyond the sidebar lock.
+- Files added/changed: `src/routes/superadmin.login.tsx`, `src/routes/superadmin.reset.tsx`, `src/lib/superadmin.functions.ts`, `src/lib/superadmin.server.ts`, `src/routes/api/admin/v1/operators.ts`, edits to `src/routes/auth.tsx`, `src/routes/_authenticated/superadmin.tsx` (Roles pane), new migration for `superadmin_reset_codes` + GRANTs.
+- Secret to add: `SUPERADMIN_SECRET` (initial password only — the live password lives in `auth.users`).
+- Email templates: scaffolded via auth email infra; requires the project email domain to be set up (will trigger that dialog if missing).
+- `supabase--configure_auth` flags: `disable_signup: true`, leave others unchanged.
