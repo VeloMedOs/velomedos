@@ -385,6 +385,21 @@ function Superadmin() {
         <DebugPane tenants={tenants} />
       )}
 
+      {tab === "refunds"    && <RefundsPane />}
+      {tab === "tickets"    && <TicketsPane />}
+      {tab === "reviews"    && <ReviewsPane />}
+      {tab === "chat"       && <ChatFiltersPane />}
+      {tab === "push"       && <NotificationsAdminPane />}
+      {tab === "tests"      && <TestRunsPane />}
+      {tab === "audit"      && <AuditLogPane />}
+      {tab === "smoke"      && <SmokeReportsPane />}
+      {tab === "bugs"       && <BugsPane />}
+      {tab === "releases"   && <ReleasesPane />}
+      {tab === "automation" && <AutomationsPane />}
+      {tab === "workspace"  && <WorkspacePane />}
+      {tab === "team"       && <TeamRolesShortcut />}
+      {tab === "security"   && <SecurityPane />}
+
       {identity && <IdentityPanel identity={identity} refresh={diagnose} />}
 
       <section className="rounded-xl border border-hairline bg-panel p-4">
