@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
 import { breadcrumbLd, faqLd, jsonld } from "@/components/Jsonld";
-import { CheckCircle2, MinusCircle, ArrowRight } from "lucide-react";
+import { CheckCircle2, MinusCircle, ArrowRight, Phone, Calendar, FileText } from "lucide-react";
 
 const title = "Ambulance dispatch software: VeloMed OS vs ESO Suite (2026)";
 const desc = "A side-by-side comparison of VeloMed OS and ESO Suite as ambulance dispatch software. Branch-aware Network → Region → Crew drill-down for multi-branch regional operators vs a legacy single-agency suite.";
@@ -136,12 +136,41 @@ function ComparisonGuide() {
           </div>
         </section>
 
-        <section className="mt-12 rounded-xl border border-hairline bg-panel p-8 flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <div className="mono text-[10px] uppercase tracking-widest text-action">See it on your fleet</div>
-            <h2 className="text-2xl font-semibold mt-1">Walk through VeloMed OS with your team.</h2>
+        <section className="mt-14 rounded-2xl border border-hairline bg-panel overflow-hidden">
+          <div className="grid lg:grid-cols-[1.2fr_1fr] gap-0">
+            <div className="p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-hairline">
+              <div className="mono text-[10px] uppercase tracking-[0.22em] text-action">See it on your fleet</div>
+              <h2 className="text-3xl font-bold tracking-tight mt-2">Walk a dispatcher through Network → Region → Crew.</h2>
+              <p className="text-sm text-muted-foreground mt-3 max-w-lg leading-relaxed">A 30-minute working session against your real branch tree. We'll wire a sandbox to a sample of your fleet so your team sees the drill-down on day one.</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link to="/demo" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-action text-action-foreground mono text-[11px] uppercase tracking-widest font-bold">
+                  <Calendar className="size-3.5" /> Book a live demo
+                </Link>
+                <Link to="/business-intake" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md border border-action/40 text-action mono text-[11px] uppercase tracking-widest font-bold hover:bg-action/5">
+                  <FileText className="size-3.5" /> Request a proposal
+                </Link>
+                <Link to="/contact" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md border border-hairline mono text-[11px] uppercase tracking-widest hover:bg-panel-elevated">
+                  <Phone className="size-3.5" /> Talk to sales
+                </Link>
+              </div>
+            </div>
+            <div className="p-8 lg:p-10 bg-panel-elevated/40">
+              <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">What you'll see</div>
+              <ul className="mt-3 space-y-2.5 text-sm">
+                {[
+                  "Your branch tree imported and scoped Org → Branch → Region → Team",
+                  "Live three-level map: Network · Region · Crew",
+                  "Fleet-compliance gating against a sample roster",
+                  "Documented REST API + webhooks against your sandbox",
+                ].map((b) => (
+                  <li key={b} className="flex gap-2"><CheckCircle2 className="size-4 text-stable shrink-0 mt-0.5" /><span>{b}</span></li>
+                ))}
+              </ul>
+              <div className="mt-5 pt-5 border-t border-hairline text-xs text-muted-foreground">
+                Comparing more platforms? Read our <Link to="/platform" className="text-action hover:underline">platform overview</Link> or browse <Link to="/services" className="text-action hover:underline">all services</Link>.
+              </div>
+            </div>
           </div>
-          <Link to="/demo" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-action text-action-foreground mono text-[11px] uppercase tracking-widest font-bold">Request a demo <ArrowRight className="size-3" /></Link>
         </section>
       </article>
       <SiteFooter />
