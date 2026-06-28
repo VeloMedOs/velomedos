@@ -104,7 +104,7 @@ function Platform() {
             <Cable className="size-5 text-teal mb-3" />
             <div className="font-serif text-2xl">Same surface for your apps</div>
             <p className="text-sm text-muted-foreground mt-3 leading-relaxed">Every screen reads and writes through the documented public REST API. Webhooks fire for incident, trip and compliance events. Build your own dashboards without rebuilding the stack.</p>
-            <Link to="/developers" className="mt-4 inline-flex items-center gap-1 mono text-[10px] uppercase tracking-widest text-teal hover:gap-2 transition-all">Explore the API <ArrowRight className="size-3" /></Link>
+            <Link to="/contact" className="mt-4 inline-flex items-center gap-1 mono text-[10px] uppercase tracking-widest text-teal hover:gap-2 transition-all">Talk to integration <ArrowRight className="size-3" /></Link>
           </div>
         </div>
       </section>

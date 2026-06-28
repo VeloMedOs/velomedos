@@ -79,15 +79,8 @@ function WebsiteIndex() {
           { label: "All articles", to: "/resources", desc: "Operator-grade writing on medical mobility." },
           ...RESOURCES.map((r) => ({ label: r.title, to: `/resources/${r.slug}`, desc: r.excerpt })),
         ]} />
-        <Section title="Developer surface" entries={[
-          { label: "Developers overview", to: "/developers", desc: "API-first platform pitch and quickstart." },
-          { label: "API reference (try it)", to: "/api-reference", desc: "Live example endpoints with request/response playground." },
-          { label: "Swagger UI", to: "/api-docs", desc: "Full OpenAPI 3.1 reference, rendered live." },
-        ]} />
-        <Section title="Account & legal" entries={[
+        <Section title="Account" entries={[
           { label: "Sign in", to: "/auth", desc: "Operator, provider and patient sign-in." },
-          { label: "Privacy", to: "/privacy" },
-          { label: "Terms", to: "/terms" },
           { label: "Sitemap.xml", to: "/sitemap.xml", desc: "Machine-readable sitemap for crawlers." },
         ]} />
       </section>

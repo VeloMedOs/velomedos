@@ -402,7 +402,7 @@ function Pricing() {
             <div className="mono text-[10px] uppercase tracking-[0.22em] text-action">Public API</div>
             <h2 className="text-3xl font-bold tracking-tight mt-2">Build on the same API our apps use</h2>
           </div>
-          <Link to="/api-reference" className="mono text-[11px] uppercase tracking-widest text-action hover:underline">Open API reference →</Link>
+          <Link to="/contact" className="mono text-[11px] uppercase tracking-widest text-action hover:underline">Talk to integration →</Link>
         </div>
         <div className="grid md:grid-cols-3 gap-px bg-hairline border border-hairline rounded-xl overflow-hidden">
           {[
