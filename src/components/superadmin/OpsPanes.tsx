@@ -338,17 +338,18 @@ export function WorkspacePane() {
   const [draft, setDraft] = useState<{ key: string; value: string; description: string }>({ key: "", value: "", description: "" });
 
   async function load() {
-    const r = await adminFetch("/api/admin/v1/ops/workspace"); const j = await r.json();
-    setRows(j.rows ?? []);
+    const j = await adminFetch<{ rows: typeof rows }>("/api/admin/v1/ops/workspace");
+    setRows(j?.rows ?? []);
   }
   useEffect(() => { load(); }, []);
 
   async function save(key: string, valStr: string, description?: string) {
     let parsed: unknown = valStr;
     try { parsed = JSON.parse(valStr); } catch { /* keep string */ }
-    const r = await adminFetch("/api/admin/v1/ops/workspace", { method: "PUT", body: JSON.stringify({ key, value: parsed, description }) });
-    if (!r.ok) { toast.error("Save failed"); return; }
-    toast.success("Saved"); load();
+    try {
+      await adminFetch("/api/admin/v1/ops/workspace", { method: "PUT", body: { key, value: parsed, description } });
+      toast.success("Saved"); load();
+    } catch (e) { toast.error((e as Error).message); }
   }
   async function remove(key: string) {
     if (!confirm(`Delete ${key}?`)) return;
@@ -407,13 +408,14 @@ type SecurityRow = {
 
 export function SecurityPane() {
   const [s, setS] = useState<SecurityRow | null>(null);
-  async function load() { const r = await adminFetch("/api/admin/v1/ops/security"); setS(await r.json()); }
+  async function load() { setS(await adminFetch<SecurityRow>("/api/admin/v1/ops/security")); }
   useEffect(() => { load(); }, []);
   async function save() {
     if (!s) return;
-    const r = await adminFetch("/api/admin/v1/ops/security", { method: "PATCH", body: JSON.stringify(s) });
-    if (!r.ok) { toast.error("Save failed"); return; }
-    toast.success("Saved"); load();
+    try {
+      await adminFetch("/api/admin/v1/ops/security", { method: "PATCH", body: s });
+      toast.success("Saved"); load();
+    } catch (e) { toast.error((e as Error).message); }
   }
   if (!s) return <div className="text-xs text-muted-foreground mono">Loading…</div>;
   return (
@@ -469,7 +471,12 @@ function Csv({ label, v, onChange }: { label: string; v: string[]; onChange: (a:
 
 export function AuditLogPane() {
   const [rows, setRows] = useState<Array<{ id: string; action: string; target: string | null; actor_id: string | null; created_at: string; payload: unknown }>>([]);
-  useEffect(() => { (async () => { const r = await adminFetch("/api/admin/v1/audit?limit=200"); const j = await r.json(); setRows(j.audit ?? j.rows ?? []); })(); }, []);
+  useEffect(() => { (async () => {
+    try {
+      const j = await adminFetch<{ audit?: typeof rows; rows?: typeof rows }>("/api/admin/v1/audit?limit=200");
+      setRows(j?.audit ?? j?.rows ?? []);
+    } catch { /* noop */ }
+  })(); }, []);
   return (
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">Audit log</h2>
