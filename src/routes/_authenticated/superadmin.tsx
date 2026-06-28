@@ -688,10 +688,63 @@ function TenantsPane({
 }
 
 function SubsPane({
-  subs, plans, tenants, changeStatus, updateSeats,
-}: { subs: Sub[]; plans: Plan[]; tenants: Tenant[]; changeStatus: (id: string, s: string) => void; updateSeats: (id: string, n: number) => void }) {
+  subs, plans, tenants, changeStatus, updateSeats, reload,
+}: { subs: Sub[]; plans: Plan[]; tenants: Tenant[]; changeStatus: (id: string, s: string) => void; updateSeats: (id: string, n: number) => void; reload: () => void }) {
+  const [creating, setCreating] = useState(false);
+  const [form, setForm] = useState({ tenant_id: "", plan_id: "", seats: 5, status: "active" });
+  const [busy, setBusy] = useState(false);
+
+  async function create() {
+    if (!form.tenant_id || !form.plan_id) return toast.error("Tenant and plan required");
+    setBusy(true);
+    try {
+      const plan = plans.find((p) => p.id === form.plan_id);
+      const start = new Date().toISOString();
+      const end = plan?.billing_period === "yearly" ? new Date(Date.now() + 365 * 864e5).toISOString()
+                : plan?.billing_period === "monthly" ? new Date(Date.now() + 30 * 864e5).toISOString()
+                : null;
+      await adminFetch("/api/admin/v1/tenant-subscriptions", {
+        method: "POST",
+        body: { tenant_id: form.tenant_id, plan_id: form.plan_id, seats: form.seats, status: form.status, current_period_start: start, current_period_end: end },
+      });
+      toast.success("Subscription created");
+      setCreating(false); setForm({ tenant_id: "", plan_id: "", seats: 5, status: "active" });
+      reload();
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setBusy(false); }
+  }
+
+  async function destroy(id: string) {
+    if (!confirm("Delete this subscription?")) return;
+    try {
+      await adminFetch(`/api/admin/v1/tenant-subscriptions/${id}`, { method: "DELETE" });
+      toast.success("Deleted"); reload();
+    } catch (e) { toast.error((e as Error).message); }
+  }
+
   return (
-    <Card title={`Subscriptions · ${subs.length}`}>
+    <Card title={`Subscriptions · ${subs.length}`} right={
+      <button onClick={() => setCreating((v) => !v)} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded bg-teal text-background font-bold inline-flex items-center gap-1">
+        <Plus className="size-3" /> {creating ? "Cancel" : "New subscription"}
+      </button>
+    }>
+      {creating && (
+        <div className="p-3 border-b border-hairline grid md:grid-cols-[1fr_1fr_100px_120px_auto] gap-2">
+          <select value={form.tenant_id} onChange={(e) => setForm({ ...form, tenant_id: e.target.value })} className="h-10 px-2 rounded bg-input border border-hairline text-sm">
+            <option value="">Tenant…</option>
+            {tenants.map((t) => <option key={t.id} value={t.id}>{t.company_name}</option>)}
+          </select>
+          <select value={form.plan_id} onChange={(e) => { const p = plans.find((x) => x.id === e.target.value); setForm({ ...form, plan_id: e.target.value, seats: p?.included_seats ?? form.seats }); }} className="h-10 px-2 rounded bg-input border border-hairline text-sm">
+            <option value="">Plan…</option>
+            {plans.filter((p) => p.is_active).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+          <input type="number" min={1} value={form.seats} onChange={(e) => setForm({ ...form, seats: Math.max(1, Number(e.target.value) || 1) })} className="h-10 px-2 rounded bg-input border border-hairline text-sm mono" />
+          <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="h-10 px-2 rounded bg-input border border-hairline text-sm">
+            {["trialing","active","past_due","suspended","cancelled"].map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <button onClick={create} disabled={busy} className="h-10 px-4 rounded bg-action text-action-foreground mono text-xs uppercase tracking-widest font-bold">Create</button>
+        </div>
+      )}
       <div className="overflow-auto">
         <table className="w-full text-sm">
           <thead className="mono text-[10px] uppercase tracking-widest text-muted-foreground bg-panel-elevated/50">
@@ -720,6 +773,7 @@ function SubsPane({
                       {s.status !== "active" && <button onClick={() => changeStatus(s.id, "active")} className="px-2 py-1 mono text-[10px] uppercase rounded bg-stable/20 text-stable hover:bg-stable/30"><Play className="size-3 inline" /> Activate</button>}
                       {s.status === "active" && <button onClick={() => changeStatus(s.id, "suspended")} className="px-2 py-1 mono text-[10px] uppercase rounded bg-caution/20 text-caution hover:bg-caution/30"><Pause className="size-3 inline" /> Suspend</button>}
                       {s.status !== "cancelled" && <button onClick={() => changeStatus(s.id, "cancelled")} className="px-2 py-1 mono text-[10px] uppercase rounded bg-emergency/20 text-emergency hover:bg-emergency/30">Cancel</button>}
+                      <button onClick={() => destroy(s.id)} title="Delete" className="px-2 py-1 mono text-[10px] uppercase rounded bg-emergency/10 text-emergency hover:bg-emergency/20"><Trash2 className="size-3 inline" /></button>
                     </div>
                   </td>
                 </tr>
@@ -733,9 +787,14 @@ function SubsPane({
   );
 }
 
-function PlansPane({ plans, togglePlan, subs }: { plans: Plan[]; togglePlan: (id: string, active: boolean) => void; subs: Sub[] }) {
+function PlansPane({ plans, togglePlan, subs, reload }: { plans: Plan[]; togglePlan: (id: string, active: boolean) => void; subs: Sub[]; reload: () => void }) {
+  const [editing, setEditing] = useState<Plan | "new" | null>(null);
   return (
+    <>
     <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <button onClick={() => setEditing("new")} className="rounded-xl border-2 border-dashed border-hairline hover:border-teal hover:bg-teal/5 p-5 flex flex-col items-center justify-center gap-2 min-h-[220px] mono text-[11px] uppercase tracking-widest text-muted-foreground hover:text-teal">
+        <Plus className="size-6" /> New plan
+      </button>
       {plans.map((p) => {
         const active = subs.filter((s) => s.plan_id === p.id && ["trialing","active","past_due"].includes(s.status)).length;
         return (
@@ -757,10 +816,94 @@ function PlansPane({ plans, togglePlan, subs }: { plans: Plan[]; togglePlan: (id
             <div className="mt-auto pt-3 border-t border-hairline flex justify-between mono text-[10px] uppercase text-muted-foreground">
               <span>{p.included_seats} seats</span><span>{active} subscribers</span>
             </div>
+            <div className="flex gap-1 pt-2 border-t border-hairline">
+              <button onClick={() => setEditing(p)} className="flex-1 mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated">Edit</button>
+              <button onClick={async () => {
+                if (active > 0) return toast.error(`Cannot delete — ${active} active subscriber(s)`);
+                if (!confirm(`Delete plan ${p.name}?`)) return;
+                try { await adminFetch(`/api/admin/v1/plans/${p.id}`, { method: "DELETE" }); toast.success("Plan deleted"); reload(); }
+                catch (e) { toast.error((e as Error).message); }
+              }} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-emergency/40 text-emergency hover:bg-emergency/10"><Trash2 className="size-3" /></button>
+            </div>
           </div>
         );
       })}
     </div>
+    {editing && <PlanEditor plan={editing === "new" ? null : editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); reload(); }} />}
+    </>
+  );
+}
+
+function PlanEditor({ plan, onClose, onSaved }: { plan: Plan | null; onClose: () => void; onSaved: () => void }) {
+  const [f, setF] = useState({
+    code: plan?.code ?? "",
+    name: plan?.name ?? "",
+    description: plan?.description ?? "",
+    price_cents: plan?.price_cents ?? 0,
+    currency: plan?.currency ?? "USD",
+    billing_period: plan?.billing_period ?? "monthly",
+    included_seats: plan?.included_seats ?? 5,
+    features: (plan?.features ?? []).join("\n"),
+    is_active: plan?.is_active ?? true,
+    sort_order: plan?.sort_order ?? 100,
+  });
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    if (!f.code.trim() || !f.name.trim()) return toast.error("Code and name required");
+    setBusy(true);
+    try {
+      const body = { ...f, features: f.features.split("\n").map((x) => x.trim()).filter(Boolean), price_cents: Number(f.price_cents) || 0, included_seats: Number(f.included_seats) || 0, sort_order: Number(f.sort_order) || 0 };
+      if (plan) await adminFetch(`/api/admin/v1/plans/${plan.id}`, { method: "PATCH", body });
+      else      await adminFetch(`/api/admin/v1/plans`, { method: "POST", body });
+      toast.success(plan ? "Plan updated" : "Plan created");
+      onSaved();
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setBusy(false); }
+  }
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm grid place-items-center p-4" onClick={onClose}>
+      <div className="bg-panel border border-hairline rounded-xl w-full max-w-2xl max-h-[88vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="p-4 border-b border-hairline flex items-center justify-between">
+          <div className="font-semibold">{plan ? `Edit plan · ${plan.code}` : "New subscription plan"}</div>
+          <button onClick={onClose} className="size-7 grid place-items-center rounded hover:bg-panel-elevated"><XCircle className="size-4" /></button>
+        </div>
+        <div className="p-4 space-y-3 text-sm">
+          <div className="grid grid-cols-2 gap-2">
+            <Lbl k="Code (slug)"><input value={f.code} onChange={(e) => setF({ ...f, code: e.target.value })} className="w-full h-9 px-2 rounded bg-input border border-hairline mono text-xs" /></Lbl>
+            <Lbl k="Display name"><input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+            <Lbl k="Price (cents)"><input type="number" value={f.price_cents} onChange={(e) => setF({ ...f, price_cents: Number(e.target.value) })} className="w-full h-9 px-2 rounded bg-input border border-hairline mono text-xs" /></Lbl>
+            <Lbl k="Currency"><input value={f.currency} onChange={(e) => setF({ ...f, currency: e.target.value.toUpperCase() })} maxLength={3} className="w-full h-9 px-2 rounded bg-input border border-hairline mono text-xs uppercase" /></Lbl>
+            <Lbl k="Billing period">
+              <select value={f.billing_period} onChange={(e) => setF({ ...f, billing_period: e.target.value })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm">
+                {["monthly","yearly","one_time","custom"].map((x) => <option key={x} value={x}>{x}</option>)}
+              </select>
+            </Lbl>
+            <Lbl k="Included seats"><input type="number" value={f.included_seats} onChange={(e) => setF({ ...f, included_seats: Number(e.target.value) })} className="w-full h-9 px-2 rounded bg-input border border-hairline mono text-xs" /></Lbl>
+            <Lbl k="Sort order"><input type="number" value={f.sort_order} onChange={(e) => setF({ ...f, sort_order: Number(e.target.value) })} className="w-full h-9 px-2 rounded bg-input border border-hairline mono text-xs" /></Lbl>
+            <Lbl k="Active">
+              <select value={String(f.is_active)} onChange={(e) => setF({ ...f, is_active: e.target.value === "true" })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm">
+                <option value="true">Active</option><option value="false">Paused</option>
+              </select>
+            </Lbl>
+          </div>
+          <Lbl k="Description"><textarea value={f.description ?? ""} onChange={(e) => setF({ ...f, description: e.target.value })} rows={2} className="w-full px-2 py-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+          <Lbl k="Features (one per line)"><textarea value={f.features} onChange={(e) => setF({ ...f, features: e.target.value })} rows={5} className="w-full px-2 py-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+          <div className="flex justify-end gap-2 pt-2 border-t border-hairline">
+            <button onClick={onClose} className="mono text-[10px] uppercase tracking-widest px-3 py-2 rounded border border-hairline">Cancel</button>
+            <button onClick={save} disabled={busy} className="mono text-[10px] uppercase tracking-widest px-4 py-2 rounded bg-teal text-background font-bold disabled:opacity-60">{plan ? "Save changes" : "Create plan"}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Lbl({ k, children }: { k: string; children: React.ReactNode }) {
+  return (
+    <label className="block space-y-1">
+      <span className="mono text-[10px] uppercase tracking-widest text-muted-foreground">{k}</span>
+      {children}
+    </label>
   );
 }
 
