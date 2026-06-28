@@ -1029,6 +1029,39 @@ export type Database = {
         }
         Relationships: []
       }
+      nav_events: {
+        Row: {
+          event_name: string
+          id: string
+          locale: string | null
+          occurred_at: string
+          referrer: string | null
+          surface: string
+          target_path: string
+          user_agent_hash: string | null
+        }
+        Insert: {
+          event_name: string
+          id?: string
+          locale?: string | null
+          occurred_at?: string
+          referrer?: string | null
+          surface: string
+          target_path: string
+          user_agent_hash?: string | null
+        }
+        Update: {
+          event_name?: string
+          id?: string
+          locale?: string | null
+          occurred_at?: string
+          referrer?: string | null
+          surface?: string
+          target_path?: string
+          user_agent_hash?: string | null
+        }
+        Relationships: []
+      }
       oauth_events: {
         Row: {
           attempt_id: string | null
