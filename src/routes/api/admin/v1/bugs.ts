@@ -15,7 +15,8 @@ export const Route = createFileRoute("/api/admin/v1/bugs")({
         const auth = await requireAdmin(request, "bugs:write"); if (!auth.ok) return auth.res;
         const body = await request.json().catch(() => null) as Record<string, unknown> | null;
         if (!body?.title) return json({ error: "missing_title", code: "validation", request_id: crypto.randomUUID() }, 400);
-        const { data, error } = await serviceClient().from("portal_bugs").insert({ ...body, source: (body.source as string) ?? "internal" } as never).select().single();
+        const row = { ...body, source: (body.source as string) ?? "internal" } as unknown as never;
+        const { data, error } = await serviceClient().from("portal_bugs").insert(row).select().single();
         if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "bug.create", "portal_bugs", data.id, body);
         return json(data, 201);
