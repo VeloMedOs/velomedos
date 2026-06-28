@@ -5,6 +5,7 @@ import {
   LifeBuoy, MessageSquare, Star, Bell, FileText, Search, Newspaper,
   FolderOpen, Image as ImageIcon, FlaskConical, ListChecks, ShieldCheck,
   GitBranch, Zap, Settings, Users, LineChart, PlusCircle,
+  Scale,
 } from "lucide-react";
 
 export type SuperTabId =
@@ -12,7 +13,7 @@ export type SuperTabId =
   | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug"
   | "refunds" | "tickets" | "reviews" | "chat" | "push"
   | "tests" | "audit" | "smoke" | "bugs" | "releases" | "automation"
-  | "workspace" | "team" | "security";
+  | "workspace" | "team" | "security" | "legal";
 
 type Item = {
   id: SuperTabId | `soon:${string}`;
@@ -77,6 +78,7 @@ export function SuperadminSideNav({
       { id: "push",    label: "Notifications", icon: Bell },
     ]},
     { id: "cms", label: "Website CMS", items: [
+      { id: "legal",        label: "Legal & Privacy",  icon: Scale },
       { id: "soon:pages",   label: "Pages & sections", icon: FileText, soon: true },
       { id: "soon:seo",     label: "SEO manager",      icon: Search, soon: true },
       { id: "soon:news",    label: "News & articles",  icon: Newspaper, soon: true },
