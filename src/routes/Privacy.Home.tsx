@@ -6,7 +6,7 @@ import { PrivacyShell } from "@/components/legal/PrivacyShell";
 import { pageLdScripts } from "@/components/Jsonld";
 
 const TITLE = "Privacy Policy — VeloMed OS";
-const DESC  = "How VeloMed Infrastructure Group collects, uses, and protects personal and health information across the VeloMed OS platform. Aligned with KSA PDPL, GCC data laws, and HIPAA.";
+const DESC  = "How VeloMed OS collects, uses and protects personal and health information across the platform — aligned with KSA PDPL, GCC laws and HIPAA.";
 
 export const Route = createFileRoute("/Privacy/Home")({
   validateSearch: (s: Record<string, unknown>) => ({ locale: (s.locale === "ar" ? "ar" : "en") as "en" | "ar" }),
