@@ -46,12 +46,12 @@ function checkRate(keyId: string, limit: number): { ok: true; remaining: number 
   return { ok: true, remaining: limit - b.count };
 }
 
-export type KeyAuth = { ownerId: string; keyId: string; scopes: string[]; rateLimit: number };
+export type KeyAuth = { ownerId: string; keyId: string; scopes: string[]; rateLimit: number; tenantId: string | null; via: "key" | "session" };
 
 export async function requireKey(
   request: Request,
   requiredScope?: string,
-): Promise<{ ok: true; auth: KeyAuth; ownerId: string; keyId: string } | { ok: false; res: Response }> {
+): Promise<{ ok: true; auth: KeyAuth; ownerId: string; keyId: string; tenantId: string | null; via: "key" | "session" } | { ok: false; res: Response }> {
   const raw = request.headers.get("x-api-key");
   // Allow signed-in admin/dispatcher sessions to call the public API directly
   // (so internal UIs such as the Fleet drawer exercise the same endpoints third-parties use).
@@ -69,7 +69,9 @@ export async function requireKey(
             ok: true,
             ownerId: u.user.id,
             keyId: `session:${u.user.id}`,
-            auth: { ownerId: u.user.id, keyId: `session:${u.user.id}`, scopes: ["*"], rateLimit: 600 },
+            tenantId: null,
+            via: "session",
+            auth: { ownerId: u.user.id, keyId: `session:${u.user.id}`, scopes: ["*"], rateLimit: 600, tenantId: null, via: "session" },
           };
         }
       }
@@ -80,7 +82,7 @@ export async function requireKey(
   const db = serviceClient();
   const { data, error } = await db
     .from("api_keys")
-    .select("id, owner_id, scopes, rate_limit_per_min")
+    .select("id, owner_id, tenant_id, scopes, rate_limit_per_min")
     .eq("hashed_key", hashed)
     .maybeSingle();
   if (error || !data) return { ok: false, res: json({ error: "Invalid API key" }, 401) };
@@ -92,11 +94,14 @@ export async function requireKey(
   if (!rl.ok) return { ok: false, res: json({ error: "Rate limit exceeded" }, 429) };
   // fire-and-forget last_used update
   db.from("api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", data.id).then(() => {});
+  const tenantId = (data as { tenant_id: string | null }).tenant_id ?? null;
   return {
     ok: true,
     ownerId: data.owner_id,
     keyId: data.id,
-    auth: { ownerId: data.owner_id, keyId: data.id, scopes, rateLimit: data.rate_limit_per_min ?? 60 },
+    tenantId,
+    via: "key",
+    auth: { ownerId: data.owner_id, keyId: data.id, scopes, rateLimit: data.rate_limit_per_min ?? 60, tenantId, via: "key" },
   };
 }
 
