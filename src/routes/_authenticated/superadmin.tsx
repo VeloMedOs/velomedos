@@ -1035,6 +1035,22 @@ function RolesPane({
   profiles, roles, grantRole, revokeRole,
 }: { profiles: Profile[]; roles: RoleRow[]; grantRole: (u: string, r: string) => void; revokeRole: (u: string, r: string) => void }) {
   const [q, setQ] = useState("");
+  const create = useServerFn(createOperator);
+  const [invite, setInvite] = useState<{ open: boolean; email: string; full_name: string; role: string }>({ open: false, email: "", full_name: "", role: "dispatcher" });
+  const [issued, setIssued] = useState<{ email: string; role: string; temporary_password: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  async function inviteSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const r = await create({ data: { email: invite.email, full_name: invite.full_name, role: invite.role as "dispatcher" } });
+      if (!r.ok) throw new Error(r.error);
+      setIssued({ email: r.email, role: r.role, temporary_password: r.temporary_password });
+      setInvite({ open: false, email: "", full_name: "", role: "dispatcher" });
+      toast.success(`Operator ${r.email} provisioned`);
+    } catch (err) { toast.error((err as Error).message); }
+    finally { setBusy(false); }
+  }
   const rolesByUser = useMemo(() => {
     const m = new Map<string, string[]>();
     for (const r of roles) {
@@ -1046,11 +1062,40 @@ function RolesPane({
   const filtered = profiles.filter((p) => (p.email + " " + (p.full_name ?? "")).toLowerCase().includes(q.toLowerCase()));
   return (
     <Card title={`Users & access · ${profiles.length}`} right={
-      <div className="flex items-center gap-1 bg-panel-elevated rounded px-2 py-0.5 normal-case text-xs">
-        <Search className="size-3 text-muted-foreground" />
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="search email or name" className="bg-transparent outline-none w-56" />
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 bg-panel-elevated rounded px-2 py-0.5 normal-case text-xs">
+          <Search className="size-3 text-muted-foreground" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="search email or name" className="bg-transparent outline-none w-56" />
+        </div>
+        <button onClick={() => setInvite((s) => ({ ...s, open: true }))} className="mono text-[10px] uppercase tracking-widest px-2.5 py-1 rounded bg-teal text-background hover:bg-teal/90 flex items-center gap-1">
+          <Plus className="size-3" /> Invite operator
+        </button>
       </div>
     }>
+      {invite.open && (
+        <form onSubmit={inviteSubmit} className="p-4 border-b border-hairline bg-panel-elevated/50 grid sm:grid-cols-4 gap-2">
+          <input required type="email" placeholder="email" value={invite.email} onChange={(e) => setInvite((s) => ({ ...s, email: e.target.value }))} className="h-9 px-2 rounded bg-input border border-hairline text-sm sm:col-span-2" />
+          <input required placeholder="Full name" value={invite.full_name} onChange={(e) => setInvite((s) => ({ ...s, full_name: e.target.value }))} className="h-9 px-2 rounded bg-input border border-hairline text-sm" />
+          <select value={invite.role} onChange={(e) => setInvite((s) => ({ ...s, role: e.target.value }))} className="h-9 px-2 rounded bg-input border border-hairline text-sm">
+            {["admin","dispatcher","developer","business_admin","paramedic","driver"].map((r) => <option key={r} value={r}>{r}</option>)}
+          </select>
+          <div className="sm:col-span-4 flex items-center gap-2 justify-end">
+            <button type="button" onClick={() => setInvite((s) => ({ ...s, open: false }))} className="text-[11px] text-muted-foreground hover:text-foreground">Cancel</button>
+            <button disabled={busy} className="mono text-[10px] uppercase tracking-widest px-3 py-1.5 rounded bg-teal text-background disabled:opacity-60">{busy ? "Provisioning…" : "Provision & generate password"}</button>
+          </div>
+        </form>
+      )}
+      {issued && (
+        <div className="p-4 border-b border-hairline bg-stable/10">
+          <div className="mono text-[10px] uppercase tracking-[0.22em] text-stable mb-1">One-time credentials · share securely</div>
+          <div className="text-[12px]">Email: <span className="mono">{issued.email}</span> · Role: <span className="mono">{issued.role}</span></div>
+          <div className="flex items-center gap-2 mt-1">
+            <code className="px-2 py-1 rounded bg-background border border-hairline mono text-[12px]">{issued.temporary_password}</code>
+            <button onClick={() => { navigator.clipboard.writeText(issued.temporary_password); toast.success("Copied"); }} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated flex items-center gap-1"><Copy className="size-3" /> Copy</button>
+            <button onClick={() => setIssued(null)} className="text-[11px] text-muted-foreground hover:text-foreground ml-auto">Dismiss</button>
+          </div>
+        </div>
+      )}
       <div className="divide-y divide-hairline max-h-[640px] overflow-auto">
         {filtered.slice(0, 200).map((p) => {
           const myRoles = rolesByUser.get(p.id) ?? [];
