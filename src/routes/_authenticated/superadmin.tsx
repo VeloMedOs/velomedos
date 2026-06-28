@@ -907,6 +907,105 @@ function Lbl({ k, children }: { k: string; children: React.ReactNode }) {
   );
 }
 
+/* ============================== Privileges editor ============================== */
+
+const PRIV_MODULES = [
+  "overview","dispatch","fleet","cases","clinics","training","compliance","rentals",
+  "billing","developers","tenants","users","privileges","debug","audit","api_keys","webhooks",
+] as const;
+
+type Priv = { role: string; module: string; can_view: boolean; can_manage: boolean };
+
+function PrivilegesEditor() {
+  const [rows, setRows] = useState<Priv[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const j = await adminFetch<{ privileges: Priv[] }>("/api/admin/v1/privileges");
+      setRows(j.privileges);
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(); }, []);
+
+  const get = (role: string, module: string) => rows.find((r) => r.role === role && r.module === module) ?? { role, module, can_view: false, can_manage: false };
+
+  async function toggle(role: string, module: string, field: "can_view" | "can_manage") {
+    const current = get(role, module);
+    const next = { ...current, [field]: !current[field] } as Priv;
+    // If granting manage, also grant view; if revoking view, also revoke manage.
+    if (field === "can_manage" && next.can_manage) next.can_view = true;
+    if (field === "can_view" && !next.can_view) next.can_manage = false;
+    const key = `${role}:${module}`;
+    setSaving(key);
+    setRows((prev) => {
+      const others = prev.filter((r) => !(r.role === role && r.module === module));
+      return [...others, next];
+    });
+    try {
+      await adminFetch("/api/admin/v1/privileges", { method: "PUT", body: { role, module, can_view: next.can_view, can_manage: next.can_manage } });
+    } catch (e) { toast.error((e as Error).message); load(); }
+    finally { setSaving(null); }
+  }
+
+  async function clearCell(role: string, module: string) {
+    if (!confirm(`Reset ${role} · ${module} to default?`)) return;
+    try {
+      await adminFetch(`/api/admin/v1/privileges?role=${encodeURIComponent(role)}&module=${encodeURIComponent(module)}`, { method: "DELETE" });
+      setRows((prev) => prev.filter((r) => !(r.role === role && r.module === module)));
+      toast.success("Reset");
+    } catch (e) { toast.error((e as Error).message); }
+  }
+
+  return (
+    <Card title={`Role privileges editor · ${rows.length} explicit grants`} right={
+      <button onClick={load} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated inline-flex items-center gap-1">
+        <RefreshCw className={`size-3 ${loading ? "animate-spin" : ""}`} /> reload
+      </button>
+    }>
+      <div className="overflow-auto">
+        <table className="w-full text-xs">
+          <thead className="mono text-[10px] uppercase tracking-widest text-muted-foreground bg-panel-elevated/40 sticky top-0">
+            <tr>
+              <th className="text-left p-2 sticky left-0 bg-panel-elevated/80 z-10">Module</th>
+              {ROLE_ORDER.map((r) => <th key={r} className="text-center p-2 min-w-[120px]">{ROLE_META[r].label}</th>)}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-hairline">
+            {PRIV_MODULES.map((m) => (
+              <tr key={m}>
+                <td className="p-2 mono uppercase text-[10px] sticky left-0 bg-panel z-10 border-r border-hairline">{m}</td>
+                {ROLE_ORDER.map((r) => {
+                  const cell = get(r, m);
+                  const key = `${r}:${m}`;
+                  const has = rows.some((x) => x.role === r && x.module === m);
+                  return (
+                    <td key={r} className={`p-1 text-center ${saving === key ? "opacity-50" : ""}`}>
+                      <div className="inline-flex items-center gap-0.5">
+                        <button onClick={() => toggle(r, m, "can_view")} className={`mono text-[9px] uppercase px-1.5 py-0.5 rounded border ${cell.can_view ? "border-action/60 bg-action/20 text-action" : "border-hairline text-muted-foreground hover:text-foreground"}`}>V</button>
+                        <button onClick={() => toggle(r, m, "can_manage")} className={`mono text-[9px] uppercase px-1.5 py-0.5 rounded border ${cell.can_manage ? "border-emergency/60 bg-emergency/20 text-emergency" : "border-hairline text-muted-foreground hover:text-foreground"}`}>M</button>
+                        {has && <button onClick={() => clearCell(r, m)} title="Reset" className="opacity-40 hover:opacity-100"><Trash2 className="size-2.5" /></button>}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="p-3 border-t border-hairline mono text-[10px] uppercase tracking-widest text-muted-foreground flex gap-4">
+        <span><span className="px-1.5 py-0.5 rounded border border-action/60 bg-action/20 text-action mr-1">V</span> view</span>
+        <span><span className="px-1.5 py-0.5 rounded border border-emergency/60 bg-emergency/20 text-emergency mr-1">M</span> manage</span>
+        <span className="text-muted-foreground/70">grants persist to portal_role_privileges via /api/admin/v1/privileges</span>
+      </div>
+    </Card>
+  );
+}
+
 function RolesPane({
   profiles, roles, grantRole, revokeRole,
 }: { profiles: Profile[]; roles: RoleRow[]; grantRole: (u: string, r: string) => void; revokeRole: (u: string, r: string) => void }) {
