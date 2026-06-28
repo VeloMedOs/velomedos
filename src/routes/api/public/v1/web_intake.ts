@@ -75,7 +75,7 @@ export const Route = createFileRoute("/api/public/v1/web_intake")({
             notes: data.message ?? null,
             sla_target_at: new Date(Date.now() + slaMinutes * 60_000).toISOString(),
           }).select("id, code").single();
-          if (error || !inc) return json({ error: "create_failed", detail: error?.message }, 500);
+          if (error || !inc) { console.error("web_intake.emergency", error); return json({ error: "create_failed" }, 500); }
           await db.from("incident_events").insert({
             incident_id: inc.id,
             event_type: "web_submission",
@@ -96,7 +96,7 @@ export const Route = createFileRoute("/api/public/v1/web_intake")({
           message: data.message ?? null,
           payload: { lat: data.lat ?? null, lng: data.lng ?? null, address: data.address ?? null, ip },
         });
-        if (error) return json({ error: "create_failed", detail: error.message }, 500);
+        if (error) { console.error("web_intake.lead", error); return json({ error: "create_failed" }, 500); }
         return json({ ok: true, kind: data.kind, reference_code: ref });
       },
     },
