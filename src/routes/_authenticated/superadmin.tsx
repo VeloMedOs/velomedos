@@ -16,6 +16,12 @@ import { adminFetch } from "@/lib/admin-fetch";
 import { SuperadminSideNav } from "@/components/superadmin/SideNav";
 import { useServerFn } from "@tanstack/react-start";
 import { createOperator } from "@/lib/superadmin.functions";
+import {
+  RefundsPane, ReviewsPane, ChatFiltersPane, NotificationsAdminPane,
+  TestRunsPane, SmokeReportsPane, ReleasesPane, AutomationsPane,
+  WorkspacePane, SecurityPane, AuditLogPane, TicketsPane, BugsPane,
+  TeamRolesShortcut,
+} from "@/components/superadmin/OpsPanes";
 
 export const Route = createFileRoute("/_authenticated/superadmin")({
   head: () => ({ meta: [{ title: "Superadmin · VeloMed OS" }] }),
@@ -61,7 +67,12 @@ const STATUS_COLORS: Record<string, string> = {
 const fmtMoney = (c: number, cur: string) =>
   c === 0 ? "Custom" : new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(c / 100);
 
-type TabId = "overview" | "tenants" | "subs" | "plans" | "addons" | "finance" | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug";
+type TabId =
+  | "overview" | "tenants" | "subs" | "plans" | "addons" | "finance"
+  | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug"
+  | "refunds" | "tickets" | "reviews" | "chat" | "push"
+  | "tests" | "audit" | "smoke" | "bugs" | "releases" | "automation"
+  | "workspace" | "team" | "security";
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
