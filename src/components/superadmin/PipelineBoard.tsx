@@ -12,8 +12,8 @@ const STAGE_META: Record<Stage, { label: string; tone: string }> = {
   contacted:   { label: "Contacted",   tone: "bg-sky/15 text-sky" },
   demo:        { label: "Demo",        tone: "bg-sky/25 text-sky" },
   prospect:    { label: "Prospect",    tone: "bg-caution/20 text-caution" },
-  lead:        { label: "Lead",        tone: "bg-caution/30 text-caution" },
-  negotiation: { label: "Negotiation", tone: "bg-teal/20 text-teal" },
+  lead:        { label: "Lead",        tone: "bg-teal/20 text-teal" },
+  negotiation: { label: "Negotiation", tone: "bg-teal/30 text-teal" },
   subscribed:  { label: "Subscribed",  tone: "bg-stable/20 text-stable" },
   rejected:    { label: "Rejected",    tone: "bg-coral/20 text-coral" },
 };
