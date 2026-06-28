@@ -12,7 +12,7 @@ export const Route = createFileRoute("/api/public/v1/fleet")({
           .from("ambulances")
           .select("id,code,type,status,home_base,current_lat,current_lng,last_ping_at")
           .order("code");
-        if (error) return json({ error: error.message }, 500);
+        if (error) { console.error("public_api", error); return json({ error: "internal_error" }, 500); }
         return json(data);
       },
     },

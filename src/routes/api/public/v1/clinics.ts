@@ -12,7 +12,7 @@ export const Route = createFileRoute("/api/public/v1/clinics")({
           .from("clinics_public")
           .select("*")
           .order("name");
-        if (error) return json({ error: error.message }, 500);
+        if (error) { console.error("public_api", error); return json({ error: "internal_error" }, 500); }
         return json(data);
       },
     },

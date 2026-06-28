@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/public/v1/fleet/$id/location")({
           .order("recorded_at", { ascending: false })
           .limit(1)
           .maybeSingle();
-        if (error) return json({ error: error.message }, 500);
+        if (error) { console.error("public_api", error); return json({ error: "internal_error" }, 500); }
         if (!data) return json({ error: "No location on file" }, 404);
         return json(data);
       },
