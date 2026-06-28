@@ -86,6 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Live ambulance dispatch, paramedic & driver tooling, patient app, fleet compliance, telehealth, training & certification — all on one documented REST API." },
       { name: "author", content: "VeloMed Infrastructure Group" },
       { name: "robots", content: "index,follow" },
+      { name: "google-site-verification", content: "O7J9rhDuo3FdZTjJ6l2xo6ij9tWqiUz9fC1JnILR9T8" },
       { property: "og:site_name", content: SITE.brand },
       { property: "og:title", content: "VeloMed OS — API-first medical mobility platform" },
       { property: "og:description", content: "Live ambulance dispatch, paramedic & driver tooling, patient app, fleet compliance, telehealth, training & certification — all on one documented REST API." },
