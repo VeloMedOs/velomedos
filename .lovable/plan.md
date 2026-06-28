@@ -1,55 +1,57 @@
 ## Goal
 
-Revamp `/pricing` into a real, research-grounded pricing page modeled after RufayQ's structure — keeping VeloMed's dark Clinical Precision aesthetic and the B2B/fleet reality (no consumer pricing).
+Convert the Superadmin tab bar from a horizontal strip into a **vertical left navigation rail** styled after RufayQ admin (narrow icon column + grouped label panel), keeping all existing tabs/badges and behavior intact.
 
-## Pricing research (B2B EMS / dispatch SaaS benchmark)
+## Reference (from your screenshots)
 
-Typical market shapes I'll anchor the tiers against:
+- **Icon rail** (~64px): brand mark on top, then icon-only buttons; active item has a teal-tinted square with brand glow.
+- **Label panel** (~240px): section heading ("Platform control plane / Superadmin"), grouped list with section labels (e.g. REVENUE, ACCESS, DEVELOPER, OPS), active row pill-highlighted in teal.
+- Collapsible: a chevron button on the divider collapses the label panel, leaving the icon rail visible.
 
-- **Per-vehicle / per-unit SaaS** (ESO, ImageTrend, Tarmac, Beyond Lucid): ~USD 80–250 / ambulance / month for dispatch + ePCR, more for analytics & compliance modules.
-- **Per-seat dispatch consoles** (Traumasoft, RescueNet): ~USD 60–120 / dispatcher / month.
-- **Telehealth / remote-clinic platforms**: USD 1–3 / consult or USD 5–15 / patient / month bundles.
-- **Training & certification LMS** (Relias, Vector Solutions EMS): USD 25–60 / learner / year.
-- **Public API tiers**: free sandbox → metered (per 1k calls) → committed throughput + SLA.
-- **Enterprise / sovereign**: annual contract, dedicated cluster, custom SLA, no public price.
+## Plan
 
-I'll publish list anchors in **USD** with a note that SAR/AED billing is available, since the project is GCC-leaning but sells regionally.
+### 1. Layout shift in `src/routes/_authenticated/superadmin.tsx`
 
-## New /pricing structure (mirrors RufayQ's anatomy)
+- Remove the horizontal `Tab bar` strip (lines 339–351).
+- Wrap the page in a 2-column flex: left = `SuperadminSideNav`, right = the existing main content (header, KPI strip, active pane, identity panel, quick links). Keep `max-w-[1600px]` on the right column container.
+- Right column scrolls independently (`min-h-screen` rail, sticky on `lg+`).
 
-1. **Hero** — headline, sub, billing toggle (Monthly / Annual — save 2 months), currency hint (USD shown, SAR/AED on invoice).
-2. **Four plan tiers** in one grid (replaces today's 3 "Custom" cards):
-  - **Starter — Single Branch** · from **$1,490/mo** · up to 10 units, 3 dispatcher seats, core dispatch + provider + patient app, public API sandbox.
-  - **Operator — Multi-Branch** · from **$4,900/mo** · up to 50 units, 10 seats, fleet compliance, telehealth add-on ready, API 100k calls/mo.
-  - **Network — Regional** *(Most chosen)* · from **$12,500/mo** · up to 200 units, unlimited seats, multi-tenant, training LMS, API 1M calls/mo, priority support.
-  - **Sovereign — Platform** · Custom · unlimited units, dedicated cluster, custom SLA, on-prem/in-country residency, 24/7 named support.
-   Each card: eyebrow, name, price, "/month billed annually" line, target descriptor, feature checklist, CTA (`/demo` for paid, `/contact` for Sovereign), one highlighted card.
-3. **Module add-ons grid** (matches RufayQ add-ons section):
-  - Remote Clinic Pods · per pod / month
-  - Ambulance Rental Marketplace · % of GMV
-  - Training & Certification LMS · per learner / year
-  - Public API — metered overage · per 1k calls
-  - Compliance & Credential Vault · per branch / month
-  - Insurance Claims Concierge · per claim
-4. **What's always included** strip — dispatch console, provider + patient apps, public REST API + Swagger, audit log, RLS multi-tenant, SSO/SAML on Network+.
-5. **Comparison matrix** — feature × tier table (units cap, seats, API quota, SLA %, support tier, branch hierarchy levels, telehealth, LMS, on-prem).
-6. **API pricing micro-section** — Sandbox (free), Metered ($0.40/1k after 100k), Committed (talk to us). Links to `/api-reference`.
-7. **FAQ** (6 items, JSON-LD FAQPage): plan changes, currency/VAT, data residency, SLAs, contract length, free pilot.
-8. **Closing CTA band** — "Book a scoped demo" → `/demo`, "Talk to sales" → `/contact`.
+### 2. New component `src/components/superadmin/SideNav.tsx`
 
-## Technical details
+- Two stacked columns inside one `aside`:
+  - **Rail** (`w-14`, full-height, `bg-panel`, hairline border-right): VeloMed shield mark, then one icon button per tab. Active = `bg-teal/15 text-teal` with a 2px left brand bar; hover = `bg-panel-elevated`.
+  - **Panel** (`w-60`, hidden when collapsed): top block with eyebrow "VeloMed Superadmin", title "Control plane", subtitle. Below: grouped sections —
+    - **Command Center** → Overview & Dashboard & VeloMed KPIs
+    - **ACCOUNTS** → Tenants, Requests (badge)
+    - **REVENUE** → Subscriptions (badge), Plans, Refund Management
+    - **ACCESS** → Roles & access, Privileges, API keys (badge)
+    - **DEVELOPER** → API docs, Debug
+    - Support: filter, tickets, reviews management, push notifications
+    - Website CMS [Marketing website & Content Management]: Structure section: Pages & Sections, SEO Manager, Editorial section: News & Articles, Blog Categories, Media Library [Media Library
+      Upload images and files for use across the site. Copy the URL into any section.]
+    - Quality Control: Test Runs, Audt Log, Smoke Reports, Bug Tracker, Releases & Fix Versions, Automated events
+    - Settings: Workspace section [General ''Workspace defaults for your admin sessions. Stored on this device.
+      Table density'' & Team & Roles], Security    
 
-- Single file change: `src/routes/pricing.tsx` (no schema, no API).
-- Add `faqLd` JSON-LD alongside existing breadcrumb.
-- Keep `SiteHeader` / `EmergencyBanner` / `SiteFooter`.
-- Use existing tokens: `bg-panel`, `border-hairline`, `text-action`, `text-stable`, `mono`. No new colors.
-- Billing toggle = local `useState<"monthly"|"annual">`; annual displays monthly equivalent with "−2 months" badge.
-- Currency note line only (no live FX); RufayQ-style currency switching is out of scope (no catalog tables on this project).
-- Comparison matrix as a semantic `<table>` for SEO; sticky first column on desktop only.
-- Update meta `description` to reflect tiered pricing.
-- No changes to landing `index.tsx`, schema, or APIs.
+  - Active row: full-width rounded pill, `bg-teal/12 text-foreground` + small teal indicator dot; inactive: `text-muted-foreground hover:text-foreground hover:bg-panel-elevated`.
+- Collapse toggle: small chevron button on the rail/panel seam; collapsed state persisted in `localStorage` (`velomed.superadmin.nav.collapsed`).
+- Props: `tab`, `setTab`, `badges: { subs, requests, apiKeys }`.
 
-- Wiring `pricing_plans` from the `/superadmin` Plans CRUD into this page (those are tenant subscription plans, a different surface). Can be a follow-up.
-- Multi-currency switcher, i18n, Arabic copy.
-- Do the necessary E2E testing and validations
-- Add the ability to manage subscriptions & Add-Ons from admin panel for specific business to upgrade or downgrade the requests and shall be pending superadmin approval and to display this in the Subscription managment module / section in the superadmin panel 
+### 3. Visual tokens (kept on-brand)
+
+- Active fills/dots/brand bar: `teal` (#28D6B6).
+- Badges: keep existing `bg-caution/20 text-caution` for counts.
+- All chrome uses existing semantic tokens (`bg-panel`, `border-hairline`, `text-muted-foreground`) — no hex.
+
+### 4. Responsiveness
+
+- `lg` and up: side nav visible; main content uses remaining width.
+- Below `lg`: rail-only (panel hidden); tapping an icon switches tab. No horizontal bar reintroduced.
+
+### 5. No behavior changes
+
+- All panes, data fetches, badges, and the IdentityPanel remain unchanged.
+- No routing changes — still single-route with internal `tab` state.
+
+- No changes to other admin surfaces (Tenants, Subscriptions, Plans panes).
+- No new routes, no data model changes.
