@@ -1477,12 +1477,15 @@ function TeamFallback() {
         </div>
       </div>
 
-      {/* Bottom-left ETA card — Patek-grade telemetry */}
-      <div data-debug-id="offline-eta-card" className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[300px] z-[40] rounded-2xl overflow-hidden border border-white/40 bg-white/75 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+      {/* Bottom-left ETA card — elite glass telemetry */}
+      <div
+        data-debug-id="offline-eta-card"
+        className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[320px] z-[40] rounded-[22px] overflow-hidden border border-white/50 bg-white/40 shadow-[0_12px_40px_-12px_rgba(8,11,17,0.45)] backdrop-blur-2xl"
+      >
         <div className="px-4 pt-3 pb-3">
           <div className="flex items-start justify-between">
             <div>
-              <div className="mono text-[9px] font-bold tracking-[0.22em] uppercase text-slate-400 leading-none mb-1">
+              <div className="mono text-[9px] font-bold tracking-[0.22em] uppercase text-slate-500/90 leading-none mb-1">
                 ETA · Al Mana
               </div>
               <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight leading-tight">
@@ -1497,26 +1500,34 @@ function TeamFallback() {
             </div>
           </div>
           <div className="mt-2 flex items-end justify-between gap-3">
-            <div className="text-[34px] font-bold tracking-tighter leading-none"
-              style={{ color: arrived ? "#0F7F66" : "#1F6FEB", fontVariantNumeric: "tabular-nums" }}>
+            <div
+              className="text-[34px] font-bold tracking-tighter leading-none"
+              style={{ color: arrived ? "#0F7F66" : "#1F6FEB", fontVariantNumeric: "tabular-nums" }}
+            >
               {arrived ? "0:00" : etaStr}
             </div>
-            <div className="text-right mono text-[10px] text-slate-500 leading-tight"
-              style={{ fontVariantNumeric: "tabular-nums" }}>
+            <div
+              className="text-right mono text-[10px] text-slate-500 leading-tight"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
               <div>{Math.max(0, tel.totalKm * (1 - pct)).toFixed(2)} km left</div>
               <div className="mt-0.5">{Math.round(tel.speedKmh)} km/h</div>
             </div>
           </div>
         </div>
-        <div className="h-1 w-full bg-slate-100 relative">
-          <div className="absolute inset-y-0 left-0 transition-[width] duration-300"
+        <div className="h-[3px] w-full bg-white/20 relative">
+          <div
+            className="absolute inset-y-0 left-0 transition-[width] duration-300"
             style={{
               width: `${Math.round(pct * 100)}%`,
-              background: arrived ? "#28D6B6" : "#1F6FEB",
+              background: arrived
+                ? "linear-gradient(90deg, #28D6B6, #4FB6F7)"
+                : "linear-gradient(90deg, #4FB6F7, #1F6FEB)",
               boxShadow: arrived
-                ? "0 0 12px rgba(40,214,182,0.55)"
-                : "0 0 12px rgba(31,111,235,0.55)",
-            }} />
+                ? "0 0 14px rgba(40,214,182,0.5)"
+                : "0 0 14px rgba(79,182,247,0.5)",
+            }}
+          />
         </div>
       </div>
 
