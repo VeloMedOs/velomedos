@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { adminAudit, adminDb, json, preflight, requireAdmin } from "@/lib/api-admin";
 
-const FIELDS = new Set(["code","name","description","price_cents","currency","billing_period","included_seats","features","is_active","sort_order"]);
+const FIELDS = new Set([
+  "code","name","description","price_cents","currency","billing_period","included_seats","features","is_active","sort_order",
+  "eyebrow","tagline","units_label","seats_label","api_label","is_public","highlight","cta_label","cta_to",
+]);
 
 export const Route = createFileRoute("/api/admin/v1/plans/$id")({
   server: {
