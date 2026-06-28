@@ -60,23 +60,32 @@ import { Route as ApiPublicV1EtaRouteImport } from './routes/api/public/v1/eta'
 import { Route as ApiPublicV1CredentialsRouteImport } from './routes/api/public/v1/credentials'
 import { Route as ApiPublicV1CoursesRouteImport } from './routes/api/public/v1/courses'
 import { Route as ApiPublicV1ClinicsRouteImport } from './routes/api/public/v1/clinics'
+import { Route as ApiPublicV1Business_intakeRouteImport } from './routes/api/public/v1/business_intake'
 import { Route as ApiAdminV1TicketsRouteImport } from './routes/api/admin/v1/tickets'
+import { Route as ApiAdminV1TenantSubscriptionsRouteImport } from './routes/api/admin/v1/tenant-subscriptions'
 import { Route as ApiAdminV1SubscriptionsRouteImport } from './routes/api/admin/v1/subscriptions'
 import { Route as ApiAdminV1SubscribersRouteImport } from './routes/api/admin/v1/subscribers'
+import { Route as ApiAdminV1RolesRouteImport } from './routes/api/admin/v1/roles'
 import { Route as ApiAdminV1PromotionsRouteImport } from './routes/api/admin/v1/promotions'
+import { Route as ApiAdminV1PrivilegesRouteImport } from './routes/api/admin/v1/privileges'
+import { Route as ApiAdminV1PlansRouteImport } from './routes/api/admin/v1/plans'
 import { Route as ApiAdminV1PaymentsRouteImport } from './routes/api/admin/v1/payments'
 import { Route as ApiAdminV1OpenapiRouteImport } from './routes/api/admin/v1/openapi'
 import { Route as ApiAdminV1InvoicesRouteImport } from './routes/api/admin/v1/invoices'
+import { Route as ApiAdminV1BusinessRequestsRouteImport } from './routes/api/admin/v1/business-requests'
 import { Route as ApiAdminV1BugsRouteImport } from './routes/api/admin/v1/bugs'
 import { Route as ApiAdminV1AuditRouteImport } from './routes/api/admin/v1/audit'
 import { Route as ApiPublicV1ShareTokenRouteImport } from './routes/api/public/v1/share.$token'
 import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/v1/incidents.$id'
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiAdminV1UsageDailyRouteImport } from './routes/api/admin/v1/usage.daily'
+import { Route as ApiAdminV1TenantSubscriptionsIdRouteImport } from './routes/api/admin/v1/tenant-subscriptions.$id'
 import { Route as ApiAdminV1SubscribersIdRouteImport } from './routes/api/admin/v1/subscribers.$id'
+import { Route as ApiAdminV1PlansIdRouteImport } from './routes/api/admin/v1/plans.$id'
 import { Route as ApiAdminV1DiagnosticsSuperadminRouteImport } from './routes/api/admin/v1/diagnostics.superadmin'
 import { Route as ApiAdminV1ConfigOverridesRouteImport } from './routes/api/admin/v1/config.overrides'
 import { Route as ApiAdminV1ConfigBaseRouteImport } from './routes/api/admin/v1/config.base'
+import { Route as ApiAdminV1BusinessRequestsIdRouteImport } from './routes/api/admin/v1/business-requests.$id'
 import { Route as ApiAdminV1AnalyticsKpisRouteImport } from './routes/api/admin/v1/analytics.kpis'
 import { Route as ApiPublicV1VehiclesIdWork_ordersRouteImport } from './routes/api/public/v1/vehicles.$id.work_orders'
 import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/public/v1/vehicles.$id.defects'
@@ -85,6 +94,8 @@ import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/pub
 import { Route as ApiAdminV1TicketsIdEventsRouteImport } from './routes/api/admin/v1/tickets.$id.events'
 import { Route as ApiAdminV1PaymentsIdValidateRouteImport } from './routes/api/admin/v1/payments.$id.validate'
 import { Route as ApiAdminV1ConfigEffectiveSubscriberIdRouteImport } from './routes/api/admin/v1/config.effective.$subscriberId'
+import { Route as ApiAdminV1BusinessRequestsIdConvertRouteImport } from './routes/api/admin/v1/business-requests.$id.convert'
+import { Route as ApiAdminV1BusinessRequestsIdAdvanceRouteImport } from './routes/api/admin/v1/business-requests.$id.advance'
 
 const WebsiteRoute = WebsiteRouteImport.update({
   id: '/website',
@@ -342,11 +353,23 @@ const ApiPublicV1ClinicsRoute = ApiPublicV1ClinicsRouteImport.update({
   path: '/api/public/v1/clinics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1Business_intakeRoute =
+  ApiPublicV1Business_intakeRouteImport.update({
+    id: '/api/public/v1/business_intake',
+    path: '/api/public/v1/business_intake',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminV1TicketsRoute = ApiAdminV1TicketsRouteImport.update({
   id: '/api/admin/v1/tickets',
   path: '/api/admin/v1/tickets',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1TenantSubscriptionsRoute =
+  ApiAdminV1TenantSubscriptionsRouteImport.update({
+    id: '/api/admin/v1/tenant-subscriptions',
+    path: '/api/admin/v1/tenant-subscriptions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminV1SubscriptionsRoute = ApiAdminV1SubscriptionsRouteImport.update({
   id: '/api/admin/v1/subscriptions',
   path: '/api/admin/v1/subscriptions',
@@ -357,9 +380,24 @@ const ApiAdminV1SubscribersRoute = ApiAdminV1SubscribersRouteImport.update({
   path: '/api/admin/v1/subscribers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1RolesRoute = ApiAdminV1RolesRouteImport.update({
+  id: '/api/admin/v1/roles',
+  path: '/api/admin/v1/roles',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminV1PromotionsRoute = ApiAdminV1PromotionsRouteImport.update({
   id: '/api/admin/v1/promotions',
   path: '/api/admin/v1/promotions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminV1PrivilegesRoute = ApiAdminV1PrivilegesRouteImport.update({
+  id: '/api/admin/v1/privileges',
+  path: '/api/admin/v1/privileges',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminV1PlansRoute = ApiAdminV1PlansRouteImport.update({
+  id: '/api/admin/v1/plans',
+  path: '/api/admin/v1/plans',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAdminV1PaymentsRoute = ApiAdminV1PaymentsRouteImport.update({
@@ -377,6 +415,12 @@ const ApiAdminV1InvoicesRoute = ApiAdminV1InvoicesRouteImport.update({
   path: '/api/admin/v1/invoices',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1BusinessRequestsRoute =
+  ApiAdminV1BusinessRequestsRouteImport.update({
+    id: '/api/admin/v1/business-requests',
+    path: '/api/admin/v1/business-requests',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminV1BugsRoute = ApiAdminV1BugsRouteImport.update({
   id: '/api/admin/v1/bugs',
   path: '/api/admin/v1/bugs',
@@ -407,10 +451,21 @@ const ApiAdminV1UsageDailyRoute = ApiAdminV1UsageDailyRouteImport.update({
   path: '/api/admin/v1/usage/daily',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1TenantSubscriptionsIdRoute =
+  ApiAdminV1TenantSubscriptionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiAdminV1TenantSubscriptionsRoute,
+  } as any)
 const ApiAdminV1SubscribersIdRoute = ApiAdminV1SubscribersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => ApiAdminV1SubscribersRoute,
+} as any)
+const ApiAdminV1PlansIdRoute = ApiAdminV1PlansIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAdminV1PlansRoute,
 } as any)
 const ApiAdminV1DiagnosticsSuperadminRoute =
   ApiAdminV1DiagnosticsSuperadminRouteImport.update({
@@ -429,6 +484,12 @@ const ApiAdminV1ConfigBaseRoute = ApiAdminV1ConfigBaseRouteImport.update({
   path: '/api/admin/v1/config/base',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1BusinessRequestsIdRoute =
+  ApiAdminV1BusinessRequestsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiAdminV1BusinessRequestsRoute,
+  } as any)
 const ApiAdminV1AnalyticsKpisRoute = ApiAdminV1AnalyticsKpisRouteImport.update({
   id: '/api/admin/v1/analytics/kpis',
   path: '/api/admin/v1/analytics/kpis',
@@ -476,6 +537,18 @@ const ApiAdminV1ConfigEffectiveSubscriberIdRoute =
     path: '/api/admin/v1/config/effective/$subscriberId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAdminV1BusinessRequestsIdConvertRoute =
+  ApiAdminV1BusinessRequestsIdConvertRouteImport.update({
+    id: '/convert',
+    path: '/convert',
+    getParentRoute: () => ApiAdminV1BusinessRequestsIdRoute,
+  } as any)
+const ApiAdminV1BusinessRequestsIdAdvanceRoute =
+  ApiAdminV1BusinessRequestsIdAdvanceRouteImport.update({
+    id: '/advance',
+    path: '/advance',
+    getParentRoute: () => ApiAdminV1BusinessRequestsIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -519,13 +592,19 @@ export interface FileRoutesByFullPath {
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
+  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
+  '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
+  '/api/admin/v1/privileges': typeof ApiAdminV1PrivilegesRoute
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
+  '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
+  '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
+  '/api/public/v1/business_intake': typeof ApiPublicV1Business_intakeRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
   '/api/public/v1/credentials': typeof ApiPublicV1CredentialsRoute
@@ -538,14 +617,19 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
+  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRouteWithChildren
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
+  '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
+  '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
+  '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
+  '/api/admin/v1/business-requests/$id/convert': typeof ApiAdminV1BusinessRequestsIdConvertRoute
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
@@ -596,13 +680,19 @@ export interface FileRoutesByTo {
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
+  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
+  '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
+  '/api/admin/v1/privileges': typeof ApiAdminV1PrivilegesRoute
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
+  '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
+  '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
+  '/api/public/v1/business_intake': typeof ApiPublicV1Business_intakeRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
   '/api/public/v1/credentials': typeof ApiPublicV1CredentialsRoute
@@ -615,14 +705,19 @@ export interface FileRoutesByTo {
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
+  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRouteWithChildren
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
+  '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
+  '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
+  '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
+  '/api/admin/v1/business-requests/$id/convert': typeof ApiAdminV1BusinessRequestsIdConvertRoute
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
@@ -675,13 +770,19 @@ export interface FileRoutesById {
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
+  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
+  '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
+  '/api/admin/v1/privileges': typeof ApiAdminV1PrivilegesRoute
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
+  '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
+  '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
+  '/api/public/v1/business_intake': typeof ApiPublicV1Business_intakeRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
   '/api/public/v1/credentials': typeof ApiPublicV1CredentialsRoute
@@ -694,14 +795,19 @@ export interface FileRoutesById {
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
+  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRouteWithChildren
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
+  '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
+  '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
+  '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
+  '/api/admin/v1/business-requests/$id/convert': typeof ApiAdminV1BusinessRequestsIdConvertRoute
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
@@ -754,13 +860,19 @@ export interface FileRouteTypes {
     | '/superadmin/api-docs'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
+    | '/api/admin/v1/business-requests'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
+    | '/api/admin/v1/plans'
+    | '/api/admin/v1/privileges'
     | '/api/admin/v1/promotions'
+    | '/api/admin/v1/roles'
     | '/api/admin/v1/subscribers'
     | '/api/admin/v1/subscriptions'
+    | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
+    | '/api/public/v1/business_intake'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
     | '/api/public/v1/credentials'
@@ -773,14 +885,19 @@ export interface FileRouteTypes {
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
     | '/api/admin/v1/analytics/kpis'
+    | '/api/admin/v1/business-requests/$id'
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
+    | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
+    | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
+    | '/api/admin/v1/business-requests/$id/advance'
+    | '/api/admin/v1/business-requests/$id/convert'
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
@@ -831,13 +948,19 @@ export interface FileRouteTypes {
     | '/superadmin/api-docs'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
+    | '/api/admin/v1/business-requests'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
+    | '/api/admin/v1/plans'
+    | '/api/admin/v1/privileges'
     | '/api/admin/v1/promotions'
+    | '/api/admin/v1/roles'
     | '/api/admin/v1/subscribers'
     | '/api/admin/v1/subscriptions'
+    | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
+    | '/api/public/v1/business_intake'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
     | '/api/public/v1/credentials'
@@ -850,14 +973,19 @@ export interface FileRouteTypes {
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
     | '/api/admin/v1/analytics/kpis'
+    | '/api/admin/v1/business-requests/$id'
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
+    | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
+    | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
+    | '/api/admin/v1/business-requests/$id/advance'
+    | '/api/admin/v1/business-requests/$id/convert'
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
@@ -909,13 +1037,19 @@ export interface FileRouteTypes {
     | '/_authenticated/superadmin/api-docs'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
+    | '/api/admin/v1/business-requests'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
+    | '/api/admin/v1/plans'
+    | '/api/admin/v1/privileges'
     | '/api/admin/v1/promotions'
+    | '/api/admin/v1/roles'
     | '/api/admin/v1/subscribers'
     | '/api/admin/v1/subscriptions'
+    | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
+    | '/api/public/v1/business_intake'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
     | '/api/public/v1/credentials'
@@ -928,14 +1062,19 @@ export interface FileRouteTypes {
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
     | '/api/admin/v1/analytics/kpis'
+    | '/api/admin/v1/business-requests/$id'
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
+    | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
+    | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
+    | '/api/admin/v1/business-requests/$id/advance'
+    | '/api/admin/v1/business-requests/$id/convert'
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
@@ -967,13 +1106,19 @@ export interface RootRouteChildren {
   TripTokenRoute: typeof TripTokenRoute
   ApiAdminV1AuditRoute: typeof ApiAdminV1AuditRoute
   ApiAdminV1BugsRoute: typeof ApiAdminV1BugsRoute
+  ApiAdminV1BusinessRequestsRoute: typeof ApiAdminV1BusinessRequestsRouteWithChildren
   ApiAdminV1InvoicesRoute: typeof ApiAdminV1InvoicesRoute
   ApiAdminV1OpenapiRoute: typeof ApiAdminV1OpenapiRoute
   ApiAdminV1PaymentsRoute: typeof ApiAdminV1PaymentsRouteWithChildren
+  ApiAdminV1PlansRoute: typeof ApiAdminV1PlansRouteWithChildren
+  ApiAdminV1PrivilegesRoute: typeof ApiAdminV1PrivilegesRoute
   ApiAdminV1PromotionsRoute: typeof ApiAdminV1PromotionsRoute
+  ApiAdminV1RolesRoute: typeof ApiAdminV1RolesRoute
   ApiAdminV1SubscribersRoute: typeof ApiAdminV1SubscribersRouteWithChildren
   ApiAdminV1SubscriptionsRoute: typeof ApiAdminV1SubscriptionsRoute
+  ApiAdminV1TenantSubscriptionsRoute: typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   ApiAdminV1TicketsRoute: typeof ApiAdminV1TicketsRouteWithChildren
+  ApiPublicV1Business_intakeRoute: typeof ApiPublicV1Business_intakeRoute
   ApiPublicV1ClinicsRoute: typeof ApiPublicV1ClinicsRoute
   ApiPublicV1CoursesRoute: typeof ApiPublicV1CoursesRoute
   ApiPublicV1CredentialsRoute: typeof ApiPublicV1CredentialsRoute
@@ -1357,11 +1502,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1ClinicsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/business_intake': {
+      id: '/api/public/v1/business_intake'
+      path: '/api/public/v1/business_intake'
+      fullPath: '/api/public/v1/business_intake'
+      preLoaderRoute: typeof ApiPublicV1Business_intakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/v1/tickets': {
       id: '/api/admin/v1/tickets'
       path: '/api/admin/v1/tickets'
       fullPath: '/api/admin/v1/tickets'
       preLoaderRoute: typeof ApiAdminV1TicketsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/tenant-subscriptions': {
+      id: '/api/admin/v1/tenant-subscriptions'
+      path: '/api/admin/v1/tenant-subscriptions'
+      fullPath: '/api/admin/v1/tenant-subscriptions'
+      preLoaderRoute: typeof ApiAdminV1TenantSubscriptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/v1/subscriptions': {
@@ -1378,11 +1537,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1SubscribersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/v1/roles': {
+      id: '/api/admin/v1/roles'
+      path: '/api/admin/v1/roles'
+      fullPath: '/api/admin/v1/roles'
+      preLoaderRoute: typeof ApiAdminV1RolesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/v1/promotions': {
       id: '/api/admin/v1/promotions'
       path: '/api/admin/v1/promotions'
       fullPath: '/api/admin/v1/promotions'
       preLoaderRoute: typeof ApiAdminV1PromotionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/privileges': {
+      id: '/api/admin/v1/privileges'
+      path: '/api/admin/v1/privileges'
+      fullPath: '/api/admin/v1/privileges'
+      preLoaderRoute: typeof ApiAdminV1PrivilegesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/plans': {
+      id: '/api/admin/v1/plans'
+      path: '/api/admin/v1/plans'
+      fullPath: '/api/admin/v1/plans'
+      preLoaderRoute: typeof ApiAdminV1PlansRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/v1/payments': {
@@ -1404,6 +1584,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/v1/invoices'
       fullPath: '/api/admin/v1/invoices'
       preLoaderRoute: typeof ApiAdminV1InvoicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/business-requests': {
+      id: '/api/admin/v1/business-requests'
+      path: '/api/admin/v1/business-requests'
+      fullPath: '/api/admin/v1/business-requests'
+      preLoaderRoute: typeof ApiAdminV1BusinessRequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/v1/bugs': {
@@ -1448,12 +1635,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1UsageDailyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/v1/tenant-subscriptions/$id': {
+      id: '/api/admin/v1/tenant-subscriptions/$id'
+      path: '/$id'
+      fullPath: '/api/admin/v1/tenant-subscriptions/$id'
+      preLoaderRoute: typeof ApiAdminV1TenantSubscriptionsIdRouteImport
+      parentRoute: typeof ApiAdminV1TenantSubscriptionsRoute
+    }
     '/api/admin/v1/subscribers/$id': {
       id: '/api/admin/v1/subscribers/$id'
       path: '/$id'
       fullPath: '/api/admin/v1/subscribers/$id'
       preLoaderRoute: typeof ApiAdminV1SubscribersIdRouteImport
       parentRoute: typeof ApiAdminV1SubscribersRoute
+    }
+    '/api/admin/v1/plans/$id': {
+      id: '/api/admin/v1/plans/$id'
+      path: '/$id'
+      fullPath: '/api/admin/v1/plans/$id'
+      preLoaderRoute: typeof ApiAdminV1PlansIdRouteImport
+      parentRoute: typeof ApiAdminV1PlansRoute
     }
     '/api/admin/v1/diagnostics/superadmin': {
       id: '/api/admin/v1/diagnostics/superadmin'
@@ -1475,6 +1676,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/v1/config/base'
       preLoaderRoute: typeof ApiAdminV1ConfigBaseRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/business-requests/$id': {
+      id: '/api/admin/v1/business-requests/$id'
+      path: '/$id'
+      fullPath: '/api/admin/v1/business-requests/$id'
+      preLoaderRoute: typeof ApiAdminV1BusinessRequestsIdRouteImport
+      parentRoute: typeof ApiAdminV1BusinessRequestsRoute
     }
     '/api/admin/v1/analytics/kpis': {
       id: '/api/admin/v1/analytics/kpis'
@@ -1531,6 +1739,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/v1/config/effective/$subscriberId'
       preLoaderRoute: typeof ApiAdminV1ConfigEffectiveSubscriberIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/business-requests/$id/convert': {
+      id: '/api/admin/v1/business-requests/$id/convert'
+      path: '/convert'
+      fullPath: '/api/admin/v1/business-requests/$id/convert'
+      preLoaderRoute: typeof ApiAdminV1BusinessRequestsIdConvertRouteImport
+      parentRoute: typeof ApiAdminV1BusinessRequestsIdRoute
+    }
+    '/api/admin/v1/business-requests/$id/advance': {
+      id: '/api/admin/v1/business-requests/$id/advance'
+      path: '/advance'
+      fullPath: '/api/admin/v1/business-requests/$id/advance'
+      preLoaderRoute: typeof ApiAdminV1BusinessRequestsIdAdvanceRouteImport
+      parentRoute: typeof ApiAdminV1BusinessRequestsIdRoute
     }
   }
 }
@@ -1627,6 +1849,39 @@ const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
   ServicesRouteChildren,
 )
 
+interface ApiAdminV1BusinessRequestsIdRouteChildren {
+  ApiAdminV1BusinessRequestsIdAdvanceRoute: typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
+  ApiAdminV1BusinessRequestsIdConvertRoute: typeof ApiAdminV1BusinessRequestsIdConvertRoute
+}
+
+const ApiAdminV1BusinessRequestsIdRouteChildren: ApiAdminV1BusinessRequestsIdRouteChildren =
+  {
+    ApiAdminV1BusinessRequestsIdAdvanceRoute:
+      ApiAdminV1BusinessRequestsIdAdvanceRoute,
+    ApiAdminV1BusinessRequestsIdConvertRoute:
+      ApiAdminV1BusinessRequestsIdConvertRoute,
+  }
+
+const ApiAdminV1BusinessRequestsIdRouteWithChildren =
+  ApiAdminV1BusinessRequestsIdRoute._addFileChildren(
+    ApiAdminV1BusinessRequestsIdRouteChildren,
+  )
+
+interface ApiAdminV1BusinessRequestsRouteChildren {
+  ApiAdminV1BusinessRequestsIdRoute: typeof ApiAdminV1BusinessRequestsIdRouteWithChildren
+}
+
+const ApiAdminV1BusinessRequestsRouteChildren: ApiAdminV1BusinessRequestsRouteChildren =
+  {
+    ApiAdminV1BusinessRequestsIdRoute:
+      ApiAdminV1BusinessRequestsIdRouteWithChildren,
+  }
+
+const ApiAdminV1BusinessRequestsRouteWithChildren =
+  ApiAdminV1BusinessRequestsRoute._addFileChildren(
+    ApiAdminV1BusinessRequestsRouteChildren,
+  )
+
 interface ApiAdminV1PaymentsRouteChildren {
   ApiAdminV1PaymentsIdValidateRoute: typeof ApiAdminV1PaymentsIdValidateRoute
 }
@@ -1637,6 +1892,18 @@ const ApiAdminV1PaymentsRouteChildren: ApiAdminV1PaymentsRouteChildren = {
 
 const ApiAdminV1PaymentsRouteWithChildren =
   ApiAdminV1PaymentsRoute._addFileChildren(ApiAdminV1PaymentsRouteChildren)
+
+interface ApiAdminV1PlansRouteChildren {
+  ApiAdminV1PlansIdRoute: typeof ApiAdminV1PlansIdRoute
+}
+
+const ApiAdminV1PlansRouteChildren: ApiAdminV1PlansRouteChildren = {
+  ApiAdminV1PlansIdRoute: ApiAdminV1PlansIdRoute,
+}
+
+const ApiAdminV1PlansRouteWithChildren = ApiAdminV1PlansRoute._addFileChildren(
+  ApiAdminV1PlansRouteChildren,
+)
 
 interface ApiAdminV1SubscribersRouteChildren {
   ApiAdminV1SubscribersIdRoute: typeof ApiAdminV1SubscribersIdRoute
@@ -1649,6 +1916,20 @@ const ApiAdminV1SubscribersRouteChildren: ApiAdminV1SubscribersRouteChildren = {
 const ApiAdminV1SubscribersRouteWithChildren =
   ApiAdminV1SubscribersRoute._addFileChildren(
     ApiAdminV1SubscribersRouteChildren,
+  )
+
+interface ApiAdminV1TenantSubscriptionsRouteChildren {
+  ApiAdminV1TenantSubscriptionsIdRoute: typeof ApiAdminV1TenantSubscriptionsIdRoute
+}
+
+const ApiAdminV1TenantSubscriptionsRouteChildren: ApiAdminV1TenantSubscriptionsRouteChildren =
+  {
+    ApiAdminV1TenantSubscriptionsIdRoute: ApiAdminV1TenantSubscriptionsIdRoute,
+  }
+
+const ApiAdminV1TenantSubscriptionsRouteWithChildren =
+  ApiAdminV1TenantSubscriptionsRoute._addFileChildren(
+    ApiAdminV1TenantSubscriptionsRouteChildren,
   )
 
 interface ApiAdminV1TicketsRouteChildren {
@@ -1706,13 +1987,20 @@ const rootRouteChildren: RootRouteChildren = {
   TripTokenRoute: TripTokenRoute,
   ApiAdminV1AuditRoute: ApiAdminV1AuditRoute,
   ApiAdminV1BugsRoute: ApiAdminV1BugsRoute,
+  ApiAdminV1BusinessRequestsRoute: ApiAdminV1BusinessRequestsRouteWithChildren,
   ApiAdminV1InvoicesRoute: ApiAdminV1InvoicesRoute,
   ApiAdminV1OpenapiRoute: ApiAdminV1OpenapiRoute,
   ApiAdminV1PaymentsRoute: ApiAdminV1PaymentsRouteWithChildren,
+  ApiAdminV1PlansRoute: ApiAdminV1PlansRouteWithChildren,
+  ApiAdminV1PrivilegesRoute: ApiAdminV1PrivilegesRoute,
   ApiAdminV1PromotionsRoute: ApiAdminV1PromotionsRoute,
+  ApiAdminV1RolesRoute: ApiAdminV1RolesRoute,
   ApiAdminV1SubscribersRoute: ApiAdminV1SubscribersRouteWithChildren,
   ApiAdminV1SubscriptionsRoute: ApiAdminV1SubscriptionsRoute,
+  ApiAdminV1TenantSubscriptionsRoute:
+    ApiAdminV1TenantSubscriptionsRouteWithChildren,
   ApiAdminV1TicketsRoute: ApiAdminV1TicketsRouteWithChildren,
+  ApiPublicV1Business_intakeRoute: ApiPublicV1Business_intakeRoute,
   ApiPublicV1ClinicsRoute: ApiPublicV1ClinicsRoute,
   ApiPublicV1CoursesRoute: ApiPublicV1CoursesRoute,
   ApiPublicV1CredentialsRoute: ApiPublicV1CredentialsRoute,

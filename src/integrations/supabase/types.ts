@@ -181,53 +181,172 @@ export type Database = {
         }
         Relationships: []
       }
+      business_request_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          from_stage:
+            | Database["public"]["Enums"]["business_request_stage"]
+            | null
+          id: string
+          kind: string
+          note: string | null
+          payload: Json | null
+          request_id: string
+          to_stage: Database["public"]["Enums"]["business_request_stage"] | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          from_stage?:
+            | Database["public"]["Enums"]["business_request_stage"]
+            | null
+          id?: string
+          kind: string
+          note?: string | null
+          payload?: Json | null
+          request_id: string
+          to_stage?:
+            | Database["public"]["Enums"]["business_request_stage"]
+            | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          from_stage?:
+            | Database["public"]["Enums"]["business_request_stage"]
+            | null
+          id?: string
+          kind?: string
+          note?: string | null
+          payload?: Json | null
+          request_id?: string
+          to_stage?:
+            | Database["public"]["Enums"]["business_request_stage"]
+            | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_request_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "business_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_requests: {
         Row: {
+          address_line: string | null
+          assigned_to: string | null
+          city: string | null
           company_name: string
           contact_email: string
           contact_name: string
           contact_phone: string | null
+          converted_tenant_id: string | null
           country: string | null
+          cr_number: string | null
           created_at: string
+          created_by: string | null
+          currency: string
+          estimated_value_cents: number | null
+          expected_seats: number | null
           fleet_size: number | null
           id: string
+          legal_name: string | null
+          nick_name: string | null
           notes: string | null
+          postal_code: string | null
+          region: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          source: Database["public"]["Enums"]["business_request_source"]
+          source_detail: string | null
+          stage: Database["public"]["Enums"]["business_request_stage"]
           status: string
+          updated_at: string
           use_case: string | null
+          vat_number: string | null
+          website_url: string | null
         }
         Insert: {
+          address_line?: string | null
+          assigned_to?: string | null
+          city?: string | null
           company_name: string
           contact_email: string
           contact_name: string
           contact_phone?: string | null
+          converted_tenant_id?: string | null
           country?: string | null
+          cr_number?: string | null
           created_at?: string
+          created_by?: string | null
+          currency?: string
+          estimated_value_cents?: number | null
+          expected_seats?: number | null
           fleet_size?: number | null
           id?: string
+          legal_name?: string | null
+          nick_name?: string | null
           notes?: string | null
+          postal_code?: string | null
+          region?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          source?: Database["public"]["Enums"]["business_request_source"]
+          source_detail?: string | null
+          stage?: Database["public"]["Enums"]["business_request_stage"]
           status?: string
+          updated_at?: string
           use_case?: string | null
+          vat_number?: string | null
+          website_url?: string | null
         }
         Update: {
+          address_line?: string | null
+          assigned_to?: string | null
+          city?: string | null
           company_name?: string
           contact_email?: string
           contact_name?: string
           contact_phone?: string | null
+          converted_tenant_id?: string | null
           country?: string | null
+          cr_number?: string | null
           created_at?: string
+          created_by?: string | null
+          currency?: string
+          estimated_value_cents?: number | null
+          expected_seats?: number | null
           fleet_size?: number | null
           id?: string
+          legal_name?: string | null
+          nick_name?: string | null
           notes?: string | null
+          postal_code?: string | null
+          region?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          source?: Database["public"]["Enums"]["business_request_source"]
+          source_detail?: string | null
+          stage?: Database["public"]["Enums"]["business_request_stage"]
           status?: string
+          updated_at?: string
           use_case?: string | null
+          vat_number?: string | null
+          website_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "business_requests_converted_tenant_id_fkey"
+            columns: ["converted_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       certificates: {
         Row: {
@@ -2237,6 +2356,23 @@ export type Database = {
         | "superadmin"
         | "business_admin"
       booking_status: "requested" | "confirmed" | "completed" | "cancelled"
+      business_request_source:
+        | "website"
+        | "call_center"
+        | "partner"
+        | "referral"
+        | "event"
+        | "other"
+      business_request_stage:
+        | "request"
+        | "contacted"
+        | "demo"
+        | "prospect"
+        | "lead"
+        | "negotiation"
+        | "subscribed"
+        | "rejected"
+        | "archived"
       credential_kind:
         | "paramedic_license"
         | "driver_license"
@@ -2420,6 +2556,25 @@ export const Constants = {
         "business_admin",
       ],
       booking_status: ["requested", "confirmed", "completed", "cancelled"],
+      business_request_source: [
+        "website",
+        "call_center",
+        "partner",
+        "referral",
+        "event",
+        "other",
+      ],
+      business_request_stage: [
+        "request",
+        "contacted",
+        "demo",
+        "prospect",
+        "lead",
+        "negotiation",
+        "subscribed",
+        "rejected",
+        "archived",
+      ],
       credential_kind: [
         "paramedic_license",
         "driver_license",
