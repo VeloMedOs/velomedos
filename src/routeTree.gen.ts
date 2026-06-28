@@ -48,6 +48,7 @@ import { Route as AuthenticatedCallCenterRouteImport } from './routes/_authentic
 import { Route as AuthenticatedBusinessRouteImport } from './routes/_authenticated/business'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedSuperadminApiDocsRouteImport } from './routes/_authenticated/superadmin.api-docs'
 import { Route as ApiPublicV1Work_ordersRouteImport } from './routes/api/public/v1/work_orders'
 import { Route as ApiPublicV1Web_intakeRouteImport } from './routes/api/public/v1/web_intake'
 import { Route as ApiPublicV1StatsRouteImport } from './routes/api/public/v1/stats'
@@ -278,6 +279,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSuperadminApiDocsRoute =
+  AuthenticatedSuperadminApiDocsRouteImport.update({
+    id: '/api-docs',
+    path: '/api-docs',
+    getParentRoute: () => AuthenticatedSuperadminRoute,
+  } as any)
 const ApiPublicV1Work_ordersRoute = ApiPublicV1Work_ordersRouteImport.update({
   id: '/api/public/v1/work_orders',
   path: '/api/public/v1/work_orders',
@@ -494,7 +501,7 @@ export interface FileRoutesByFullPath {
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
-  '/superadmin': typeof AuthenticatedSuperadminRoute
+  '/superadmin': typeof AuthenticatedSuperadminRouteWithChildren
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
@@ -502,6 +509,7 @@ export interface FileRoutesByFullPath {
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
+  '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
@@ -569,7 +577,7 @@ export interface FileRoutesByTo {
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
   '/screening': typeof AuthenticatedScreeningRoute
-  '/superadmin': typeof AuthenticatedSuperadminRoute
+  '/superadmin': typeof AuthenticatedSuperadminRouteWithChildren
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
@@ -577,6 +585,7 @@ export interface FileRoutesByTo {
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
+  '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
@@ -646,7 +655,7 @@ export interface FileRoutesById {
   '/_authenticated/provider': typeof AuthenticatedProviderRoute
   '/_authenticated/rentals': typeof AuthenticatedRentalsRoute
   '/_authenticated/screening': typeof AuthenticatedScreeningRoute
-  '/_authenticated/superadmin': typeof AuthenticatedSuperadminRoute
+  '/_authenticated/superadmin': typeof AuthenticatedSuperadminRouteWithChildren
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/clinics/$city': typeof ClinicsCityRoute
@@ -654,6 +663,7 @@ export interface FileRoutesById {
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
+  '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
@@ -731,6 +741,7 @@ export interface FileRouteTypes {
     | '/resources/comparison'
     | '/services/$slug'
     | '/trip/$token'
+    | '/superadmin/api-docs'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
     | '/api/admin/v1/invoices'
@@ -806,6 +817,7 @@ export interface FileRouteTypes {
     | '/resources/comparison'
     | '/services/$slug'
     | '/trip/$token'
+    | '/superadmin/api-docs'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
     | '/api/admin/v1/invoices'
@@ -882,6 +894,7 @@ export interface FileRouteTypes {
     | '/resources/comparison'
     | '/services/$slug'
     | '/trip/$token'
+    | '/_authenticated/superadmin/api-docs'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
     | '/api/admin/v1/invoices'
@@ -1246,6 +1259,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/superadmin/api-docs': {
+      id: '/_authenticated/superadmin/api-docs'
+      path: '/api-docs'
+      fullPath: '/superadmin/api-docs'
+      preLoaderRoute: typeof AuthenticatedSuperadminApiDocsRouteImport
+      parentRoute: typeof AuthenticatedSuperadminRoute
+    }
     '/api/public/v1/work_orders': {
       id: '/api/public/v1/work_orders'
       path: '/api/public/v1/work_orders'
@@ -1494,6 +1514,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedSuperadminRouteChildren {
+  AuthenticatedSuperadminApiDocsRoute: typeof AuthenticatedSuperadminApiDocsRoute
+}
+
+const AuthenticatedSuperadminRouteChildren: AuthenticatedSuperadminRouteChildren =
+  {
+    AuthenticatedSuperadminApiDocsRoute: AuthenticatedSuperadminApiDocsRoute,
+  }
+
+const AuthenticatedSuperadminRouteWithChildren =
+  AuthenticatedSuperadminRoute._addFileChildren(
+    AuthenticatedSuperadminRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
@@ -1508,7 +1542,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProviderRoute: typeof AuthenticatedProviderRoute
   AuthenticatedRentalsRoute: typeof AuthenticatedRentalsRoute
   AuthenticatedScreeningRoute: typeof AuthenticatedScreeningRoute
-  AuthenticatedSuperadminRoute: typeof AuthenticatedSuperadminRoute
+  AuthenticatedSuperadminRoute: typeof AuthenticatedSuperadminRouteWithChildren
   AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
   AuthenticatedTripsRoute: typeof AuthenticatedTripsRoute
 }
@@ -1527,7 +1561,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProviderRoute: AuthenticatedProviderRoute,
   AuthenticatedRentalsRoute: AuthenticatedRentalsRoute,
   AuthenticatedScreeningRoute: AuthenticatedScreeningRoute,
-  AuthenticatedSuperadminRoute: AuthenticatedSuperadminRoute,
+  AuthenticatedSuperadminRoute: AuthenticatedSuperadminRouteWithChildren,
   AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
   AuthenticatedTripsRoute: AuthenticatedTripsRoute,
 }
