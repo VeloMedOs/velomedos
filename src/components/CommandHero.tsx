@@ -812,57 +812,8 @@ function TeamView() {
           {routes.map((r, i) => (
             <RouteBubble key={i} minutes={r.minutes} primary={i === 0} index={i} total={routes.length} />
           ))}
-          {/* Bottom sheet: ETA + telemetry — elite glass card */}
-          <div
-            data-debug-id="team-eta-bubble"
-            className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-[22px] p-[1px] bg-gradient-to-br from-white/80 via-white/30 to-white/10 sm:w-[320px]"
-            style={{
-              boxShadow: tel.progress >= 0.999
-                ? "0 12px 42px -12px rgba(40,214,182,0.38)"
-                : "0 12px 42px -12px rgba(79,182,247,0.35)",
-            }}
-          >
-            <div className="relative rounded-[21px] bg-white/20 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 text-slate-900 overflow-hidden">
-              {/* subtle readability wash */}
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-white/25 via-white/5 to-transparent" />
-              {/* subtle progress wash at bottom */}
-              <div
-                className="absolute bottom-0 left-0 h-[3px] transition-[width] duration-300"
-                style={{
-                  width: `${Math.round(Math.min(tel.progress, 1) * 100)}%`,
-                  background: tel.progress >= 0.999
-                    ? "linear-gradient(90deg, #28D6B6, #4FB6F7)"
-                    : "linear-gradient(90deg, #4FB6F7, #1F6FEB)",
-                  boxShadow: tel.progress >= 0.999
-                    ? "0 0 14px rgba(40,214,182,0.5)"
-                    : "0 0 14px rgba(79,182,247,0.5)",
-                }}
-              />
-              <div className="relative min-w-0" style={{ textShadow: "0 1px 1px rgba(255,255,255,0.65)" }}>
-                <div className="text-[9px] font-bold uppercase tracking-[0.22em] text-slate-500/90 leading-none mb-1">
-                  ETA · {TEAM_B.label}
-                </div>
-                <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight leading-tight truncate">
-                  General Hospital
-                </div>
-                <div
-                  className="text-[34px] font-bold tracking-tighter leading-none mt-1"
-                  style={{ color: tel.progress >= 0.999 ? BRAND.tealDeep : BRAND.blueDeep, fontVariantNumeric: "tabular-nums" }}
-                >
-                  {tel.progress >= 0.999 ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
-                </div>
-              </div>
-              <div className="relative flex flex-col items-end text-[10px] text-slate-700 leading-tight min-w-0"
-                style={{ textShadow: "0 1px 1px rgba(255,255,255,0.65)", fontVariantNumeric: "tabular-nums" }}>
-                <span className="flex items-center gap-1.5 font-semibold">
-                  <Clock className="size-3.5" style={{ color: tel.progress >= 0.999 ? BRAND.tealDeep : BRAND.blueDeep }} />
-                  {Math.round(Math.min(tel.progress, 1) * 100)}%
-                </span>
-                <span className="mono text-slate-500">{Math.max(0, tel.totalKm * (1 - Math.min(tel.progress, 1))).toFixed(2)} km left</span>
-                <span className="mono text-slate-500">{Math.round(tel.speedKmh)} km/h</span>
-              </div>
-            </div>
-          </div>
+          {/* Bottom sheet: ETA + telemetry — adaptive glass card */}
+          <TeamEtaCard tel={tel} />
           {/* Compass / layers */}
           <div className="absolute top-3 right-3 z-[45] flex flex-col gap-2">
             <button aria-label="Map layers" className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Layers className="size-4" /></button>
