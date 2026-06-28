@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://velomedos.lovable.app/sitemap.xml
+Sitemap: https://velomedos.com/sitemap.xml
 

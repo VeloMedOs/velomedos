@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { SITE } from "@/lib/site-config";
 import { BrandMark, BrandWordmark } from "@/components/BrandMark";
+import { trackNavClick } from "@/lib/track-nav";
 
 export function SiteHeader() {
   return (
@@ -27,6 +28,7 @@ export function SiteHeader() {
               to={to}
               className="relative px-3 py-2 hover:text-foreground transition-colors"
               activeProps={{ className: "text-foreground [&_span.indicator]:opacity-100" }}
+              onClick={label === "Privacy" ? () => trackNavClick({ event_name: "privacy_nav_click", target_path: to, surface: "header" }) : undefined}
             >
               {label}
               <span aria-hidden className="indicator absolute left-3 right-3 -bottom-px h-px opacity-0 transition-opacity" style={{ background: "var(--gradient-brand)" }} />
