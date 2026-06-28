@@ -877,6 +877,198 @@ export type Database = {
           },
         ]
       }
+      oauth_events: {
+        Row: {
+          attempt_id: string | null
+          code: string | null
+          created_at: string
+          email: string | null
+          id: string
+          intended_role: string | null
+          ip: string | null
+          metadata: Json | null
+          outcome: string
+          provider: string
+          resolved_role: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attempt_id?: string | null
+          code?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          intended_role?: string | null
+          ip?: string | null
+          metadata?: Json | null
+          outcome: string
+          provider?: string
+          resolved_role?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attempt_id?: string | null
+          code?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          intended_role?: string | null
+          ip?: string | null
+          metadata?: Json | null
+          outcome?: string
+          provider?: string
+          resolved_role?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      patient_allergies: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          reaction: string | null
+          severity: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          reaction?: string | null
+          severity?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          reaction?: string | null
+          severity?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      patient_conditions: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          notes: string | null
+          severity: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          notes?: string | null
+          severity?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          notes?: string | null
+          severity?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      patient_connections: {
+        Row: {
+          created_at: string
+          id: string
+          owner_id: string
+          peer_id: string | null
+          peer_label: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          owner_id: string
+          peer_id?: string | null
+          peer_label?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          owner_id?: string
+          peer_id?: string | null
+          peer_label?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      patient_emergency_contacts: {
+        Row: {
+          created_at: string
+          id: string
+          is_primary: boolean
+          name: string
+          phone: string
+          relation: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          name: string
+          phone: string
+          relation?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          name?: string
+          phone?: string
+          relation?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      patient_insurance: {
+        Row: {
+          created_at: string
+          id: string
+          payer: string
+          policy_no: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          valid_until: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payer: string
+          policy_no?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          valid_until?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payer?: string
+          policy_no?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           key: string
@@ -1474,28 +1666,58 @@ export type Database = {
       }
       profiles: {
         Row: {
+          blood_type: string | null
           created_at: string
           default_role: Database["public"]["Enums"]["app_role"]
+          display_name: string | null
+          dob: string | null
           email: string | null
           full_name: string | null
+          gender: string | null
           id: string
+          member_code: string | null
+          national_id_last4: string | null
+          nationality: string | null
+          passport_number: string | null
           phone: string | null
+          updated_at: string
+          verified_at: string | null
         }
         Insert: {
+          blood_type?: string | null
           created_at?: string
           default_role?: Database["public"]["Enums"]["app_role"]
+          display_name?: string | null
+          dob?: string | null
           email?: string | null
           full_name?: string | null
+          gender?: string | null
           id: string
+          member_code?: string | null
+          national_id_last4?: string | null
+          nationality?: string | null
+          passport_number?: string | null
           phone?: string | null
+          updated_at?: string
+          verified_at?: string | null
         }
         Update: {
+          blood_type?: string | null
           created_at?: string
           default_role?: Database["public"]["Enums"]["app_role"]
+          display_name?: string | null
+          dob?: string | null
           email?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
+          member_code?: string | null
+          national_id_last4?: string | null
+          nationality?: string | null
+          passport_number?: string | null
           phone?: string | null
+          updated_at?: string
+          verified_at?: string | null
         }
         Relationships: []
       }
@@ -2384,6 +2606,7 @@ export type Database = {
       }
     }
     Functions: {
+      generate_member_code: { Args: never; Returns: string }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
@@ -2412,6 +2635,7 @@ export type Database = {
           value: Json
         }[]
       }
+      profile_completeness: { Args: { _user_id: string }; Returns: number }
     }
     Enums: {
       ambulance_status:
