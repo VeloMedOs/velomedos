@@ -72,7 +72,7 @@ type TabId =
   | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug"
   | "refunds" | "tickets" | "reviews" | "chat" | "push"
   | "tests" | "audit" | "smoke" | "bugs" | "releases" | "automation"
-  | "workspace" | "team" | "security";
+  | "workspace" | "team" | "security" | "legal";
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
