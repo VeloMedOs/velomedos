@@ -80,7 +80,7 @@ function Developer() {
           <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Developer console</div>
           <h1 className="text-2xl font-bold tracking-tight">API keys</h1>
         </div>
-        <Link to="/api-docs" className="mono text-[10px] uppercase tracking-widest px-3 py-1.5 rounded border border-hairline hover:bg-panel">Open API docs →</Link>
+        <Link to="/superadmin/api-docs" className="mono text-[10px] uppercase tracking-widest px-3 py-1.5 rounded border border-hairline hover:bg-panel">Open API docs →</Link>
       </div>
 
       <div className="rounded-lg border border-hairline bg-panel p-4 space-y-3">
