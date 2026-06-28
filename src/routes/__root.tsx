@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -15,7 +15,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { organizationLd, jsonld } from "@/components/Jsonld";
 import { SITE } from "@/lib/site-config";
-import { DebugOverlay } from "@/components/DebugOverlay";
+// Lazy-load DebugOverlay — it's an opt-in developer tool toggled via
+// localStorage; no reason to ship it in the public LCP bundle.
+const DebugOverlay = lazy(() =>
+  import("@/components/DebugOverlay").then((m) => ({ default: m.DebugOverlay })),
+);
 
 function NotFoundComponent() {
   return (
@@ -103,7 +107,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&display=swap" },
+      // Pre-resolve DNS+TLS to Google Fonts before the stylesheet request — saves
+      // 200–500ms on mobile cold loads. `crossorigin` is required for fonts.gstatic
+      // so the font file fetch reuses the warmed connection.
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      // Trimmed weights: Inter 400/600/700, Fraunces 400/600, Mono 500.
+      // Removed 500-Inter, 500/700-Fraunces, 400/600-Mono — unused or near-duplicates.
+      // Saves ~80–120KB of font payload on mobile.
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600&family=JetBrains+Mono:wght@500&display=swap" },
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/favicon.png" },
@@ -148,7 +160,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <Toaster theme="dark" position="top-right" />
-      <DebugOverlay />
+      <Suspense fallback={null}>
+        <DebugOverlay />
+      </Suspense>
     </QueryClientProvider>
   );
 }
