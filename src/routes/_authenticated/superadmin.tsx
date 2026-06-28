@@ -35,6 +35,12 @@ type Identity = {
   tenants: { tenant_id: string; role: string; company_name: string | null; slug: string | null }[];
   ownedApiKeys: number;
   fetchedAt: string;
+  lookupUserId: string | null;
+  roleHits: { role: string; source: "user_roles" | "portal_role_assignments" | "tenant_members"; tenant_id?: string | null }[];
+  roleErrors: { user_roles: string | null; portal_role_assignments: string | null; tenant_members: string | null };
+  diagnosticCode: string;
+  source: "api" | "fallback";
+  requestId: string | null;
 };
 
 const ALL_ROLES = ["superadmin","admin","dispatcher","developer","business_admin","paramedic","driver","patient"] as const;
@@ -65,11 +71,50 @@ function Superadmin() {
   const [stats, setStats] = useState({ users: 0, incidents: 0, ambulances: 0, apiKeys: 0, webhooks: 0 });
 
   async function diagnose(): Promise<Identity> {
+    // Prefer the dedicated diagnostics endpoint so the UI stays in sync with
+    // the same role-resolution logic the API uses. Fall back to a direct
+    // read against `user_roles` only if the endpoint is unreachable.
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    try {
+      const res = await fetch("/api/admin/v1/diagnostics/superadmin", {
+        headers: token ? { authorization: `Bearer ${token}` } : {},
+      });
+      if (res.ok) {
+        const j = await res.json();
+        const id: Identity = {
+          authed: !!j.authed,
+          userId: j.user_id ?? null,
+          email: j.email ?? null,
+          emailVerified: !!j.email_verified,
+          provider: j.provider ?? null,
+          roles: (j.resolved_roles ?? []) as string[],
+          rolesError: j.role_errors?.user_roles ?? null,
+          tenants: (j.tenants ?? []) as Identity["tenants"],
+          ownedApiKeys: j.owned_api_keys ?? 0,
+          fetchedAt: j.fetched_at ?? new Date().toISOString(),
+          lookupUserId: j.lookup_user_id ?? null,
+          roleHits: (j.roles ?? []) as Identity["roleHits"],
+          roleErrors: j.role_errors ?? { user_roles: null, portal_role_assignments: null, tenant_members: null },
+          diagnosticCode: j.code ?? "UNKNOWN",
+          source: "api",
+          requestId: j.request_id ?? null,
+        };
+        setIdentity(id);
+        setAllowed(id.roles.includes("superadmin"));
+        return id;
+      }
+    } catch { /* fall through to fallback */ }
+
+    // Fallback path — direct DB read.
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       const id: Identity = {
         authed: false, userId: null, email: null, emailVerified: false, provider: null,
         roles: [], rolesError: null, tenants: [], ownedApiKeys: 0, fetchedAt: new Date().toISOString(),
+        lookupUserId: null, roleHits: [],
+        roleErrors: { user_roles: null, portal_role_assignments: null, tenant_members: null },
+        diagnosticCode: "AUTH_MISSING", source: "fallback", requestId: null,
       };
       setIdentity(id); setAllowed(false); return id;
     }
@@ -81,6 +126,10 @@ function Superadmin() {
       (supabase as any).from("api_keys").select("id", { count: "exact", head: true }).eq("owner_id", user.id),
     ]);
     const roles: string[] = (roleRows ?? []).map((r: any) => r.role);
+    const hits: Identity["roleHits"] = [
+      ...((roleRows ?? []) as any[]).map((r) => ({ role: r.role as string, source: "user_roles" as const })),
+      ...((memberRows ?? []) as any[]).map((m) => ({ role: m.role as string, source: "tenant_members" as const, tenant_id: m.tenant_id as string })),
+    ];
     const id: Identity = {
       authed: true,
       userId: user.id,
@@ -96,6 +145,12 @@ function Superadmin() {
       })),
       ownedApiKeys: keyCount ?? 0,
       fetchedAt: new Date().toISOString(),
+      lookupUserId: user.id,
+      roleHits: hits,
+      roleErrors: { user_roles: rolesErr?.message ?? null, portal_role_assignments: null, tenant_members: null },
+      diagnosticCode: roles.includes("superadmin") ? "OK" : (roles.length === 0 ? "NO_ROLES_ASSIGNED" : "ROLE_INSUFFICIENT"),
+      source: "fallback",
+      requestId: null,
     };
     setIdentity(id);
     setAllowed(roles.includes("superadmin"));
@@ -364,21 +419,37 @@ function IdentityPanel({ identity, refresh }: { identity: Identity; refresh: () 
         <div className="p-4 grid md:grid-cols-2 gap-4 text-xs">
           <div className="space-y-2">
             <Row label="user_id" value={identity.userId ?? "—"} onCopy={identity.userId ? () => copy(identity.userId!) : undefined} mono />
+            <Row label="lookup_user_id" value={identity.lookupUserId ?? "—"} onCopy={identity.lookupUserId ? () => copy(identity.lookupUserId!) : undefined} mono />
             <Row label="email" value={identity.email ?? "—"} />
             <Row label="email_verified" value={identity.emailVerified ? "yes" : "no"} accent={identity.emailVerified ? "text-stable" : "text-caution"} />
             <Row label="auth_provider" value={identity.provider ?? "—"} />
+            <Row label="diagnostic_code" value={identity.diagnosticCode} mono accent={identity.diagnosticCode === "OK" ? "text-stable" : "text-caution"} />
+            <Row label="source" value={identity.source === "api" ? "diagnostics API" : "client fallback"} accent={identity.source === "api" ? "text-stable" : "text-caution"} />
+            {identity.requestId && <Row label="request_id" value={identity.requestId} mono onCopy={() => copy(identity.requestId!)} />}
             <Row label="fetched_at" value={new Date(identity.fetchedAt).toLocaleString()} />
           </div>
           <div className="space-y-2">
             <div>
-              <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">resolved roles ({identity.roles.length})</div>
-              <div className="flex flex-wrap gap-1">
-                {identity.roles.length === 0 && <span className="mono text-[10px] text-emergency">none</span>}
-                {identity.roles.map((r) => (
-                  <span key={r} className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${r === "superadmin" ? "bg-emergency/20 text-emergency" : "bg-panel-elevated text-foreground"}`}>{r}</span>
+              <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">resolved roles ({identity.roles.length}) · by source</div>
+              {identity.roleHits.length === 0 && <span className="mono text-[10px] text-emergency">none</span>}
+              <div className="space-y-1">
+                {identity.roleHits.map((h, i) => (
+                  <div key={`${h.source}-${h.role}-${h.tenant_id ?? "g"}-${i}`} className="flex items-center justify-between gap-2 border border-hairline rounded px-2 py-1">
+                    <span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${h.role === "superadmin" ? "bg-emergency/20 text-emergency" : "bg-panel-elevated text-foreground"}`}>{h.role}</span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="mono text-[9px] uppercase tracking-widest text-muted-foreground">{h.source}</span>
+                      {h.tenant_id && (
+                        <button onClick={() => copy(h.tenant_id!)} title={h.tenant_id} className="mono text-[9px] text-action hover:underline flex items-center gap-1">
+                          {h.tenant_id.slice(0, 8)}… <Copy className="size-2.5" />
+                        </button>
+                      )}
+                    </span>
+                  </div>
                 ))}
               </div>
-              {identity.rolesError && <div className="mono text-[10px] text-emergency mt-1">role lookup error: {identity.rolesError}</div>}
+              {identity.roleErrors.user_roles && <div className="mono text-[10px] text-emergency mt-1">user_roles error: {identity.roleErrors.user_roles}</div>}
+              {identity.roleErrors.portal_role_assignments && <div className="mono text-[10px] text-emergency mt-1">portal_role_assignments error: {identity.roleErrors.portal_role_assignments}</div>}
+              {identity.roleErrors.tenant_members && <div className="mono text-[10px] text-emergency mt-1">tenant_members error: {identity.roleErrors.tenant_members}</div>}
             </div>
             <div>
               <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">tenants ({identity.tenants.length})</div>
@@ -386,8 +457,13 @@ function IdentityPanel({ identity, refresh }: { identity: Identity; refresh: () 
               <div className="space-y-1">
                 {identity.tenants.map((t) => (
                   <div key={t.tenant_id} className="flex items-center justify-between gap-2 border border-hairline rounded px-2 py-1">
-                    <span className="truncate">{t.company_name ?? t.slug ?? t.tenant_id}</span>
-                    <span className="mono text-[10px] text-action uppercase">{t.role}</span>
+                    <span className="flex flex-col min-w-0">
+                      <span className="truncate">{t.company_name ?? t.slug ?? "(unnamed)"}</span>
+                      <button onClick={() => copy(t.tenant_id)} className="mono text-[9px] text-muted-foreground hover:text-foreground text-left truncate flex items-center gap-1">
+                        {t.tenant_id} <Copy className="size-2.5" />
+                      </button>
+                    </span>
+                    <span className="mono text-[10px] text-action uppercase shrink-0">{t.role}</span>
                   </div>
                 ))}
               </div>
