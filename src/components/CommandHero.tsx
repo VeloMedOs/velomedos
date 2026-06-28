@@ -828,6 +828,75 @@ function TeamView() {
 }
 
 function RouteBubble({ minutes, primary, index, total }: { minutes: number; primary: boolean; index: number; total: number }) {
+
+function TeamEtaCard({ tel }: { tel: Telemetry }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const tone = useAdaptiveGlass(ref, { mode: "auto" });
+  const arrived = tel.progress >= 0.999;
+  const accent = arrived ? BRAND.tealDeep : BRAND.blueDeep;
+  return (
+    <div
+      ref={ref}
+      data-debug-id="team-eta-bubble"
+      className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-[22px] p-[1px] sm:w-[320px] transition-[box-shadow,background] duration-500"
+      style={{
+        background: `linear-gradient(135deg, ${tone.border}, rgba(255,255,255,0.05))`,
+        boxShadow: arrived
+          ? "0 14px 44px -14px rgba(40,214,182,0.42)"
+          : tone.ringShadow,
+      }}
+    >
+      <div
+        className="relative rounded-[21px] backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 overflow-hidden transition-colors duration-500"
+        style={{
+          background: tone.bg,
+          color: tone.text,
+          // soft saturating wash for crispness without losing transparency
+          backdropFilter: "blur(20px) saturate(1.35)",
+        }}
+      >
+        {/* progress strip */}
+        <div
+          className="absolute bottom-0 left-0 h-[3px] transition-[width] duration-300"
+          style={{
+            width: `${Math.round(Math.min(tel.progress, 1) * 100)}%`,
+            background: arrived
+              ? "linear-gradient(90deg, #28D6B6, #4FB6F7)"
+              : "linear-gradient(90deg, #4FB6F7, #1F6FEB)",
+            boxShadow: arrived
+              ? "0 0 14px rgba(40,214,182,0.5)"
+              : "0 0 14px rgba(79,182,247,0.5)",
+          }}
+        />
+        <div className="relative min-w-0" style={{ textShadow: tone.textShadow }}>
+          <div className="text-[9px] font-bold uppercase tracking-[0.22em] leading-none mb-1" style={{ color: tone.textMuted }}>
+            ETA · {TEAM_B.label}
+          </div>
+          <div className="text-[11px] font-semibold uppercase tracking-tight leading-tight truncate" style={{ color: tone.textMuted }}>
+            General Hospital
+          </div>
+          <div
+            className="text-[34px] font-bold tracking-tighter leading-none mt-1"
+            style={{ color: accent, fontVariantNumeric: "tabular-nums" }}
+          >
+            {arrived ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
+          </div>
+        </div>
+        <div className="relative flex flex-col items-end text-[10px] leading-tight min-w-0"
+          style={{ color: tone.textMuted, textShadow: tone.textShadow, fontVariantNumeric: "tabular-nums" }}>
+          <span className="flex items-center gap-1.5 font-semibold" style={{ color: tone.text }}>
+            <Clock className="size-3.5" style={{ color: accent }} />
+            {Math.round(Math.min(tel.progress, 1) * 100)}%
+          </span>
+          <span className="mono">{Math.max(0, tel.totalKm * (1 - Math.min(tel.progress, 1))).toFixed(2)} km left</span>
+          <span className="mono">{Math.round(tel.speedKmh)} km/h</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RouteBubble({ minutes, primary, index, total }: { minutes: number; primary: boolean; index: number; total: number }) {
   const tel = useTelemetry();
   const arrived = primary && tel.progress >= 0.999;
   // distribute alternates around upper-center
