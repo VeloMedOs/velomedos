@@ -9,13 +9,13 @@ type Stage = typeof STAGES[number];
 
 const STAGE_META: Record<Stage, { label: string; tone: string }> = {
   request:     { label: "Request",     tone: "bg-muted text-muted-foreground" },
-  contacted:   { label: "Contacted",   tone: "bg-action/15 text-action" },
-  demo:        { label: "Demo",        tone: "bg-action/25 text-action" },
+  contacted:   { label: "Contacted",   tone: "bg-sky/15 text-sky" },
+  demo:        { label: "Demo",        tone: "bg-sky/25 text-sky" },
   prospect:    { label: "Prospect",    tone: "bg-caution/20 text-caution" },
-  lead:        { label: "Lead",        tone: "bg-caution/30 text-caution" },
-  negotiation: { label: "Negotiation", tone: "bg-teal/20 text-teal" },
+  lead:        { label: "Lead",        tone: "bg-teal/20 text-teal" },
+  negotiation: { label: "Negotiation", tone: "bg-teal/30 text-teal" },
   subscribed:  { label: "Subscribed",  tone: "bg-stable/20 text-stable" },
-  rejected:    { label: "Rejected",    tone: "bg-emergency/20 text-emergency" },
+  rejected:    { label: "Rejected",    tone: "bg-coral/20 text-coral" },
 };
 
 const SOURCE_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -205,7 +205,7 @@ function RequestDetail({ request, onClose, onAdvance, onDelete }: {
             {!loading && events.length === 0 && <div className="text-xs text-muted-foreground">No events yet.</div>}
             {events.map((ev) => (
               <div key={ev.id} className="border-l-2 border-teal/40 pl-2">
-                <div className="mono text-[10px] uppercase tracking-widest text-action flex items-center gap-1">
+                <div className="mono text-[10px] uppercase tracking-widest text-sky flex items-center gap-1">
                   {ev.kind} {ev.from_stage && ev.to_stage && <>· {ev.from_stage} <ArrowRight className="size-2.5" /> {ev.to_stage}</>}
                 </div>
                 {ev.note && <div className="text-xs">{ev.note}</div>}
@@ -213,7 +213,7 @@ function RequestDetail({ request, onClose, onAdvance, onDelete }: {
               </div>
             ))}
           </div>
-          <button onClick={onDelete} className="w-full mono text-[10px] uppercase tracking-widest px-2 py-1.5 rounded border border-emergency/40 text-emergency hover:bg-emergency/10 inline-flex items-center justify-center gap-1">
+          <button onClick={onDelete} className="w-full mono text-[10px] uppercase tracking-widest px-2 py-1.5 rounded border border-coral/40 text-coral hover:bg-coral/10 inline-flex items-center justify-center gap-1">
             <Trash2 className="size-3" /> Delete request
           </button>
         </aside>
@@ -241,7 +241,7 @@ function Detail({ k, v, mono, link }: { k: string; v: string | null; mono?: bool
     <div className="space-y-0.5">
       <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">{k}</div>
       {link && v
-        ? <a href={v} target="_blank" rel="noreferrer" className="text-action hover:underline break-all">{v}</a>
+        ? <a href={v} target="_blank" rel="noreferrer" className="text-sky hover:underline break-all">{v}</a>
         : <div className={`${mono ? "mono" : ""} break-words`}>{v || "—"}</div>}
     </div>
   );

@@ -59,6 +59,9 @@
   --color-teal: var(--teal);
   --color-sky: var(--sky);
   --color-coral: var(--coral);
+  --color-teal-deep: var(--teal-deep);
+  --color-sky-deep: var(--sky-deep);
+  --color-coral-deep: var(--coral-deep);
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-serif: 'Fraunces', ui-serif, Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -92,9 +95,13 @@
   --action-foreground: oklch(0.14 0.02 250);
   --stable: oklch(0.70 0.16 155);                 /* emerald */
   --caution: oklch(0.78 0.16 75);                 /* amber */
-  --teal: oklch(0.74 0.13 195);
-  --sky: oklch(0.78 0.13 230);
-  --coral: oklch(0.72 0.18 30);
+  /* Brand palette — matches src/lib/brand.ts (Teal #28D6B6 · Blue #4FB6F7 · Coral #FF6E5B). */
+  --teal: oklch(0.789 0.131 174);     /* #28D6B6 */
+  --teal-deep: oklch(0.566 0.108 173); /* #0F8F77 */
+  --sky: oklch(0.766 0.123 234);       /* #4FB6F7 */
+  --sky-deep: oklch(0.561 0.180 256);  /* #1F6FEB */
+  --coral: oklch(0.725 0.181 27);      /* #FF6E5B */
+  --coral-deep: oklch(0.610 0.193 28); /* #D94A38 */
   --border: oklch(0.32 0.018 250);
   --input: oklch(0.26 0.018 250);
   --ring: oklch(0.72 0.16 230);

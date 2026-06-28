@@ -48,11 +48,11 @@ type Identity = {
 const ALL_ROLES = ["superadmin","admin","dispatcher","developer","business_admin","paramedic","driver","patient"] as const;
 const ALL_SCOPES = ["fleet:read","incidents:read","incidents:write","clinics:read","courses:read","compliance:read","screening:read","screening:write","debug:read","debug:write"] as const;
 const STATUS_COLORS: Record<string, string> = {
-  trialing:   "bg-action/20 text-action",
+  trialing:   "bg-sky/20 text-sky",
   active:     "bg-stable/20 text-stable",
   past_due:   "bg-caution/20 text-caution",
   cancelled:  "bg-muted text-muted-foreground",
-  suspended:  "bg-emergency/20 text-emergency",
+  suspended:  "bg-coral/20 text-coral",
 };
 const fmtMoney = (c: number, cur: string) =>
   c === 0 ? "Custom" : new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(c / 100);
@@ -307,12 +307,12 @@ function Superadmin() {
     <main className="max-w-[1600px] mx-auto p-6 space-y-6">
       <header className="flex items-end justify-between">
         <div>
-          <div className="mono text-[10px] uppercase tracking-[0.22em] text-emergency flex items-center gap-2"><Shield className="size-3" /> VeloMed Superadmin</div>
+          <div className="mono text-[10px] uppercase tracking-[0.22em] text-teal flex items-center gap-2"><Shield className="size-3" /> VeloMed Superadmin</div>
           <h1 className="text-2xl font-bold tracking-tight">Platform control plane</h1>
           <div className="text-xs text-muted-foreground mt-1">Tenants · subscriptions · roles · pipeline</div>
         </div>
         <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-          <span className="size-1.5 rounded-full bg-emergency animate-pulse" /> Global · all tenants
+          <span className="size-1.5 rounded-full bg-teal animate-pulse" /> Global · all tenants
         </div>
       </header>
 
@@ -321,7 +321,7 @@ function Superadmin() {
         {[
           { label: "Tenants", value: tenants.length, icon: Building2 },
           { label: "Active subs", value: activeSubs.length, icon: CreditCard, accent: "text-stable" },
-          { label: "MRR", value: fmtMoney(mrrCents, "USD"), icon: BadgeCheck, accent: "text-action" },
+          { label: "MRR", value: fmtMoney(mrrCents, "USD"), icon: BadgeCheck, accent: "text-sky" },
           { label: "New requests", value: newReqs, icon: Webhook, accent: newReqs > 0 ? "text-caution" : "" },
           { label: "Users", value: stats.users, icon: Users },
           { label: "API keys", value: stats.apiKeys, icon: KeyRound },
@@ -329,7 +329,7 @@ function Superadmin() {
           <div key={c.label} className="bg-panel p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{c.label}</div>
-              <c.icon className={`size-4 ${(c as any).accent ?? "text-action"}`} />
+              <c.icon className={`size-4 ${(c as any).accent ?? "text-sky"}`} />
             </div>
             <div className="text-2xl font-bold mono">{c.value}</div>
           </div>
@@ -342,7 +342,7 @@ function Superadmin() {
           const active = tab === t.id;
           return (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex items-center gap-2 px-3 py-2 mono text-[11px] uppercase tracking-widest border-b-2 transition-colors ${active ? "border-emergency text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+              className={`flex items-center gap-2 px-3 py-2 mono text-[11px] uppercase tracking-widest border-b-2 transition-colors ${active ? "border-teal text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
               <t.icon className="size-3.5" />{t.label}
               {t.badge ? <span className="ml-1 px-1.5 py-0.5 rounded bg-caution/20 text-caution text-[9px]">{t.badge}</span> : null}
             </button>
@@ -411,9 +411,9 @@ function IdentityPanel({ identity, refresh }: { identity: Identity; refresh: () 
   return (
     <section className="rounded-xl border border-hairline bg-panel overflow-hidden">
       <button onClick={() => setOpen((v) => !v)} className="w-full px-4 py-2.5 border-b border-hairline mono text-[10px] uppercase tracking-widest text-muted-foreground flex items-center justify-between hover:bg-panel-elevated">
-        <span className="flex items-center gap-2"><Fingerprint className="size-3.5 text-action" /> Identity debug · superadmin-only</span>
+        <span className="flex items-center gap-2"><Fingerprint className="size-3.5 text-sky" /> Identity debug · superadmin-only</span>
         <span className="flex items-center gap-2">
-          <span className={`size-1.5 rounded-full ${isSuper ? "bg-stable" : "bg-emergency"}`} />
+          <span className={`size-1.5 rounded-full ${isSuper ? "bg-stable" : "bg-coral"}`} />
           {isSuper ? "superadmin" : "no role"}
         </span>
       </button>
@@ -433,15 +433,15 @@ function IdentityPanel({ identity, refresh }: { identity: Identity; refresh: () 
           <div className="space-y-2">
             <div>
               <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">resolved roles ({identity.roles.length}) · by source</div>
-              {identity.roleHits.length === 0 && <span className="mono text-[10px] text-emergency">none</span>}
+              {identity.roleHits.length === 0 && <span className="mono text-[10px] text-coral">none</span>}
               <div className="space-y-1">
                 {identity.roleHits.map((h, i) => (
                   <div key={`${h.source}-${h.role}-${h.tenant_id ?? "g"}-${i}`} className="flex items-center justify-between gap-2 border border-hairline rounded px-2 py-1">
-                    <span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${h.role === "superadmin" ? "bg-emergency/20 text-emergency" : "bg-panel-elevated text-foreground"}`}>{h.role}</span>
+                    <span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${h.role === "superadmin" ? "bg-teal/20 text-teal" : "bg-panel-elevated text-foreground"}`}>{h.role}</span>
                     <span className="flex items-center gap-1.5">
                       <span className="mono text-[9px] uppercase tracking-widest text-muted-foreground">{h.source}</span>
                       {h.tenant_id && (
-                        <button onClick={() => copy(h.tenant_id!)} title={h.tenant_id} className="mono text-[9px] text-action hover:underline flex items-center gap-1">
+                        <button onClick={() => copy(h.tenant_id!)} title={h.tenant_id} className="mono text-[9px] text-sky hover:underline flex items-center gap-1">
                           {h.tenant_id.slice(0, 8)}… <Copy className="size-2.5" />
                         </button>
                       )}
@@ -449,9 +449,9 @@ function IdentityPanel({ identity, refresh }: { identity: Identity; refresh: () 
                   </div>
                 ))}
               </div>
-              {identity.roleErrors.user_roles && <div className="mono text-[10px] text-emergency mt-1">user_roles error: {identity.roleErrors.user_roles}</div>}
-              {identity.roleErrors.portal_role_assignments && <div className="mono text-[10px] text-emergency mt-1">portal_role_assignments error: {identity.roleErrors.portal_role_assignments}</div>}
-              {identity.roleErrors.tenant_members && <div className="mono text-[10px] text-emergency mt-1">tenant_members error: {identity.roleErrors.tenant_members}</div>}
+              {identity.roleErrors.user_roles && <div className="mono text-[10px] text-coral mt-1">user_roles error: {identity.roleErrors.user_roles}</div>}
+              {identity.roleErrors.portal_role_assignments && <div className="mono text-[10px] text-coral mt-1">portal_role_assignments error: {identity.roleErrors.portal_role_assignments}</div>}
+              {identity.roleErrors.tenant_members && <div className="mono text-[10px] text-coral mt-1">tenant_members error: {identity.roleErrors.tenant_members}</div>}
             </div>
             <div>
               <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">tenants ({identity.tenants.length})</div>
@@ -465,7 +465,7 @@ function IdentityPanel({ identity, refresh }: { identity: Identity; refresh: () 
                         {t.tenant_id} <Copy className="size-2.5" />
                       </button>
                     </span>
-                    <span className="mono text-[10px] text-action uppercase shrink-0">{t.role}</span>
+                    <span className="mono text-[10px] text-sky uppercase shrink-0">{t.role}</span>
                   </div>
                 ))}
               </div>
@@ -502,14 +502,14 @@ function AccessDenied({ identity, refresh }: { identity: Identity | null; refres
   const rolesErrored = !!identity?.rolesError;
 
   const stage = notAuthed
-    ? { code: "AUTH_MISSING", title: "Not signed in", color: "text-emergency" }
+    ? { code: "AUTH_MISSING", title: "Not signed in", color: "text-coral" }
     : rolesErrored
     ? { code: "ROLE_LOOKUP_FAILED", title: "Role lookup failed", color: "text-caution" }
     : noRoles
     ? { code: "NO_ROLES_ASSIGNED", title: "No roles assigned to this account", color: "text-caution" }
     : hasRolesButNotSuper
     ? { code: "ROLE_INSUFFICIENT", title: "Account is missing the superadmin role", color: "text-caution" }
-    : { code: "UNKNOWN", title: "Access denied", color: "text-emergency" };
+    : { code: "UNKNOWN", title: "Access denied", color: "text-coral" };
 
   return (
     <main className="max-w-2xl mx-auto p-8 space-y-6">
@@ -544,9 +544,9 @@ function AccessDenied({ identity, refresh }: { identity: Identity | null; refres
       <section className="rounded-xl border border-hairline bg-panel p-4 space-y-2 text-sm">
         <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Next steps</div>
         {notAuthed && <p>Your session has expired or is missing. Sign in again, then return to <code className="mono">/superadmin</code>.</p>}
-        {noRoles && <p>Your account is authenticated but has no role rows in <code className="mono">user_roles</code>. Sign in with a verified <code className="mono text-action">@velomedos.com</code> address (which auto-grants superadmin) or ask an existing superadmin to grant your account the role.</p>}
-        {hasRolesButNotSuper && <p>You have roles, but not <code className="mono text-action">superadmin</code>. Ask an existing superadmin to grant it from <Link to="/superadmin" className="text-action underline">/superadmin → Roles &amp; access</Link>, or sign in with a verified <code className="mono">@velomedos.com</code> account.</p>}
-        {rolesErrored && <p>The role lookup query failed. This usually means a database policy or grant is missing on <code className="mono">user_roles</code>. Share the diagnostic code <code className="mono text-action">{stage.code}</code> and the snapshot above.</p>}
+        {noRoles && <p>Your account is authenticated but has no role rows in <code className="mono">user_roles</code>. Sign in with a verified <code className="mono text-sky">@velomedos.com</code> address (which auto-grants superadmin) or ask an existing superadmin to grant your account the role.</p>}
+        {hasRolesButNotSuper && <p>You have roles, but not <code className="mono text-sky">superadmin</code>. Ask an existing superadmin to grant it from <Link to="/superadmin" className="text-sky underline">/superadmin → Roles &amp; access</Link>, or sign in with a verified <code className="mono">@velomedos.com</code> account.</p>}
+        {rolesErrored && <p>The role lookup query failed. This usually means a database policy or grant is missing on <code className="mono">user_roles</code>. Share the diagnostic code <code className="mono text-sky">{stage.code}</code> and the snapshot above.</p>}
       </section>
 
       <div className="flex flex-wrap gap-2 justify-center">
@@ -561,7 +561,7 @@ function AccessDenied({ identity, refresh }: { identity: Identity | null; refres
 function Diag({ ok, label, hint }: { ok: boolean; label: string; hint?: string }) {
   return (
     <li className="flex items-start gap-2 text-sm">
-      {ok ? <CheckCircle2 className="size-4 text-stable shrink-0 mt-0.5" /> : <XCircle className="size-4 text-emergency shrink-0 mt-0.5" />}
+      {ok ? <CheckCircle2 className="size-4 text-stable shrink-0 mt-0.5" /> : <XCircle className="size-4 text-coral shrink-0 mt-0.5" />}
       <div>
         <div>{label}</div>
         {hint && <div className="mono text-[10px] text-muted-foreground">{hint}</div>}
@@ -598,7 +598,7 @@ function OverviewPane({ stats, subs, plans, tenants, reqs }: { stats: any; subs:
                 <span className="text-muted-foreground">{count} · {fmtMoney(plan.price_cents, plan.currency)}/{plan.billing_period}</span>
               </div>
               <div className="h-1.5 rounded bg-panel-elevated overflow-hidden">
-                <div className="h-full bg-action" style={{ width: `${(count / totalActive) * 100}%` }} />
+                <div className="h-full bg-teal" style={{ width: `${(count / totalActive) * 100}%` }} />
               </div>
             </div>
           ))}
@@ -676,7 +676,7 @@ function TenantsPane({
                     <option key={p.id} value={p.id}>{p.name} ({fmtMoney(p.price_cents, p.currency)}/{p.billing_period})</option>
                   ))}
                 </select>
-                <button onClick={() => toggleStatus(t)} className={`mono text-[10px] uppercase px-2 py-1 rounded ${t.status === "active" ? "bg-stable/20 text-stable hover:bg-stable/30" : "bg-emergency/20 text-emergency hover:bg-emergency/30"}`}>{t.status}</button>
+                <button onClick={() => toggleStatus(t)} className={`mono text-[10px] uppercase px-2 py-1 rounded ${t.status === "active" ? "bg-stable/20 text-stable hover:bg-stable/30" : "bg-coral/20 text-coral hover:bg-coral/30"}`}>{t.status}</button>
               </div>
             </div>
           );
@@ -742,7 +742,7 @@ function SubsPane({
           <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="h-10 px-2 rounded bg-input border border-hairline text-sm">
             {["trialing","active","past_due","suspended","cancelled"].map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-          <button onClick={create} disabled={busy} className="h-10 px-4 rounded bg-action text-action-foreground mono text-xs uppercase tracking-widest font-bold">Create</button>
+          <button onClick={create} disabled={busy} className="h-10 px-4 rounded bg-teal text-background hover:bg-teal-deep transition-colors mono text-xs uppercase tracking-widest font-bold">Create</button>
         </div>
       )}
       <div className="overflow-auto">
@@ -772,8 +772,8 @@ function SubsPane({
                     <div className="inline-flex gap-1">
                       {s.status !== "active" && <button onClick={() => changeStatus(s.id, "active")} className="px-2 py-1 mono text-[10px] uppercase rounded bg-stable/20 text-stable hover:bg-stable/30"><Play className="size-3 inline" /> Activate</button>}
                       {s.status === "active" && <button onClick={() => changeStatus(s.id, "suspended")} className="px-2 py-1 mono text-[10px] uppercase rounded bg-caution/20 text-caution hover:bg-caution/30"><Pause className="size-3 inline" /> Suspend</button>}
-                      {s.status !== "cancelled" && <button onClick={() => changeStatus(s.id, "cancelled")} className="px-2 py-1 mono text-[10px] uppercase rounded bg-emergency/20 text-emergency hover:bg-emergency/30">Cancel</button>}
-                      <button onClick={() => destroy(s.id)} title="Delete" className="px-2 py-1 mono text-[10px] uppercase rounded bg-emergency/10 text-emergency hover:bg-emergency/20"><Trash2 className="size-3 inline" /></button>
+                      {s.status !== "cancelled" && <button onClick={() => changeStatus(s.id, "cancelled")} className="px-2 py-1 mono text-[10px] uppercase rounded bg-coral/20 text-coral hover:bg-coral/30">Cancel</button>}
+                      <button onClick={() => destroy(s.id)} title="Delete" className="px-2 py-1 mono text-[10px] uppercase rounded bg-coral/10 text-coral hover:bg-coral/20"><Trash2 className="size-3 inline" /></button>
                     </div>
                   </td>
                 </tr>
@@ -801,7 +801,7 @@ function PlansPane({ plans, togglePlan, subs, reload }: { plans: Plan[]; toggleP
           <div key={p.id} className={`rounded-xl border ${p.is_active ? "border-hairline" : "border-dashed border-muted opacity-60"} bg-panel p-5 flex flex-col gap-3`}>
             <div className="flex items-start justify-between">
               <div>
-                <div className="mono text-[10px] uppercase tracking-widest text-action">{p.code}</div>
+                <div className="mono text-[10px] uppercase tracking-widest text-sky">{p.code}</div>
                 <div className="text-lg font-bold">{p.name}</div>
               </div>
               <button onClick={() => togglePlan(p.id, p.is_active)} className="mono text-[10px] uppercase px-2 py-0.5 rounded border border-hairline hover:bg-panel-elevated">
@@ -823,7 +823,7 @@ function PlansPane({ plans, togglePlan, subs, reload }: { plans: Plan[]; toggleP
                 if (!confirm(`Delete plan ${p.name}?`)) return;
                 try { await adminFetch(`/api/admin/v1/plans/${p.id}`, { method: "DELETE" }); toast.success("Plan deleted"); reload(); }
                 catch (e) { toast.error((e as Error).message); }
-              }} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-emergency/40 text-emergency hover:bg-emergency/10"><Trash2 className="size-3" /></button>
+              }} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-coral/40 text-coral hover:bg-coral/10"><Trash2 className="size-3" /></button>
             </div>
           </div>
         );
@@ -985,8 +985,8 @@ function PrivilegesEditor() {
                   return (
                     <td key={r} className={`p-1 text-center ${saving === key ? "opacity-50" : ""}`}>
                       <div className="inline-flex items-center gap-0.5">
-                        <button onClick={() => toggle(r, m, "can_view")} className={`mono text-[9px] uppercase px-1.5 py-0.5 rounded border ${cell.can_view ? "border-action/60 bg-action/20 text-action" : "border-hairline text-muted-foreground hover:text-foreground"}`}>V</button>
-                        <button onClick={() => toggle(r, m, "can_manage")} className={`mono text-[9px] uppercase px-1.5 py-0.5 rounded border ${cell.can_manage ? "border-emergency/60 bg-emergency/20 text-emergency" : "border-hairline text-muted-foreground hover:text-foreground"}`}>M</button>
+                        <button onClick={() => toggle(r, m, "can_view")} className={`mono text-[9px] uppercase px-1.5 py-0.5 rounded border ${cell.can_view ? "border-sky/60 bg-sky/20 text-sky" : "border-hairline text-muted-foreground hover:text-foreground"}`}>V</button>
+                        <button onClick={() => toggle(r, m, "can_manage")} className={`mono text-[9px] uppercase px-1.5 py-0.5 rounded border ${cell.can_manage ? "border-coral/60 bg-coral/20 text-coral" : "border-hairline text-muted-foreground hover:text-foreground"}`}>M</button>
                         {has && <button onClick={() => clearCell(r, m)} title="Reset" className="opacity-40 hover:opacity-100"><Trash2 className="size-2.5" /></button>}
                       </div>
                     </td>
@@ -998,8 +998,8 @@ function PrivilegesEditor() {
         </table>
       </div>
       <div className="p-3 border-t border-hairline mono text-[10px] uppercase tracking-widest text-muted-foreground flex gap-4">
-        <span><span className="px-1.5 py-0.5 rounded border border-action/60 bg-action/20 text-action mr-1">V</span> view</span>
-        <span><span className="px-1.5 py-0.5 rounded border border-emergency/60 bg-emergency/20 text-emergency mr-1">M</span> manage</span>
+        <span><span className="px-1.5 py-0.5 rounded border border-sky/60 bg-sky/20 text-sky mr-1">V</span> view</span>
+        <span><span className="px-1.5 py-0.5 rounded border border-coral/60 bg-coral/20 text-coral mr-1">M</span> manage</span>
         <span className="text-muted-foreground/70">grants persist to portal_role_privileges via /api/admin/v1/privileges</span>
       </div>
     </Card>
@@ -1038,7 +1038,7 @@ function RolesPane({
               <div className="flex items-center gap-1.5 flex-wrap">
                 {myRoles.length === 0 && <span className="mono text-[10px] text-muted-foreground">no roles</span>}
                 {myRoles.map((r) => (
-                  <span key={r} className={`group inline-flex items-center gap-1 mono text-[10px] uppercase px-2 py-0.5 rounded ${r === "superadmin" ? "bg-emergency/20 text-emergency" : r === "business_admin" ? "bg-action/20 text-action" : "bg-panel-elevated text-foreground"}`}>
+                  <span key={r} className={`group inline-flex items-center gap-1 mono text-[10px] uppercase px-2 py-0.5 rounded ${r === "superadmin" ? "bg-coral/20 text-coral" : r === "business_admin" ? "bg-sky/20 text-sky" : "bg-panel-elevated text-foreground"}`}>
                     {r}
                     <button onClick={() => revokeRole(p.id, r)} className="opacity-50 hover:opacity-100"><Trash2 className="size-2.5" /></button>
                   </span>
@@ -1074,11 +1074,11 @@ function RequestsPane({ reqs, review }: { reqs: Req[]; review: (id: string, s: "
               {r.use_case && <div className="text-xs text-muted-foreground truncate mt-0.5">{r.use_case}</div>}
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
-              <span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${r.status === "new" ? "bg-caution/20 text-caution" : r.status === "approved" ? "bg-stable/20 text-stable" : "bg-emergency/20 text-emergency"}`}>{r.status}</span>
+              <span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${r.status === "new" ? "bg-caution/20 text-caution" : r.status === "approved" ? "bg-stable/20 text-stable" : "bg-coral/20 text-coral"}`}>{r.status}</span>
               {r.status === "new" && (
                 <>
                   <button onClick={() => review(r.id, "approved")} className="size-7 grid place-items-center rounded hover:bg-stable/10 text-stable"><CheckCircle2 className="size-4" /></button>
-                  <button onClick={() => review(r.id, "rejected")} className="size-7 grid place-items-center rounded hover:bg-emergency/10 text-emergency"><XCircle className="size-4" /></button>
+                  <button onClick={() => review(r.id, "rejected")} className="size-7 grid place-items-center rounded hover:bg-coral/10 text-coral"><XCircle className="size-4" /></button>
                 </>
               )}
             </div>
@@ -1152,7 +1152,7 @@ function ApiKeysPane({
               {tenants.map((t) => <option key={t.id} value={t.id}>{t.company_name}</option>)}
             </select>
             <input type="number" min={1} max={6000} value={rate} onChange={(e) => setRate(Math.max(1, Number(e.target.value) || 60))} className="h-10 px-3 rounded bg-input border border-hairline text-sm mono" title="Rate limit per minute" />
-            <button onClick={() => issue()} className="h-10 px-4 rounded bg-action text-action-foreground mono text-xs uppercase tracking-widest font-bold whitespace-nowrap">Generate</button>
+            <button onClick={() => issue()} className="h-10 px-4 rounded bg-teal text-background hover:bg-teal-deep transition-colors mono text-xs uppercase tracking-widest font-bold whitespace-nowrap">Generate</button>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {ALL_SCOPES.map((s) => {
@@ -1160,7 +1160,7 @@ function ApiKeysPane({
               return (
                 <button key={s} type="button"
                   onClick={() => setScopes(on ? scopes.filter((x) => x !== s) : [...scopes, s])}
-                  className={`mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border ${on ? "border-action/60 bg-action/20 text-action" : "border-hairline text-muted-foreground hover:text-foreground"}`}>
+                  className={`mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border ${on ? "border-sky/60 bg-sky/20 text-sky" : "border-hairline text-muted-foreground hover:text-foreground"}`}>
                   {s}
                 </button>
               );
@@ -1195,11 +1195,11 @@ function ApiKeysPane({
             return (
               <div key={k.id} className="px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
                 <div className="min-w-0">
-                  <div className="font-semibold flex items-center gap-2"><KeyRound className="size-4 text-action" />{k.name}</div>
+                  <div className="font-semibold flex items-center gap-2"><KeyRound className="size-4 text-sky" />{k.name}</div>
                   <div className="mono text-[11px] text-muted-foreground truncate">
-                    {k.prefix}… · {tenant ? <span className="text-action">{tenant.company_name}</span> : <span>platform/personal</span>} · owner {owner?.email ?? k.owner_id.slice(0,8)} · {k.rate_limit_per_min}/min
+                    {k.prefix}… · {tenant ? <span className="text-sky">{tenant.company_name}</span> : <span>platform/personal</span>} · owner {owner?.email ?? k.owner_id.slice(0,8)} · {k.rate_limit_per_min}/min
                   </div>
-                  <div className="mono text-[10px] text-action/80 mt-0.5">{(k.scopes ?? []).join(" · ")}</div>
+                  <div className="mono text-[10px] text-sky/80 mt-0.5">{(k.scopes ?? []).join(" · ")}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="mono text-[10px] uppercase text-right">
@@ -1209,9 +1209,9 @@ function ApiKeysPane({
                     </div>
                   </div>
                   <button onClick={() => issue(k)} title="Rotate (issue new key, revoke this one)"
-                    className="size-9 grid place-items-center rounded text-muted-foreground hover:text-action hover:bg-action/10"><RefreshCw className="size-4" /></button>
+                    className="size-9 grid place-items-center rounded text-muted-foreground hover:text-sky hover:bg-sky/10"><RefreshCw className="size-4" /></button>
                   <button onClick={() => revoke(k.id)} title="Revoke"
-                    className="size-9 grid place-items-center rounded text-muted-foreground hover:text-emergency hover:bg-emergency/10"><Trash2 className="size-4" /></button>
+                    className="size-9 grid place-items-center rounded text-muted-foreground hover:text-coral hover:bg-coral/10"><Trash2 className="size-4" /></button>
                 </div>
               </div>
             );
@@ -1301,7 +1301,7 @@ function PrivilegesPane({ profiles, roles }: { profiles: Profile[]; roles: RoleR
             <div className="text-sm text-muted-foreground">Search and pick a user to see their effective permissions.</div>
           )}
           <div className="pt-2 border-t border-hairline">
-            <Link to="/privileges" className="mono text-[10px] uppercase tracking-widest text-action hover:underline">Open full privileges matrix →</Link>
+            <Link to="/privileges" className="mono text-[10px] uppercase tracking-widest text-sky hover:underline">Open full privileges matrix →</Link>
           </div>
         </div>
       </Card>
@@ -1349,7 +1349,7 @@ function ApiDocsPane() {
                   const scope = (op.description as string | undefined)?.match(/`([a-z]+:[a-z]+)`/)?.[1] ?? "session";
                   return (
                     <tr key={`adm-${m}-${path}`}>
-                      <td className="p-2"><span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${m === "get" ? "bg-action/20 text-action" : m === "post" ? "bg-stable/20 text-stable" : m === "delete" ? "bg-critical/20 text-critical" : "bg-caution/20 text-caution"}`}>{m}</span></td>
+                      <td className="p-2"><span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${m === "get" ? "bg-sky/20 text-sky" : m === "post" ? "bg-stable/20 text-stable" : m === "delete" ? "bg-critical/20 text-critical" : "bg-caution/20 text-caution"}`}>{m}</span></td>
                       <td className="p-2 mono text-xs">{path}</td>
                       <td className="p-2 text-xs">{op.summary ?? ""}</td>
                       <td className="p-2 mono text-[10px] text-muted-foreground">{scope}</td>
@@ -1365,9 +1365,9 @@ function ApiDocsPane() {
       {/* ── Public Product API ── */}
       <Card title={`OpenAPI ${openApiSpec.openapi} · ${openApiSpec.info.version}`} right={
         <div className="flex items-center gap-2 normal-case">
-          <span className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-action/15 text-action border border-action/30">PUBLIC</span>
+          <span className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-sky/15 text-sky border border-sky/30">PUBLIC</span>
           <a href="/api/public/v1/openapi" target="_blank" rel="noreferrer" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-hairline hover:bg-panel-elevated">openapi.json ↗</a>
-          <Link to="/api-docs" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-action text-action-foreground font-bold">Open Swagger UI →</Link>
+          <Link to="/api-docs" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-teal text-background hover:bg-teal-deep transition-colors font-bold">Open Swagger UI →</Link>
         </div>
       }>
         <div className="p-4 grid sm:grid-cols-3 gap-px bg-hairline rounded overflow-hidden border border-hairline">
@@ -1392,7 +1392,7 @@ function ApiDocsPane() {
                   const scope = (op.description as string | undefined)?.match(/`([a-z]+:[a-z]+)`/)?.[1] ?? "public";
                   return (
                     <tr key={`${m}-${path}`}>
-                      <td className="p-2"><span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${m === "get" ? "bg-action/20 text-action" : m === "post" ? "bg-stable/20 text-stable" : "bg-caution/20 text-caution"}`}>{m}</span></td>
+                      <td className="p-2"><span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${m === "get" ? "bg-sky/20 text-sky" : m === "post" ? "bg-stable/20 text-stable" : "bg-caution/20 text-caution"}`}>{m}</span></td>
                       <td className="p-2 mono text-xs">{path}</td>
                       <td className="p-2 text-xs">{op.summary ?? ""}</td>
                       <td className="p-2 mono text-[10px] text-muted-foreground">{scope}</td>
@@ -1410,7 +1410,7 @@ function ApiDocsPane() {
           {ALL_SCOPES.map((s) => (
             <span key={s} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline">{s}</span>
           ))}
-          <span className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-action/50 bg-action/10 text-action">*</span>
+          <span className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-sky/50 bg-sky/10 text-sky">*</span>
         </div>
       </Card>
     </div>
@@ -1479,10 +1479,10 @@ function DebugPane({ tenants }: { tenants: Tenant[] }) {
   }, [events, tenants]);
 
   const SEV: Record<string, string> = {
-    info: "bg-action/15 text-action",
+    info: "bg-sky/15 text-sky",
     warn: "bg-caution/20 text-caution",
-    error: "bg-emergency/20 text-emergency",
-    critical: "bg-emergency text-emergency-foreground",
+    error: "bg-coral/20 text-coral",
+    critical: "bg-coral text-coral-foreground",
   };
 
   return (
@@ -1522,7 +1522,7 @@ function DebugPane({ tenants }: { tenants: Tenant[] }) {
               </div>
               <div className="mt-1 flex gap-2 mono text-[10px] uppercase tracking-widest">
                 <span className="px-1.5 py-0.5 rounded bg-caution/20 text-caution">{agg.glitches} glitches</span>
-                <span className="px-1.5 py-0.5 rounded bg-emergency/20 text-emergency">{agg.errors} errors</span>
+                <span className="px-1.5 py-0.5 rounded bg-coral/20 text-coral">{agg.errors} errors</span>
               </div>
             </div>
           ))}
@@ -1561,7 +1561,7 @@ function DebugPane({ tenants }: { tenants: Tenant[] }) {
           <div className="bg-panel border border-hairline rounded-xl w-full max-w-2xl max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
             <div className="p-4 border-b border-hairline flex items-center justify-between">
               <div>
-                <div className="mono text-[10px] uppercase tracking-widest text-action">{selected.source} · {selected.kind} · {selected.severity}</div>
+                <div className="mono text-[10px] uppercase tracking-widest text-sky">{selected.source} · {selected.kind} · {selected.severity}</div>
                 <div className="font-semibold">{selected.message ?? "(no message)"}</div>
                 <div className="mono text-[10px] text-muted-foreground">{selected.route ?? "—"} · {selected.viewport ?? "—"} · {new Date(selected.created_at).toLocaleString()}</div>
               </div>
