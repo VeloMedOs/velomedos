@@ -512,6 +512,56 @@ export type Database = {
           },
         ]
       }
+      debug_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          message: string | null
+          payload: Json
+          route: string | null
+          severity: string
+          source: string
+          tenant_id: string | null
+          viewport: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind: string
+          message?: string | null
+          payload?: Json
+          route?: string | null
+          severity?: string
+          source: string
+          tenant_id?: string | null
+          viewport?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          message?: string | null
+          payload?: Json
+          route?: string | null
+          severity?: string
+          source?: string
+          tenant_id?: string | null
+          viewport?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "debug_events_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       defects: {
         Row: {
           blocks_service: boolean
