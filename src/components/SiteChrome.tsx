@@ -92,6 +92,16 @@ export function SiteFooter() {
           ["Sign in","/auth"],
         ]} />
       </div>
+      <div className="max-w-[1400px] mx-auto px-4 lg:px-8 pb-10 grid md:grid-cols-4 gap-10">
+        <div className="md:col-start-4">
+          <FooterCol title="Privacy & Legal" links={[
+            ["Privacy Notice", "/Privacy/Home"],
+            ["Terms of Service", "/Privacy/TermsOfService"],
+            ["HIPAA-Aligned Safeguards", "/Privacy/HIPAA"],
+            ["Patient Rights", "/Privacy/PatientRights"],
+          ]} />
+        </div>
+      </div>
       <div className="border-t border-hairline">
         <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-4 mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground flex flex-wrap items-center justify-between gap-3">
           <span>© {new Date().getFullYear()} {SITE.legal} · Built for mission-critical care</span>

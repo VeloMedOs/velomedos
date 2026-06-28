@@ -578,41 +578,4 @@ export function ComingSoonPane({ label, hint }: { label: string; hint: string })
 }
 
 /** Legal documents CMS — manage /Privacy/* pages directly from the Superadmin portal. */
-export function LegalDocsPane() {
-  return (
-    <section className="space-y-3">
-      <div className="rounded-xl border border-teal/30 bg-teal/5 p-4">
-        <div className="mono text-[10px] uppercase tracking-[0.22em] text-teal">Legal CMS</div>
-        <h2 className="text-lg font-semibold mt-0.5">Privacy &amp; legal documents</h2>
-        <p className="text-xs text-muted-foreground mt-1">
-          Edits publish immediately to <a className="text-teal underline" href="/Privacy/Home" target="_blank" rel="noreferrer">/Privacy/Home</a>,{" "}
-          <a className="text-teal underline" href="/Privacy/TermsOfService" target="_blank" rel="noreferrer">/TermsOfService</a>,{" "}
-          <a className="text-teal underline" href="/Privacy/HIPAA" target="_blank" rel="noreferrer">/HIPAA</a>, and{" "}
-          <a className="text-teal underline" href="/Privacy/PatientRights" target="_blank" rel="noreferrer">/PatientRights</a>.
-          Body accepts Markdown (## headings, lists, **bold**, links).
-        </p>
-      </div>
-      <OpsTable
-        title="Documents"
-        endpoint="/api/admin/v1/legal-documents"
-        columns={[
-          { key: "slug", label: "Slug" },
-          { key: "title", label: "Title" },
-          { key: "version", label: "v" },
-          { key: "published", label: "Live", render: (r: any) => r.published ? "yes" : "no" },
-          { key: "effective_date", label: "Effective" },
-          { key: "updated_at", label: "Updated", render: (r: any) => r.updated_at ? new Date(r.updated_at).toLocaleString() : "—" },
-        ]}
-        fields={[
-          { key: "slug", label: "Slug", required: true, placeholder: "home | terms | hipaa | patient-rights" },
-          { key: "title", label: "Title", required: true },
-          { key: "subtitle", label: "Subtitle", type: "textarea" },
-          { key: "effective_date", label: "Effective date", placeholder: "YYYY-MM-DD" },
-          { key: "version", label: "Version", type: "number" },
-          { key: "published", label: "Published", type: "boolean" },
-          { key: "body_md", label: "Body (markdown)", type: "textarea", required: true },
-        ]}
-      />
-    </section>
-  );
-}
+export { LegalCmsModule as LegalDocsPane } from "./LegalCmsModule";
