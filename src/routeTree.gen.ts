@@ -76,6 +76,7 @@ import { Route as ApiPublicV1ShareTokenRouteImport } from './routes/api/public/v
 import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/v1/incidents.$id'
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiAdminV1UsageDailyRouteImport } from './routes/api/admin/v1/usage.daily'
+import { Route as ApiAdminV1TenantSubscriptionsIdRouteImport } from './routes/api/admin/v1/tenant-subscriptions.$id'
 import { Route as ApiAdminV1SubscribersIdRouteImport } from './routes/api/admin/v1/subscribers.$id'
 import { Route as ApiAdminV1PlansIdRouteImport } from './routes/api/admin/v1/plans.$id'
 import { Route as ApiAdminV1DiagnosticsSuperadminRouteImport } from './routes/api/admin/v1/diagnostics.superadmin'
@@ -431,6 +432,12 @@ const ApiAdminV1UsageDailyRoute = ApiAdminV1UsageDailyRouteImport.update({
   path: '/api/admin/v1/usage/daily',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1TenantSubscriptionsIdRoute =
+  ApiAdminV1TenantSubscriptionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiAdminV1TenantSubscriptionsRoute,
+  } as any)
 const ApiAdminV1SubscribersIdRoute = ApiAdminV1SubscribersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -574,7 +581,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
-  '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRoute
+  '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
@@ -594,6 +601,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
+  '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
@@ -658,7 +666,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
-  '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRoute
+  '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
@@ -678,6 +686,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
+  '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
@@ -744,7 +753,7 @@ export interface FileRoutesById {
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
-  '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRoute
+  '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
@@ -764,6 +773,7 @@ export interface FileRoutesById {
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
+  '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
@@ -850,6 +860,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
+    | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
@@ -934,6 +945,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
+    | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
@@ -1019,6 +1031,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
+    | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
@@ -1064,7 +1077,7 @@ export interface RootRouteChildren {
   ApiAdminV1PromotionsRoute: typeof ApiAdminV1PromotionsRoute
   ApiAdminV1SubscribersRoute: typeof ApiAdminV1SubscribersRouteWithChildren
   ApiAdminV1SubscriptionsRoute: typeof ApiAdminV1SubscriptionsRoute
-  ApiAdminV1TenantSubscriptionsRoute: typeof ApiAdminV1TenantSubscriptionsRoute
+  ApiAdminV1TenantSubscriptionsRoute: typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   ApiAdminV1TicketsRoute: typeof ApiAdminV1TicketsRouteWithChildren
   ApiPublicV1ClinicsRoute: typeof ApiPublicV1ClinicsRoute
   ApiPublicV1CoursesRoute: typeof ApiPublicV1CoursesRoute
@@ -1561,6 +1574,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1UsageDailyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/v1/tenant-subscriptions/$id': {
+      id: '/api/admin/v1/tenant-subscriptions/$id'
+      path: '/$id'
+      fullPath: '/api/admin/v1/tenant-subscriptions/$id'
+      preLoaderRoute: typeof ApiAdminV1TenantSubscriptionsIdRouteImport
+      parentRoute: typeof ApiAdminV1TenantSubscriptionsRoute
+    }
     '/api/admin/v1/subscribers/$id': {
       id: '/api/admin/v1/subscribers/$id'
       path: '/$id'
@@ -1837,6 +1857,20 @@ const ApiAdminV1SubscribersRouteWithChildren =
     ApiAdminV1SubscribersRouteChildren,
   )
 
+interface ApiAdminV1TenantSubscriptionsRouteChildren {
+  ApiAdminV1TenantSubscriptionsIdRoute: typeof ApiAdminV1TenantSubscriptionsIdRoute
+}
+
+const ApiAdminV1TenantSubscriptionsRouteChildren: ApiAdminV1TenantSubscriptionsRouteChildren =
+  {
+    ApiAdminV1TenantSubscriptionsIdRoute: ApiAdminV1TenantSubscriptionsIdRoute,
+  }
+
+const ApiAdminV1TenantSubscriptionsRouteWithChildren =
+  ApiAdminV1TenantSubscriptionsRoute._addFileChildren(
+    ApiAdminV1TenantSubscriptionsRouteChildren,
+  )
+
 interface ApiAdminV1TicketsRouteChildren {
   ApiAdminV1TicketsIdEventsRoute: typeof ApiAdminV1TicketsIdEventsRoute
 }
@@ -1900,7 +1934,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1PromotionsRoute: ApiAdminV1PromotionsRoute,
   ApiAdminV1SubscribersRoute: ApiAdminV1SubscribersRouteWithChildren,
   ApiAdminV1SubscriptionsRoute: ApiAdminV1SubscriptionsRoute,
-  ApiAdminV1TenantSubscriptionsRoute: ApiAdminV1TenantSubscriptionsRoute,
+  ApiAdminV1TenantSubscriptionsRoute:
+    ApiAdminV1TenantSubscriptionsRouteWithChildren,
   ApiAdminV1TicketsRoute: ApiAdminV1TicketsRouteWithChildren,
   ApiPublicV1ClinicsRoute: ApiPublicV1ClinicsRoute,
   ApiPublicV1CoursesRoute: ApiPublicV1CoursesRoute,
