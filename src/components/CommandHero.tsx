@@ -827,8 +827,6 @@ function TeamView() {
   );
 }
 
-function RouteBubble({ minutes, primary, index, total }: { minutes: number; primary: boolean; index: number; total: number }) {
-
 function TeamEtaCard({ tel }: { tel: Telemetry }) {
   const ref = useRef<HTMLDivElement>(null);
   const tone = useAdaptiveGlass(ref, { mode: "auto" });
