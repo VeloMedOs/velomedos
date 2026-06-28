@@ -877,6 +877,48 @@ export type Database = {
           },
         ]
       }
+      legal_documents: {
+        Row: {
+          body_md: string
+          created_at: string
+          effective_date: string | null
+          id: string
+          published: boolean
+          slug: string
+          subtitle: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          body_md?: string
+          created_at?: string
+          effective_date?: string | null
+          id?: string
+          published?: boolean
+          slug: string
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          body_md?: string
+          created_at?: string
+          effective_date?: string | null
+          id?: string
+          published?: boolean
+          slug?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       oauth_events: {
         Row: {
           attempt_id: string | null
