@@ -894,6 +894,141 @@ function TeamEtaCard({ tel }: { tel: Telemetry }) {
   );
 }
 
+function OfflineDestEtaBubble({ etaStr, arrived }: { etaStr: string; arrived: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const tone = useAdaptiveGlass(ref, { mode: "auto", intervalMs: 800 });
+  return (
+    <div data-debug-id="offline-dest-eta-bubble" className="absolute -translate-x-1/2 -translate-y-full pointer-events-none z-[30]"
+      style={{ top: "calc(10% - 18px)", left: "min(78%, calc(100% - 56px))" }}>
+      <div
+        ref={ref}
+        className="rounded-full p-[1px]"
+        style={{
+          background: `linear-gradient(135deg, ${tone.border}, rgba(255,255,255,0.05))`,
+          boxShadow: arrived ? "0 6px 20px -6px rgba(40,214,182,0.42)" : tone.ringShadow,
+        }}
+      >
+        <div
+          className="px-2.5 py-[4px] rounded-full text-[10px] font-semibold flex items-center gap-1"
+          style={{
+            background: arrived ? "rgba(40,214,182,0.55)" : tone.bg,
+            color: arrived ? "#080B11" : tone.text,
+            backdropFilter: "blur(16px) saturate(1.3)",
+            fontVariantNumeric: "tabular-nums",
+            textShadow: tone.textShadow,
+          }}
+        >
+          <Clock className="size-2.5 opacity-80" /> {etaStr}
+          <span className="inline-block size-1 rounded-full" style={{ background: arrived ? "#080B11" : "#28D6B6" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OfflineAltEtaPill() {
+  const ref = useRef<HTMLDivElement>(null);
+  const tone = useAdaptiveGlass(ref, { mode: "auto", intervalMs: 900 });
+  return (
+    <div data-debug-id="offline-alt-eta-pill" className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[25]"
+      style={{ top: "32%", left: "42%" }}>
+      <div
+        ref={ref}
+        className="rounded-full p-[1px]"
+        style={{
+          background: `linear-gradient(135deg, ${tone.border}, rgba(255,255,255,0.05))`,
+          boxShadow: tone.ringShadow,
+        }}
+      >
+        <div
+          className="rounded-full px-2.5 py-1 text-[11px] font-semibold flex items-center gap-1.5"
+          style={{
+            background: tone.bg,
+            color: tone.text,
+            backdropFilter: "blur(18px) saturate(1.3)",
+            fontVariantNumeric: "tabular-nums",
+            textShadow: tone.textShadow,
+          }}
+        >
+          7 min <span style={{ color: tone.textMuted, fontWeight: 400 }}>· alt</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OfflineEtaCard({ tel, pct, etaStr, arrived }: { tel: Telemetry; pct: number; etaStr: string; arrived: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const tone = useAdaptiveGlass(ref, { mode: "auto", intervalMs: 700 });
+  const accent = arrived ? "#0F7F66" : "#1F6FEB";
+  return (
+    <div
+      ref={ref}
+      data-debug-id="offline-eta-card"
+      className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[320px] z-[40] rounded-[22px] p-[1px] transition-[box-shadow,background] duration-500"
+      style={{
+        background: `linear-gradient(135deg, ${tone.border}, rgba(255,255,255,0.05))`,
+        boxShadow: arrived
+          ? "0 14px 44px -12px rgba(40,214,182,0.34)"
+          : tone.ringShadow,
+      }}
+    >
+      <div
+        className="relative rounded-[21px] overflow-hidden transition-colors duration-500"
+        style={{ background: tone.bg, backdropFilter: "blur(22px) saturate(1.4)" }}
+      >
+        <div className="relative px-4 pt-3 pb-3" style={{ color: tone.text, textShadow: tone.textShadow }}>
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="mono text-[9px] font-bold tracking-[0.22em] uppercase leading-none mb-1" style={{ color: tone.textMuted }}>
+                ETA · Al Mana
+              </div>
+              <div className="text-[11px] font-semibold uppercase tracking-tight leading-tight" style={{ color: tone.textMuted }}>
+                General Hospital
+              </div>
+            </div>
+            <div className="flex items-center gap-1" style={{ color: tone.textMuted }}>
+              <Clock className="size-3" />
+              <span className="mono text-[11px] font-bold" style={{ fontVariantNumeric: "tabular-nums", color: tone.text }}>
+                {Math.round(pct * 100)}%
+              </span>
+            </div>
+          </div>
+          <div className="mt-2 flex items-end justify-between gap-3">
+            <div
+              className="text-[34px] font-bold tracking-tighter leading-none"
+              style={{ color: accent, fontVariantNumeric: "tabular-nums" }}
+            >
+              {arrived ? "0:00" : etaStr}
+            </div>
+            <div
+              className="text-right mono text-[10px] leading-tight"
+              style={{ fontVariantNumeric: "tabular-nums", color: tone.textMuted }}
+            >
+              <div>{Math.max(0, tel.totalKm * (1 - pct)).toFixed(2)} km left</div>
+              <div className="mt-0.5">{Math.round(tel.speedKmh)} km/h</div>
+            </div>
+          </div>
+        </div>
+        <div className="relative h-[3px] w-full" style={{ background: tone.isDark ? "rgba(255,255,255,0.12)" : "rgba(15,26,43,0.08)" }}>
+          <div
+            className="absolute inset-y-0 left-0 transition-[width] duration-300"
+            style={{
+              width: `${Math.round(pct * 100)}%`,
+              background: arrived
+                ? "linear-gradient(90deg, #28D6B6, #4FB6F7)"
+                : "linear-gradient(90deg, #4FB6F7, #1F6FEB)",
+              boxShadow: arrived
+                ? "0 0 14px rgba(40,214,182,0.5)"
+                : "0 0 14px rgba(79,182,247,0.5)",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function RouteBubble({ minutes, primary, index, total }: { minutes: number; primary: boolean; index: number; total: number }) {
   const tel = useTelemetry();
   const arrived = primary && tel.progress >= 0.999;
