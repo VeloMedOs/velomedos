@@ -1,16 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
-import { CheckCircle2, ArrowRight, ChevronDown, Sparkles, Shield, Zap, Radio, GraduationCap, Stethoscope, Code2, ClipboardCheck, Truck } from "lucide-react";
+import { CheckCircle2, ArrowRight, ChevronDown, Sparkles, Shield, Zap, Radio, GraduationCap, Stethoscope, Code2, ClipboardCheck, Truck, Package } from "lucide-react";
 import { breadcrumbLd, faqLd, jsonld } from "@/components/Jsonld";
 
 const title = "Pricing & plans — VeloMed OS";
 const desc = "Transparent per-fleet pricing for ambulance dispatch, telehealth, remote clinics, training and the public REST API. Four tiers from single branch to sovereign.";
 
-type TierId = "starter" | "operator" | "network" | "sovereign";
-
 interface Tier {
-  id: TierId;
+  id: string;
   eyebrow: string;
   name: string;
   tagline: string;
@@ -23,7 +21,7 @@ interface Tier {
   highlight?: boolean;
 }
 
-const TIERS: Tier[] = [
+const TIERS_FALLBACK: Tier[] = [
   {
     id: "starter",
     eyebrow: "Single branch",
@@ -103,7 +101,11 @@ const TIERS: Tier[] = [
   },
 ];
 
-const ADDONS = [
+type AddonRow = { icon: any; name: string; unit: string; price: string };
+const ADDON_ICONS: Record<string, any> = {
+  Stethoscope, Truck, GraduationCap, Code2, ClipboardCheck, Shield, Package,
+};
+const ADDONS_FALLBACK: AddonRow[] = [
   { icon: Stethoscope, name: "Remote Clinic Pods", unit: "per pod / month", price: "$ 850" },
   { icon: Truck, name: "Ambulance Rental Marketplace", unit: "of GMV", price: "6 %" },
   { icon: GraduationCap, name: "Training & Certification LMS", unit: "per learner / year", price: "$ 38" },
@@ -168,6 +170,41 @@ const fmt = (n: number) => "$" + n.toLocaleString("en-US");
 function Pricing() {
   const [period, setPeriod] = useState<"monthly" | "annual">("annual");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [tiers, setTiers] = useState<Tier[]>(TIERS_FALLBACK);
+  const [addons, setAddons] = useState<AddonRow[]>(ADDONS_FALLBACK);
+  const [source, setSource] = useState<"api" | "fallback">("fallback");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await fetch("/api/public/v1/pricing");
+        if (!r.ok) return;
+        const j = await r.json();
+        const apiTiers: Tier[] = (j.plans ?? []).map((p: any) => ({
+          id: p.code,
+          eyebrow: p.eyebrow ?? "",
+          name: p.name,
+          tagline: p.tagline ?? p.description ?? "",
+          monthly: p.billing_period === "custom" || !p.price_cents ? null : Math.round(p.price_cents / 100),
+          units: p.units_label ?? "",
+          seats: p.seats_label ?? `${p.included_seats} seats`,
+          api: p.api_label ?? "",
+          features: Array.isArray(p.features) ? p.features : [],
+          cta: { label: p.cta_label ?? "Book a demo", to: p.cta_to ?? "/demo" },
+          highlight: !!p.highlight,
+        }));
+        const apiAddons: AddonRow[] = (j.addons ?? []).map((a: any) => ({
+          icon: ADDON_ICONS[a.icon] ?? Package,
+          name: a.name,
+          unit: a.unit_label,
+          price: a.price_display ?? (a.price_cents ? `$${(a.price_cents/100).toFixed(2)}` : "—"),
+        }));
+        if (apiTiers.length) setTiers(apiTiers);
+        if (apiAddons.length) setAddons(apiAddons);
+        setSource("api");
+      } catch { /* keep fallback */ }
+    })();
+  }, []);
 
   const priceFor = (t: Tier) => {
     if (t.monthly === null) return { big: "Custom", small: "annual contract" };
@@ -272,6 +309,9 @@ function Pricing() {
               </div>
             );
           })}
+        </div>
+        <div className="mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground/60 text-center mt-4">
+          {source === "api" ? "live from /api/public/v1/pricing" : "cached defaults"}
         </div>
       </section>
 

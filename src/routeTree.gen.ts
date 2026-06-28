@@ -54,6 +54,7 @@ import { Route as ApiPublicV1Work_ordersRouteImport } from './routes/api/public/
 import { Route as ApiPublicV1Web_intakeRouteImport } from './routes/api/public/v1/web_intake'
 import { Route as ApiPublicV1StatsRouteImport } from './routes/api/public/v1/stats'
 import { Route as ApiPublicV1Screening_ordersRouteImport } from './routes/api/public/v1/screening_orders'
+import { Route as ApiPublicV1PricingRouteImport } from './routes/api/public/v1/pricing'
 import { Route as ApiPublicV1OpenapiRouteImport } from './routes/api/public/v1/openapi'
 import { Route as ApiPublicV1IncidentsRouteImport } from './routes/api/public/v1/incidents'
 import { Route as ApiPublicV1FleetRouteImport } from './routes/api/public/v1/fleet'
@@ -73,9 +74,11 @@ import { Route as ApiAdminV1PlansRouteImport } from './routes/api/admin/v1/plans
 import { Route as ApiAdminV1PaymentsRouteImport } from './routes/api/admin/v1/payments'
 import { Route as ApiAdminV1OpenapiRouteImport } from './routes/api/admin/v1/openapi'
 import { Route as ApiAdminV1InvoicesRouteImport } from './routes/api/admin/v1/invoices'
+import { Route as ApiAdminV1FinancialsRouteImport } from './routes/api/admin/v1/financials'
 import { Route as ApiAdminV1BusinessRequestsRouteImport } from './routes/api/admin/v1/business-requests'
 import { Route as ApiAdminV1BugsRouteImport } from './routes/api/admin/v1/bugs'
 import { Route as ApiAdminV1AuditRouteImport } from './routes/api/admin/v1/audit'
+import { Route as ApiAdminV1AddonsRouteImport } from './routes/api/admin/v1/addons'
 import { Route as ApiPublicV1ShareTokenRouteImport } from './routes/api/public/v1/share.$token'
 import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/v1/incidents.$id'
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
@@ -88,6 +91,7 @@ import { Route as ApiAdminV1ConfigOverridesRouteImport } from './routes/api/admi
 import { Route as ApiAdminV1ConfigBaseRouteImport } from './routes/api/admin/v1/config.base'
 import { Route as ApiAdminV1BusinessRequestsIdRouteImport } from './routes/api/admin/v1/business-requests.$id'
 import { Route as ApiAdminV1AnalyticsKpisRouteImport } from './routes/api/admin/v1/analytics.kpis'
+import { Route as ApiAdminV1AddonsIdRouteImport } from './routes/api/admin/v1/addons.$id'
 import { Route as ApiPublicV1VehiclesIdWork_ordersRouteImport } from './routes/api/public/v1/vehicles.$id.work_orders'
 import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/public/v1/vehicles.$id.defects'
 import { Route as ApiPublicV1VehiclesIdCredentialsRouteImport } from './routes/api/public/v1/vehicles.$id.credentials'
@@ -324,6 +328,11 @@ const ApiPublicV1Screening_ordersRoute =
     path: '/api/public/v1/screening_orders',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicV1PricingRoute = ApiPublicV1PricingRouteImport.update({
+  id: '/api/public/v1/pricing',
+  path: '/api/public/v1/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1OpenapiRoute = ApiPublicV1OpenapiRouteImport.update({
   id: '/api/public/v1/openapi',
   path: '/api/public/v1/openapi',
@@ -421,6 +430,11 @@ const ApiAdminV1InvoicesRoute = ApiAdminV1InvoicesRouteImport.update({
   path: '/api/admin/v1/invoices',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1FinancialsRoute = ApiAdminV1FinancialsRouteImport.update({
+  id: '/api/admin/v1/financials',
+  path: '/api/admin/v1/financials',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminV1BusinessRequestsRoute =
   ApiAdminV1BusinessRequestsRouteImport.update({
     id: '/api/admin/v1/business-requests',
@@ -435,6 +449,11 @@ const ApiAdminV1BugsRoute = ApiAdminV1BugsRouteImport.update({
 const ApiAdminV1AuditRoute = ApiAdminV1AuditRouteImport.update({
   id: '/api/admin/v1/audit',
   path: '/api/admin/v1/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminV1AddonsRoute = ApiAdminV1AddonsRouteImport.update({
+  id: '/api/admin/v1/addons',
+  path: '/api/admin/v1/addons',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicV1ShareTokenRoute = ApiPublicV1ShareTokenRouteImport.update({
@@ -500,6 +519,11 @@ const ApiAdminV1AnalyticsKpisRoute = ApiAdminV1AnalyticsKpisRouteImport.update({
   id: '/api/admin/v1/analytics/kpis',
   path: '/api/admin/v1/analytics/kpis',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminV1AddonsIdRoute = ApiAdminV1AddonsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAdminV1AddonsRoute,
 } as any)
 const ApiPublicV1VehiclesIdWork_ordersRoute =
   ApiPublicV1VehiclesIdWork_ordersRouteImport.update({
@@ -597,9 +621,11 @@ export interface FileRoutesByFullPath {
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
+  '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
   '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
+  '/api/admin/v1/financials': typeof ApiAdminV1FinancialsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
@@ -619,10 +645,12 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
   '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
   '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
+  '/api/public/v1/pricing': typeof ApiPublicV1PricingRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
   '/api/public/v1/stats': typeof ApiPublicV1StatsRoute
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
+  '/api/admin/v1/addons/$id': typeof ApiAdminV1AddonsIdRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
   '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRouteWithChildren
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
@@ -686,9 +714,11 @@ export interface FileRoutesByTo {
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
+  '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
   '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
+  '/api/admin/v1/financials': typeof ApiAdminV1FinancialsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
@@ -708,10 +738,12 @@ export interface FileRoutesByTo {
   '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
   '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
   '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
+  '/api/public/v1/pricing': typeof ApiPublicV1PricingRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
   '/api/public/v1/stats': typeof ApiPublicV1StatsRoute
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
+  '/api/admin/v1/addons/$id': typeof ApiAdminV1AddonsIdRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
   '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRouteWithChildren
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
@@ -777,9 +809,11 @@ export interface FileRoutesById {
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
+  '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
   '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
+  '/api/admin/v1/financials': typeof ApiAdminV1FinancialsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
@@ -799,10 +833,12 @@ export interface FileRoutesById {
   '/api/public/v1/fleet': typeof ApiPublicV1FleetRouteWithChildren
   '/api/public/v1/incidents': typeof ApiPublicV1IncidentsRouteWithChildren
   '/api/public/v1/openapi': typeof ApiPublicV1OpenapiRoute
+  '/api/public/v1/pricing': typeof ApiPublicV1PricingRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
   '/api/public/v1/stats': typeof ApiPublicV1StatsRoute
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
+  '/api/admin/v1/addons/$id': typeof ApiAdminV1AddonsIdRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
   '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRouteWithChildren
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
@@ -868,9 +904,11 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/trip/$token'
     | '/superadmin/api-docs'
+    | '/api/admin/v1/addons'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
     | '/api/admin/v1/business-requests'
+    | '/api/admin/v1/financials'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
@@ -890,10 +928,12 @@ export interface FileRouteTypes {
     | '/api/public/v1/fleet'
     | '/api/public/v1/incidents'
     | '/api/public/v1/openapi'
+    | '/api/public/v1/pricing'
     | '/api/public/v1/screening_orders'
     | '/api/public/v1/stats'
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
+    | '/api/admin/v1/addons/$id'
     | '/api/admin/v1/analytics/kpis'
     | '/api/admin/v1/business-requests/$id'
     | '/api/admin/v1/config/base'
@@ -957,9 +997,11 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/trip/$token'
     | '/superadmin/api-docs'
+    | '/api/admin/v1/addons'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
     | '/api/admin/v1/business-requests'
+    | '/api/admin/v1/financials'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
@@ -979,10 +1021,12 @@ export interface FileRouteTypes {
     | '/api/public/v1/fleet'
     | '/api/public/v1/incidents'
     | '/api/public/v1/openapi'
+    | '/api/public/v1/pricing'
     | '/api/public/v1/screening_orders'
     | '/api/public/v1/stats'
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
+    | '/api/admin/v1/addons/$id'
     | '/api/admin/v1/analytics/kpis'
     | '/api/admin/v1/business-requests/$id'
     | '/api/admin/v1/config/base'
@@ -1047,9 +1091,11 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/trip/$token'
     | '/_authenticated/superadmin/api-docs'
+    | '/api/admin/v1/addons'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
     | '/api/admin/v1/business-requests'
+    | '/api/admin/v1/financials'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
@@ -1069,10 +1115,12 @@ export interface FileRouteTypes {
     | '/api/public/v1/fleet'
     | '/api/public/v1/incidents'
     | '/api/public/v1/openapi'
+    | '/api/public/v1/pricing'
     | '/api/public/v1/screening_orders'
     | '/api/public/v1/stats'
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
+    | '/api/admin/v1/addons/$id'
     | '/api/admin/v1/analytics/kpis'
     | '/api/admin/v1/business-requests/$id'
     | '/api/admin/v1/config/base'
@@ -1117,9 +1165,11 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   WebsiteRoute: typeof WebsiteRoute
   TripTokenRoute: typeof TripTokenRoute
+  ApiAdminV1AddonsRoute: typeof ApiAdminV1AddonsRouteWithChildren
   ApiAdminV1AuditRoute: typeof ApiAdminV1AuditRoute
   ApiAdminV1BugsRoute: typeof ApiAdminV1BugsRoute
   ApiAdminV1BusinessRequestsRoute: typeof ApiAdminV1BusinessRequestsRouteWithChildren
+  ApiAdminV1FinancialsRoute: typeof ApiAdminV1FinancialsRoute
   ApiAdminV1InvoicesRoute: typeof ApiAdminV1InvoicesRoute
   ApiAdminV1OpenapiRoute: typeof ApiAdminV1OpenapiRoute
   ApiAdminV1PaymentsRoute: typeof ApiAdminV1PaymentsRouteWithChildren
@@ -1139,6 +1189,7 @@ export interface RootRouteChildren {
   ApiPublicV1FleetRoute: typeof ApiPublicV1FleetRouteWithChildren
   ApiPublicV1IncidentsRoute: typeof ApiPublicV1IncidentsRouteWithChildren
   ApiPublicV1OpenapiRoute: typeof ApiPublicV1OpenapiRoute
+  ApiPublicV1PricingRoute: typeof ApiPublicV1PricingRoute
   ApiPublicV1Screening_ordersRoute: typeof ApiPublicV1Screening_ordersRoute
   ApiPublicV1StatsRoute: typeof ApiPublicV1StatsRoute
   ApiPublicV1Web_intakeRoute: typeof ApiPublicV1Web_intakeRoute
@@ -1473,6 +1524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1Screening_ordersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/pricing': {
+      id: '/api/public/v1/pricing'
+      path: '/api/public/v1/pricing'
+      fullPath: '/api/public/v1/pricing'
+      preLoaderRoute: typeof ApiPublicV1PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/openapi': {
       id: '/api/public/v1/openapi'
       path: '/api/public/v1/openapi'
@@ -1606,6 +1664,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1InvoicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/v1/financials': {
+      id: '/api/admin/v1/financials'
+      path: '/api/admin/v1/financials'
+      fullPath: '/api/admin/v1/financials'
+      preLoaderRoute: typeof ApiAdminV1FinancialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/v1/business-requests': {
       id: '/api/admin/v1/business-requests'
       path: '/api/admin/v1/business-requests'
@@ -1625,6 +1690,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/v1/audit'
       fullPath: '/api/admin/v1/audit'
       preLoaderRoute: typeof ApiAdminV1AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/addons': {
+      id: '/api/admin/v1/addons'
+      path: '/api/admin/v1/addons'
+      fullPath: '/api/admin/v1/addons'
+      preLoaderRoute: typeof ApiAdminV1AddonsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/share/$token': {
@@ -1710,6 +1782,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/v1/analytics/kpis'
       preLoaderRoute: typeof ApiAdminV1AnalyticsKpisRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/addons/$id': {
+      id: '/api/admin/v1/addons/$id'
+      path: '/$id'
+      fullPath: '/api/admin/v1/addons/$id'
+      preLoaderRoute: typeof ApiAdminV1AddonsIdRouteImport
+      parentRoute: typeof ApiAdminV1AddonsRoute
     }
     '/api/public/v1/vehicles/$id/work_orders': {
       id: '/api/public/v1/vehicles/$id/work_orders'
@@ -1869,6 +1948,17 @@ const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
   ServicesRouteChildren,
 )
 
+interface ApiAdminV1AddonsRouteChildren {
+  ApiAdminV1AddonsIdRoute: typeof ApiAdminV1AddonsIdRoute
+}
+
+const ApiAdminV1AddonsRouteChildren: ApiAdminV1AddonsRouteChildren = {
+  ApiAdminV1AddonsIdRoute: ApiAdminV1AddonsIdRoute,
+}
+
+const ApiAdminV1AddonsRouteWithChildren =
+  ApiAdminV1AddonsRoute._addFileChildren(ApiAdminV1AddonsRouteChildren)
+
 interface ApiAdminV1BusinessRequestsIdRouteChildren {
   ApiAdminV1BusinessRequestsIdAdvanceRoute: typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
   ApiAdminV1BusinessRequestsIdConvertRoute: typeof ApiAdminV1BusinessRequestsIdConvertRoute
@@ -2006,9 +2096,11 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   WebsiteRoute: WebsiteRoute,
   TripTokenRoute: TripTokenRoute,
+  ApiAdminV1AddonsRoute: ApiAdminV1AddonsRouteWithChildren,
   ApiAdminV1AuditRoute: ApiAdminV1AuditRoute,
   ApiAdminV1BugsRoute: ApiAdminV1BugsRoute,
   ApiAdminV1BusinessRequestsRoute: ApiAdminV1BusinessRequestsRouteWithChildren,
+  ApiAdminV1FinancialsRoute: ApiAdminV1FinancialsRoute,
   ApiAdminV1InvoicesRoute: ApiAdminV1InvoicesRoute,
   ApiAdminV1OpenapiRoute: ApiAdminV1OpenapiRoute,
   ApiAdminV1PaymentsRoute: ApiAdminV1PaymentsRouteWithChildren,
@@ -2029,6 +2121,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1FleetRoute: ApiPublicV1FleetRouteWithChildren,
   ApiPublicV1IncidentsRoute: ApiPublicV1IncidentsRouteWithChildren,
   ApiPublicV1OpenapiRoute: ApiPublicV1OpenapiRoute,
+  ApiPublicV1PricingRoute: ApiPublicV1PricingRoute,
   ApiPublicV1Screening_ordersRoute: ApiPublicV1Screening_ordersRoute,
   ApiPublicV1StatsRoute: ApiPublicV1StatsRoute,
   ApiPublicV1Web_intakeRoute: ApiPublicV1Web_intakeRoute,
