@@ -58,6 +58,7 @@ export function SiteFooter() {
           ["About","/about"],
           ["Pricing","/pricing"],
           ["Book a demo","/demo"],
+          ["Business onboarding","/business-intake"],
           ["Talk to us","/contact"],
           ["Sign in","/auth"],
           ["Privacy","/privacy"],
