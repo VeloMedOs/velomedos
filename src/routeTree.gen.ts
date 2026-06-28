@@ -67,6 +67,7 @@ import { Route as ApiAdminV1PromotionsRouteImport } from './routes/api/admin/v1/
 import { Route as ApiAdminV1PaymentsRouteImport } from './routes/api/admin/v1/payments'
 import { Route as ApiAdminV1OpenapiRouteImport } from './routes/api/admin/v1/openapi'
 import { Route as ApiAdminV1InvoicesRouteImport } from './routes/api/admin/v1/invoices'
+import { Route as ApiAdminV1BusinessRequestsRouteImport } from './routes/api/admin/v1/business-requests'
 import { Route as ApiAdminV1BugsRouteImport } from './routes/api/admin/v1/bugs'
 import { Route as ApiAdminV1AuditRouteImport } from './routes/api/admin/v1/audit'
 import { Route as ApiPublicV1ShareTokenRouteImport } from './routes/api/public/v1/share.$token'
@@ -377,6 +378,12 @@ const ApiAdminV1InvoicesRoute = ApiAdminV1InvoicesRouteImport.update({
   path: '/api/admin/v1/invoices',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1BusinessRequestsRoute =
+  ApiAdminV1BusinessRequestsRouteImport.update({
+    id: '/api/admin/v1/business-requests',
+    path: '/api/admin/v1/business-requests',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminV1BugsRoute = ApiAdminV1BugsRouteImport.update({
   id: '/api/admin/v1/bugs',
   path: '/api/admin/v1/bugs',
@@ -519,6 +526,7 @@ export interface FileRoutesByFullPath {
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
+  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
@@ -596,6 +604,7 @@ export interface FileRoutesByTo {
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
+  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
@@ -675,6 +684,7 @@ export interface FileRoutesById {
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
+  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
@@ -754,6 +764,7 @@ export interface FileRouteTypes {
     | '/superadmin/api-docs'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
+    | '/api/admin/v1/business-requests'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
@@ -831,6 +842,7 @@ export interface FileRouteTypes {
     | '/superadmin/api-docs'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
+    | '/api/admin/v1/business-requests'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
@@ -909,6 +921,7 @@ export interface FileRouteTypes {
     | '/_authenticated/superadmin/api-docs'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
+    | '/api/admin/v1/business-requests'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
@@ -967,6 +980,7 @@ export interface RootRouteChildren {
   TripTokenRoute: typeof TripTokenRoute
   ApiAdminV1AuditRoute: typeof ApiAdminV1AuditRoute
   ApiAdminV1BugsRoute: typeof ApiAdminV1BugsRoute
+  ApiAdminV1BusinessRequestsRoute: typeof ApiAdminV1BusinessRequestsRoute
   ApiAdminV1InvoicesRoute: typeof ApiAdminV1InvoicesRoute
   ApiAdminV1OpenapiRoute: typeof ApiAdminV1OpenapiRoute
   ApiAdminV1PaymentsRoute: typeof ApiAdminV1PaymentsRouteWithChildren
@@ -1406,6 +1420,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1InvoicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/v1/business-requests': {
+      id: '/api/admin/v1/business-requests'
+      path: '/api/admin/v1/business-requests'
+      fullPath: '/api/admin/v1/business-requests'
+      preLoaderRoute: typeof ApiAdminV1BusinessRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/v1/bugs': {
       id: '/api/admin/v1/bugs'
       path: '/api/admin/v1/bugs'
@@ -1706,6 +1727,7 @@ const rootRouteChildren: RootRouteChildren = {
   TripTokenRoute: TripTokenRoute,
   ApiAdminV1AuditRoute: ApiAdminV1AuditRoute,
   ApiAdminV1BugsRoute: ApiAdminV1BugsRoute,
+  ApiAdminV1BusinessRequestsRoute: ApiAdminV1BusinessRequestsRoute,
   ApiAdminV1InvoicesRoute: ApiAdminV1InvoicesRoute,
   ApiAdminV1OpenapiRoute: ApiAdminV1OpenapiRoute,
   ApiAdminV1PaymentsRoute: ApiAdminV1PaymentsRouteWithChildren,
