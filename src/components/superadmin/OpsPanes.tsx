@@ -23,9 +23,8 @@ export function OpsTable<T extends { id?: string }>({
   async function load() {
     setLoading(true);
     try {
-      const r = await adminFetch(endpoint);
-      const j = await r.json();
-      setRows((j.rows ?? []) as T[]);
+      const j = await adminFetch<{ rows?: T[] }>(endpoint);
+      setRows((j?.rows ?? []) as T[]);
     } catch (e) { toast.error((e as Error).message); }
     setLoading(false);
   }
@@ -40,8 +39,7 @@ export function OpsTable<T extends { id?: string }>({
     }
     try {
       const payload = transformBeforeSubmit ? transformBeforeSubmit(form) : form;
-      const r = await adminFetch(endpoint, { method: "POST", body: JSON.stringify(payload) });
-      if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error ?? "Failed"); }
+      await adminFetch(endpoint, { method: "POST", body: payload });
       toast.success("Created");
       setForm({});
       load();
@@ -51,8 +49,7 @@ export function OpsTable<T extends { id?: string }>({
   async function remove(id: string) {
     if (!confirm("Delete this row?")) return;
     try {
-      const r = await adminFetch(`${endpoint}?id=${id}`, { method: "DELETE" });
-      if (!r.ok) throw new Error("Failed");
+      await adminFetch(`${endpoint}?id=${id}`, { method: "DELETE" });
       toast.success("Deleted"); load();
     } catch (e) { toast.error((e as Error).message); }
   }
