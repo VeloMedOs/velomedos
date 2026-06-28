@@ -88,6 +88,17 @@ export const CAPABILITIES: Capability[] = [
   { id: "patient.request",      area: "Patient",      label: "File emergency request",    description: "Trigger an incident from the patient app.",                         roles: ["patient"] },
   { id: "patient.book",         area: "Patient",      label: "Book clinic / telehealth",  description: "Remote clinic appointments and telehealth sessions.",               roles: ["patient"] },
   { id: "patient.track",        area: "Patient",      label: "Track my ride",             description: "Live ambulance ETA via tokenized trip share.",                       roles: ["patient"] },
+
+  // VeloMed Control Plane — Admin API surface (separate from the public /api/public/v1 product)
+  { id: "admin.api.openapi",     area: "Admin API", label: "Read Admin API reference",  description: "/superadmin/api-docs Swagger console for /api/admin/v1.*.", roles: ["superadmin","developer"] },
+  { id: "admin.api.subscribers", area: "Admin API", label: "Subscribers API",           description: "GET/POST/PATCH /api/admin/v1/subscribers — directory & lifecycle (suspend/resume/cancel).", roles: ["superadmin"] },
+  { id: "admin.api.billing",     area: "Admin API", label: "Billing API",               description: "Subscriptions, payments, manual validate, promotions, invoices.", roles: ["superadmin"] },
+  { id: "admin.api.tickets",     area: "Admin API", label: "Tickets API",               description: "Call-centre new-business / follow-up / bug / change-request queue + threads.", roles: ["superadmin"] },
+  { id: "admin.api.bugs",        area: "Admin API", label: "Bugs API",                  description: "Sentry + internal bug ingest, list, triage.", roles: ["superadmin","developer"] },
+  { id: "admin.api.config",      area: "Admin API", label: "Config API",                description: "Base layer + per-tenant overrides + effective config resolver.", roles: ["superadmin","developer"] },
+  { id: "admin.api.analytics",   area: "Admin API", label: "Analytics & KPIs API",      description: "Counters, MRR/ARR/ARPA, churn, growth, auto-insight lines.", roles: ["superadmin"] },
+  { id: "admin.api.audit",       area: "Admin API", label: "Audit log API",             description: "Tamper-evident portal_audit feed of every privileged action.", roles: ["superadmin"] },
+  { id: "admin.api.webhooks",    area: "Admin API", label: "Webhook ingest",            description: "Inbound from Stripe/Ottu (payments) and Sentry (issues).", roles: ["superadmin"] },
 ];
 
 /** Compute the effective capability set for a multi-role user. */

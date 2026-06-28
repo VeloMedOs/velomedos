@@ -779,6 +779,580 @@ export type Database = {
         }
         Relationships: []
       }
+      portal_api_keys: {
+        Row: {
+          created_at: string
+          hashed_key: string
+          id: string
+          last_used_at: string | null
+          name: string
+          owner_id: string
+          prefix: string
+          rate_limit_per_min: number
+          revoked_at: string | null
+          scopes: string[]
+        }
+        Insert: {
+          created_at?: string
+          hashed_key: string
+          id?: string
+          last_used_at?: string | null
+          name: string
+          owner_id: string
+          prefix: string
+          rate_limit_per_min?: number
+          revoked_at?: string | null
+          scopes?: string[]
+        }
+        Update: {
+          created_at?: string
+          hashed_key?: string
+          id?: string
+          last_used_at?: string | null
+          name?: string
+          owner_id?: string
+          prefix?: string
+          rate_limit_per_min?: number
+          revoked_at?: string | null
+          scopes?: string[]
+        }
+        Relationships: []
+      }
+      portal_audit: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          payload: Json | null
+          target: string | null
+          target_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          target?: string | null
+          target_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          target?: string | null
+          target_id?: string | null
+        }
+        Relationships: []
+      }
+      portal_bugs: {
+        Row: {
+          assignee_id: string | null
+          count: number
+          created_at: string
+          external_ref: string | null
+          id: string
+          last_seen_at: string
+          severity: string
+          source: string
+          stack_url: string | null
+          status: string
+          subscriber_id: string | null
+          title: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          count?: number
+          created_at?: string
+          external_ref?: string | null
+          id?: string
+          last_seen_at?: string
+          severity?: string
+          source?: string
+          stack_url?: string | null
+          status?: string
+          subscriber_id?: string | null
+          title: string
+        }
+        Update: {
+          assignee_id?: string | null
+          count?: number
+          created_at?: string
+          external_ref?: string | null
+          id?: string
+          last_seen_at?: string
+          severity?: string
+          source?: string
+          stack_url?: string | null
+          status?: string
+          subscriber_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_bugs_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_config_base: {
+        Row: {
+          description: string | null
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          description?: string | null
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          description?: string | null
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      portal_config_overrides: {
+        Row: {
+          id: string
+          key: string
+          subscriber_id: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          subscriber_id: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          subscriber_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_config_overrides_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_credits: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          granted_by: string | null
+          id: string
+          reason: string | null
+          subscriber_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          granted_by?: string | null
+          id?: string
+          reason?: string | null
+          subscriber_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          granted_by?: string | null
+          id?: string
+          reason?: string | null
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_credits_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_invoices: {
+        Row: {
+          amount_cents: number
+          currency: string
+          gateway_invoice_id: string | null
+          id: string
+          issued_at: string
+          number: string
+          pdf_url: string | null
+          status: string
+          subscriber_id: string
+        }
+        Insert: {
+          amount_cents: number
+          currency?: string
+          gateway_invoice_id?: string | null
+          id?: string
+          issued_at?: string
+          number: string
+          pdf_url?: string | null
+          status?: string
+          subscriber_id: string
+        }
+        Update: {
+          amount_cents?: number
+          currency?: string
+          gateway_invoice_id?: string | null
+          id?: string
+          issued_at?: string
+          number?: string
+          pdf_url?: string | null
+          status?: string
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_invoices_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_payments: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          id: string
+          method: string
+          receipt_url: string | null
+          status: string
+          subscriber_id: string
+          subscription_id: string | null
+          txn_ref: string | null
+          validated_at: string | null
+          validated_by: string | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          id?: string
+          method: string
+          receipt_url?: string | null
+          status?: string
+          subscriber_id: string
+          subscription_id?: string | null
+          txn_ref?: string | null
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          method?: string
+          receipt_url?: string | null
+          status?: string
+          subscriber_id?: string
+          subscription_id?: string | null
+          txn_ref?: string | null
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_payments_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portal_payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "portal_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_promotions: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          notes: string | null
+          type: string
+          valid_until: string | null
+          value: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          type: string
+          valid_until?: string | null
+          value: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          type?: string
+          valid_until?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
+      portal_role_assignments: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["portal_role"]
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["portal_role"]
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["portal_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      portal_role_privileges: {
+        Row: {
+          can_manage: boolean
+          can_view: boolean
+          module: string
+          role: Database["public"]["Enums"]["portal_role"]
+          updated_at: string
+        }
+        Insert: {
+          can_manage?: boolean
+          can_view?: boolean
+          module: string
+          role: Database["public"]["Enums"]["portal_role"]
+          updated_at?: string
+        }
+        Update: {
+          can_manage?: boolean
+          can_view?: boolean
+          module?: string
+          role?: Database["public"]["Enums"]["portal_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      portal_subscriptions: {
+        Row: {
+          created_at: string
+          currency: string
+          cycle: string
+          gateway_ref: string | null
+          id: string
+          plan: string
+          price_cents: number
+          renews_at: string | null
+          seats: number
+          started_at: string
+          status: string
+          subscriber_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          cycle?: string
+          gateway_ref?: string | null
+          id?: string
+          plan: string
+          price_cents?: number
+          renews_at?: string | null
+          seats?: number
+          started_at?: string
+          status?: string
+          subscriber_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          cycle?: string
+          gateway_ref?: string | null
+          id?: string
+          plan?: string
+          price_cents?: number
+          renews_at?: string | null
+          seats?: number
+          started_at?: string
+          status?: string
+          subscriber_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_subscriptions_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_ticket_events: {
+        Row: {
+          actor_id: string | null
+          body: string
+          created_at: string
+          id: string
+          ticket_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          ticket_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_ticket_events_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "portal_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_tickets: {
+        Row: {
+          assignee_id: string | null
+          body: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          priority: string
+          status: string
+          subject: string
+          subscriber_id: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          subject: string
+          subscriber_id?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_id?: string | null
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          subject?: string
+          subscriber_id?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_tickets_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_usage_daily: {
+        Row: {
+          active_branches: number
+          active_teams: number
+          api_calls: number
+          day: string
+          incidents: number
+          subscriber_id: string
+        }
+        Insert: {
+          active_branches?: number
+          active_teams?: number
+          api_calls?: number
+          day: string
+          incidents?: number
+          subscriber_id: string
+        }
+        Update: {
+          active_branches?: number
+          active_teams?: number
+          api_calls?: number
+          day?: string
+          incidents?: number
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_usage_daily_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -1620,12 +2194,29 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
       }
+      has_portal_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["portal_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      is_portal_staff: { Args: { _user_id: string }; Returns: boolean }
+      portal_effective_config: {
+        Args: { _subscriber: string }
+        Returns: {
+          key: string
+          source: string
+          updated_at: string
+          value: Json
+        }[]
       }
     }
     Enums: {
@@ -1663,6 +2254,12 @@ export type Database = {
         | "transporting"
         | "completed"
         | "cancelled"
+      portal_role:
+        | "superadmin"
+        | "finance"
+        | "call_center"
+        | "developer"
+        | "analyst"
       screening_order_status:
         | "booked"
         | "sample_collected"
@@ -1841,6 +2438,13 @@ export const Constants = {
         "transporting",
         "completed",
         "cancelled",
+      ],
+      portal_role: [
+        "superadmin",
+        "finance",
+        "call_center",
+        "developer",
+        "analyst",
       ],
       screening_order_status: [
         "booked",
