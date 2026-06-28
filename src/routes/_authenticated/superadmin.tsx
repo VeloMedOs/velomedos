@@ -10,6 +10,8 @@ import {
 import { openApiSpec } from "@/lib/openapi-spec";
 import { openApiAdminSpec, adminEndpointCount } from "@/lib/openapi-admin-spec";
 import { ROLE_META, ROLE_ORDER, CAPABILITIES, effectiveCapabilities, type AppRole } from "@/lib/role-matrix";
+import { PipelineBoard } from "@/components/superadmin/PipelineBoard";
+import { adminFetch } from "@/lib/admin-fetch";
 
 export const Route = createFileRoute("/_authenticated/superadmin")({
   head: () => ({ meta: [{ title: "Superadmin · VeloMed OS" }] }),
@@ -355,10 +357,10 @@ function Superadmin() {
         <TenantsPane tenants={tenants} subs={subs} plans={plans} toggleStatus={toggleStatus} assignPlan={assignPlan} />
       )}
       {tab === "subs" && (
-        <SubsPane subs={subs} plans={plans} tenants={tenants} changeStatus={changeSubStatus} updateSeats={updateSubSeats} />
+        <SubsPane subs={subs} plans={plans} tenants={tenants} changeStatus={changeSubStatus} updateSeats={updateSubSeats} reload={load} />
       )}
       {tab === "plans" && (
-        <PlansPane plans={plans} togglePlan={togglePlan} subs={subs} />
+        <PlansPane plans={plans} togglePlan={togglePlan} subs={subs} reload={load} />
       )}
       {tab === "roles" && (
         <RolesPane profiles={profiles} roles={roles} grantRole={grantRole} revokeRole={revokeRole} />
@@ -373,7 +375,7 @@ function Superadmin() {
         <ApiDocsPane />
       )}
       {tab === "requests" && (
-        <RequestsPane reqs={reqs} review={review} />
+        <PipelineBoard />
       )}
       {tab === "debug" && (
         <DebugPane tenants={tenants} />
