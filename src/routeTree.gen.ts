@@ -66,6 +66,7 @@ import { Route as ApiAdminV1SubscriptionsRouteImport } from './routes/api/admin/
 import { Route as ApiAdminV1SubscribersRouteImport } from './routes/api/admin/v1/subscribers'
 import { Route as ApiAdminV1RolesRouteImport } from './routes/api/admin/v1/roles'
 import { Route as ApiAdminV1PromotionsRouteImport } from './routes/api/admin/v1/promotions'
+import { Route as ApiAdminV1PrivilegesRouteImport } from './routes/api/admin/v1/privileges'
 import { Route as ApiAdminV1PlansRouteImport } from './routes/api/admin/v1/plans'
 import { Route as ApiAdminV1PaymentsRouteImport } from './routes/api/admin/v1/payments'
 import { Route as ApiAdminV1OpenapiRouteImport } from './routes/api/admin/v1/openapi'
@@ -382,6 +383,11 @@ const ApiAdminV1PromotionsRoute = ApiAdminV1PromotionsRouteImport.update({
   path: '/api/admin/v1/promotions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1PrivilegesRoute = ApiAdminV1PrivilegesRouteImport.update({
+  id: '/api/admin/v1/privileges',
+  path: '/api/admin/v1/privileges',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminV1PlansRoute = ApiAdminV1PlansRouteImport.update({
   id: '/api/admin/v1/plans',
   path: '/api/admin/v1/plans',
@@ -584,6 +590,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
   '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
+  '/api/admin/v1/privileges': typeof ApiAdminV1PrivilegesRoute
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
@@ -670,6 +677,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
   '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
+  '/api/admin/v1/privileges': typeof ApiAdminV1PrivilegesRoute
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
@@ -758,6 +766,7 @@ export interface FileRoutesById {
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
   '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
+  '/api/admin/v1/privileges': typeof ApiAdminV1PrivilegesRoute
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
@@ -846,6 +855,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
     | '/api/admin/v1/plans'
+    | '/api/admin/v1/privileges'
     | '/api/admin/v1/promotions'
     | '/api/admin/v1/roles'
     | '/api/admin/v1/subscribers'
@@ -932,6 +942,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
     | '/api/admin/v1/plans'
+    | '/api/admin/v1/privileges'
     | '/api/admin/v1/promotions'
     | '/api/admin/v1/roles'
     | '/api/admin/v1/subscribers'
@@ -1019,6 +1030,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
     | '/api/admin/v1/plans'
+    | '/api/admin/v1/privileges'
     | '/api/admin/v1/promotions'
     | '/api/admin/v1/roles'
     | '/api/admin/v1/subscribers'
@@ -1086,6 +1098,7 @@ export interface RootRouteChildren {
   ApiAdminV1OpenapiRoute: typeof ApiAdminV1OpenapiRoute
   ApiAdminV1PaymentsRoute: typeof ApiAdminV1PaymentsRouteWithChildren
   ApiAdminV1PlansRoute: typeof ApiAdminV1PlansRouteWithChildren
+  ApiAdminV1PrivilegesRoute: typeof ApiAdminV1PrivilegesRoute
   ApiAdminV1PromotionsRoute: typeof ApiAdminV1PromotionsRoute
   ApiAdminV1RolesRoute: typeof ApiAdminV1RolesRoute
   ApiAdminV1SubscribersRoute: typeof ApiAdminV1SubscribersRouteWithChildren
@@ -1515,6 +1528,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/v1/promotions'
       fullPath: '/api/admin/v1/promotions'
       preLoaderRoute: typeof ApiAdminV1PromotionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/privileges': {
+      id: '/api/admin/v1/privileges'
+      path: '/api/admin/v1/privileges'
+      fullPath: '/api/admin/v1/privileges'
+      preLoaderRoute: typeof ApiAdminV1PrivilegesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/v1/plans': {
@@ -1951,6 +1971,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1OpenapiRoute: ApiAdminV1OpenapiRoute,
   ApiAdminV1PaymentsRoute: ApiAdminV1PaymentsRouteWithChildren,
   ApiAdminV1PlansRoute: ApiAdminV1PlansRouteWithChildren,
+  ApiAdminV1PrivilegesRoute: ApiAdminV1PrivilegesRoute,
   ApiAdminV1PromotionsRoute: ApiAdminV1PromotionsRoute,
   ApiAdminV1RolesRoute: ApiAdminV1RolesRoute,
   ApiAdminV1SubscribersRoute: ApiAdminV1SubscribersRouteWithChildren,
