@@ -64,6 +64,7 @@ import { Route as ApiAdminV1TicketsRouteImport } from './routes/api/admin/v1/tic
 import { Route as ApiAdminV1TenantSubscriptionsRouteImport } from './routes/api/admin/v1/tenant-subscriptions'
 import { Route as ApiAdminV1SubscriptionsRouteImport } from './routes/api/admin/v1/subscriptions'
 import { Route as ApiAdminV1SubscribersRouteImport } from './routes/api/admin/v1/subscribers'
+import { Route as ApiAdminV1RolesRouteImport } from './routes/api/admin/v1/roles'
 import { Route as ApiAdminV1PromotionsRouteImport } from './routes/api/admin/v1/promotions'
 import { Route as ApiAdminV1PlansRouteImport } from './routes/api/admin/v1/plans'
 import { Route as ApiAdminV1PaymentsRouteImport } from './routes/api/admin/v1/payments'
@@ -371,6 +372,11 @@ const ApiAdminV1SubscribersRoute = ApiAdminV1SubscribersRouteImport.update({
   path: '/api/admin/v1/subscribers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1RolesRoute = ApiAdminV1RolesRouteImport.update({
+  id: '/api/admin/v1/roles',
+  path: '/api/admin/v1/roles',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminV1PromotionsRoute = ApiAdminV1PromotionsRouteImport.update({
   id: '/api/admin/v1/promotions',
   path: '/api/admin/v1/promotions',
@@ -579,6 +585,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
   '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
+  '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
@@ -664,6 +671,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
   '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
+  '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
@@ -751,6 +759,7 @@ export interface FileRoutesById {
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
   '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
+  '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
@@ -838,6 +847,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/payments'
     | '/api/admin/v1/plans'
     | '/api/admin/v1/promotions'
+    | '/api/admin/v1/roles'
     | '/api/admin/v1/subscribers'
     | '/api/admin/v1/subscriptions'
     | '/api/admin/v1/tenant-subscriptions'
@@ -923,6 +933,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/payments'
     | '/api/admin/v1/plans'
     | '/api/admin/v1/promotions'
+    | '/api/admin/v1/roles'
     | '/api/admin/v1/subscribers'
     | '/api/admin/v1/subscriptions'
     | '/api/admin/v1/tenant-subscriptions'
@@ -1009,6 +1020,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/payments'
     | '/api/admin/v1/plans'
     | '/api/admin/v1/promotions'
+    | '/api/admin/v1/roles'
     | '/api/admin/v1/subscribers'
     | '/api/admin/v1/subscriptions'
     | '/api/admin/v1/tenant-subscriptions'
@@ -1075,6 +1087,7 @@ export interface RootRouteChildren {
   ApiAdminV1PaymentsRoute: typeof ApiAdminV1PaymentsRouteWithChildren
   ApiAdminV1PlansRoute: typeof ApiAdminV1PlansRouteWithChildren
   ApiAdminV1PromotionsRoute: typeof ApiAdminV1PromotionsRoute
+  ApiAdminV1RolesRoute: typeof ApiAdminV1RolesRoute
   ApiAdminV1SubscribersRoute: typeof ApiAdminV1SubscribersRouteWithChildren
   ApiAdminV1SubscriptionsRoute: typeof ApiAdminV1SubscriptionsRoute
   ApiAdminV1TenantSubscriptionsRoute: typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
@@ -1488,6 +1501,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/v1/subscribers'
       fullPath: '/api/admin/v1/subscribers'
       preLoaderRoute: typeof ApiAdminV1SubscribersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/roles': {
+      id: '/api/admin/v1/roles'
+      path: '/api/admin/v1/roles'
+      fullPath: '/api/admin/v1/roles'
+      preLoaderRoute: typeof ApiAdminV1RolesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/v1/promotions': {
@@ -1932,6 +1952,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1PaymentsRoute: ApiAdminV1PaymentsRouteWithChildren,
   ApiAdminV1PlansRoute: ApiAdminV1PlansRouteWithChildren,
   ApiAdminV1PromotionsRoute: ApiAdminV1PromotionsRoute,
+  ApiAdminV1RolesRoute: ApiAdminV1RolesRoute,
   ApiAdminV1SubscribersRoute: ApiAdminV1SubscribersRouteWithChildren,
   ApiAdminV1SubscriptionsRoute: ApiAdminV1SubscriptionsRoute,
   ApiAdminV1TenantSubscriptionsRoute:
