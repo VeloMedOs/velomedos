@@ -17,6 +17,8 @@ const ALL_SCOPES = [
   "compliance:read",
   "screening:read",
   "screening:write",
+  "debug:read",
+  "debug:write",
 ] as const;
 
 async function sha256Hex(input: string): Promise<string> {

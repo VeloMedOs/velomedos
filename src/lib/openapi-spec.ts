@@ -4,7 +4,7 @@ export const openApiSpec = {
     title: "VeloMed OS Public API",
     version: "1.2.0",
     description:
-      "Read-and-write REST API for ambulance fleet, incidents, clinics, courses, compliance and mobile screening.\n\n## Authentication\nAuthenticate with a key issued from the Developer console using the `x-api-key` header. Keys come in three issuance scopes:\n- **Platform keys** — issued by VeloMed superadmins, not bound to a tenant.\n- **Tenant keys** — issued by a tenant's business admin or by a superadmin on the tenant's behalf, bound to the tenant's data.\n- **Personal keys** — issued by an individual developer for their own user.\n\n## Scopes\nEach key carries an explicit scope set; missing the required scope returns `403`. Available scopes: `fleet:read`, `incidents:read`, `incidents:write`, `clinics:read`, `courses:read`, `compliance:read`, `screening:read`, `screening:write`. A `*` scope grants all of the above.\n\n## Rate limiting\nEvery key has a per-minute rate limit. Overruns return `429` and reset on the next minute boundary. Default limit is 60 rpm; superadmin-issued platform keys default to 600 rpm.\n\n## Audit\nWrite endpoints record an `audit_log` row with the calling key id and request payload digest.",
+      "Read-and-write REST API for ambulance fleet, incidents, clinics, courses, compliance, mobile screening, and the in-app debug stream.\n\n## Authentication\nAuthenticate with a key issued from the Developer console using the `x-api-key` header. Keys come in three issuance scopes:\n- **Platform keys** — issued by VeloMed superadmins, not bound to a tenant.\n- **Tenant keys** — issued by a tenant's business admin or by a superadmin on the tenant's behalf, bound to the tenant's data.\n- **Personal keys** — issued by an individual developer for their own user.\n\n## Scopes\nEach key carries an explicit scope set; missing the required scope returns `403`. Available scopes: `fleet:read`, `incidents:read`, `incidents:write`, `clinics:read`, `courses:read`, `compliance:read`, `screening:read`, `screening:write`, `debug:read`, `debug:write`. A `*` scope grants all of the above.\n\n## Rate limiting\nEvery key has a per-minute rate limit. Overruns return `429` and reset on the next minute boundary. Default limit is 60 rpm; superadmin-issued platform keys default to 600 rpm.\n\n## Audit\nWrite endpoints record an `audit_log` row with the calling key id and request payload digest.",
     contact: { name: "VeloMed Infrastructure Group" },
   },
   servers: [{ url: "/api/public/v1", description: "Public v1" }],
@@ -131,6 +131,20 @@ export const openApiSpec = {
         type: "object",
         properties: { error: { type: "string" } },
       },
+      DebugEvent: {
+        type: "object",
+        required: ["source","kind"],
+        properties: {
+          tenant_id: { type: "string", format: "uuid", nullable: true },
+          source:    { type: "string", enum: ["overlay","console","playwright","api","manual"] },
+          kind:      { type: "string", enum: ["glitch","snapshot","metric","error","info"] },
+          severity:  { type: "string", enum: ["info","warn","error","critical"], default: "info" },
+          route:     { type: "string", nullable: true, maxLength: 500 },
+          viewport:  { type: "string", nullable: true, enum: ["mobile","tablet","desktop"] },
+          message:   { type: "string", nullable: true, maxLength: 2000 },
+          payload:   { type: "object", additionalProperties: true },
+        },
+      },
     },
   },
   security: [{ ApiKeyAuth: [] }],
@@ -177,6 +191,30 @@ export const openApiSpec = {
     },
     "/share/{token}": {
       get: { summary: "Public live trip snapshot (no API key, token-only)", parameters: [{ name: "token", in: "path", required: true, schema: { type: "string" } }], security: [], responses: { "200": { description: "OK" }, "410": { description: "Expired or revoked" } } },
+    },
+    "/debug/events": {
+      get: {
+        summary: "Debug · list events (per tenant, kind, severity, viewport)",
+        description: "Requires scope `debug:read`. Supports query params `tenant_id`, `kind`, `severity`, `viewport`, `since`, `limit` (max 500).",
+        parameters: [
+          { name: "tenant_id", in: "query", schema: { type: "string", format: "uuid" } },
+          { name: "kind", in: "query", schema: { type: "string", enum: ["glitch","snapshot","metric","error","info"] } },
+          { name: "severity", in: "query", schema: { type: "string", enum: ["info","warn","error","critical"] } },
+          { name: "viewport", in: "query", schema: { type: "string", enum: ["mobile","tablet","desktop"] } },
+          { name: "since", in: "query", schema: { type: "string", format: "date-time" } },
+          { name: "limit", in: "query", schema: { type: "integer", maximum: 500, default: 100 } },
+        ],
+        responses: { "200": { description: "OK — `{ events: DebugEvent[] }`" }, "401": { description: "Missing API key" }, "403": { description: "Missing scope `debug:read`" } },
+      },
+      post: {
+        summary: "Debug · ingest one or many events (overlay, console, Playwright)",
+        description: "Requires scope `debug:write`. Accepts a single object or an array. Used by the in-app debug overlay and by Playwright visual-regression runners to classify glitches per business.",
+        requestBody: { required: true, content: { "application/json": { schema: { oneOf: [
+          { $ref: "#/components/schemas/DebugEvent" },
+          { type: "array", items: { $ref: "#/components/schemas/DebugEvent" } },
+        ] } } } },
+        responses: { "200": { description: "OK — `{ ok, inserted, ids }`" }, "400": { description: "Invalid input" }, "403": { description: "Missing scope `debug:write`" } },
+      },
     },
     "/web_intake": {
       post: {

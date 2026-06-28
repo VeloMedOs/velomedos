@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import {
   Shield, Building2, Activity, KeyRound, Webhook, Users, Server,
   CheckCircle2, XCircle, CreditCard, Package, UserCog, LayoutDashboard,
-  Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock,
+  Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock, Bug,
 } from "lucide-react";
 import { openApiSpec } from "@/lib/openapi-spec";
 import { ROLE_META, ROLE_ORDER, CAPABILITIES, effectiveCapabilities, type AppRole } from "@/lib/role-matrix";
@@ -24,7 +24,7 @@ type RoleRow = { user_id: string; role: string };
 type ApiKey = { id: string; name: string; prefix: string; scopes: string[]; rate_limit_per_min: number; tenant_id: string | null; owner_id: string; created_at: string; last_used_at: string | null };
 
 const ALL_ROLES = ["superadmin","admin","dispatcher","developer","business_admin","paramedic","driver","patient"] as const;
-const ALL_SCOPES = ["fleet:read","incidents:read","incidents:write","clinics:read","courses:read","compliance:read","screening:read","screening:write"] as const;
+const ALL_SCOPES = ["fleet:read","incidents:read","incidents:write","clinics:read","courses:read","compliance:read","screening:read","screening:write","debug:read","debug:write"] as const;
 const STATUS_COLORS: Record<string, string> = {
   trialing:   "bg-action/20 text-action",
   active:     "bg-stable/20 text-stable",
@@ -35,7 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
 const fmtMoney = (c: number, cur: string) =>
   c === 0 ? "Custom" : new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(c / 100);
 
-type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "apikeys" | "privileges" | "apidocs" | "requests";
+type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug";
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
@@ -205,6 +205,7 @@ function Superadmin() {
     { id: "privileges",label:"Privileges",    icon: Lock },
     { id: "apidocs",  label: "API docs",      icon: BookOpen },
     { id: "requests", label: "Requests",      icon: Webhook, badge: newReqs || undefined },
+    { id: "debug",    label: "Debug",         icon: Bug },
   ];
 
   return (
@@ -280,6 +281,9 @@ function Superadmin() {
       )}
       {tab === "requests" && (
         <RequestsPane reqs={reqs} review={review} />
+      )}
+      {tab === "debug" && (
+        <DebugPane tenants={tenants} />
       )}
 
       <section className="rounded-xl border border-hairline bg-panel p-4">
@@ -855,6 +859,164 @@ function ApiDocsPane() {
           <span className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-action/50 bg-action/10 text-action">*</span>
         </div>
       </Card>
+    </div>
+  );
+}
+
+/* ============================== Debug pane ============================== */
+
+type DebugEvent = {
+  id: string;
+  tenant_id: string | null;
+  source: string;
+  kind: string;
+  severity: string;
+  route: string | null;
+  viewport: string | null;
+  message: string | null;
+  payload: Record<string, unknown>;
+  created_at: string;
+};
+
+function DebugPane({ tenants }: { tenants: Tenant[] }) {
+  const [events, setEvents] = useState<DebugEvent[]>([]);
+  const [tenantId, setTenantId] = useState<string>("");
+  const [kind, setKind] = useState<string>("");
+  const [severity, setSeverity] = useState<string>("");
+  const [viewport, setViewport] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState<DebugEvent | null>(null);
+
+  async function load() {
+    setLoading(true);
+    let q = (supabase as any).from("debug_events").select("*").order("created_at", { ascending: false }).limit(300);
+    if (tenantId) q = q.eq("tenant_id", tenantId);
+    if (kind) q = q.eq("kind", kind);
+    if (severity) q = q.eq("severity", severity);
+    if (viewport) q = q.eq("viewport", viewport);
+    const { data, error } = await q;
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    setEvents((data ?? []) as DebugEvent[]);
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [tenantId, kind, severity, viewport]);
+
+  useEffect(() => {
+    const ch = (supabase as any)
+      .channel("debug-events")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "debug_events" }, () => load())
+      .subscribe();
+    return () => { (supabase as any).removeChannel(ch); };
+    // eslint-disable-next-line
+  }, [tenantId, kind, severity, viewport]);
+
+  const byTenant = useMemo(() => {
+    const m = new Map<string, { tenant: Tenant | null; count: number; glitches: number; errors: number }>();
+    for (const ev of events) {
+      const key = ev.tenant_id ?? "__platform";
+      const tenant = ev.tenant_id ? tenants.find((t) => t.id === ev.tenant_id) ?? null : null;
+      const cur = m.get(key) ?? { tenant, count: 0, glitches: 0, errors: 0 };
+      cur.count += 1;
+      if (ev.kind === "glitch") cur.glitches += 1;
+      if (ev.severity === "error" || ev.severity === "critical") cur.errors += 1;
+      m.set(key, cur);
+    }
+    return Array.from(m.entries()).sort((a, b) => b[1].count - a[1].count);
+  }, [events, tenants]);
+
+  const SEV: Record<string, string> = {
+    info: "bg-action/15 text-action",
+    warn: "bg-caution/20 text-caution",
+    error: "bg-emergency/20 text-emergency",
+    critical: "bg-emergency text-emergency-foreground",
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card title="Debug · classified per business" right={
+        <button onClick={load} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated inline-flex items-center gap-1">
+          <RefreshCw className={`size-3 ${loading ? "animate-spin" : ""}`} /> refresh
+        </button>
+      }>
+        <div className="p-3 flex flex-wrap gap-2 border-b border-hairline">
+          <select value={tenantId} onChange={(e) => setTenantId(e.target.value)} className="bg-panel-elevated border border-hairline rounded px-2 py-1 mono text-[10px] uppercase">
+            <option value="">All tenants</option>
+            {tenants.map((t) => <option key={t.id} value={t.id}>{t.company_name}</option>)}
+          </select>
+          <select value={kind} onChange={(e) => setKind(e.target.value)} className="bg-panel-elevated border border-hairline rounded px-2 py-1 mono text-[10px] uppercase">
+            <option value="">Any kind</option>
+            {["glitch","snapshot","metric","error","info"].map((k) => <option key={k} value={k}>{k}</option>)}
+          </select>
+          <select value={severity} onChange={(e) => setSeverity(e.target.value)} className="bg-panel-elevated border border-hairline rounded px-2 py-1 mono text-[10px] uppercase">
+            <option value="">Any severity</option>
+            {["info","warn","error","critical"].map((k) => <option key={k} value={k}>{k}</option>)}
+          </select>
+          <select value={viewport} onChange={(e) => setViewport(e.target.value)} className="bg-panel-elevated border border-hairline rounded px-2 py-1 mono text-[10px] uppercase">
+            <option value="">Any viewport</option>
+            {["mobile","tablet","desktop"].map((k) => <option key={k} value={k}>{k}</option>)}
+          </select>
+          <Link to="/api-docs" hash="tag/Debug" className="ml-auto mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated">Debug API ↗</Link>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-px bg-hairline">
+          {byTenant.length === 0 && <div className="bg-panel p-6 text-sm text-muted-foreground col-span-3 text-center">No debug events match these filters.</div>}
+          {byTenant.map(([key, agg]) => (
+            <div key={key} className="bg-panel p-3">
+              <div className="flex items-center justify-between">
+                <div className="font-semibold truncate">{agg.tenant?.company_name ?? "Platform / unscoped"}</div>
+                <span className="mono text-[10px] text-muted-foreground">{agg.count} events</span>
+              </div>
+              <div className="mt-1 flex gap-2 mono text-[10px] uppercase tracking-widest">
+                <span className="px-1.5 py-0.5 rounded bg-caution/20 text-caution">{agg.glitches} glitches</span>
+                <span className="px-1.5 py-0.5 rounded bg-emergency/20 text-emergency">{agg.errors} errors</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card title={`Stream · ${events.length} latest`}>
+        <div className="overflow-auto max-h-[520px]">
+          <table className="w-full text-xs">
+            <thead className="mono text-[10px] uppercase tracking-widest text-muted-foreground bg-panel-elevated/60 sticky top-0">
+              <tr><th className="text-left p-2">Time</th><th className="text-left p-2">Tenant</th><th className="text-left p-2">Source · kind</th><th className="text-left p-2">Sev</th><th className="text-left p-2">Viewport</th><th className="text-left p-2">Message</th><th className="text-left p-2">Route</th></tr>
+            </thead>
+            <tbody className="divide-y divide-hairline">
+              {events.map((ev) => {
+                const t = ev.tenant_id ? tenants.find((x) => x.id === ev.tenant_id) : null;
+                return (
+                  <tr key={ev.id} onClick={() => setSelected(ev)} className="hover:bg-panel-elevated/40 cursor-pointer">
+                    <td className="p-2 mono text-[10px] text-muted-foreground whitespace-nowrap">{new Date(ev.created_at).toLocaleTimeString()}</td>
+                    <td className="p-2 truncate max-w-[140px]">{t?.company_name ?? <span className="text-muted-foreground">—</span>}</td>
+                    <td className="p-2 mono text-[10px]">{ev.source} · {ev.kind}</td>
+                    <td className="p-2"><span className={`mono text-[9px] uppercase px-1.5 py-0.5 rounded ${SEV[ev.severity] ?? ""}`}>{ev.severity}</span></td>
+                    <td className="p-2 mono text-[10px] uppercase text-muted-foreground">{ev.viewport ?? "—"}</td>
+                    <td className="p-2 truncate max-w-[280px]">{ev.message ?? <span className="text-muted-foreground">—</span>}</td>
+                    <td className="p-2 mono text-[10px] text-muted-foreground truncate max-w-[200px]">{ev.route ?? "—"}</td>
+                  </tr>
+                );
+              })}
+              {events.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">Quiet · no debug events.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {selected && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm grid place-items-center p-6" onClick={() => setSelected(null)}>
+          <div className="bg-panel border border-hairline rounded-xl w-full max-w-2xl max-h-[80vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b border-hairline flex items-center justify-between">
+              <div>
+                <div className="mono text-[10px] uppercase tracking-widest text-action">{selected.source} · {selected.kind} · {selected.severity}</div>
+                <div className="font-semibold">{selected.message ?? "(no message)"}</div>
+                <div className="mono text-[10px] text-muted-foreground">{selected.route ?? "—"} · {selected.viewport ?? "—"} · {new Date(selected.created_at).toLocaleString()}</div>
+              </div>
+              <button onClick={() => setSelected(null)} className="mono text-[10px] uppercase px-2 py-1 rounded border border-hairline">Close</button>
+            </div>
+            <pre className="p-4 text-[11px] mono whitespace-pre-wrap break-all">{JSON.stringify(selected.payload, null, 2)}</pre>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

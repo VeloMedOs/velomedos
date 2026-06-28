@@ -682,7 +682,7 @@ function TeamView() {
       {!failed && (
         <>
           {/* Crew chip */}
-          <div className="absolute top-3 left-3 z-[40] max-w-[calc(100%-96px)] rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[11px] sm:text-[12px] font-medium flex items-center gap-2 truncate">
+          <div data-debug-id="team-crew-chip" className="absolute top-3 left-3 z-[40] max-w-[calc(100%-96px)] rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[11px] sm:text-[12px] font-medium flex items-center gap-2 truncate">
             <span className="size-2 rounded-full animate-pulse" style={{ background: BRAND.teal }} /> Crew 04 · ALS · 2 onboard
           </div>
           {/* Route time bubbles — Google Maps style */}
@@ -690,7 +690,7 @@ function TeamView() {
             <RouteBubble key={i} minutes={r.minutes} primary={i === 0} index={i} total={routes.length} />
           ))}
           {/* Bottom sheet: ETA + actions */}
-          <div className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 sm:min-w-[260px]">
+          <div data-debug-id="team-eta-bubble" className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 sm:min-w-[260px]">
             <div>
               <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
               <div
@@ -1425,7 +1425,7 @@ function TeamFallback() {
       </div>
 
       {/* Destination ETA bubble (above the pin) */}
-      <div className="absolute -translate-x-1/2 -translate-y-full pointer-events-none z-[30]"
+      <div data-debug-id="offline-dest-eta-bubble" className="absolute -translate-x-1/2 -translate-y-full pointer-events-none z-[30]"
         style={{ top: "calc(10% - 18px)", left: "min(78%, calc(100% - 56px))" }}>
         <div
           className="px-2 py-[3px] rounded-full shadow-[0_6px_18px_-6px_rgba(31,111,235,0.55)] text-[10px] font-semibold flex items-center gap-1 ring-1 ring-white/30"
@@ -1441,7 +1441,7 @@ function TeamFallback() {
       </div>
 
       {/* Alternate route ETA pill */}
-      <div className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[25]"
+      <div data-debug-id="offline-alt-eta-pill" className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[25]"
         style={{ top: "32%", left: "42%" }}>
         <div className="px-2.5 py-1 rounded-full border border-white/70 bg-white/95 backdrop-blur text-slate-900 shadow-md text-[11px] font-semibold flex items-center gap-1.5"
           style={{ fontVariantNumeric: "tabular-nums" }}>
@@ -1450,7 +1450,7 @@ function TeamFallback() {
       </div>
 
       {/* Bottom-left ETA card — Patek-grade telemetry */}
-      <div className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[300px] z-[40] rounded-2xl overflow-hidden border border-white/15 bg-white/[0.97] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+      <div data-debug-id="offline-eta-card" className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[300px] z-[40] rounded-2xl overflow-hidden border border-white/15 bg-white/[0.97] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
         <div className="px-4 pt-3 pb-3">
           <div className="flex items-start justify-between">
             <div>
