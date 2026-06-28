@@ -1416,25 +1416,25 @@ function NextCallCluster({ secs, armed }: { secs: number; armed: boolean }) {
   const max = 15 * 60;
   const pct = Math.max(0, Math.min(1, 1 - secs / max));
   const color = armed ? BRAND.teal : BRAND.amber;
-  const R = 34, C = 2 * Math.PI * R;
+  const R = 36, C = 2 * Math.PI * R;
   const filled = C * pct;
   return (
     <ClusterShell label="Next request">
       <div className="mt-2 grid place-items-center">
         <div className="relative size-[110px]">
           <svg viewBox="0 0 80 80" className="absolute inset-0 -rotate-90">
-            <circle cx="40" cy="40" r={R} fill="none" stroke="oklch(0.22 0.02 240)" strokeWidth="6" />
-            <circle cx="40" cy="40" r={R} fill="none" stroke={color} strokeWidth="6" strokeDasharray={`${filled} ${C}`} strokeLinecap="round" style={{ filter: `drop-shadow(0 0 6px ${color}90)`, transition: "stroke-dasharray 300ms linear" }} />
+            <circle cx="40" cy="40" r={R} fill="none" stroke="oklch(0.24 0.015 240)" strokeWidth="2" />
+            <circle cx="40" cy="40" r={R} fill="none" stroke={color} strokeWidth="2.5" strokeDasharray={`${filled} ${C}`} strokeLinecap="round" style={{ transition: "stroke-dasharray 300ms linear" }} />
           </svg>
           <div className="absolute inset-0 grid place-items-center text-center">
             <div>
-              <div className="mono text-[9px] uppercase tracking-widest text-muted-foreground flex items-center gap-1 justify-center">
+              <div className="mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground/80 flex items-center gap-1 justify-center">
                 <Siren className="size-3" /> C-2039
               </div>
-              <div className="font-serif text-3xl tabular-nums leading-none mt-0.5" style={{ color }}>
+              <div className="font-serif text-[28px] font-light tabular-nums leading-none mt-1" style={{ color }}>
                 {fmtMinSec(secs)}
               </div>
-              <div className="mono text-[10px] text-muted-foreground mt-1">{armed ? "Crew armed" : "Auto-queue"}</div>
+              <div className="mono text-[9px] text-muted-foreground/70 mt-1">{armed ? "Crew armed" : "Auto-queue"}</div>
             </div>
           </div>
         </div>
