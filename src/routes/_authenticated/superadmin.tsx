@@ -419,21 +419,37 @@ function IdentityPanel({ identity, refresh }: { identity: Identity; refresh: () 
         <div className="p-4 grid md:grid-cols-2 gap-4 text-xs">
           <div className="space-y-2">
             <Row label="user_id" value={identity.userId ?? "—"} onCopy={identity.userId ? () => copy(identity.userId!) : undefined} mono />
+            <Row label="lookup_user_id" value={identity.lookupUserId ?? "—"} onCopy={identity.lookupUserId ? () => copy(identity.lookupUserId!) : undefined} mono />
             <Row label="email" value={identity.email ?? "—"} />
             <Row label="email_verified" value={identity.emailVerified ? "yes" : "no"} accent={identity.emailVerified ? "text-stable" : "text-caution"} />
             <Row label="auth_provider" value={identity.provider ?? "—"} />
+            <Row label="diagnostic_code" value={identity.diagnosticCode} mono accent={identity.diagnosticCode === "OK" ? "text-stable" : "text-caution"} />
+            <Row label="source" value={identity.source === "api" ? "diagnostics API" : "client fallback"} accent={identity.source === "api" ? "text-stable" : "text-caution"} />
+            {identity.requestId && <Row label="request_id" value={identity.requestId} mono onCopy={() => copy(identity.requestId!)} />}
             <Row label="fetched_at" value={new Date(identity.fetchedAt).toLocaleString()} />
           </div>
           <div className="space-y-2">
             <div>
-              <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">resolved roles ({identity.roles.length})</div>
-              <div className="flex flex-wrap gap-1">
-                {identity.roles.length === 0 && <span className="mono text-[10px] text-emergency">none</span>}
-                {identity.roles.map((r) => (
-                  <span key={r} className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${r === "superadmin" ? "bg-emergency/20 text-emergency" : "bg-panel-elevated text-foreground"}`}>{r}</span>
+              <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">resolved roles ({identity.roles.length}) · by source</div>
+              {identity.roleHits.length === 0 && <span className="mono text-[10px] text-emergency">none</span>}
+              <div className="space-y-1">
+                {identity.roleHits.map((h, i) => (
+                  <div key={`${h.source}-${h.role}-${h.tenant_id ?? "g"}-${i}`} className="flex items-center justify-between gap-2 border border-hairline rounded px-2 py-1">
+                    <span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${h.role === "superadmin" ? "bg-emergency/20 text-emergency" : "bg-panel-elevated text-foreground"}`}>{h.role}</span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="mono text-[9px] uppercase tracking-widest text-muted-foreground">{h.source}</span>
+                      {h.tenant_id && (
+                        <button onClick={() => copy(h.tenant_id!)} title={h.tenant_id} className="mono text-[9px] text-action hover:underline flex items-center gap-1">
+                          {h.tenant_id.slice(0, 8)}… <Copy className="size-2.5" />
+                        </button>
+                      )}
+                    </span>
+                  </div>
                 ))}
               </div>
-              {identity.rolesError && <div className="mono text-[10px] text-emergency mt-1">role lookup error: {identity.rolesError}</div>}
+              {identity.roleErrors.user_roles && <div className="mono text-[10px] text-emergency mt-1">user_roles error: {identity.roleErrors.user_roles}</div>}
+              {identity.roleErrors.portal_role_assignments && <div className="mono text-[10px] text-emergency mt-1">portal_role_assignments error: {identity.roleErrors.portal_role_assignments}</div>}
+              {identity.roleErrors.tenant_members && <div className="mono text-[10px] text-emergency mt-1">tenant_members error: {identity.roleErrors.tenant_members}</div>}
             </div>
             <div>
               <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">tenants ({identity.tenants.length})</div>
@@ -441,8 +457,13 @@ function IdentityPanel({ identity, refresh }: { identity: Identity; refresh: () 
               <div className="space-y-1">
                 {identity.tenants.map((t) => (
                   <div key={t.tenant_id} className="flex items-center justify-between gap-2 border border-hairline rounded px-2 py-1">
-                    <span className="truncate">{t.company_name ?? t.slug ?? t.tenant_id}</span>
-                    <span className="mono text-[10px] text-action uppercase">{t.role}</span>
+                    <span className="flex flex-col min-w-0">
+                      <span className="truncate">{t.company_name ?? t.slug ?? "(unnamed)"}</span>
+                      <button onClick={() => copy(t.tenant_id)} className="mono text-[9px] text-muted-foreground hover:text-foreground text-left truncate flex items-center gap-1">
+                        {t.tenant_id} <Copy className="size-2.5" />
+                      </button>
+                    </span>
+                    <span className="mono text-[10px] text-action uppercase shrink-0">{t.role}</span>
                   </div>
                 ))}
               </div>
