@@ -35,6 +35,7 @@ import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as ResourcesComparisonRouteImport } from './routes/resources.comparison'
 import { Route as ResourcesSlugRouteImport } from './routes/resources.$slug'
 import { Route as ClinicsCityRouteImport } from './routes/clinics.$city'
+import { Route as AuthErrorRouteImport } from './routes/auth.error'
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
 import { Route as AuthenticatedSuperadminRouteImport } from './routes/_authenticated/superadmin'
@@ -233,6 +234,11 @@ const ClinicsCityRoute = ClinicsCityRouteImport.update({
   id: '/$city',
   path: '/$city',
   getParentRoute: () => ClinicsRoute,
+} as any)
+const AuthErrorRoute = AuthErrorRouteImport.update({
+  id: '/error',
+  path: '/error',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthenticatedTripsRoute = AuthenticatedTripsRouteImport.update({
   id: '/trips',
@@ -604,7 +610,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/api-reference': typeof ApiReferenceRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/business-intake': typeof BusinessIntakeRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
@@ -634,6 +640,7 @@ export interface FileRoutesByFullPath {
   '/superadmin': typeof AuthenticatedSuperadminRouteWithChildren
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
+  '/auth/error': typeof AuthErrorRoute
   '/clinics/$city': typeof ClinicsCityRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/resources/comparison': typeof ResourcesComparisonRoute
@@ -700,7 +707,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/api-reference': typeof ApiReferenceRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/business-intake': typeof BusinessIntakeRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
@@ -730,6 +737,7 @@ export interface FileRoutesByTo {
   '/superadmin': typeof AuthenticatedSuperadminRouteWithChildren
   '/training': typeof AuthenticatedTrainingRoute
   '/trips': typeof AuthenticatedTripsRoute
+  '/auth/error': typeof AuthErrorRoute
   '/clinics/$city': typeof ClinicsCityRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/resources/comparison': typeof ResourcesComparisonRoute
@@ -798,7 +806,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/api-reference': typeof ApiReferenceRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/business-intake': typeof BusinessIntakeRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
@@ -828,6 +836,7 @@ export interface FileRoutesById {
   '/_authenticated/superadmin': typeof AuthenticatedSuperadminRouteWithChildren
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
+  '/auth/error': typeof AuthErrorRoute
   '/clinics/$city': typeof ClinicsCityRoute
   '/resources/$slug': typeof ResourcesSlugRoute
   '/resources/comparison': typeof ResourcesComparisonRoute
@@ -926,6 +935,7 @@ export interface FileRouteTypes {
     | '/superadmin'
     | '/training'
     | '/trips'
+    | '/auth/error'
     | '/clinics/$city'
     | '/resources/$slug'
     | '/resources/comparison'
@@ -1022,6 +1032,7 @@ export interface FileRouteTypes {
     | '/superadmin'
     | '/training'
     | '/trips'
+    | '/auth/error'
     | '/clinics/$city'
     | '/resources/$slug'
     | '/resources/comparison'
@@ -1119,6 +1130,7 @@ export interface FileRouteTypes {
     | '/_authenticated/superadmin'
     | '/_authenticated/training'
     | '/_authenticated/trips'
+    | '/auth/error'
     | '/clinics/$city'
     | '/resources/$slug'
     | '/resources/comparison'
@@ -1187,7 +1199,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ApiDocsRoute: typeof ApiDocsRoute
   ApiReferenceRoute: typeof ApiReferenceRoute
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   BusinessIntakeRoute: typeof BusinessIntakeRoute
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
@@ -1429,6 +1441,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/clinics/$city'
       preLoaderRoute: typeof ClinicsCityRouteImport
       parentRoute: typeof ClinicsRoute
+    }
+    '/auth/error': {
+      id: '/auth/error'
+      path: '/error'
+      fullPath: '/auth/error'
+      preLoaderRoute: typeof AuthErrorRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_authenticated/trips': {
       id: '/_authenticated/trips'
@@ -1982,6 +2001,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface AuthRouteChildren {
+  AuthErrorRoute: typeof AuthErrorRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthErrorRoute: AuthErrorRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 interface ClinicsRouteChildren {
   ClinicsCityRoute: typeof ClinicsCityRoute
 }
@@ -2152,7 +2181,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ApiDocsRoute: ApiDocsRoute,
   ApiReferenceRoute: ApiReferenceRoute,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   BusinessIntakeRoute: BusinessIntakeRoute,
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
