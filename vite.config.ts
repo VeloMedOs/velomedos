@@ -11,20 +11,9 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-    // Pre-render high-signal public routes so crawlers receive complete HTML immediately.
-    prerender: {
-      enabled: true,
-      crawlLinks: false,
-      autoStaticPathsDiscovery: false,
-      pages: [
-        { path: "/resources" },
-        { path: "/contact" },
-        { path: "/terms" },
-        { path: "/Privacy/Home" },
-        { path: "/Privacy/TermsOfService" },
-        { path: "/Privacy/HIPAA" },
-        { path: "/Privacy/PatientRights" },
-      ],
-    },
+    // NOTE: prerender intentionally disabled. TanStack Start's prerender preview-server
+    // looks for `dist/server/server.js`, but our Nitro/Cloudflare build emits
+    // `dist/server/index.mjs`, which breaks the build. SSR already returns complete
+    // HTML on first byte for our public routes, so crawlers still get full markup.
   },
 });
