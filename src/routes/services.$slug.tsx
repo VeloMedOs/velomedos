@@ -113,6 +113,13 @@ function ServicePage() {
             </Link>
           ))}
         </div>
+        <div className="mt-6 rounded-lg border border-action/30 bg-panel p-4 flex items-center justify-between gap-3 flex-wrap">
+          <div className="text-sm">
+            <span className="mono text-[10px] uppercase tracking-widest text-action mr-2">Compare</span>
+            Evaluating ambulance dispatch software? See <strong>VeloMed OS vs ESO Suite</strong> side-by-side.
+          </div>
+          <Link to="/resources/comparison" className="inline-flex items-center gap-1 mono text-[10px] uppercase tracking-widest text-action hover:gap-2 transition-all">Read the comparison <ArrowRight className="size-3" /></Link>
+        </div>
       </section>
       <section className="max-w-[1100px] mx-auto px-4 lg:px-8 py-20 text-center">
         <h2 className="text-3xl font-bold tracking-tight">Ready to run this in production?</h2>

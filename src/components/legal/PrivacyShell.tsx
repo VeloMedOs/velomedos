@@ -136,6 +136,9 @@ export function PrivacyShell({ doc, activeKey }: { doc: LegalDoc | null; activeK
             <div className="text-[11px] text-foreground/85 mt-1.5 leading-5 relative">
               KSA PDPL · NDMO · NCA ECC-1 · MOH / NPHIES / CHI · HIPAA-aligned (optional BAA)
             </div>
+            <a href="/resources/comparison" className="mt-3 block text-[10px] uppercase tracking-widest text-teal hover:underline relative">
+              {rtl ? "قارن المنصات ←" : "Compare platforms →"}
+            </a>
           </div>
         </aside>
         <article className="min-w-0">

@@ -40,6 +40,18 @@ function Resources() {
         <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">Operating notes from the VeloMed team.</h1>
         <p className="text-muted-foreground mt-4 max-w-2xl text-lg">Field-tested writing on ambulance dispatch, fleet compliance, telehealth and medical mobility.</p>
       </header>
+      <section className="max-w-[1100px] mx-auto px-4 lg:px-8 -mt-2 mb-8">
+        <Link to="/resources/comparison" className="block rounded-xl border border-action/30 bg-panel p-5 hover:bg-panel-elevated transition-colors">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <div className="mono text-[10px] uppercase tracking-[0.22em] text-action">Featured · Buyer's guide</div>
+              <div className="text-lg font-semibold mt-1">Ambulance dispatch software: VeloMed OS vs ESO Suite</div>
+              <div className="text-sm text-muted-foreground mt-1">Branch-aware Network → Region → Crew drill-down vs a legacy single-agency suite.</div>
+            </div>
+            <span className="mono text-[10px] uppercase tracking-widest text-action inline-flex items-center gap-1">Open guide <ArrowRight className="size-3" /></span>
+          </div>
+        </Link>
+      </section>
       <section className="max-w-[1100px] mx-auto px-4 lg:px-8 pb-24 grid md:grid-cols-2 gap-px bg-hairline rounded-xl overflow-hidden border border-hairline">
         {RESOURCES.map((r) => (
           <Link key={r.slug} to="/resources/$slug" params={{ slug: r.slug }} className="bg-panel p-6 hover:bg-panel-elevated transition-colors">
