@@ -13,7 +13,7 @@ export const Route = createFileRoute("/api/public/v1/vehicles/$id/work_orders")(
           .select("id,type,status,opened_at,closed_at,odometer_km,downtime_minutes")
           .eq("vehicle_id", params.id)
           .order("opened_at", { ascending: false });
-        if (error) return json({ error: error.message }, 500);
+        if (error) { console.error("public_api", error); return json({ error: "internal_error" }, 500); }
         return json(data);
       },
     },
