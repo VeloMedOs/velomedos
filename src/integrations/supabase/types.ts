@@ -925,6 +925,438 @@ export type Database = {
         }
         Relationships: []
       }
+      ops_automations: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          kind: string
+          last_message: string | null
+          last_run_at: string | null
+          last_status: string | null
+          name: string
+          schedule: string | null
+          target_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          last_message?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          name: string
+          schedule?: string | null
+          target_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          kind?: string
+          last_message?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          name?: string
+          schedule?: string | null
+          target_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ops_chat_filters: {
+        Row: {
+          action: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          kind: string
+          notes: string | null
+          pattern: string
+          updated_at: string
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          notes?: string | null
+          pattern: string
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          notes?: string | null
+          pattern?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ops_notification_reads: {
+        Row: {
+          notification_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          notification_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          notification_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_notification_reads_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "ops_notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_notifications: {
+        Row: {
+          audience: string
+          audience_tenant_id: string | null
+          audience_user_id: string | null
+          body: string | null
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          link_to: string | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          audience: string
+          audience_tenant_id?: string | null
+          audience_user_id?: string | null
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          link_to?: string | null
+          severity?: string
+          title: string
+        }
+        Update: {
+          audience?: string
+          audience_tenant_id?: string | null
+          audience_user_id?: string | null
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          link_to?: string | null
+          severity?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_notifications_audience_tenant_id_fkey"
+            columns: ["audience_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_refunds: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          external_ref: string | null
+          id: string
+          payment_id: string | null
+          processed_at: string | null
+          reason: string | null
+          status: string
+          subscriber_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          external_ref?: string | null
+          id?: string
+          payment_id?: string | null
+          processed_at?: string | null
+          reason?: string | null
+          status?: string
+          subscriber_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          external_ref?: string | null
+          id?: string
+          payment_id?: string | null
+          processed_at?: string | null
+          reason?: string | null
+          status?: string
+          subscriber_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_refunds_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "portal_payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_releases: {
+        Row: {
+          channel: string
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          published_at: string | null
+          status: string
+          title: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          published_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          version: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          published_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
+      ops_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          moderated_at: string | null
+          moderated_by: string | null
+          patient_id: string | null
+          rating: number
+          status: string
+          tenant_id: string | null
+          trip_id: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          patient_id?: string | null
+          rating: number
+          status?: string
+          tenant_id?: string | null
+          trip_id?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          patient_id?: string | null
+          rating?: number
+          status?: string
+          tenant_id?: string | null
+          trip_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_reviews_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_reviews_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_security_settings: {
+        Row: {
+          id: string
+          ip_allowlist: string[]
+          mfa_required_roles: string[]
+          password_min_length: number
+          password_require_number: boolean
+          password_require_symbol: boolean
+          session_ttl_minutes: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          ip_allowlist?: string[]
+          mfa_required_roles?: string[]
+          password_min_length?: number
+          password_require_number?: boolean
+          password_require_symbol?: boolean
+          session_ttl_minutes?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          ip_allowlist?: string[]
+          mfa_required_roles?: string[]
+          password_min_length?: number
+          password_require_number?: boolean
+          password_require_symbol?: boolean
+          session_ttl_minutes?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      ops_smoke_reports: {
+        Row: {
+          checked_at: string
+          http_status: number | null
+          id: string
+          latency_ms: number | null
+          message: string | null
+          status: string
+          target: string
+        }
+        Insert: {
+          checked_at?: string
+          http_status?: number | null
+          id?: string
+          latency_ms?: number | null
+          message?: string | null
+          status?: string
+          target: string
+        }
+        Update: {
+          checked_at?: string
+          http_status?: number | null
+          id?: string
+          latency_ms?: number | null
+          message?: string | null
+          status?: string
+          target?: string
+        }
+        Relationships: []
+      }
+      ops_test_runs: {
+        Row: {
+          branch: string | null
+          commit_sha: string | null
+          duration_ms: number
+          failed: number
+          finished_at: string | null
+          id: string
+          passed: number
+          report_url: string | null
+          started_at: string
+          status: string
+          suite: string
+          total: number
+        }
+        Insert: {
+          branch?: string | null
+          commit_sha?: string | null
+          duration_ms?: number
+          failed?: number
+          finished_at?: string | null
+          id?: string
+          passed?: number
+          report_url?: string | null
+          started_at?: string
+          status?: string
+          suite: string
+          total?: number
+        }
+        Update: {
+          branch?: string | null
+          commit_sha?: string | null
+          duration_ms?: number
+          failed?: number
+          finished_at?: string | null
+          id?: string
+          passed?: number
+          report_url?: string | null
+          started_at?: string
+          status?: string
+          suite?: string
+          total?: number
+        }
+        Relationships: []
+      }
+      ops_workspace_settings: {
+        Row: {
+          description: string | null
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          description?: string | null
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          description?: string | null
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       patient_allergies: {
         Row: {
           created_at: string
