@@ -87,6 +87,7 @@ import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/pub
 import { Route as ApiAdminV1TicketsIdEventsRouteImport } from './routes/api/admin/v1/tickets.$id.events'
 import { Route as ApiAdminV1PaymentsIdValidateRouteImport } from './routes/api/admin/v1/payments.$id.validate'
 import { Route as ApiAdminV1ConfigEffectiveSubscriberIdRouteImport } from './routes/api/admin/v1/config.effective.$subscriberId'
+import { Route as ApiAdminV1BusinessRequestsIdConvertRouteImport } from './routes/api/admin/v1/business-requests.$id.convert'
 import { Route as ApiAdminV1BusinessRequestsIdAdvanceRouteImport } from './routes/api/admin/v1/business-requests.$id.advance'
 
 const WebsiteRoute = WebsiteRouteImport.update({
@@ -491,6 +492,12 @@ const ApiAdminV1ConfigEffectiveSubscriberIdRoute =
     path: '/api/admin/v1/config/effective/$subscriberId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAdminV1BusinessRequestsIdConvertRoute =
+  ApiAdminV1BusinessRequestsIdConvertRouteImport.update({
+    id: '/convert',
+    path: '/convert',
+    getParentRoute: () => ApiAdminV1BusinessRequestsIdRoute,
+  } as any)
 const ApiAdminV1BusinessRequestsIdAdvanceRoute =
   ApiAdminV1BusinessRequestsIdAdvanceRouteImport.update({
     id: '/advance',
@@ -570,6 +577,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
+  '/api/admin/v1/business-requests/$id/convert': typeof ApiAdminV1BusinessRequestsIdConvertRoute
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
@@ -650,6 +658,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
+  '/api/admin/v1/business-requests/$id/convert': typeof ApiAdminV1BusinessRequestsIdConvertRoute
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
@@ -732,6 +741,7 @@ export interface FileRoutesById {
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
+  '/api/admin/v1/business-requests/$id/convert': typeof ApiAdminV1BusinessRequestsIdConvertRoute
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
@@ -814,6 +824,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
     | '/api/admin/v1/business-requests/$id/advance'
+    | '/api/admin/v1/business-requests/$id/convert'
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
@@ -894,6 +905,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
     | '/api/admin/v1/business-requests/$id/advance'
+    | '/api/admin/v1/business-requests/$id/convert'
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
@@ -975,6 +987,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
     | '/api/admin/v1/business-requests/$id/advance'
+    | '/api/admin/v1/business-requests/$id/convert'
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
@@ -1586,6 +1599,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1ConfigEffectiveSubscriberIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/v1/business-requests/$id/convert': {
+      id: '/api/admin/v1/business-requests/$id/convert'
+      path: '/convert'
+      fullPath: '/api/admin/v1/business-requests/$id/convert'
+      preLoaderRoute: typeof ApiAdminV1BusinessRequestsIdConvertRouteImport
+      parentRoute: typeof ApiAdminV1BusinessRequestsIdRoute
+    }
     '/api/admin/v1/business-requests/$id/advance': {
       id: '/api/admin/v1/business-requests/$id/advance'
       path: '/advance'
@@ -1690,12 +1710,15 @@ const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
 
 interface ApiAdminV1BusinessRequestsIdRouteChildren {
   ApiAdminV1BusinessRequestsIdAdvanceRoute: typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
+  ApiAdminV1BusinessRequestsIdConvertRoute: typeof ApiAdminV1BusinessRequestsIdConvertRoute
 }
 
 const ApiAdminV1BusinessRequestsIdRouteChildren: ApiAdminV1BusinessRequestsIdRouteChildren =
   {
     ApiAdminV1BusinessRequestsIdAdvanceRoute:
       ApiAdminV1BusinessRequestsIdAdvanceRoute,
+    ApiAdminV1BusinessRequestsIdConvertRoute:
+      ApiAdminV1BusinessRequestsIdConvertRoute,
   }
 
 const ApiAdminV1BusinessRequestsIdRouteWithChildren =
