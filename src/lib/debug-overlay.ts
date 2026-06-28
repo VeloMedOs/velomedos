@@ -58,7 +58,7 @@ export async function reportDebugEvent(input: {
       severity: input.severity ?? "info",
       route, viewport,
       message: input.message ?? null,
-      payload: input.payload ?? {},
+      payload: (input.payload ?? {}) as never,
       created_by: user?.id ?? null,
     });
   } catch { /* best-effort */ }
