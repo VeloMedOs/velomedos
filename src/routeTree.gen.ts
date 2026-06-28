@@ -16,14 +16,11 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
-import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
 import { Route as BusinessIntakeRouteImport } from './routes/business-intake'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as ApiReferenceRouteImport } from './routes/api-reference'
-import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as PrivacyRouteImport } from './routes/Privacy'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -158,11 +155,6 @@ const PlatformRoute = PlatformRouteImport.update({
   path: '/platform',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DevelopersRoute = DevelopersRouteImport.update({
-  id: '/developers',
-  path: '/developers',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DemoRoute = DemoRouteImport.update({
   id: '/demo',
   path: '/demo',
@@ -186,16 +178,6 @@ const BusinessIntakeRoute = BusinessIntakeRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiReferenceRoute = ApiReferenceRouteImport.update({
-  id: '/api-reference',
-  path: '/api-reference',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiDocsRoute = ApiDocsRouteImport.update({
-  id: '/api-docs',
-  path: '/api-docs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -716,14 +698,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/Privacy': typeof PrivacyRouteWithChildren
   '/about': typeof AboutRoute
-  '/api-docs': typeof ApiDocsRoute
-  '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRouteWithChildren
   '/business-intake': typeof BusinessIntakeRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
-  '/developers': typeof DevelopersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
@@ -829,14 +808,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/api-docs': typeof ApiDocsRoute
-  '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRouteWithChildren
   '/business-intake': typeof BusinessIntakeRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
-  '/developers': typeof DevelopersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
@@ -945,14 +921,11 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/Privacy': typeof PrivacyRouteWithChildren
   '/about': typeof AboutRoute
-  '/api-docs': typeof ApiDocsRoute
-  '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRouteWithChildren
   '/business-intake': typeof BusinessIntakeRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
-  '/developers': typeof DevelopersRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
@@ -1061,14 +1034,11 @@ export interface FileRouteTypes {
     | '/'
     | '/Privacy'
     | '/about'
-    | '/api-docs'
-    | '/api-reference'
     | '/auth'
     | '/business-intake'
     | '/clinics'
     | '/contact'
     | '/demo'
-    | '/developers'
     | '/platform'
     | '/pricing'
     | '/resources'
@@ -1174,14 +1144,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
-    | '/api-docs'
-    | '/api-reference'
     | '/auth'
     | '/business-intake'
     | '/clinics'
     | '/contact'
     | '/demo'
-    | '/developers'
     | '/platform'
     | '/pricing'
     | '/resources'
@@ -1289,14 +1256,11 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/Privacy'
     | '/about'
-    | '/api-docs'
-    | '/api-reference'
     | '/auth'
     | '/business-intake'
     | '/clinics'
     | '/contact'
     | '/demo'
-    | '/developers'
     | '/platform'
     | '/pricing'
     | '/resources'
@@ -1405,14 +1369,11 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   PrivacyRoute: typeof PrivacyRouteWithChildren
   AboutRoute: typeof AboutRoute
-  ApiDocsRoute: typeof ApiDocsRoute
-  ApiReferenceRoute: typeof ApiReferenceRoute
   AuthRoute: typeof AuthRouteWithChildren
   BusinessIntakeRoute: typeof BusinessIntakeRoute
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
   DemoRoute: typeof DemoRoute
-  DevelopersRoute: typeof DevelopersRoute
   PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
   ResourcesRoute: typeof ResourcesRouteWithChildren
@@ -1528,13 +1489,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlatformRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/developers': {
-      id: '/developers'
-      path: '/developers'
-      fullPath: '/developers'
-      preLoaderRoute: typeof DevelopersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/demo': {
       id: '/demo'
       path: '/demo'
@@ -1568,20 +1522,6 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api-reference': {
-      id: '/api-reference'
-      path: '/api-reference'
-      fullPath: '/api-reference'
-      preLoaderRoute: typeof ApiReferenceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api-docs': {
-      id: '/api-docs'
-      path: '/api-docs'
-      fullPath: '/api-docs'
-      preLoaderRoute: typeof ApiDocsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -2537,14 +2477,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   PrivacyRoute: PrivacyRouteWithChildren,
   AboutRoute: AboutRoute,
-  ApiDocsRoute: ApiDocsRoute,
-  ApiReferenceRoute: ApiReferenceRoute,
   AuthRoute: AuthRouteWithChildren,
   BusinessIntakeRoute: BusinessIntakeRoute,
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
   DemoRoute: DemoRoute,
-  DevelopersRoute: DevelopersRoute,
   PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
   ResourcesRoute: ResourcesRouteWithChildren,

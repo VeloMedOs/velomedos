@@ -75,7 +75,7 @@ function ServicePage() {
         <p className="text-lg text-muted-foreground mt-4 max-w-2xl leading-relaxed">{s.short}</p>
         <div className="flex flex-wrap gap-3 mt-6">
           <Link to="/contact" className="inline-flex items-center gap-2 px-5 py-3 rounded-md bg-emergency text-emergency-foreground mono text-xs uppercase tracking-widest font-bold hover:bg-emergency/90">Request a demo <ArrowRight className="size-3.5" /></Link>
-          <Link to="/api-docs" className="inline-flex items-center gap-2 px-5 py-3 rounded-md border border-hairline mono text-xs uppercase tracking-widest hover:bg-panel">Read the API <ArrowRight className="size-3.5" /></Link>
+          <Link to="/platform" className="inline-flex items-center gap-2 px-5 py-3 rounded-md border border-hairline mono text-xs uppercase tracking-widest hover:bg-panel">How the platform works <ArrowRight className="size-3.5" /></Link>
         </div>
       </header>
       <section className="max-w-[1100px] mx-auto px-4 lg:px-8 py-12 grid lg:grid-cols-2 gap-10">

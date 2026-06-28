@@ -96,7 +96,7 @@ function Index() {
               { icon: BadgeCheck, title: "Staff performance", desc: "Response, on-scene, handoff and trip metrics by team, district, region.", to: "/services/emergency-dispatch" },
               { icon: Wrench, title: "Maintenance", desc: "Defects, work orders and service intervals that pull units out of the pool.", to: "/services/fleet-compliance" },
               { icon: GraduationCap, title: "Licensing & certification", desc: "Vehicle & clinician credentials with expiry roll-ups by branch.", to: "/services/training-certification" },
-              { icon: Code2, title: "Developer API", desc: "Same REST endpoints we use. Scoped keys, webhooks, OpenAPI 3.1.", to: "/developers" },
+              { icon: Code2, title: "Branch governance", desc: "Roles, privileges and audit scoped from network down to a single crew.", to: "/platform" },
             ].map((c) => (
               <Link key={c.title} to={c.to} className="bg-panel p-6 hover:bg-panel-elevated transition-colors group">
                 <c.icon className="size-5 text-teal mb-4" />

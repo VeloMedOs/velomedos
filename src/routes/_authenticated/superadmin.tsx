@@ -409,7 +409,7 @@ function Superadmin() {
           {[
             ["/developer", "API keys & scopes"],
             ["/privileges", "Role privileges matrix"],
-            ["/api-docs", "OpenAPI / Swagger"],
+            ["/superadmin/api-docs", "OpenAPI / Swagger"],
             ["/audit", "Audit log"],
             ["/admin", "Operations overview"],
             ["/compliance", "Compliance"],
@@ -1464,7 +1464,7 @@ function ApiDocsPane() {
         <div className="flex items-center gap-2 normal-case">
           <span className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-sky/15 text-sky border border-sky/30">PUBLIC</span>
           <a href="/api/public/v1/openapi" target="_blank" rel="noreferrer" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-hairline hover:bg-panel-elevated">openapi.json ↗</a>
-          <Link to="/api-docs" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-teal text-background hover:bg-teal-deep transition-colors font-bold">Open Swagger UI →</Link>
+          <Link to="/superadmin/api-docs" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-teal text-background hover:bg-teal-deep transition-colors font-bold">Open Swagger UI →</Link>
         </div>
       }>
         <div className="p-4 grid sm:grid-cols-3 gap-px bg-hairline rounded overflow-hidden border border-hairline">
@@ -1606,7 +1606,7 @@ function DebugPane({ tenants }: { tenants: Tenant[] }) {
             <option value="">Any viewport</option>
             {["mobile","tablet","desktop"].map((k) => <option key={k} value={k}>{k}</option>)}
           </select>
-          <Link to="/api-docs" hash="tag/Debug" className="ml-auto mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated">Debug API ↗</Link>
+          <Link to="/superadmin/api-docs" hash="tag/Debug" className="ml-auto mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated">Debug API ↗</Link>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-px bg-hairline">

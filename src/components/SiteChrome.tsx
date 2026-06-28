@@ -19,7 +19,6 @@ export function SiteHeader() {
             ["Platform","/platform"],
             ["Solutions","/services"],
             ["Pricing","/pricing"],
-            ["Developers","/developers"],
             ["About","/about"],
           ].map(([label, to]) => (
             <Link
@@ -78,11 +77,10 @@ export function SiteFooter() {
           ["Remote clinics","/services/remote-clinics"],
           ["Mobile screening","/services/mobile-screening"],
         ]} />
-        <FooterCol title="Developer" links={[
-          ["API overview","/developers"],
-          ["API reference","/api-reference"],
-          ["OpenAPI / Swagger","/api-docs"],
-          ["Resources","/resources"],
+        <FooterCol title="Resources" links={[
+          ["Insights & guides","/resources"],
+          ["Service catalogue","/services"],
+          ["Clinic network","/clinics"],
           ["Website map","/website"],
         ]} />
         <FooterCol title="Company" links={[
@@ -92,10 +90,6 @@ export function SiteFooter() {
           ["Business onboarding","/business-intake"],
           ["Talk to us","/contact"],
           ["Sign in","/auth"],
-          ["Privacy","/Privacy/Home"],
-          ["Terms","/Privacy/TermsOfService"],
-          ["HIPAA","/Privacy/HIPAA"],
-          ["Patient Rights","/Privacy/PatientRights"],
         ]} />
       </div>
       <div className="border-t border-hairline">
