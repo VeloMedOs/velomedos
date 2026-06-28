@@ -1,87 +1,55 @@
+## Goal
 
-# Superadmin Control Plane — revamp plan
+Revamp `/pricing` into a real, research-grounded pricing page modeled after RufayQ's structure — keeping VeloMed's dark Clinical Precision aesthetic and the B2B/fleet reality (no consumer pricing).
 
-The current `/superadmin` is a flat tabbed page that mixes tenants, plans, roles, API keys and a Swagger pane. The attached spec (`VeloMed_OS_Superadmin_Portal.docx` + dark-canvas standalone reference) describes a separate **internal SaaS-operations product** with its own RBAC, dual-source billing, monitoring board, bugs/Sentry queue, base/customization layers, KPI intelligence and an `/api/admin/v1/*` surface — and you've now explicitly asked that the **Swagger console live inside the portal** and the **privileges matrix get counters for the new API section**.
+## Pricing research (B2B EMS / dispatch SaaS benchmark)
 
-This plan is API-first: every screen reads/writes via `/api/admin/v1/*` server routes, so the same contract powers the UI and any internal tooling.
+Typical market shapes I'll anchor the tiers against:
 
-## Build order (this turn)
+- **Per-vehicle / per-unit SaaS** (ESO, ImageTrend, Tarmac, Beyond Lucid): ~USD 80–250 / ambulance / month for dispatch + ePCR, more for analytics & compliance modules.
+- **Per-seat dispatch consoles** (Traumasoft, RescueNet): ~USD 60–120 / dispatcher / month.
+- **Telehealth / remote-clinic platforms**: USD 1–3 / consult or USD 5–15 / patient / month bundles.
+- **Training & certification LMS** (Relias, Vector Solutions EMS): USD 25–60 / learner / year.
+- **Public API tiers**: free sandbox → metered (per 1k calls) → committed throughput + SLA.
+- **Enterprise / sovereign**: annual contract, dedicated cluster, custom SLA, no public price.
 
-This is a large revamp; I will land it in **two prompts** so each is reviewable. This plan covers **Prompt A (foundation + API + Swagger + privileges counters)**, which is what your message specifically demands. Prompt B (gateway/Sentry wiring + base/customization layer editor + cohort analytics) will follow once A is verified.
+I'll publish list anchors in **USD** with a note that SAR/AED billing is available, since the project is GCC-leaning but sells regionally.
 
-### Prompt A — what ships now
+## New /pricing structure (mirrors RufayQ's anatomy)
 
-**1. Portal RBAC (separate from operator roles)**
-- New enum `portal_role` (`superadmin`, `finance`, `call_center`, `developer`, `analyst`) and tables `portal_role_assignments`, `portal_role_privileges(role, module, can_view, can_manage)`.
-- `has_portal_role(_uid, _role)` security-definer fn; RLS on every new table restricts to portal staff.
-- Keep operator `app_role` untouched. `superadmin` operator role auto-mirrors to portal `superadmin` so existing access doesn't break.
+1. **Hero** — headline, sub, billing toggle (Monthly / Annual — save 2 months), currency hint (USD shown, SAR/AED on invoice).
+2. **Four plan tiers** in one grid (replaces today's 3 "Custom" cards):
+  - **Starter — Single Branch** · from **$1,490/mo** · up to 10 units, 3 dispatcher seats, core dispatch + provider + patient app, public API sandbox.
+  - **Operator — Multi-Branch** · from **$4,900/mo** · up to 50 units, 10 seats, fleet compliance, telehealth add-on ready, API 100k calls/mo.
+  - **Network — Regional** *(Most chosen)* · from **$12,500/mo** · up to 200 units, unlimited seats, multi-tenant, training LMS, API 1M calls/mo, priority support.
+  - **Sovereign — Platform** · Custom · unlimited units, dedicated cluster, custom SLA, on-prem/in-country residency, 24/7 named support.
+   Each card: eyebrow, name, price, "/month billed annually" line, target descriptor, feature checklist, CTA (`/demo` for paid, `/contact` for Sovereign), one highlighted card.
+3. **Module add-ons grid** (matches RufayQ add-ons section):
+  - Remote Clinic Pods · per pod / month
+  - Ambulance Rental Marketplace · % of GMV
+  - Training & Certification LMS · per learner / year
+  - Public API — metered overage · per 1k calls
+  - Compliance & Credential Vault · per branch / month
+  - Insurance Claims Concierge · per claim
+4. **What's always included** strip — dispatch console, provider + patient apps, public REST API + Swagger, audit log, RLS multi-tenant, SSO/SAML on Network+.
+5. **Comparison matrix** — feature × tier table (units cap, seats, API quota, SLA %, support tier, branch hierarchy levels, telehealth, LMS, on-prem).
+6. **API pricing micro-section** — Sandbox (free), Metered ($0.40/1k after 100k), Committed (talk to us). Links to `/api-reference`.
+7. **FAQ** (6 items, JSON-LD FAQPage): plan changes, currency/VAT, data residency, SLAs, contract length, free pilot.
+8. **Closing CTA band** — "Book a scoped demo" → `/demo`, "Talk to sales" → `/contact`.
 
-**2. New data model (Supabase migration, with GRANTs)**
-- `subscribers` (mirrors `corporate_accounts` 1:1 via view — no data duplication; spec name reused for the API surface).
-- `portal_subscriptions`, `portal_payments` (method ∈ card/online/bank_transfer, receipt_url, txn_ref, validated_by/at), `portal_promotions`, `portal_credits`, `portal_invoices`.
-- `portal_tickets` + `portal_ticket_events` (type ∈ new_business/follow_up/bug/change_request).
-- `portal_bugs` (source ∈ sentry/internal, external_ref, severity, count, status, assignee, last_seen_at).
-- `config_base(key,value)`, `config_overrides(subscriber_id,key,value,updated_by,updated_at)` + `effective_config(subscriber_id)` SQL fn.
-- `usage_daily(subscriber_id, day, api_calls, active_branches, active_teams)` + a backfill from `audit_log`.
-- `portal_audit(actor_id, action, target, payload, at)`.
-- Storage bucket `portal-receipts` for bank-transfer uploads (RLS: finance/superadmin only).
+## Technical details
 
-**3. API-first surface — `/api/admin/v1/*`**
-- New TanStack server routes under `src/routes/api/admin/v1/`:
-  - `subscribers` (GET list / POST provision), `subscribers/$id` (GET/PATCH lifecycle: suspend/resume/cancel),
-  - `subscriptions` (GET/POST), `payments` (GET/POST + `/$id/validate`), `promotions`, `invoices`,
-  - `tickets` (GET/POST) + `tickets/$id/events`,
-  - `bugs` (GET/POST/PATCH), `webhooks/sentry` (inbound), `webhooks/stripe` (inbound stub — verified HMAC),
-  - `config/base`, `config/overrides`, `config/effective/$subscriberId`,
-  - `analytics/kpis` (counters + MRR/ARR/ARPA + churn + growth + insight lines),
-  - `usage/daily`, `audit`, and **`openapi`** (serves the admin OpenAPI spec).
-- Auth: separate `requirePortalKey()` helper that accepts either a portal session (`requireSupabaseAuth` + `has_portal_role`) **or** a scoped internal key from `portal_api_keys`. Consistent error envelope `{ error, code, request_id }`.
-- Scopes: `subscribers:*`, `billing:*`, `tickets:*`, `bugs:*`, `config:*`, `analytics:read`, `webhooks:ingest`.
+- Single file change: `src/routes/pricing.tsx` (no schema, no API).
+- Add `faqLd` JSON-LD alongside existing breadcrumb.
+- Keep `SiteHeader` / `EmergencyBanner` / `SiteFooter`.
+- Use existing tokens: `bg-panel`, `border-hairline`, `text-action`, `text-stable`, `mono`. No new colors.
+- Billing toggle = local `useState<"monthly"|"annual">`; annual displays monthly equivalent with "−2 months" badge.
+- Currency note line only (no live FX); RufayQ-style currency switching is out of scope (no catalog tables on this project).
+- Comparison matrix as a semantic `<table>` for SEO; sticky first column on desktop only.
+- Update meta `description` to reflect tiered pricing.
+- No changes to landing `index.tsx`, schema, or APIs.
 
-**4. Admin OpenAPI spec + in-portal Swagger console**
-- New `src/lib/openapi-admin-spec.ts` documenting every `/api/admin/v1/*` endpoint (separate from the public spec).
-- New route `/superadmin/api-docs` mounts Swagger UI against `/api/admin/v1/openapi` — lives **inside** the portal, behind portal auth, with the dark portal chrome.
-- Keep the existing `/api-docs` (public v1) untouched.
-
-**5. Revamped Superadmin portal UI** (`src/routes/_authenticated/superadmin.tsx` rebuilt against the new chrome)
-- New left-rail layout, slate canvas, teal #34D8C2 / sky #5BB8F2 / coral #F47B6A accents, JetBrains Mono for IDs and money. Modules wired to `/api/admin/v1/*` via a tiny `adminFetch()` client:
-  - **Overview** — counters (total / active / trialing / engaged / suspended / churned), MRR/ARR/ARPA tiles, churn-risk list, auto-insight lines.
-  - **Subscribers** — directory + detail drawer (profile · subscription · payments · bugs · usage sparklines · churn-risk).
-  - **Subscriptions & billing** — list, manual receipt upload + validate, promotions, invoices, reconciliation banner (gateway vs portal).
-  - **Monitoring board** — sortable fleet-wide health table, row colour by risk.
-  - **Bugs & debugging** — Sentry/internal merged queue, triage actions; per-business debug drawer (reuses existing `debug_events`).
-  - **Inbox** (call-center) — new-business + follow-up tickets queue.
-  - **Base & customization layers** — base config editor + per-subscriber overrides + effective-config diff view.
-  - **Roles & privileges** — portal-scoped matrix (5 roles × modules with view/manage toggles), staff assignment.
-  - **API & keys** — portal API keys (issue/rotate/revoke, scopes, last-used) + **Swagger console** tab.
-- Every list view has a "View as cURL" affordance that emits the matching `/api/admin/v1` call, reinforcing API-first.
-
-**6. Privileges matrix counters (your explicit ask)**
-- Extend `src/lib/role-matrix.ts` with a new **API** area covering the new admin surface: `admin.api.subscribers`, `admin.api.billing`, `admin.api.tickets`, `admin.api.bugs`, `admin.api.config`, `admin.api.analytics`, `admin.api.webhooks`, `admin.api.openapi` — each tagged with the portal roles that hold it.
-- `/privileges` and the Superadmin "Roles & privileges" tab gain a per-area **endpoint count** badge (e.g. "API · 8 endpoints · 23 capabilities") sourced from the admin OpenAPI spec so the counter stays accurate when endpoints are added.
-
-**7. Seed data**
-- Migration seeds ~10 subscribers across statuses, a handful of subscriptions/invoices, 3 bank-transfer payments awaiting validation, 2 promotions, 6 Sentry-style bugs, 4 call-centre tickets, and 60 days of `usage_daily` so every screen is populated immediately.
-
-### Prompt B — deferred to the next turn
-
-- Live Stripe/Ottu server-fn integration behind `STRIPE_SECRET_KEY`/`OTTU_API_KEY` (request these secrets then).
-- Live Sentry pull behind `SENTRY_AUTH_TOKEN`.
-- Cohort retention chart, NRR, expansion vs contraction breakdown.
-- `admin.velomedos.com` subdomain split + dedicated auth realm.
-
-## Technical notes
-
-- All new endpoints live under `src/routes/api/admin/v1/` (NOT `api/public/`) — they require portal auth, not bypassed.
-- Inbound webhooks (`/api/admin/v1/webhooks/{stripe,sentry}`) live under `api/public/` with HMAC verification per server-routes guidance, then write through the same admin tables.
-- Migration includes `GRANT` blocks on every new public-schema table per platform rules, with `anon` excluded everywhere.
-- No edits to `src/integrations/supabase/*` auto-gen files.
-- Existing `/superadmin` URL is preserved; the route component is rebuilt in place.
-
-## Verification before I report done
-
-- `tsgo` clean.
-- New tables visible via `/api/admin/v1/subscribers` with a portal session.
-- Swagger console at `/superadmin/api-docs` renders the new admin spec.
-- Privileges matrix shows the new API area with live endpoint counters.
-- Seed data renders the Overview, Monitoring board, Bugs queue and Inbox on first load.
+- Wiring `pricing_plans` from the `/superadmin` Plans CRUD into this page (those are tenant subscription plans, a different surface). Can be a follow-up.
+- Multi-currency switcher, i18n, Arabic copy.
+- Do the necessary E2E testing and validations
+- Add the ability to manage subscriptions & Add-Ons from admin panel for specific business to upgrade or downgrade the requests and shall be pending superadmin approval and to display this in the Subscription managment module / section in the superadmin panel 
