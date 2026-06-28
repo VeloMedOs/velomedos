@@ -14,7 +14,8 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const { mode: initMode } = useSearch({ from: "/auth" });
-  const [mode, setMode] = useState<"signin" | "signup">(initMode ?? "signin");
+  const [mode] = useState<"signin" | "signup">("signin");
+  void initMode;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -35,21 +36,15 @@ function AuthPage() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (email.trim().toLowerCase() === "superadmin@velomedos.com") {
+      navigate({ to: "/superadmin/login", replace: true });
+      return;
+    }
     setLoading(true);
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/dispatch`, data: { full_name: name } },
-        });
-        if (error) throw error;
-        toast.success("Account created. You're in.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success("Welcome back.");
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      toast.success("Welcome back.");
       navigate({ to: "/dispatch", replace: true });
     } catch (err) {
       toast.error((err as Error).message);
@@ -87,8 +82,9 @@ function AuthPage() {
       <div className="flex items-center justify-center p-6">
         <div className="w-full max-w-sm space-y-6">
           <div className="space-y-1.5">
-            <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{mode === "signin" ? "Authenticate" : "Provision account"}</div>
-            <h1 className="text-2xl font-bold tracking-tight">{mode === "signin" ? "Sign in to VeloMed" : "Create your VeloMed account"}</h1>
+            <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Authenticate</div>
+            <h1 className="text-2xl font-bold tracking-tight">Sign in to VeloMed</h1>
+            <p className="text-[11px] text-muted-foreground">Operator access is provisioned by your superadmin. No public sign-up.</p>
           </div>
           <button onClick={google} type="button" className="w-full h-10 rounded-md border border-hairline bg-panel hover:bg-panel-elevated mono text-xs uppercase tracking-widest flex items-center justify-center gap-2">
             Continue with Google
@@ -97,21 +93,15 @@ function AuthPage() {
             <div className="h-px flex-1 bg-hairline" />or<div className="h-px flex-1 bg-hairline" />
           </div>
           <form onSubmit={submit} className="space-y-3">
-            {mode === "signup" && (
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="w-full h-10 px-3 rounded-md bg-input border border-hairline focus:border-action outline-none text-sm" />
-            )}
+            {false && <input value={name} onChange={(e) => setName(e.target.value)} className="hidden" />}
             <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@hospital.org" className="w-full h-10 px-3 rounded-md bg-input border border-hairline focus:border-action outline-none text-sm" />
             <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full h-10 px-3 rounded-md bg-input border border-hairline focus:border-action outline-none text-sm" />
             <button disabled={loading} className="w-full h-10 rounded-md bg-emergency text-emergency-foreground mono text-xs uppercase tracking-widest font-bold hover:bg-emergency/90 disabled:opacity-60">
-              {loading ? "..." : mode === "signin" ? "Sign in" : "Create account"}
+              {loading ? "..." : "Sign in"}
             </button>
           </form>
-          <div className="text-center text-sm text-muted-foreground">
-            {mode === "signin" ? (
-              <>No account? <button className="text-action hover:underline" onClick={() => setMode("signup")}>Sign up</button></>
-            ) : (
-              <>Already have one? <button className="text-action hover:underline" onClick={() => setMode("signin")}>Sign in</button></>
-            )}
+          <div className="text-center text-[11px] text-muted-foreground">
+            Forgot your password? Ask your superadmin to reset it. <Link to="/superadmin/login" className="text-action hover:underline">Superadmin sign-in →</Link>
           </div>
         </div>
       </div>
