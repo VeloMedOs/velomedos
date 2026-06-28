@@ -59,6 +59,7 @@ import { Route as ApiPublicV1EtaRouteImport } from './routes/api/public/v1/eta'
 import { Route as ApiPublicV1CredentialsRouteImport } from './routes/api/public/v1/credentials'
 import { Route as ApiPublicV1CoursesRouteImport } from './routes/api/public/v1/courses'
 import { Route as ApiPublicV1ClinicsRouteImport } from './routes/api/public/v1/clinics'
+import { Route as ApiAdminV1OpenapiRouteImport } from './routes/api/admin/v1/openapi'
 import { Route as ApiPublicV1ShareTokenRouteImport } from './routes/api/public/v1/share.$token'
 import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/v1/incidents.$id'
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
@@ -317,6 +318,11 @@ const ApiPublicV1ClinicsRoute = ApiPublicV1ClinicsRouteImport.update({
   path: '/api/public/v1/clinics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1OpenapiRoute = ApiAdminV1OpenapiRouteImport.update({
+  id: '/api/admin/v1/openapi',
+  path: '/api/admin/v1/openapi',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1ShareTokenRoute = ApiPublicV1ShareTokenRouteImport.update({
   id: '/api/public/v1/share/$token',
   path: '/api/public/v1/share/$token',
@@ -396,6 +402,7 @@ export interface FileRoutesByFullPath {
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
+  '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
   '/api/public/v1/credentials': typeof ApiPublicV1CredentialsRoute
@@ -454,6 +461,7 @@ export interface FileRoutesByTo {
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
+  '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
   '/api/public/v1/credentials': typeof ApiPublicV1CredentialsRoute
@@ -514,6 +522,7 @@ export interface FileRoutesById {
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/trip/$token': typeof TripTokenRoute
+  '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/public/v1/clinics': typeof ApiPublicV1ClinicsRoute
   '/api/public/v1/courses': typeof ApiPublicV1CoursesRoute
   '/api/public/v1/credentials': typeof ApiPublicV1CredentialsRoute
@@ -574,6 +583,7 @@ export interface FileRouteTypes {
     | '/resources/comparison'
     | '/services/$slug'
     | '/trip/$token'
+    | '/api/admin/v1/openapi'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
     | '/api/public/v1/credentials'
@@ -632,6 +642,7 @@ export interface FileRouteTypes {
     | '/resources/comparison'
     | '/services/$slug'
     | '/trip/$token'
+    | '/api/admin/v1/openapi'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
     | '/api/public/v1/credentials'
@@ -691,6 +702,7 @@ export interface FileRouteTypes {
     | '/resources/comparison'
     | '/services/$slug'
     | '/trip/$token'
+    | '/api/admin/v1/openapi'
     | '/api/public/v1/clinics'
     | '/api/public/v1/courses'
     | '/api/public/v1/credentials'
@@ -731,6 +743,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   WebsiteRoute: typeof WebsiteRoute
   TripTokenRoute: typeof TripTokenRoute
+  ApiAdminV1OpenapiRoute: typeof ApiAdminV1OpenapiRoute
   ApiPublicV1ClinicsRoute: typeof ApiPublicV1ClinicsRoute
   ApiPublicV1CoursesRoute: typeof ApiPublicV1CoursesRoute
   ApiPublicV1CredentialsRoute: typeof ApiPublicV1CredentialsRoute
@@ -1101,6 +1114,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1ClinicsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/v1/openapi': {
+      id: '/api/admin/v1/openapi'
+      path: '/api/admin/v1/openapi'
+      fullPath: '/api/admin/v1/openapi'
+      preLoaderRoute: typeof ApiAdminV1OpenapiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/share/$token': {
       id: '/api/public/v1/share/$token'
       path: '/api/public/v1/share/$token'
@@ -1273,6 +1293,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   WebsiteRoute: WebsiteRoute,
   TripTokenRoute: TripTokenRoute,
+  ApiAdminV1OpenapiRoute: ApiAdminV1OpenapiRoute,
   ApiPublicV1ClinicsRoute: ApiPublicV1ClinicsRoute,
   ApiPublicV1CoursesRoute: ApiPublicV1CoursesRoute,
   ApiPublicV1CredentialsRoute: ApiPublicV1CredentialsRoute,
