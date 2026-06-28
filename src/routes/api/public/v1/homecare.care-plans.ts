@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/public/v1/homecare/care-plans")({
         const planType = url.searchParams.get("plan_type");
         const status = url.searchParams.get("status");
         if (recipient) q = q.eq("recipient_id", recipient);
-        if (planType) q = q.eq("plan_type", planType);
+        if (planType) q = q.eq("plan_type", planType as never);
         if (status) q = q.eq("status", status);
         const { data, error } = await q;
         if (error) { console.error("public_api homecare.care-plans GET", error); return json({ error: "internal_error" }, 500); }

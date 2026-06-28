@@ -93,6 +93,7 @@ import { Route as ApiAdminV1AddonsRouteImport } from './routes/api/admin/v1/addo
 import { Route as ApiPublicV1ShareTokenRouteImport } from './routes/api/public/v1/share.$token'
 import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/v1/incidents.$id'
 import { Route as ApiPublicV1HomecareRecipientsRouteImport } from './routes/api/public/v1/homecare.recipients'
+import { Route as ApiPublicV1HomecareCarePlansRouteImport } from './routes/api/public/v1/homecare.care-plans'
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiPublicLegalSlugAcceptRouteImport } from './routes/api/public/legal.$slug.accept'
 import { Route as ApiAdminV1UsageDailyRouteImport } from './routes/api/admin/v1/usage.daily'
@@ -556,6 +557,12 @@ const ApiPublicV1HomecareRecipientsRoute =
     path: '/api/public/v1/homecare/recipients',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicV1HomecareCarePlansRoute =
+  ApiPublicV1HomecareCarePlansRouteImport.update({
+    id: '/api/public/v1/homecare/care-plans',
+    path: '/api/public/v1/homecare/care-plans',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1DebugEventsRoute = ApiPublicV1DebugEventsRouteImport.update({
   id: '/api/public/v1/debug/events',
   path: '/api/public/v1/debug/events',
@@ -853,6 +860,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
+  '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
@@ -971,6 +979,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
+  '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
@@ -1092,6 +1101,7 @@ export interface FileRoutesById {
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
+  '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
@@ -1213,6 +1223,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/usage/daily'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
+    | '/api/public/v1/homecare/care-plans'
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
@@ -1331,6 +1342,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/usage/daily'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
+    | '/api/public/v1/homecare/care-plans'
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
@@ -1451,6 +1463,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/usage/daily'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
+    | '/api/public/v1/homecare/care-plans'
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
@@ -1536,6 +1549,7 @@ export interface RootRouteChildren {
   ApiAdminV1OpsWorkspaceRoute: typeof ApiAdminV1OpsWorkspaceRoute
   ApiAdminV1UsageDailyRoute: typeof ApiAdminV1UsageDailyRoute
   ApiPublicV1DebugEventsRoute: typeof ApiPublicV1DebugEventsRoute
+  ApiPublicV1HomecareCarePlansRoute: typeof ApiPublicV1HomecareCarePlansRoute
   ApiPublicV1HomecareRecipientsRoute: typeof ApiPublicV1HomecareRecipientsRoute
   ApiPublicV1ShareTokenRoute: typeof ApiPublicV1ShareTokenRoute
   ApiAdminV1ConfigEffectiveSubscriberIdRoute: typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
@@ -2132,6 +2146,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/v1/homecare/recipients'
       fullPath: '/api/public/v1/homecare/recipients'
       preLoaderRoute: typeof ApiPublicV1HomecareRecipientsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/homecare/care-plans': {
+      id: '/api/public/v1/homecare/care-plans'
+      path: '/api/public/v1/homecare/care-plans'
+      fullPath: '/api/public/v1/homecare/care-plans'
+      preLoaderRoute: typeof ApiPublicV1HomecareCarePlansRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/debug/events': {
@@ -2736,6 +2757,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1OpsWorkspaceRoute: ApiAdminV1OpsWorkspaceRoute,
   ApiAdminV1UsageDailyRoute: ApiAdminV1UsageDailyRoute,
   ApiPublicV1DebugEventsRoute: ApiPublicV1DebugEventsRoute,
+  ApiPublicV1HomecareCarePlansRoute: ApiPublicV1HomecareCarePlansRoute,
   ApiPublicV1HomecareRecipientsRoute: ApiPublicV1HomecareRecipientsRoute,
   ApiPublicV1ShareTokenRoute: ApiPublicV1ShareTokenRoute,
   ApiAdminV1ConfigEffectiveSubscriberIdRoute:
