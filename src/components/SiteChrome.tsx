@@ -20,6 +20,7 @@ export function SiteHeader() {
             ["Solutions","/services"],
             ["Pricing","/pricing"],
             ["About","/about"],
+            ["Privacy","/Privacy/Home"],
           ].map(([label, to]) => (
             <Link
               key={to}
