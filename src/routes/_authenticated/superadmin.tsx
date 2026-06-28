@@ -6,6 +6,7 @@ import {
   Shield, Building2, Activity, KeyRound, Webhook, Users, Server,
   CheckCircle2, XCircle, CreditCard, Package, UserCog, LayoutDashboard,
   Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock, Bug, Fingerprint, AlertTriangle,
+  LineChart, PlusCircle, TrendingUp, TrendingDown,
 } from "lucide-react";
 import { openApiSpec } from "@/lib/openapi-spec";
 import { openApiAdminSpec, adminEndpointCount } from "@/lib/openapi-admin-spec";
@@ -58,7 +59,7 @@ const STATUS_COLORS: Record<string, string> = {
 const fmtMoney = (c: number, cur: string) =>
   c === 0 ? "Custom" : new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(c / 100);
 
-type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug";
+type TabId = "overview" | "tenants" | "subs" | "plans" | "addons" | "finance" | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug";
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
@@ -345,6 +346,12 @@ function Superadmin() {
       )}
       {tab === "plans" && (
         <PlansPane plans={plans} togglePlan={togglePlan} subs={subs} reload={load} />
+      )}
+      {tab === "addons" && (
+        <AddonsPane />
+      )}
+      {tab === "finance" && (
+        <FinancialsPane />
       )}
       {tab === "roles" && (
         <RolesPane profiles={profiles} roles={roles} grantRole={grantRole} revokeRole={revokeRole} />
