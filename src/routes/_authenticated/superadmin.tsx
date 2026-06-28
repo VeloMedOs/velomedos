@@ -24,7 +24,7 @@ type RoleRow = { user_id: string; role: string };
 type ApiKey = { id: string; name: string; prefix: string; scopes: string[]; rate_limit_per_min: number; tenant_id: string | null; owner_id: string; created_at: string; last_used_at: string | null };
 
 const ALL_ROLES = ["superadmin","admin","dispatcher","developer","business_admin","paramedic","driver","patient"] as const;
-const ALL_SCOPES = ["fleet:read","incidents:read","incidents:write","clinics:read","courses:read","compliance:read","screening:read","screening:write"] as const;
+const ALL_SCOPES = ["fleet:read","incidents:read","incidents:write","clinics:read","courses:read","compliance:read","screening:read","screening:write","debug:read","debug:write"] as const;
 const STATUS_COLORS: Record<string, string> = {
   trialing:   "bg-action/20 text-action",
   active:     "bg-stable/20 text-stable",
