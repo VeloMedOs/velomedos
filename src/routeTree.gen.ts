@@ -90,6 +90,7 @@ import { Route as ApiAdminV1UsageDailyRouteImport } from './routes/api/admin/v1/
 import { Route as ApiAdminV1TenantSubscriptionsIdRouteImport } from './routes/api/admin/v1/tenant-subscriptions.$id'
 import { Route as ApiAdminV1SubscribersIdRouteImport } from './routes/api/admin/v1/subscribers.$id'
 import { Route as ApiAdminV1PlansIdRouteImport } from './routes/api/admin/v1/plans.$id'
+import { Route as ApiAdminV1OpsReviewsRouteImport } from './routes/api/admin/v1/ops.reviews'
 import { Route as ApiAdminV1OpsRefundsRouteImport } from './routes/api/admin/v1/ops.refunds'
 import { Route as ApiAdminV1DiagnosticsSuperadminRouteImport } from './routes/api/admin/v1/diagnostics.superadmin'
 import { Route as ApiAdminV1ConfigOverridesRouteImport } from './routes/api/admin/v1/config.overrides'
@@ -518,6 +519,11 @@ const ApiAdminV1PlansIdRoute = ApiAdminV1PlansIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiAdminV1PlansRoute,
 } as any)
+const ApiAdminV1OpsReviewsRoute = ApiAdminV1OpsReviewsRouteImport.update({
+  id: '/api/admin/v1/ops/reviews',
+  path: '/api/admin/v1/ops/reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminV1OpsRefundsRoute = ApiAdminV1OpsRefundsRouteImport.update({
   id: '/api/admin/v1/ops/refunds',
   path: '/api/admin/v1/ops/refunds',
@@ -692,6 +698,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/ops/refunds': typeof ApiAdminV1OpsRefundsRoute
+  '/api/admin/v1/ops/reviews': typeof ApiAdminV1OpsReviewsRoute
   '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
@@ -790,6 +797,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/ops/refunds': typeof ApiAdminV1OpsRefundsRoute
+  '/api/admin/v1/ops/reviews': typeof ApiAdminV1OpsReviewsRoute
   '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
@@ -890,6 +898,7 @@ export interface FileRoutesById {
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/ops/refunds': typeof ApiAdminV1OpsRefundsRoute
+  '/api/admin/v1/ops/reviews': typeof ApiAdminV1OpsReviewsRoute
   '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
@@ -990,6 +999,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/ops/refunds'
+    | '/api/admin/v1/ops/reviews'
     | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/tenant-subscriptions/$id'
@@ -1088,6 +1098,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/ops/refunds'
+    | '/api/admin/v1/ops/reviews'
     | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/tenant-subscriptions/$id'
@@ -1187,6 +1198,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/ops/refunds'
+    | '/api/admin/v1/ops/reviews'
     | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/tenant-subscriptions/$id'
@@ -1262,6 +1274,7 @@ export interface RootRouteChildren {
   ApiAdminV1ConfigOverridesRoute: typeof ApiAdminV1ConfigOverridesRoute
   ApiAdminV1DiagnosticsSuperadminRoute: typeof ApiAdminV1DiagnosticsSuperadminRoute
   ApiAdminV1OpsRefundsRoute: typeof ApiAdminV1OpsRefundsRoute
+  ApiAdminV1OpsReviewsRoute: typeof ApiAdminV1OpsReviewsRoute
   ApiAdminV1UsageDailyRoute: typeof ApiAdminV1UsageDailyRoute
   ApiPublicV1DebugEventsRoute: typeof ApiPublicV1DebugEventsRoute
   ApiPublicV1ShareTokenRoute: typeof ApiPublicV1ShareTokenRoute
@@ -1840,6 +1853,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1PlansIdRouteImport
       parentRoute: typeof ApiAdminV1PlansRoute
     }
+    '/api/admin/v1/ops/reviews': {
+      id: '/api/admin/v1/ops/reviews'
+      path: '/api/admin/v1/ops/reviews'
+      fullPath: '/api/admin/v1/ops/reviews'
+      preLoaderRoute: typeof ApiAdminV1OpsReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/v1/ops/refunds': {
       id: '/api/admin/v1/ops/refunds'
       path: '/api/admin/v1/ops/refunds'
@@ -2253,6 +2273,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1ConfigOverridesRoute: ApiAdminV1ConfigOverridesRoute,
   ApiAdminV1DiagnosticsSuperadminRoute: ApiAdminV1DiagnosticsSuperadminRoute,
   ApiAdminV1OpsRefundsRoute: ApiAdminV1OpsRefundsRoute,
+  ApiAdminV1OpsReviewsRoute: ApiAdminV1OpsReviewsRoute,
   ApiAdminV1UsageDailyRoute: ApiAdminV1UsageDailyRoute,
   ApiPublicV1DebugEventsRoute: ApiPublicV1DebugEventsRoute,
   ApiPublicV1ShareTokenRoute: ApiPublicV1ShareTokenRoute,
