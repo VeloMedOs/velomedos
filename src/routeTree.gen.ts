@@ -76,6 +76,7 @@ import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiAdminV1UsageDailyRouteImport } from './routes/api/admin/v1/usage.daily'
 import { Route as ApiAdminV1SubscribersIdRouteImport } from './routes/api/admin/v1/subscribers.$id'
+import { Route as ApiAdminV1PlansIdRouteImport } from './routes/api/admin/v1/plans.$id'
 import { Route as ApiAdminV1DiagnosticsSuperadminRouteImport } from './routes/api/admin/v1/diagnostics.superadmin'
 import { Route as ApiAdminV1ConfigOverridesRouteImport } from './routes/api/admin/v1/config.overrides'
 import { Route as ApiAdminV1ConfigBaseRouteImport } from './routes/api/admin/v1/config.base'
@@ -428,6 +429,11 @@ const ApiAdminV1SubscribersIdRoute = ApiAdminV1SubscribersIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiAdminV1SubscribersRoute,
 } as any)
+const ApiAdminV1PlansIdRoute = ApiAdminV1PlansIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAdminV1PlansRoute,
+} as any)
 const ApiAdminV1DiagnosticsSuperadminRoute =
   ApiAdminV1DiagnosticsSuperadminRouteImport.update({
     id: '/api/admin/v1/diagnostics/superadmin',
@@ -557,7 +563,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
-  '/api/admin/v1/plans': typeof ApiAdminV1PlansRoute
+  '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
@@ -578,6 +584,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
+  '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -639,7 +646,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
-  '/api/admin/v1/plans': typeof ApiAdminV1PlansRoute
+  '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
@@ -660,6 +667,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
+  '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -723,7 +731,7 @@ export interface FileRoutesById {
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
-  '/api/admin/v1/plans': typeof ApiAdminV1PlansRoute
+  '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
@@ -744,6 +752,7 @@ export interface FileRoutesById {
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
+  '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -828,6 +837,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
+    | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
@@ -910,6 +920,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
+    | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
@@ -993,6 +1004,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
+    | '/api/admin/v1/plans/$id'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
@@ -1035,7 +1047,7 @@ export interface RootRouteChildren {
   ApiAdminV1InvoicesRoute: typeof ApiAdminV1InvoicesRoute
   ApiAdminV1OpenapiRoute: typeof ApiAdminV1OpenapiRoute
   ApiAdminV1PaymentsRoute: typeof ApiAdminV1PaymentsRouteWithChildren
-  ApiAdminV1PlansRoute: typeof ApiAdminV1PlansRoute
+  ApiAdminV1PlansRoute: typeof ApiAdminV1PlansRouteWithChildren
   ApiAdminV1PromotionsRoute: typeof ApiAdminV1PromotionsRoute
   ApiAdminV1SubscribersRoute: typeof ApiAdminV1SubscribersRouteWithChildren
   ApiAdminV1SubscriptionsRoute: typeof ApiAdminV1SubscriptionsRoute
@@ -1535,6 +1547,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1SubscribersIdRouteImport
       parentRoute: typeof ApiAdminV1SubscribersRoute
     }
+    '/api/admin/v1/plans/$id': {
+      id: '/api/admin/v1/plans/$id'
+      path: '/$id'
+      fullPath: '/api/admin/v1/plans/$id'
+      preLoaderRoute: typeof ApiAdminV1PlansIdRouteImport
+      parentRoute: typeof ApiAdminV1PlansRoute
+    }
     '/api/admin/v1/diagnostics/superadmin': {
       id: '/api/admin/v1/diagnostics/superadmin'
       path: '/api/admin/v1/diagnostics/superadmin'
@@ -1772,6 +1791,18 @@ const ApiAdminV1PaymentsRouteChildren: ApiAdminV1PaymentsRouteChildren = {
 const ApiAdminV1PaymentsRouteWithChildren =
   ApiAdminV1PaymentsRoute._addFileChildren(ApiAdminV1PaymentsRouteChildren)
 
+interface ApiAdminV1PlansRouteChildren {
+  ApiAdminV1PlansIdRoute: typeof ApiAdminV1PlansIdRoute
+}
+
+const ApiAdminV1PlansRouteChildren: ApiAdminV1PlansRouteChildren = {
+  ApiAdminV1PlansIdRoute: ApiAdminV1PlansIdRoute,
+}
+
+const ApiAdminV1PlansRouteWithChildren = ApiAdminV1PlansRoute._addFileChildren(
+  ApiAdminV1PlansRouteChildren,
+)
+
 interface ApiAdminV1SubscribersRouteChildren {
   ApiAdminV1SubscribersIdRoute: typeof ApiAdminV1SubscribersIdRoute
 }
@@ -1844,7 +1875,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1InvoicesRoute: ApiAdminV1InvoicesRoute,
   ApiAdminV1OpenapiRoute: ApiAdminV1OpenapiRoute,
   ApiAdminV1PaymentsRoute: ApiAdminV1PaymentsRouteWithChildren,
-  ApiAdminV1PlansRoute: ApiAdminV1PlansRoute,
+  ApiAdminV1PlansRoute: ApiAdminV1PlansRouteWithChildren,
   ApiAdminV1PromotionsRoute: ApiAdminV1PromotionsRoute,
   ApiAdminV1SubscribersRoute: ApiAdminV1SubscribersRouteWithChildren,
   ApiAdminV1SubscriptionsRoute: ApiAdminV1SubscriptionsRoute,
