@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, Ambulance, Activity, Users, GraduationCap, Stethoscope } from "lucide-react";
+import { BusinessSideNav } from "@/components/business/SideNav";
 
 export const Route = createFileRoute("/_authenticated/business")({
   head: () => ({ meta: [{ title: "Business Workspace · VeloMed OS" }] }),
@@ -50,10 +51,13 @@ function BusinessWorkspace() {
 
   if (loading) return <div className="p-10 mono text-xs text-muted-foreground">Loading workspace…</div>;
   if (!tenant) return (
-    <div className="max-w-xl mx-auto p-10 text-center space-y-3">
-      <Building2 className="size-10 mx-auto text-muted-foreground" />
-      <h1 className="text-xl font-bold">No business workspace</h1>
-      <p className="text-sm text-muted-foreground">Your account isn't linked to a business tenant yet. Ask a VeloMed superadmin to assign you, or sign in with your business email.</p>
+    <div className="flex min-h-screen bg-background">
+      <BusinessSideNav />
+      <main className="flex-1 max-w-xl mx-auto p-10 text-center space-y-3">
+        <Building2 className="size-10 mx-auto text-muted-foreground" />
+        <h1 className="text-xl font-bold">No business workspace</h1>
+        <p className="text-sm text-muted-foreground">Your account isn't linked to a business tenant yet. Ask a VeloMed superadmin to assign you, or sign in with your business email.</p>
+      </main>
     </div>
   );
 
@@ -61,7 +65,9 @@ function BusinessWorkspace() {
   const accent = tenant.accent_color ?? "#5fb8d9";
 
   return (
-    <main className="max-w-[1600px] mx-auto p-6 space-y-6">
+    <div className="flex min-h-screen bg-background">
+      <BusinessSideNav companyName={tenant.company_name} planTier={tenant.plan_tier} accent={primary} />
+      <main className="flex-1 min-w-0 max-w-[1600px] mx-auto p-6 space-y-6">
       <header className="rounded-xl border border-hairline overflow-hidden">
         <div className="h-1.5" style={{ background: `linear-gradient(90deg, ${primary}, ${accent})` }} />
         <div className="bg-panel p-5 flex items-center justify-between gap-4">
@@ -117,6 +123,7 @@ function BusinessWorkspace() {
           </Link>
         ))}
       </section>
-    </main>
+      </main>
+    </div>
   );
 }
