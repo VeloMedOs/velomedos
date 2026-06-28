@@ -12,6 +12,7 @@ import { openApiAdminSpec, adminEndpointCount } from "@/lib/openapi-admin-spec";
 import { ROLE_META, ROLE_ORDER, CAPABILITIES, effectiveCapabilities, type AppRole } from "@/lib/role-matrix";
 import { PipelineBoard } from "@/components/superadmin/PipelineBoard";
 import { adminFetch } from "@/lib/admin-fetch";
+import { SuperadminSideNav } from "@/components/superadmin/SideNav";
 
 export const Route = createFileRoute("/_authenticated/superadmin")({
   head: () => ({ meta: [{ title: "Superadmin · VeloMed OS" }] }),
