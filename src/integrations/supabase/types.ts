@@ -348,6 +348,311 @@ export type Database = {
           },
         ]
       }
+      care_plan_tasks: {
+        Row: {
+          care_plan_id: string
+          id: string
+          instructions: string | null
+          requires_vitals: boolean
+          title: string
+        }
+        Insert: {
+          care_plan_id: string
+          id?: string
+          instructions?: string | null
+          requires_vitals?: boolean
+          title: string
+        }
+        Update: {
+          care_plan_id?: string
+          id?: string
+          instructions?: string | null
+          requires_vitals?: boolean
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_plan_tasks_care_plan_id_fkey"
+            columns: ["care_plan_id"]
+            isOneToOne: false
+            referencedRelation: "care_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_plans: {
+        Row: {
+          assigned_team_id: string | null
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          frequency: Database["public"]["Enums"]["visit_frequency"]
+          id: string
+          notes: string | null
+          plan_type: Database["public"]["Enums"]["care_plan_type"]
+          recipient_id: string
+          required_skills: string[]
+          start_date: string
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          assigned_team_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          frequency: Database["public"]["Enums"]["visit_frequency"]
+          id?: string
+          notes?: string | null
+          plan_type: Database["public"]["Enums"]["care_plan_type"]
+          recipient_id: string
+          required_skills?: string[]
+          start_date: string
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          assigned_team_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          frequency?: Database["public"]["Enums"]["visit_frequency"]
+          id?: string
+          notes?: string | null
+          plan_type?: Database["public"]["Enums"]["care_plan_type"]
+          recipient_id?: string
+          required_skills?: string[]
+          start_date?: string
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_plans_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "care_recipients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_recipients: {
+        Row: {
+          address: string | null
+          created_at: string
+          dob: string | null
+          emergency_contact: string | null
+          full_name: string
+          gender: string | null
+          geofence_radius_m: number
+          id: string
+          lat: number | null
+          lng: number | null
+          medical_summary: string | null
+          patient_id: string | null
+          phone: string | null
+          tenant_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          dob?: string | null
+          emergency_contact?: string | null
+          full_name: string
+          gender?: string | null
+          geofence_radius_m?: number
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          medical_summary?: string | null
+          patient_id?: string | null
+          phone?: string | null
+          tenant_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          dob?: string | null
+          emergency_contact?: string | null
+          full_name?: string
+          gender?: string | null
+          geofence_radius_m?: number
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          medical_summary?: string | null
+          patient_id?: string | null
+          phone?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_recipients_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_visit_tasks: {
+        Row: {
+          care_visit_id: string
+          completed: boolean
+          completed_at: string | null
+          id: string
+          plan_task_id: string | null
+          title: string
+        }
+        Insert: {
+          care_visit_id: string
+          completed?: boolean
+          completed_at?: string | null
+          id?: string
+          plan_task_id?: string | null
+          title: string
+        }
+        Update: {
+          care_visit_id?: string
+          completed?: boolean
+          completed_at?: string | null
+          id?: string
+          plan_task_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_visit_tasks_care_visit_id_fkey"
+            columns: ["care_visit_id"]
+            isOneToOne: false
+            referencedRelation: "care_visits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_visit_tasks_plan_task_id_fkey"
+            columns: ["plan_task_id"]
+            isOneToOne: false
+            referencedRelation: "care_plan_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_visit_vitals: {
+        Row: {
+          care_visit_id: string
+          id: string
+          recorded_at: string
+          type: string
+          unit: string | null
+          value: string
+        }
+        Insert: {
+          care_visit_id: string
+          id?: string
+          recorded_at?: string
+          type: string
+          unit?: string | null
+          value: string
+        }
+        Update: {
+          care_visit_id?: string
+          id?: string
+          recorded_at?: string
+          type?: string
+          unit?: string | null
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_visit_vitals_care_visit_id_fkey"
+            columns: ["care_visit_id"]
+            isOneToOne: false
+            referencedRelation: "care_visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_visits: {
+        Row: {
+          care_plan_id: string
+          caregiver_id: string | null
+          check_in_at: string | null
+          check_in_distance_m: number | null
+          check_in_lat: number | null
+          check_in_lng: number | null
+          check_out_at: string | null
+          check_out_lat: number | null
+          check_out_lng: number | null
+          created_at: string
+          evv_exception: string | null
+          evv_verified: boolean
+          id: string
+          notes: string | null
+          recipient_id: string
+          scheduled_end: string
+          scheduled_start: string
+          status: Database["public"]["Enums"]["care_visit_status"]
+          tenant_id: string
+        }
+        Insert: {
+          care_plan_id: string
+          caregiver_id?: string | null
+          check_in_at?: string | null
+          check_in_distance_m?: number | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_out_at?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          created_at?: string
+          evv_exception?: string | null
+          evv_verified?: boolean
+          id?: string
+          notes?: string | null
+          recipient_id: string
+          scheduled_end: string
+          scheduled_start: string
+          status?: Database["public"]["Enums"]["care_visit_status"]
+          tenant_id: string
+        }
+        Update: {
+          care_plan_id?: string
+          caregiver_id?: string | null
+          check_in_at?: string | null
+          check_in_distance_m?: number | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_out_at?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          created_at?: string
+          evv_exception?: string | null
+          evv_verified?: boolean
+          id?: string
+          notes?: string | null
+          recipient_id?: string
+          scheduled_end?: string
+          scheduled_start?: string
+          status?: Database["public"]["Enums"]["care_visit_status"]
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_visits_care_plan_id_fkey"
+            columns: ["care_plan_id"]
+            isOneToOne: false
+            referencedRelation: "care_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_visits_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "care_recipients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       certificates: {
         Row: {
           code: string
@@ -1028,6 +1333,50 @@ export type Database = {
           version?: number
         }
         Relationships: []
+      }
+      medication_administrations: {
+        Row: {
+          administered_at: string | null
+          administered_by: string | null
+          care_visit_id: string
+          dose: string | null
+          drug_name: string
+          id: string
+          route: string | null
+          scheduled_at: string | null
+          status: string
+        }
+        Insert: {
+          administered_at?: string | null
+          administered_by?: string | null
+          care_visit_id: string
+          dose?: string | null
+          drug_name: string
+          id?: string
+          route?: string | null
+          scheduled_at?: string | null
+          status?: string
+        }
+        Update: {
+          administered_at?: string | null
+          administered_by?: string | null
+          care_visit_id?: string
+          dose?: string | null
+          drug_name?: string
+          id?: string
+          route?: string | null
+          scheduled_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medication_administrations_care_visit_id_fkey"
+            columns: ["care_visit_id"]
+            isOneToOne: false
+            referencedRelation: "care_visits"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       nav_events: {
         Row: {
@@ -3242,6 +3591,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      haversine_m: {
+        Args: { lat1: number; lat2: number; lng1: number; lng2: number }
+        Returns: number
+      }
       is_portal_staff: { Args: { _user_id: string }; Returns: boolean }
       portal_effective_config: {
         Args: { _subscriber: string }
@@ -3271,6 +3624,8 @@ export type Database = {
         | "developer"
         | "superadmin"
         | "business_admin"
+        | "home_nurse"
+        | "caregiver"
       booking_status: "requested" | "confirmed" | "completed" | "cancelled"
       business_request_source:
         | "website"
@@ -3289,6 +3644,24 @@ export type Database = {
         | "subscribed"
         | "rejected"
         | "archived"
+      care_plan_type:
+        | "general_nursing"
+        | "wound_care"
+        | "chronic_disease"
+        | "post_op"
+        | "palliative"
+        | "elderly_care"
+        | "maternal_newborn"
+        | "medication_mgmt"
+        | "physiotherapy"
+      care_visit_status:
+        | "scheduled"
+        | "en_route"
+        | "checked_in"
+        | "in_progress"
+        | "completed"
+        | "missed"
+        | "cancelled"
       credential_kind:
         | "paramedic_license"
         | "driver_license"
@@ -3331,6 +3704,13 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "no_show"
+      visit_frequency:
+        | "one_off"
+        | "daily"
+        | "weekly"
+        | "biweekly"
+        | "monthly"
+        | "custom"
       work_order_status: "open" | "in_progress" | "closed" | "cancelled"
       work_order_type: "preventive" | "corrective"
     }
@@ -3477,6 +3857,8 @@ export const Constants = {
         "developer",
         "superadmin",
         "business_admin",
+        "home_nurse",
+        "caregiver",
       ],
       booking_status: ["requested", "confirmed", "completed", "cancelled"],
       business_request_source: [
@@ -3497,6 +3879,26 @@ export const Constants = {
         "subscribed",
         "rejected",
         "archived",
+      ],
+      care_plan_type: [
+        "general_nursing",
+        "wound_care",
+        "chronic_disease",
+        "post_op",
+        "palliative",
+        "elderly_care",
+        "maternal_newborn",
+        "medication_mgmt",
+        "physiotherapy",
+      ],
+      care_visit_status: [
+        "scheduled",
+        "en_route",
+        "checked_in",
+        "in_progress",
+        "completed",
+        "missed",
+        "cancelled",
       ],
       credential_kind: [
         "paramedic_license",
@@ -3545,6 +3947,14 @@ export const Constants = {
         "completed",
         "cancelled",
         "no_show",
+      ],
+      visit_frequency: [
+        "one_off",
+        "daily",
+        "weekly",
+        "biweekly",
+        "monthly",
+        "custom",
       ],
       work_order_status: ["open", "in_progress", "closed", "cancelled"],
       work_order_type: ["preventive", "corrective"],
