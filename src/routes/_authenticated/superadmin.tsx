@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import {
   Shield, Building2, Activity, KeyRound, Webhook, Users, Server,
   CheckCircle2, XCircle, CreditCard, Package, UserCog, LayoutDashboard,
-  Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock, Bug,
+  Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock, Bug, Fingerprint, AlertTriangle,
 } from "lucide-react";
 import { openApiSpec } from "@/lib/openapi-spec";
 import { openApiAdminSpec, adminEndpointCount } from "@/lib/openapi-admin-spec";
@@ -24,6 +24,19 @@ type Profile = { id: string; full_name: string | null; email: string | null; def
 type RoleRow = { user_id: string; role: string };
 type ApiKey = { id: string; name: string; prefix: string; scopes: string[]; rate_limit_per_min: number; tenant_id: string | null; owner_id: string; created_at: string; last_used_at: string | null };
 
+type Identity = {
+  authed: boolean;
+  userId: string | null;
+  email: string | null;
+  emailVerified: boolean;
+  provider: string | null;
+  roles: string[];
+  rolesError: string | null;
+  tenants: { tenant_id: string; role: string; company_name: string | null; slug: string | null }[];
+  ownedApiKeys: number;
+  fetchedAt: string;
+};
+
 const ALL_ROLES = ["superadmin","admin","dispatcher","developer","business_admin","paramedic","driver","patient"] as const;
 const ALL_SCOPES = ["fleet:read","incidents:read","incidents:write","clinics:read","courses:read","compliance:read","screening:read","screening:write","debug:read","debug:write"] as const;
 const STATUS_COLORS: Record<string, string> = {
@@ -40,6 +53,7 @@ type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "apikeys" | "
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
+  const [identity, setIdentity] = useState<Identity | null>(null);
   const [tab, setTab] = useState<TabId>("overview");
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [reqs, setReqs] = useState<Req[]>([]);
@@ -50,18 +64,45 @@ function Superadmin() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [stats, setStats] = useState({ users: 0, incidents: 0, ambulances: 0, apiKeys: 0, webhooks: 0 });
 
-  useEffect(() => {
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return setAllowed(false);
-      const { data: roles } = await (supabase as any)
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id);
-      const list: string[] = (roles ?? []).map((r: any) => r.role);
-      setAllowed(list.includes("superadmin"));
-    })();
-  }, []);
+  async function diagnose(): Promise<Identity> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      const id: Identity = {
+        authed: false, userId: null, email: null, emailVerified: false, provider: null,
+        roles: [], rolesError: null, tenants: [], ownedApiKeys: 0, fetchedAt: new Date().toISOString(),
+      };
+      setIdentity(id); setAllowed(false); return id;
+    }
+    const [{ data: roleRows, error: rolesErr }, { data: memberRows }, { count: keyCount }] = await Promise.all([
+      (supabase as any).from("user_roles").select("role").eq("user_id", user.id),
+      (supabase as any).from("tenant_members")
+        .select("tenant_id, role, corporate_accounts(company_name, slug)")
+        .eq("user_id", user.id),
+      (supabase as any).from("api_keys").select("id", { count: "exact", head: true }).eq("owner_id", user.id),
+    ]);
+    const roles: string[] = (roleRows ?? []).map((r: any) => r.role);
+    const id: Identity = {
+      authed: true,
+      userId: user.id,
+      email: user.email ?? null,
+      emailVerified: !!user.email_confirmed_at,
+      provider: (user.app_metadata as any)?.provider ?? null,
+      roles,
+      rolesError: rolesErr?.message ?? null,
+      tenants: (memberRows ?? []).map((m: any) => ({
+        tenant_id: m.tenant_id, role: m.role,
+        company_name: m.corporate_accounts?.company_name ?? null,
+        slug: m.corporate_accounts?.slug ?? null,
+      })),
+      ownedApiKeys: keyCount ?? 0,
+      fetchedAt: new Date().toISOString(),
+    };
+    setIdentity(id);
+    setAllowed(roles.includes("superadmin"));
+    return id;
+  }
+
+  useEffect(() => { diagnose(); }, []);
 
   async function load() {
     const [t, r, p, s, pr, ur, keys, prof, inc, amb, ak, wh] = await Promise.all([
@@ -180,14 +221,7 @@ function Superadmin() {
   }
 
   if (allowed === null) return <div className="p-10 mono text-xs text-muted-foreground">Verifying…</div>;
-  if (!allowed) return (
-    <div className="p-10 max-w-xl mx-auto text-center space-y-2">
-      <Shield className="size-10 mx-auto text-emergency" />
-      <h1 className="text-xl font-bold">Superadmin access required</h1>
-      <p className="text-sm text-muted-foreground">Sign in with a VeloMed superadmin account (any verified <code className="mono text-action">@velomedos.com</code> address). Your account does not have the <code className="mono text-action">superadmin</code> role.</p>
-      <Link to="/admin" className="inline-block mt-2 mono text-[11px] uppercase tracking-widest px-3 py-1.5 rounded border border-hairline">Back to admin</Link>
-    </div>
-  );
+  if (!allowed) return <AccessDenied identity={identity} refresh={diagnose} />;
 
   const newReqs = reqs.filter((r) => r.status === "new").length;
   const activeSubs = subs.filter((s) => ["trialing","active","past_due"].includes(s.status));
@@ -289,6 +323,8 @@ function Superadmin() {
       {tab === "debug" && (
         <DebugPane tenants={tenants} />
       )}
+
+      {identity && <IdentityPanel identity={identity} refresh={diagnose} />}
 
       <section className="rounded-xl border border-hairline bg-panel p-4">
         <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">Quick links</div>
