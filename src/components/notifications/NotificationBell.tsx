@@ -91,33 +91,39 @@ export function NotificationBell({ className }: { className?: string }) {
                 n.severity === "critical" ? "text-coral" :
                 n.severity === "warning" ? "text-caution" :
                 n.severity === "success" ? "text-stable" : "text-sky";
-              const Wrap = n.link_to ? Link : "div";
               return (
                 <li key={n.id} className={`p-3 ${unread ? "bg-panel-elevated/30" : ""}`}>
-                  <Wrap
-                    // @ts-expect-error link union
-                    to={n.link_to ?? undefined}
-                    onClick={() => markRead(n.id)}
-                    className="block"
-                  >
-                    <div className="flex items-start gap-2">
-                      <span className={`mt-1 size-1.5 rounded-full ${unread ? "bg-teal" : "bg-transparent"}`} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="text-xs font-medium truncate">{n.title}</div>
-                          <div className={`mono text-[9px] uppercase tracking-widest ${sevColor}`}>{n.severity}</div>
-                        </div>
-                        {n.body && <div className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{n.body}</div>}
-                        <div className="mono text-[9.5px] text-muted-foreground/70 mt-1">{new Date(n.created_at).toLocaleString()}</div>
-                      </div>
+                  {n.link_to ? (
+                    <a href={n.link_to} onClick={() => markRead(n.id)} className="block">
+                      <NoteBody n={n} unread={unread} sevColor={sevColor} />
+                    </a>
+                  ) : (
+                    <div onClick={() => markRead(n.id)} className="block cursor-pointer">
+                      <NoteBody n={n} unread={unread} sevColor={sevColor} />
                     </div>
-                  </Wrap>
+                  )}
                 </li>
               );
             })}
           </ul>
         </div>
       )}
+    </div>
+  );
+}
+
+function NoteBody({ n, unread, sevColor }: { n: Note; unread: boolean; sevColor: string }) {
+  return (
+    <div className="flex items-start gap-2">
+      <span className={`mt-1 size-1.5 rounded-full ${unread ? "bg-teal" : "bg-transparent"}`} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-xs font-medium truncate">{n.title}</div>
+          <div className={`mono text-[9px] uppercase tracking-widest ${sevColor}`}>{n.severity}</div>
+        </div>
+        {n.body && <div className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{n.body}</div>}
+        <div className="mono text-[9.5px] text-muted-foreground/70 mt-1">{new Date(n.created_at).toLocaleString()}</div>
+      </div>
     </div>
   );
 }
