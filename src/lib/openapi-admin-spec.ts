@@ -220,6 +220,12 @@ export const openApiAdminSpec = {
       put:    { summary: "Upsert a workspace setting", description: "Scope `config:write`. Body: `{ key, value, description? }`.", responses: ok("OK") },
       delete: { summary: "Delete a workspace setting", description: "Scope `config:write`. Query `?key=`.", responses: ok("OK") },
     },
+    "/legal-documents": {
+      get:    { summary: "List legal & privacy documents", description: "Scope `config:read`. Returns `{ rows: [...] }`. Slugs: `home`, `terms`, `hipaa`, `patient-rights`. Filter via `?slug=` / `?published=`.", responses: ok("OK") },
+      post:   { summary: "Create a legal document", description: "Scope `config:write`. Body: `{ slug, title, subtitle?, body_md, version?, published?, effective_date? }`. Publishes immediately to `/Privacy/<Slug>`.", responses: { 201: { description: "Created" } } },
+      patch:  { summary: "Update a legal document", description: "Scope `config:write`. Body: `{ id, ...fields }`. Increment `version` when re-publishing material changes.", responses: ok("OK") },
+      delete: { summary: "Delete a legal document", description: "Scope `config:write`. Query `?id=`.", responses: ok("OK") },
+    },
 
     "/openapi": { get: { summary: "This spec (machine-readable)", security: [], responses: ok("OK") } },
   },
