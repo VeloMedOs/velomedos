@@ -29,6 +29,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TripTokenRouteImport } from './routes/trip.$token'
+import { Route as SuperadminResetRouteImport } from './routes/superadmin.reset'
 import { Route as SuperadminLoginRouteImport } from './routes/superadmin.login'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as ResourcesComparisonRouteImport } from './routes/resources.comparison'
@@ -200,6 +201,11 @@ const IndexRoute = IndexRouteImport.update({
 const TripTokenRoute = TripTokenRouteImport.update({
   id: '/trip/$token',
   path: '/trip/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperadminResetRoute = SuperadminResetRouteImport.update({
+  id: '/superadmin/reset',
+  path: '/superadmin/reset',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SuperadminLoginRoute = SuperadminLoginRouteImport.update({
@@ -626,6 +632,7 @@ export interface FileRoutesByFullPath {
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/superadmin/login': typeof SuperadminLoginRoute
+  '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -720,6 +727,7 @@ export interface FileRoutesByTo {
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/superadmin/login': typeof SuperadminLoginRoute
+  '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -816,6 +824,7 @@ export interface FileRoutesById {
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/superadmin/login': typeof SuperadminLoginRoute
+  '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -912,6 +921,7 @@ export interface FileRouteTypes {
     | '/resources/comparison'
     | '/services/$slug'
     | '/superadmin/login'
+    | '/superadmin/reset'
     | '/trip/$token'
     | '/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1006,6 +1016,7 @@ export interface FileRouteTypes {
     | '/resources/comparison'
     | '/services/$slug'
     | '/superadmin/login'
+    | '/superadmin/reset'
     | '/trip/$token'
     | '/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1101,6 +1112,7 @@ export interface FileRouteTypes {
     | '/resources/comparison'
     | '/services/$slug'
     | '/superadmin/login'
+    | '/superadmin/reset'
     | '/trip/$token'
     | '/_authenticated/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1177,6 +1189,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   WebsiteRoute: typeof WebsiteRoute
   SuperadminLoginRoute: typeof SuperadminLoginRoute
+  SuperadminResetRoute: typeof SuperadminResetRoute
   TripTokenRoute: typeof TripTokenRoute
   ApiAdminV1AddonsRoute: typeof ApiAdminV1AddonsRouteWithChildren
   ApiAdminV1AuditRoute: typeof ApiAdminV1AuditRoute
@@ -1360,6 +1373,13 @@ declare module '@tanstack/react-router' {
       path: '/trip/$token'
       fullPath: '/trip/$token'
       preLoaderRoute: typeof TripTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/superadmin/reset': {
+      id: '/superadmin/reset'
+      path: '/superadmin/reset'
+      fullPath: '/superadmin/reset'
+      preLoaderRoute: typeof SuperadminResetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/superadmin/login': {
@@ -2116,6 +2136,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   WebsiteRoute: WebsiteRoute,
   SuperadminLoginRoute: SuperadminLoginRoute,
+  SuperadminResetRoute: SuperadminResetRoute,
   TripTokenRoute: TripTokenRoute,
   ApiAdminV1AddonsRoute: ApiAdminV1AddonsRouteWithChildren,
   ApiAdminV1AuditRoute: ApiAdminV1AuditRoute,
