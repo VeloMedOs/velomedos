@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { ArrowLeft } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const SWAGGER_VERSION = "5.17.14";
 
@@ -25,6 +26,17 @@ function AdminSwagger() {
         domNode: ref.current,
         deepLinking: true,
         persistAuthorization: true,
+        requestInterceptor: async (req: { url: string; headers: Record<string, string> }) => {
+          try {
+            const sameOrigin = req.url.startsWith("/") || req.url.startsWith(window.location.origin);
+            if (sameOrigin && !req.headers["Authorization"] && !req.headers["authorization"] && !req.headers["x-admin-key"]) {
+              const { data } = await supabase.auth.getSession();
+              const token = data.session?.access_token;
+              if (token) req.headers["Authorization"] = `Bearer ${token}`;
+            }
+          } catch { /* noop */ }
+          return req;
+        },
       });
     }
     if (existing) { mount(); return; }
