@@ -13,12 +13,12 @@ export const Route = createFileRoute("/Privacy/HIPAA")({
     meta: [
       { title: TITLE }, { name: "description", content: DESC },
       { property: "og:title", content: TITLE }, { property: "og:description", content: DESC },
-      { property: "og:url", content: "/Privacy/HIPAA" },
+      { property: "og:url", content: "https://velomedos.com/Privacy/HIPAA" },
     ],
     links: [
-      { rel: "canonical", href: "/Privacy/HIPAA" },
-      { rel: "alternate", hrefLang: "en", href: "/Privacy/HIPAA?locale=en" },
-      { rel: "alternate", hrefLang: "ar", href: "/Privacy/HIPAA?locale=ar" },
+      { rel: "canonical", href: "https://velomedos.com/Privacy/HIPAA" },
+      { rel: "alternate", hrefLang: "en", href: "https://velomedos.com/Privacy/HIPAA?locale=en" },
+      { rel: "alternate", hrefLang: "ar", href: "https://velomedos.com/Privacy/HIPAA?locale=ar" },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData({

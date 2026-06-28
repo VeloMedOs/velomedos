@@ -13,12 +13,12 @@ export const Route = createFileRoute("/Privacy/TermsOfService")({
     meta: [
       { title: TITLE }, { name: "description", content: DESC },
       { property: "og:title", content: TITLE }, { property: "og:description", content: DESC },
-      { property: "og:url", content: "/Privacy/TermsOfService" },
+      { property: "og:url", content: "https://velomedos.com/Privacy/TermsOfService" },
     ],
     links: [
-      { rel: "canonical", href: "/Privacy/TermsOfService" },
-      { rel: "alternate", hrefLang: "en", href: "/Privacy/TermsOfService?locale=en" },
-      { rel: "alternate", hrefLang: "ar", href: "/Privacy/TermsOfService?locale=ar" },
+      { rel: "canonical", href: "https://velomedos.com/Privacy/TermsOfService" },
+      { rel: "alternate", hrefLang: "en", href: "https://velomedos.com/Privacy/TermsOfService?locale=en" },
+      { rel: "alternate", hrefLang: "ar", href: "https://velomedos.com/Privacy/TermsOfService?locale=ar" },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData({
