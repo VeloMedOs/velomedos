@@ -248,10 +248,10 @@ function Pricing() {
         </div>
       </header>
 
-      {/* TIERS */}
+      {/* tiers */}
       <section className="max-w-[1400px] mx-auto px-4 lg:px-8 pb-16">
         <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-px bg-hairline rounded-xl overflow-hidden border border-hairline">
-          {TIERS.map((t) => {
+          {tiers.map((t) => {
             const price = priceFor(t);
             return (
               <div
@@ -342,7 +342,7 @@ function Pricing() {
           <Link to="/contact" className="mono text-[11px] uppercase tracking-widest text-action hover:underline">Get a bundle quote →</Link>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-hairline border border-hairline rounded-xl overflow-hidden">
-          {ADDONS.map((a) => (
+          {addons.map((a) => (
             <div key={a.name} className="bg-panel p-5 flex items-start gap-4">
               <div className="size-10 rounded-md bg-background/50 border border-hairline grid place-items-center shrink-0">
                 <a.icon className="size-5 text-action" />
@@ -369,7 +369,7 @@ function Pricing() {
               <thead>
                 <tr className="bg-panel">
                   <th className="text-left p-4 mono text-[10px] uppercase tracking-widest text-muted-foreground sticky left-0 bg-panel">Capability</th>
-                  {TIERS.map((t) => (
+                  {tiers.map((t) => (
                     <th key={t.id} className={`text-left p-4 mono text-[10px] uppercase tracking-widest ${t.highlight ? "text-action" : "text-muted-foreground"}`}>
                       {t.name}
                     </th>
@@ -381,7 +381,7 @@ function Pricing() {
                   <tr key={row.label} className={i % 2 === 0 ? "bg-background/30" : "bg-background/10"}>
                     <td className="p-4 font-medium sticky left-0 bg-inherit">{row.label}</td>
                     {row.values.map((v, j) => (
-                      <td key={j} className={`p-4 ${TIERS[j].highlight ? "text-foreground" : "text-muted-foreground"}`}>
+                      <td key={j} className={`p-4 ${tiers[j].highlight ? "text-foreground" : "text-muted-foreground"}`}>
                         {v === "—" ? <span className="text-muted-foreground/50">—</span> : v}
                       </td>
                     ))}
