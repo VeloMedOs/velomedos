@@ -21,6 +21,10 @@ const OutcomeSchema = z.object({
   resolvedRole: z.string().max(40).optional(),
   email: z.string().email().optional(),
   message: z.string().max(500).optional(),
+  redirectUri: z.string().max(500).optional(),
+  scopes: z.string().max(500).optional(),
+  clientIdHint: z.string().max(80).optional(),
+  referrer: z.string().max(500).optional(),
 });
 
 export const recordOAuthOutcome = createServerFn({ method: "POST" })
@@ -30,6 +34,7 @@ export const recordOAuthOutcome = createServerFn({ method: "POST" })
     const ua = getRequestHeader("user-agent") ?? null;
     let ip: string | null = null;
     try { ip = getRequestIP({ xForwardedFor: true }) ?? null; } catch { ip = null; }
+    const referer = getRequestHeader("referer") ?? null;
     let userId: string | null = null;
     let email = data.email ?? null;
     try {
@@ -51,7 +56,13 @@ export const recordOAuthOutcome = createServerFn({ method: "POST" })
       resolved_role: data.resolvedRole ?? null,
       user_agent: ua,
       ip,
-      metadata: data.message ? { message: data.message } : null,
+      metadata: {
+        ...(data.message ? { message: data.message } : {}),
+        ...(data.redirectUri ? { redirect_uri: data.redirectUri } : {}),
+        ...(data.scopes ? { scopes: data.scopes } : {}),
+        ...(data.clientIdHint ? { client_id_hint: data.clientIdHint } : {}),
+        ...(data.referrer ? { referrer: data.referrer } : referer ? { referrer: referer } : {}),
+      },
     });
     return { ok: true };
   });
