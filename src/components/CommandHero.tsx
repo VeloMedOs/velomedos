@@ -122,6 +122,129 @@ function fmtHHMM(totalSec: number) {
   const sec = s % 60;
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
+
+/* ============================================================
+   Adaptive Glass — samples brightness under an overlay element
+   (ETA card / bubble) so we can dial bg opacity + text color in
+   real time. Keeps the map clearly visible while text stays
+   readable on both bright (snow/roads) and dark (satellite/road
+   shoulder) backgrounds.
+   ============================================================ */
+type GlassTone = {
+  lum: number;             // 0..1 estimated luminance under the card
+  isDark: boolean;         // luminance < 0.5
+  bg: string;              // rgba() — adaptive white|dark glass
+  border: string;          // rgba() — gradient-edge tone
+  text: string;            // primary text color
+  textMuted: string;       // secondary text color
+  textShadow: string;      // legibility halo behind text
+  ringShadow: string;      // outer glow color (brand-tinted)
+};
+
+function srgbChannel(c: number) {
+  const x = c / 255;
+  return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+}
+function relLuminance(r: number, g: number, b: number) {
+  return 0.2126 * srgbChannel(r) + 0.7152 * srgbChannel(g) + 0.0722 * srgbChannel(b);
+}
+function parseRGBA(str: string): [number, number, number, number] | null {
+  const m = str.match(/rgba?\(([^)]+)\)/i);
+  if (!m) return null;
+  const parts = m[1].split(",").map((s) => parseFloat(s.trim()));
+  if (parts.length < 3) return null;
+  return [parts[0], parts[1], parts[2], parts[3] ?? 1];
+}
+function effectiveBgLuminance(start: Element | null): number | null {
+  // Walk up, accumulating composited colors over white page background.
+  let r = 255, g = 255, b = 255;
+  let composed = false;
+  let el: Element | null = start;
+  const seen: Array<[number, number, number, number]> = [];
+  while (el && el !== document.body) {
+    const cs = getComputedStyle(el);
+    const c = parseRGBA(cs.backgroundColor || "");
+    if (c && c[3] > 0) seen.push(c);
+    el = el.parentElement;
+  }
+  // Composite from bottom-most (page) up
+  for (let i = seen.length - 1; i >= 0; i--) {
+    const [sr, sg, sb, sa] = seen[i];
+    r = sr * sa + r * (1 - sa);
+    g = sg * sa + g * (1 - sa);
+    b = sb * sa + b * (1 - sa);
+    composed = true;
+  }
+  if (!composed) return null;
+  return relLuminance(r, g, b);
+}
+
+function useAdaptiveGlass(ref: React.RefObject<HTMLElement | null>, opts?: { mode?: "light" | "dark" | "auto"; intervalMs?: number; }): GlassTone {
+  const intervalMs = opts?.intervalMs ?? 650;
+  const seedLum = opts?.mode === "dark" ? 0.12 : opts?.mode === "light" ? 0.82 : 0.5;
+  const [lum, setLum] = useState<number>(seedLum);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let stopped = false;
+    const sample = () => {
+      if (stopped) return;
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.width < 8 || rect.height < 8) return;
+      const points: Array<[number, number]> = [
+        [rect.left + rect.width * 0.18, rect.top + rect.height * 0.5],
+        [rect.left + rect.width * 0.5,  rect.top + rect.height * 0.5],
+        [rect.left + rect.width * 0.82, rect.top + rect.height * 0.5],
+        [rect.left + rect.width * 0.5,  rect.top + rect.height * 0.2],
+        [rect.left + rect.width * 0.5,  rect.top + rect.height * 0.8],
+      ];
+      // Hide briefly so elementFromPoint reaches underlying map layers
+      const prevVis = el.style.visibility;
+      el.style.visibility = "hidden";
+      let total = 0, n = 0;
+      for (const [x, y] of points) {
+        if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) continue;
+        const under = document.elementFromPoint(x, y);
+        const L = effectiveBgLuminance(under);
+        if (L != null) { total += L; n++; }
+      }
+      el.style.visibility = prevVis;
+      if (n === 0) return;
+      const next = total / n;
+      // Smooth toward the new sample to avoid flicker
+      setLum((prev) => prev * 0.55 + next * 0.45);
+    };
+    const raf = requestAnimationFrame(sample);
+    const id = window.setInterval(sample, intervalMs);
+    return () => { stopped = true; cancelAnimationFrame(raf); window.clearInterval(id); };
+  }, [ref, intervalMs]);
+
+  const isDark = lum < 0.5;
+  // Bright maps → lighter glass; dark maps → darker glass. Always lean toward
+  // transparency so the underlying roads/cars stay visible.
+  // Light side: alpha 0.14 → 0.30 as lum increases (more white wash on bright base).
+  // Dark side: alpha 0.22 → 0.40 as lum decreases (more body for legibility).
+  const a = isDark
+    ? 0.22 + (0.5 - lum) * 0.36   // up to ~0.40
+    : 0.14 + (lum - 0.5) * 0.32;  // up to ~0.30
+  const alpha = Math.max(0.12, Math.min(0.42, a));
+  const bg = isDark
+    ? `rgba(10, 17, 24, ${alpha.toFixed(3)})`
+    : `rgba(255, 255, 255, ${alpha.toFixed(3)})`;
+  const border = isDark
+    ? `rgba(255,255,255,${(0.18 + (0.5 - lum) * 0.25).toFixed(3)})`
+    : `rgba(255,255,255,${(0.55 + (lum - 0.5) * 0.4).toFixed(3)})`;
+  const text = isDark ? "#F5F8FC" : "#0F1A2B";
+  const textMuted = isDark ? "rgba(226,232,240,0.78)" : "rgba(71,85,105,0.85)";
+  const textShadow = isDark
+    ? "0 1px 1px rgba(0,0,0,0.55)"
+    : "0 1px 1px rgba(255,255,255,0.7)";
+  const ringShadow = isDark
+    ? "0 14px 44px -14px rgba(79,182,247,0.45)"
+    : "0 14px 44px -14px rgba(31,111,235,0.28)";
+  return { lum, isDark, bg, border, text, textMuted, textShadow, ringShadow };
+}
 /** Shortest signed angular delta in degrees, normalized to (-180, 180]. */
 function shortestAngleDelta(from: number, to: number) {
   let d = ((to - from) % 360 + 540) % 360 - 180;
@@ -689,57 +812,8 @@ function TeamView() {
           {routes.map((r, i) => (
             <RouteBubble key={i} minutes={r.minutes} primary={i === 0} index={i} total={routes.length} />
           ))}
-          {/* Bottom sheet: ETA + telemetry — elite glass card */}
-          <div
-            data-debug-id="team-eta-bubble"
-            className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-[22px] p-[1px] bg-gradient-to-br from-white/80 via-white/30 to-white/10 sm:w-[320px]"
-            style={{
-              boxShadow: tel.progress >= 0.999
-                ? "0 12px 42px -12px rgba(40,214,182,0.38)"
-                : "0 12px 42px -12px rgba(79,182,247,0.35)",
-            }}
-          >
-            <div className="relative rounded-[21px] bg-white/20 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 text-slate-900 overflow-hidden">
-              {/* subtle readability wash */}
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-white/25 via-white/5 to-transparent" />
-              {/* subtle progress wash at bottom */}
-              <div
-                className="absolute bottom-0 left-0 h-[3px] transition-[width] duration-300"
-                style={{
-                  width: `${Math.round(Math.min(tel.progress, 1) * 100)}%`,
-                  background: tel.progress >= 0.999
-                    ? "linear-gradient(90deg, #28D6B6, #4FB6F7)"
-                    : "linear-gradient(90deg, #4FB6F7, #1F6FEB)",
-                  boxShadow: tel.progress >= 0.999
-                    ? "0 0 14px rgba(40,214,182,0.5)"
-                    : "0 0 14px rgba(79,182,247,0.5)",
-                }}
-              />
-              <div className="relative min-w-0" style={{ textShadow: "0 1px 1px rgba(255,255,255,0.65)" }}>
-                <div className="text-[9px] font-bold uppercase tracking-[0.22em] text-slate-500/90 leading-none mb-1">
-                  ETA · {TEAM_B.label}
-                </div>
-                <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight leading-tight truncate">
-                  General Hospital
-                </div>
-                <div
-                  className="text-[34px] font-bold tracking-tighter leading-none mt-1"
-                  style={{ color: tel.progress >= 0.999 ? BRAND.tealDeep : BRAND.blueDeep, fontVariantNumeric: "tabular-nums" }}
-                >
-                  {tel.progress >= 0.999 ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
-                </div>
-              </div>
-              <div className="relative flex flex-col items-end text-[10px] text-slate-700 leading-tight min-w-0"
-                style={{ textShadow: "0 1px 1px rgba(255,255,255,0.65)", fontVariantNumeric: "tabular-nums" }}>
-                <span className="flex items-center gap-1.5 font-semibold">
-                  <Clock className="size-3.5" style={{ color: tel.progress >= 0.999 ? BRAND.tealDeep : BRAND.blueDeep }} />
-                  {Math.round(Math.min(tel.progress, 1) * 100)}%
-                </span>
-                <span className="mono text-slate-500">{Math.max(0, tel.totalKm * (1 - Math.min(tel.progress, 1))).toFixed(2)} km left</span>
-                <span className="mono text-slate-500">{Math.round(tel.speedKmh)} km/h</span>
-              </div>
-            </div>
-          </div>
+          {/* Bottom sheet: ETA + telemetry — adaptive glass card */}
+          <TeamEtaCard tel={tel} />
           {/* Compass / layers */}
           <div className="absolute top-3 right-3 z-[45] flex flex-col gap-2">
             <button aria-label="Map layers" className="size-9 rounded-full bg-white shadow-md grid place-items-center text-slate-700"><Layers className="size-4" /></button>
@@ -749,6 +823,208 @@ function TeamView() {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function TeamEtaCard({ tel }: { tel: Telemetry }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const tone = useAdaptiveGlass(ref, { mode: "auto" });
+  const arrived = tel.progress >= 0.999;
+  const accent = arrived ? BRAND.tealDeep : BRAND.blueDeep;
+  return (
+    <div
+      ref={ref}
+      data-debug-id="team-eta-bubble"
+      className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-[22px] p-[1px] sm:w-[320px] transition-[box-shadow,background] duration-500"
+      style={{
+        background: `linear-gradient(135deg, ${tone.border}, rgba(255,255,255,0.05))`,
+        boxShadow: arrived
+          ? "0 14px 44px -14px rgba(40,214,182,0.42)"
+          : tone.ringShadow,
+      }}
+    >
+      <div
+        className="relative rounded-[21px] backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 overflow-hidden transition-colors duration-500"
+        style={{
+          background: tone.bg,
+          color: tone.text,
+          // soft saturating wash for crispness without losing transparency
+          backdropFilter: "blur(20px) saturate(1.35)",
+        }}
+      >
+        {/* progress strip */}
+        <div
+          className="absolute bottom-0 left-0 h-[3px] transition-[width] duration-300"
+          style={{
+            width: `${Math.round(Math.min(tel.progress, 1) * 100)}%`,
+            background: arrived
+              ? "linear-gradient(90deg, #28D6B6, #4FB6F7)"
+              : "linear-gradient(90deg, #4FB6F7, #1F6FEB)",
+            boxShadow: arrived
+              ? "0 0 14px rgba(40,214,182,0.5)"
+              : "0 0 14px rgba(79,182,247,0.5)",
+          }}
+        />
+        <div className="relative min-w-0" style={{ textShadow: tone.textShadow }}>
+          <div className="text-[9px] font-bold uppercase tracking-[0.22em] leading-none mb-1" style={{ color: tone.textMuted }}>
+            ETA · {TEAM_B.label}
+          </div>
+          <div className="text-[11px] font-semibold uppercase tracking-tight leading-tight truncate" style={{ color: tone.textMuted }}>
+            General Hospital
+          </div>
+          <div
+            className="text-[34px] font-bold tracking-tighter leading-none mt-1"
+            style={{ color: accent, fontVariantNumeric: "tabular-nums" }}
+          >
+            {arrived ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
+          </div>
+        </div>
+        <div className="relative flex flex-col items-end text-[10px] leading-tight min-w-0"
+          style={{ color: tone.textMuted, textShadow: tone.textShadow, fontVariantNumeric: "tabular-nums" }}>
+          <span className="flex items-center gap-1.5 font-semibold" style={{ color: tone.text }}>
+            <Clock className="size-3.5" style={{ color: accent }} />
+            {Math.round(Math.min(tel.progress, 1) * 100)}%
+          </span>
+          <span className="mono">{Math.max(0, tel.totalKm * (1 - Math.min(tel.progress, 1))).toFixed(2)} km left</span>
+          <span className="mono">{Math.round(tel.speedKmh)} km/h</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OfflineDestEtaBubble({ etaStr, arrived }: { etaStr: string; arrived: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const tone = useAdaptiveGlass(ref, { mode: "auto", intervalMs: 800 });
+  return (
+    <div data-debug-id="offline-dest-eta-bubble" className="absolute -translate-x-1/2 -translate-y-full pointer-events-none z-[30]"
+      style={{ top: "calc(10% - 18px)", left: "min(78%, calc(100% - 56px))" }}>
+      <div
+        ref={ref}
+        className="rounded-full p-[1px]"
+        style={{
+          background: `linear-gradient(135deg, ${tone.border}, rgba(255,255,255,0.05))`,
+          boxShadow: arrived ? "0 6px 20px -6px rgba(40,214,182,0.42)" : tone.ringShadow,
+        }}
+      >
+        <div
+          className="px-2.5 py-[4px] rounded-full text-[10px] font-semibold flex items-center gap-1"
+          style={{
+            background: arrived ? "rgba(40,214,182,0.55)" : tone.bg,
+            color: arrived ? "#080B11" : tone.text,
+            backdropFilter: "blur(16px) saturate(1.3)",
+            fontVariantNumeric: "tabular-nums",
+            textShadow: tone.textShadow,
+          }}
+        >
+          <Clock className="size-2.5 opacity-80" /> {etaStr}
+          <span className="inline-block size-1 rounded-full" style={{ background: arrived ? "#080B11" : "#28D6B6" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OfflineAltEtaPill() {
+  const ref = useRef<HTMLDivElement>(null);
+  const tone = useAdaptiveGlass(ref, { mode: "auto", intervalMs: 900 });
+  return (
+    <div data-debug-id="offline-alt-eta-pill" className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[25]"
+      style={{ top: "32%", left: "42%" }}>
+      <div
+        ref={ref}
+        className="rounded-full p-[1px]"
+        style={{
+          background: `linear-gradient(135deg, ${tone.border}, rgba(255,255,255,0.05))`,
+          boxShadow: tone.ringShadow,
+        }}
+      >
+        <div
+          className="rounded-full px-2.5 py-1 text-[11px] font-semibold flex items-center gap-1.5"
+          style={{
+            background: tone.bg,
+            color: tone.text,
+            backdropFilter: "blur(18px) saturate(1.3)",
+            fontVariantNumeric: "tabular-nums",
+            textShadow: tone.textShadow,
+          }}
+        >
+          7 min <span style={{ color: tone.textMuted, fontWeight: 400 }}>· alt</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OfflineEtaCard({ tel, pct, etaStr, arrived }: { tel: Telemetry; pct: number; etaStr: string; arrived: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const tone = useAdaptiveGlass(ref, { mode: "auto", intervalMs: 700 });
+  const accent = arrived ? "#0F7F66" : "#1F6FEB";
+  return (
+    <div
+      ref={ref}
+      data-debug-id="offline-eta-card"
+      className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[320px] z-[40] rounded-[22px] p-[1px] transition-[box-shadow,background] duration-500"
+      style={{
+        background: `linear-gradient(135deg, ${tone.border}, rgba(255,255,255,0.05))`,
+        boxShadow: arrived
+          ? "0 14px 44px -12px rgba(40,214,182,0.34)"
+          : tone.ringShadow,
+      }}
+    >
+      <div
+        className="relative rounded-[21px] overflow-hidden transition-colors duration-500"
+        style={{ background: tone.bg, backdropFilter: "blur(22px) saturate(1.4)" }}
+      >
+        <div className="relative px-4 pt-3 pb-3" style={{ color: tone.text, textShadow: tone.textShadow }}>
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="mono text-[9px] font-bold tracking-[0.22em] uppercase leading-none mb-1" style={{ color: tone.textMuted }}>
+                ETA · Al Mana
+              </div>
+              <div className="text-[11px] font-semibold uppercase tracking-tight leading-tight" style={{ color: tone.textMuted }}>
+                General Hospital
+              </div>
+            </div>
+            <div className="flex items-center gap-1" style={{ color: tone.textMuted }}>
+              <Clock className="size-3" />
+              <span className="mono text-[11px] font-bold" style={{ fontVariantNumeric: "tabular-nums", color: tone.text }}>
+                {Math.round(pct * 100)}%
+              </span>
+            </div>
+          </div>
+          <div className="mt-2 flex items-end justify-between gap-3">
+            <div
+              className="text-[34px] font-bold tracking-tighter leading-none"
+              style={{ color: accent, fontVariantNumeric: "tabular-nums" }}
+            >
+              {arrived ? "0:00" : etaStr}
+            </div>
+            <div
+              className="text-right mono text-[10px] leading-tight"
+              style={{ fontVariantNumeric: "tabular-nums", color: tone.textMuted }}
+            >
+              <div>{Math.max(0, tel.totalKm * (1 - pct)).toFixed(2)} km left</div>
+              <div className="mt-0.5">{Math.round(tel.speedKmh)} km/h</div>
+            </div>
+          </div>
+        </div>
+        <div className="relative h-[3px] w-full" style={{ background: tone.isDark ? "rgba(255,255,255,0.12)" : "rgba(15,26,43,0.08)" }}>
+          <div
+            className="absolute inset-y-0 left-0 transition-[width] duration-300"
+            style={{
+              width: `${Math.round(pct * 100)}%`,
+              background: arrived
+                ? "linear-gradient(90deg, #28D6B6, #4FB6F7)"
+                : "linear-gradient(90deg, #4FB6F7, #1F6FEB)",
+              boxShadow: arrived
+                ? "0 0 14px rgba(40,214,182,0.5)"
+                : "0 0 14px rgba(79,182,247,0.5)",
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -1463,96 +1739,9 @@ function TeamFallback() {
         <span className="mono text-[9px] uppercase tracking-widest text-white/55">Al Thuqbah · Origin</span>
       </div>
 
-      {/* Destination ETA bubble (above the pin) */}
-      <div data-debug-id="offline-dest-eta-bubble" className="absolute -translate-x-1/2 -translate-y-full pointer-events-none z-[30]"
-        style={{ top: "calc(10% - 18px)", left: "min(78%, calc(100% - 56px))" }}>
-        <div className="rounded-full p-[1px] bg-gradient-to-br from-white/80 to-white/20 shadow-[0_6px_20px_-6px_rgba(31,111,235,0.38)]">
-          <div
-            className="px-2.5 py-[4px] rounded-full text-[10px] font-semibold flex items-center gap-1 backdrop-blur-md"
-            style={{
-              background: arrived ? "rgba(40,214,182,0.76)" : "rgba(31,111,235,0.76)",
-              color: arrived ? "#080B11" : "#fff",
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            <Clock className="size-2.5 opacity-80" /> {etaStr}
-            <span className="inline-block size-1 rounded-full" style={{ background: arrived ? "#080B11" : "#28D6B6" }} />
-          </div>
-        </div>
-      </div>
-
-      {/* Alternate route ETA pill */}
-      <div data-debug-id="offline-alt-eta-pill" className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[25]"
-        style={{ top: "32%", left: "42%" }}>
-        <div className="rounded-full p-[1px] bg-gradient-to-br from-white/75 to-white/20 shadow-[0_6px_20px_-6px_rgba(79,182,247,0.35)]">
-          <div className="rounded-full px-2.5 py-1 bg-white/25 backdrop-blur-xl text-slate-900 text-[11px] font-semibold flex items-center gap-1.5"
-            style={{ fontVariantNumeric: "tabular-nums", textShadow: "0 1px 1px rgba(255,255,255,0.6)" }}>
-            7 min <span className="text-slate-500 font-normal">· alt</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom-left ETA card — elite glass telemetry */}
-      <div
-        data-debug-id="offline-eta-card"
-        className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[320px] z-[40] rounded-[22px] p-[1px] bg-gradient-to-br from-white/75 via-white/30 to-white/10"
-        style={{
-          boxShadow: arrived
-            ? "0 14px 44px -12px rgba(40,214,182,0.34)"
-            : "0 14px 44px -12px rgba(31,111,235,0.30)",
-        }}
-      >
-        <div className="relative rounded-[21px] bg-white/30 backdrop-blur-2xl overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-white/25 via-white/10 to-transparent" />
-          <div className="relative px-4 pt-3 pb-3">
-            <div className="flex items-start justify-between">
-              <div style={{ textShadow: "0 1px 1px rgba(255,255,255,0.65)" }}>
-                <div className="mono text-[9px] font-bold tracking-[0.22em] uppercase text-slate-500/90 leading-none mb-1">
-                  ETA · Al Mana
-                </div>
-                <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight leading-tight">
-                  General Hospital
-                </div>
-              </div>
-              <div className="flex items-center gap-1 text-slate-500" style={{ textShadow: "0 1px 1px rgba(255,255,255,0.65)" }}>
-                <Clock className="size-3" />
-                <span className="mono text-[11px] font-bold" style={{ fontVariantNumeric: "tabular-nums" }}>
-                  {Math.round(pct * 100)}%
-                </span>
-              </div>
-            </div>
-            <div className="mt-2 flex items-end justify-between gap-3">
-              <div
-                className="text-[34px] font-bold tracking-tighter leading-none"
-                style={{ color: arrived ? "#0F7F66" : "#1F6FEB", fontVariantNumeric: "tabular-nums", textShadow: "0 1px 1px rgba(255,255,255,0.65)" }}
-              >
-                {arrived ? "0:00" : etaStr}
-              </div>
-              <div
-                className="text-right mono text-[10px] text-slate-500 leading-tight"
-                style={{ fontVariantNumeric: "tabular-nums", textShadow: "0 1px 1px rgba(255,255,255,0.65)" }}
-              >
-                <div>{Math.max(0, tel.totalKm * (1 - pct)).toFixed(2)} km left</div>
-                <div className="mt-0.5">{Math.round(tel.speedKmh)} km/h</div>
-              </div>
-            </div>
-          </div>
-          <div className="relative h-[3px] w-full bg-white/20">
-            <div
-              className="absolute inset-y-0 left-0 transition-[width] duration-300"
-              style={{
-                width: `${Math.round(pct * 100)}%`,
-                background: arrived
-                  ? "linear-gradient(90deg, #28D6B6, #4FB6F7)"
-                  : "linear-gradient(90deg, #4FB6F7, #1F6FEB)",
-                boxShadow: arrived
-                  ? "0 0 14px rgba(40,214,182,0.5)"
-                  : "0 0 14px rgba(79,182,247,0.5)",
-              }}
-            />
-          </div>
-        </div>
-      </div>
+      <OfflineDestEtaBubble etaStr={etaStr} arrived={arrived} />
+      <OfflineAltEtaPill />
+      <OfflineEtaCard tel={tel} pct={pct} etaStr={etaStr} arrived={arrived} />
 
       {/* Compass FAB */}
       <div className="absolute bottom-3 right-3 z-[45]">
