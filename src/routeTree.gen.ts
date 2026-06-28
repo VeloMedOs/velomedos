@@ -21,6 +21,7 @@ import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
+import { Route as BusinessIntakeRouteImport } from './routes/business-intake'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiReferenceRouteImport } from './routes/api-reference'
 import { Route as ApiDocsRouteImport } from './routes/api-docs'
@@ -155,6 +156,11 @@ const ContactRoute = ContactRouteImport.update({
 const ClinicsRoute = ClinicsRouteImport.update({
   id: '/clinics',
   path: '/clinics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessIntakeRoute = BusinessIntakeRouteImport.update({
+  id: '/business-intake',
+  path: '/business-intake',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -556,6 +562,7 @@ export interface FileRoutesByFullPath {
   '/api-docs': typeof ApiDocsRoute
   '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRoute
+  '/business-intake': typeof BusinessIntakeRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
@@ -644,6 +651,7 @@ export interface FileRoutesByTo {
   '/api-docs': typeof ApiDocsRoute
   '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRoute
+  '/business-intake': typeof BusinessIntakeRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
@@ -734,6 +742,7 @@ export interface FileRoutesById {
   '/api-docs': typeof ApiDocsRoute
   '/api-reference': typeof ApiReferenceRoute
   '/auth': typeof AuthRoute
+  '/business-intake': typeof BusinessIntakeRoute
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
@@ -824,6 +833,7 @@ export interface FileRouteTypes {
     | '/api-docs'
     | '/api-reference'
     | '/auth'
+    | '/business-intake'
     | '/clinics'
     | '/contact'
     | '/demo'
@@ -912,6 +922,7 @@ export interface FileRouteTypes {
     | '/api-docs'
     | '/api-reference'
     | '/auth'
+    | '/business-intake'
     | '/clinics'
     | '/contact'
     | '/demo'
@@ -1001,6 +1012,7 @@ export interface FileRouteTypes {
     | '/api-docs'
     | '/api-reference'
     | '/auth'
+    | '/business-intake'
     | '/clinics'
     | '/contact'
     | '/demo'
@@ -1091,6 +1103,7 @@ export interface RootRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
   ApiReferenceRoute: typeof ApiReferenceRoute
   AuthRoute: typeof AuthRoute
+  BusinessIntakeRoute: typeof BusinessIntakeRoute
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
   DemoRoute: typeof DemoRoute
@@ -1227,6 +1240,13 @@ declare module '@tanstack/react-router' {
       path: '/clinics'
       fullPath: '/clinics'
       preLoaderRoute: typeof ClinicsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/business-intake': {
+      id: '/business-intake'
+      path: '/business-intake'
+      fullPath: '/business-intake'
+      preLoaderRoute: typeof BusinessIntakeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -1972,6 +1992,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
   ApiReferenceRoute: ApiReferenceRoute,
   AuthRoute: AuthRoute,
+  BusinessIntakeRoute: BusinessIntakeRoute,
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
   DemoRoute: DemoRoute,
