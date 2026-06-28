@@ -35,11 +35,81 @@ export const openApiAdminSpec = {
       ConfigOverride: { type: "object", properties: { id: { type: "string", format: "uuid" }, subscriber_id: { type: "string", format: "uuid" }, key: { type: "string" }, value: {} } },
       EffectiveConfig: { type: "object", properties: { key: { type: "string" }, value: {}, source: { type: "string", enum: ["base","override"] }, updated_at: { type: "string", format: "date-time" } } },
       KPI: { type: "object", properties: { counters: { type: "object" }, revenue: { type: "object" }, churn: { type: "object" }, growth: { type: "object" }, insights: { type: "array", items: { type: "string" } } } },
+      BusinessRequest: { type: "object", properties: {
+        id: { type: "string", format: "uuid" },
+        company_name: { type: "string" }, legal_name: { type: "string", nullable: true }, nick_name: { type: "string", nullable: true },
+        vat_number: { type: "string", nullable: true }, cr_number: { type: "string", nullable: true }, website_url: { type: "string", nullable: true },
+        address_line: { type: "string", nullable: true }, city: { type: "string", nullable: true }, region: { type: "string", nullable: true }, postal_code: { type: "string", nullable: true }, country: { type: "string", nullable: true },
+        contact_name: { type: "string" }, contact_email: { type: "string" }, contact_phone: { type: "string", nullable: true },
+        source: { type: "string", enum: ["website","call_center","partner","referral","event","other"] },
+        stage:  { type: "string", enum: ["request","contacted","demo","prospect","lead","negotiation","subscribed","rejected","archived"] },
+        status: { type: "string" }, assigned_to: { type: "string", format: "uuid", nullable: true },
+        fleet_size: { type: "integer", nullable: true }, expected_seats: { type: "integer", nullable: true },
+        estimated_value_cents: { type: "integer", nullable: true }, currency: { type: "string" },
+        converted_tenant_id: { type: "string", format: "uuid", nullable: true },
+        created_at: { type: "string", format: "date-time" }, updated_at: { type: "string", format: "date-time" },
+      } },
+      Plan: { type: "object", properties: {
+        id: { type: "string", format: "uuid" }, code: { type: "string" }, name: { type: "string" }, description: { type: "string", nullable: true },
+        price_cents: { type: "integer" }, currency: { type: "string" }, billing_period: { type: "string", enum: ["monthly","yearly","one_time","custom"] },
+        included_seats: { type: "integer" }, features: { type: "array", items: { type: "string" } }, is_active: { type: "boolean" }, sort_order: { type: "integer" },
+      } },
+      TenantSubscription: { type: "object", properties: {
+        id: { type: "string", format: "uuid" }, tenant_id: { type: "string", format: "uuid" }, plan_id: { type: "string", format: "uuid" },
+        status: { type: "string" }, seats: { type: "integer" },
+        current_period_start: { type: "string", format: "date-time" }, current_period_end: { type: "string", format: "date-time", nullable: true },
+        cancel_at_period_end: { type: "boolean" }, notes: { type: "string", nullable: true },
+      } },
+      RoleGrant: { type: "object", properties: { user_id: { type: "string", format: "uuid" }, role: { type: "string" }, created_at: { type: "string", format: "date-time" } } },
+      Privilege: { type: "object", properties: { role: { type: "string" }, module: { type: "string" }, can_view: { type: "boolean" }, can_manage: { type: "boolean" }, updated_at: { type: "string", format: "date-time" } } },
       Error: { type: "object", properties: { error: { type: "string" }, code: { type: "string" }, request_id: { type: "string" } } },
     },
   },
   security: [{ AdminKey: [] }, { PortalSession: [] }],
   paths: {
+    "/business-requests": {
+      get:  { summary: "List business requests", description: "Scope `subscribers:read`. Filter `?stage=`, `?source=`, `?q=` (search legal/nick/vat/cr/email).", responses: ok("OK", "BusinessRequest") },
+      post: { summary: "Create a business request", description: "Scope `subscribers:write`. Used by call-center agents.", responses: { 201: { description: "Created" } } },
+    },
+    "/business-requests/{id}": {
+      get:    { summary: "Get a business request (with lifecycle events)", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: ok("OK") },
+      patch:  { summary: "Update business profile / contact fields", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: ok("OK") },
+      delete: { summary: "Delete a business request", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: ok("OK") },
+    },
+    "/business-requests/{id}/advance": {
+      post: { summary: "Move request to next pipeline stage", description: "Stages: request → contacted → demo → prospect → lead → negotiation → subscribed. Use `rejected` / `archived` to terminate. Optional `note` is appended to the event log.", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: ok("OK") },
+    },
+    "/business-requests/{id}/convert": {
+      post: { summary: "Convert an approved request into a tenant", description: "Provisions a `corporate_accounts` row (and optionally a `tenant_subscriptions` row when `plan_id` is given), marks the request as `subscribed`, and links `converted_tenant_id`. Idempotent — returns 409 if already converted.", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: { 201: { description: "Created" } } },
+    },
+    "/plans": {
+      get:  { summary: "List subscription plans", description: "Scope `billing:read`.", responses: ok("OK", "Plan") },
+      post: { summary: "Create a plan", description: "Scope `billing:write`.", responses: { 201: { description: "Created" } } },
+    },
+    "/plans/{id}": {
+      get:    { summary: "Get a plan", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: ok("OK", "Plan") },
+      patch:  { summary: "Update a plan", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: ok("OK") },
+      delete: { summary: "Delete a plan", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: ok("OK") },
+    },
+    "/tenant-subscriptions": {
+      get:  { summary: "List tenant subscriptions", description: "Scope `billing:read`. Filter `?tenant_id=`.", responses: ok("OK", "TenantSubscription") },
+      post: { summary: "Assign a plan to a tenant", description: "Scope `billing:write`. Cancels any existing active subscription for the tenant.", responses: { 201: { description: "Created" } } },
+    },
+    "/tenant-subscriptions/{id}": {
+      get:    { summary: "Get a tenant subscription", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: ok("OK", "TenantSubscription") },
+      patch:  { summary: "Update seats / status / period", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: ok("OK") },
+      delete: { summary: "Delete a tenant subscription", parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }], responses: ok("OK") },
+    },
+    "/roles": {
+      get:    { summary: "List role grants", description: "Scope `subscribers:read`. Filter `?user_id=`.", responses: ok("OK", "RoleGrant") },
+      post:   { summary: "Grant a role to a user", description: "Scope `subscribers:write`. Body `{ user_id, role }`.", responses: { 201: { description: "Created" } } },
+      delete: { summary: "Revoke a role grant", description: "Scope `subscribers:write`. Query `?user_id=&role=`.", responses: ok("OK") },
+    },
+    "/privileges": {
+      get:    { summary: "List privilege rows", description: "Scope `config:read`. Filter `?role=`.", responses: ok("OK", "Privilege") },
+      put:    { summary: "Upsert a role/module privilege", description: "Scope `config:write`. Body `{ role, module, can_view, can_manage }`.", responses: ok("OK") },
+      delete: { summary: "Delete a privilege row", description: "Scope `config:write`. Query `?role=&module=`.", responses: ok("OK") },
+    },
     "/subscribers": {
       get: { summary: "List subscribers", description: "Scope `subscribers:read`.", responses: ok("OK", "Subscriber") },
       post: { summary: "Provision a subscriber", description: "Scope `subscribers:write`.", responses: { 201: { description: "Created" } } },
