@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Radio, ShieldCheck, Stethoscope, ClipboardCheck, GraduationCap, KeyRound, ArrowRight } from "lucide-react";
+import { Radio, ShieldCheck, Stethoscope, ClipboardCheck, GraduationCap, HeartHandshake, ArrowRight } from "lucide-react";
 import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
 import { breadcrumbLd, jsonld } from "@/components/Jsonld";
 
@@ -7,9 +7,9 @@ export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
       { title: "Services — VeloMed OS" },
-      { name: "description", content: "Emergency dispatch & live tracking, fleet compliance, remote clinics, mobile screening, training & certification, and the public developer API." },
+      { name: "description", content: "Emergency dispatch & live tracking, fleet compliance, remote clinics, mobile screening, training & certification, and verified homecare visits." },
       { property: "og:title", content: "VeloMed OS — Services" },
-      { property: "og:description", content: "Six services, one platform: dispatch, compliance, clinics, screening, training, public API." },
+      { property: "og:description", content: "Six services, one platform: dispatch, compliance, clinics, screening, training, homecare." },
       { property: "og:url", content: "/services" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -29,7 +29,7 @@ const SERVICES = [
   { icon: Stethoscope, title: "Remote clinics & telehealth", body: "Bookable physical, mobile and telehealth clinics across the regions we cover — specialties, hours and live availability.", to: "/services/remote-clinics" as const, hue: "text-action", border: "border-hairline" },
   { icon: ClipboardCheck, title: "Mobile pre-employment screening", body: "Corporate packages delivered on-site by our mobile units — bloods, vitals, drug & alcohol, occupational health.", to: "/services/mobile-screening" as const, hue: "text-action", border: "border-hairline" },
   { icon: GraduationCap, title: "Training & certification", body: "ALS, EMT-Basic, Tactical Paramedic and refresher courses with verifiable certificates issued on completion.", to: "/services/training-certification" as const, hue: "text-emergency", border: "border-hairline" },
-  { icon: KeyRound, title: "Public developer API", body: "Documented OpenAPI 3.1 surface for fleet status, incident intake, clinic directory, courses, compliance and live ETA — with scoped API keys.", to: "/services/developer-api" as const, hue: "text-action", border: "border-action/40" },
+  { icon: HeartHandshake, title: "Homecare Service", body: "Recurring in-home nursing and caregiver visits — scheduled, routed and geofenced check-in/out, with vitals, medications and care-plan tasks captured at the bedside.", to: "/services/homecare" as const, hue: "text-stable", border: "border-stable/40" },
 ];
 
 function Services() {
