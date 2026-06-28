@@ -692,7 +692,7 @@ function TeamView() {
           {/* Bottom sheet: ETA + telemetry — elite glass card */}
           <div
             data-debug-id="team-eta-bubble"
-            className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-[22px] border border-white/50 bg-white/40 shadow-[0_12px_40px_-12px_rgba(8,11,17,0.45)] backdrop-blur-2xl px-4 py-3 flex items-center gap-4 text-slate-900 sm:min-w-[320px] overflow-hidden"
+            className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-[22px] border border-white/50 bg-white/40 shadow-[0_12px_40px_-12px_rgba(8,11,17,0.45)] backdrop-blur-2xl px-4 py-3 flex items-center justify-between gap-3 text-slate-900 sm:w-[320px] overflow-hidden"
           >
             {/* subtle progress wash at bottom */}
             <div
@@ -711,20 +711,17 @@ function TeamView() {
               <div className="text-[9px] font-bold uppercase tracking-[0.22em] text-slate-500/90 leading-none mb-1">
                 ETA · {TEAM_B.label}
               </div>
-              <div
-                className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight leading-tight truncate"
-              >
+              <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight leading-tight truncate">
                 General Hospital
               </div>
+              <div
+                className="text-[34px] font-bold tracking-tighter leading-none mt-1"
+                style={{ color: tel.progress >= 0.999 ? BRAND.tealDeep : BRAND.blueDeep, fontVariantNumeric: "tabular-nums" }}
+              >
+                {tel.progress >= 0.999 ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
+              </div>
             </div>
-            <div className="h-10 w-px bg-white/40" />
-            <div
-              className="text-[34px] font-bold tracking-tighter leading-none"
-              style={{ color: tel.progress >= 0.999 ? BRAND.tealDeep : BRAND.blueDeep, fontVariantNumeric: "tabular-nums" }}
-            >
-              {tel.progress >= 0.999 ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
-            </div>
-            <div className="ml-auto flex flex-col items-end text-[10px] text-slate-600 leading-tight min-w-0"
+            <div className="flex flex-col items-end text-[10px] text-slate-600 leading-tight min-w-0"
               style={{ fontVariantNumeric: "tabular-nums" }}>
               <span className="flex items-center gap-1.5 font-semibold">
                 <Clock className="size-3.5" style={{ color: tel.progress >= 0.999 ? BRAND.tealDeep : BRAND.blueDeep }} />
