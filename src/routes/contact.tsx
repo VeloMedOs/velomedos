@@ -4,6 +4,7 @@ import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome
 import { Crosshair, Loader2, CheckCircle2, AlertTriangle, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { pageLdScripts } from "@/components/Jsonld";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -12,12 +13,20 @@ export const Route = createFileRoute("/contact")({
       { name: "description", content: "Request an ambulance, a clinic appointment, mobile screening, rental or training. Non-911 requests routed live to our call centre." },
       { property: "og:title", content: "VeloMed OS — Request help" },
       { property: "og:description", content: "Submit a request: emergency, clinic, screening, rental or training." },
-      { property: "og:url", content: "/contact" },
+      { property: "og:url", content: "https://velomedos.com/contact" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "VeloMed OS — Request help" },
+      { name: "twitter:description", content: "Submit a request: emergency, clinic, screening, rental or training." },
       { name: "robots", content: "index,follow" },
     ],
-    links: [{ rel: "canonical", href: "/contact" }],
+    links: [{ rel: "canonical", href: "https://velomedos.com/contact" }],
+    scripts: pageLdScripts({
+      path: "/contact",
+      name: "Request help — VeloMed OS",
+      description: "Request an ambulance, a clinic appointment, mobile screening, rental or training.",
+      type: "ContactPage",
+    }),
   }),
   component: Contact,
 });
