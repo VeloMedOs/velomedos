@@ -21,14 +21,24 @@ function AuthPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
+  async function destinationForUser(userId: string, email: string | null | undefined): Promise<string> {
+    try {
+      const saved = sessionStorage.getItem("velomed:post_auth");
+      if (saved && saved.startsWith("/")) { sessionStorage.removeItem("velomed:post_auth"); return saved; }
+    } catch { /* noop */ }
+    if ((email ?? "").toLowerCase() === "superadmin@velomedos.com") return "/superadmin";
+    const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+    const roles = new Set((data ?? []).map((r: { role: string }) => r.role));
+    if (roles.has("superadmin")) return "/superadmin";
+    if (roles.has("admin") || roles.has("dispatcher") || roles.has("business_admin")) return "/dispatch";
+    if (roles.has("paramedic") || roles.has("driver")) return "/provider";
+    return "/patient";
+  }
+
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (data.user) {
-        let dest = "/dispatch";
-        try {
-          const saved = sessionStorage.getItem("velomed:post_auth");
-          if (saved && saved.startsWith("/")) { dest = saved; sessionStorage.removeItem("velomed:post_auth"); }
-        } catch { /* noop */ }
+        const dest = await destinationForUser(data.user.id, data.user.email);
         navigate({ to: dest, replace: true });
       }
     });
@@ -42,10 +52,11 @@ function AuthPage() {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       toast.success("Welcome back.");
-      navigate({ to: "/dispatch", replace: true });
+      const dest = data.user ? await destinationForUser(data.user.id, data.user.email) : "/patient";
+      navigate({ to: dest, replace: true });
     } catch (err) {
       toast.error((err as Error).message);
     } finally {
@@ -54,13 +65,14 @@ function AuthPage() {
   }
 
   async function google() {
-    try { sessionStorage.setItem("velomed:post_auth", "/dispatch"); } catch { /* noop */ }
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: `${window.location.origin}/auth`,
     });
     if (result.error) { toast.error(result.error.message); return; }
     if (result.redirected) return;
-    navigate({ to: "/dispatch", replace: true });
+    const { data } = await supabase.auth.getUser();
+    const dest = data.user ? await destinationForUser(data.user.id, data.user.email) : "/patient";
+    navigate({ to: dest, replace: true });
   }
 
   return (
