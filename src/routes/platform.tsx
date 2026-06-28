@@ -116,6 +116,7 @@ function Platform() {
           <div className="mt-6 flex flex-wrap gap-3 justify-center">
             <Link to="/demo" className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-teal text-background mono text-xs uppercase tracking-widest font-bold">Book a demo <ArrowRight className="size-3.5" /></Link>
             <Link to="/contact" className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-hairline mono text-xs uppercase tracking-widest hover:bg-panel">Talk to us <ArrowRight className="size-3.5" /></Link>
+            <Link to="/resources/comparison" className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-hairline mono text-xs uppercase tracking-widest hover:bg-panel">VeloMed OS vs ESO Suite <ArrowRight className="size-3.5" /></Link>
           </div>
         </div>
       </section>
