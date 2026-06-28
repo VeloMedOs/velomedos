@@ -256,14 +256,15 @@ function Pricing() {
             return (
               <div
                 key={t.id}
-                className={`relative bg-panel p-6 flex flex-col ${t.highlight ? "ring-1 ring-action/60 bg-panel-elevated" : ""}`}
+                className={`relative bg-panel p-6 flex flex-col transition-colors ${t.highlight ? "brand-ring bg-panel-elevated" : "hover:bg-panel-elevated/60"}`}
+                style={t.highlight ? { boxShadow: "var(--shadow-glow-teal)" } : undefined}
               >
                 {t.highlight && (
-                  <div className="absolute -top-px left-0 right-0 bg-action text-action-foreground mono text-[10px] uppercase tracking-[0.2em] text-center py-1">
-                    <Sparkles className="inline size-3 -mt-0.5 mr-1" /> Most chosen
+                  <div className="absolute -top-px left-0 right-0 mono text-[10px] uppercase tracking-[0.22em] text-center py-1 text-background font-semibold" style={{ background: "var(--gradient-brand)" }}>
+                    <Sparkles className="inline size-3 -mt-0.5 mr-1" /> Most chosen by operators
                   </div>
                 )}
-                <div className={`mono text-[10px] uppercase tracking-widest text-action ${t.highlight ? "mt-6" : ""}`}>{t.eyebrow}</div>
+                <div className={`mono text-[10px] uppercase tracking-widest ${t.highlight ? "mt-6 text-teal" : "text-action"}`}>{t.eyebrow}</div>
                 <div className="text-2xl font-bold mt-2">{t.name}</div>
                 <div className="text-sm text-muted-foreground mt-1.5 min-h-[40px]">{t.tagline}</div>
 
@@ -298,11 +299,12 @@ function Pricing() {
 
                 <Link
                   to={t.cta.to}
-                  className={`mt-6 inline-flex w-full items-center justify-center gap-2 px-4 py-2.5 rounded-md mono text-[11px] uppercase tracking-widest transition-colors ${
+                  className={`mt-6 inline-flex w-full items-center justify-center gap-2 px-4 py-2.5 rounded-md mono text-[11px] uppercase tracking-widest font-semibold transition-all ${
                     t.highlight
-                      ? "bg-action text-action-foreground hover:opacity-90"
-                      : "border border-hairline hover:bg-panel-elevated"
+                      ? "text-background hover:brightness-110"
+                      : "border border-hairline hover:bg-panel-elevated hover:border-teal/40"
                   }`}
+                  style={t.highlight ? { background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow-teal)" } : undefined}
                 >
                   {t.cta.label} <ArrowRight className="size-3.5" />
                 </Link>
