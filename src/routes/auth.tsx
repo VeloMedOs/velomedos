@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useServerFn } from "@tanstack/react-start";
 import { recordOAuthOutcome } from "@/lib/oauth-diagnostics.functions";
-import { Activity, User, Stethoscope, Building2, ArrowLeft, AlertTriangle, CheckCircle2, ExternalLink } from "lucide-react";
+import { User, Stethoscope, Building2, ArrowLeft, AlertTriangle, CheckCircle2, ExternalLink, ArrowRight } from "lucide-react";
+import { BrandMark, BrandWordmark } from "@/components/BrandMark";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -185,12 +186,12 @@ function AuthPage() {
     if (!oauthError) return null;
     const e = ERROR_COPY[oauthError.code] ?? ERROR_COPY.unknown;
     return (
-      <div className="rounded-lg border border-emergency/40 bg-emergency/10 p-3 text-[12px] space-y-1.5">
-        <div className="flex items-center gap-2 text-emergency font-semibold"><AlertTriangle className="size-4" />{e.title}</div>
+      <div className="rounded-xl border p-3.5 text-[12px] space-y-1.5" style={{ borderColor: "oklch(0.725 0.181 27 / 0.45)", background: "linear-gradient(180deg, oklch(0.725 0.181 27 / 0.10), oklch(0.725 0.181 27 / 0.04))" }}>
+        <div className="flex items-center gap-2 font-semibold" style={{ color: "var(--coral)" }}><AlertTriangle className="size-4" />{e.title}</div>
         <div className="text-foreground/80">{e.body}</div>
         {oauthError.attempt && <div className="mono text-[10px] text-muted-foreground">Diagnostic ID: {oauthError.attempt}</div>}
         <div className="flex items-center gap-3 pt-1">
-          <Link to="/auth/error" search={{ code: oauthError.code, attempt: oauthError.attempt ?? undefined, as: audience ?? undefined }} className="mono text-[10px] uppercase tracking-widest text-action hover:underline inline-flex items-center gap-1">
+          <Link to="/auth/error" search={{ code: oauthError.code, attempt: oauthError.attempt ?? undefined, as: audience ?? undefined }} className="mono text-[10px] uppercase tracking-widest hover:underline inline-flex items-center gap-1" style={{ color: "var(--teal)" }}>
             View details <ExternalLink className="size-3" />
           </Link>
           <button onClick={() => setOauthError(null)} className="mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground">Dismiss</button>
@@ -202,37 +203,43 @@ function AuthPage() {
   // STEP 1 — audience chooser (no audience selected)
   if (!audience) {
     return (
-      <div className="min-h-screen bg-background text-foreground p-6 flex flex-col">
-        <header className="flex items-center justify-between max-w-5xl mx-auto w-full">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="size-7 rounded-md bg-emergency grid place-items-center text-emergency-foreground"><Activity className="size-4" /></div>
-            <span className="font-bold tracking-tight">VELOMED <span className="text-emergency">OS</span></span>
+      <div className="min-h-screen bg-background text-foreground p-6 flex flex-col relative overflow-hidden">
+        <div aria-hidden className="absolute inset-0 brand-wash pointer-events-none" />
+        <div aria-hidden className="absolute inset-0 grid-mesh pointer-events-none" />
+        <header className="flex items-center justify-between max-w-5xl mx-auto w-full relative z-10">
+          <Link to="/" className="flex items-center gap-2.5">
+            <BrandMark className="size-7" />
+            <BrandWordmark />
           </Link>
           <Link to="/" className="mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground inline-flex items-center gap-1"><ArrowLeft className="size-3" /> Home</Link>
         </header>
-        <div className="flex-1 grid place-items-center">
+        <main id="main" className="flex-1 grid place-items-center relative z-10">
           <div className="max-w-3xl w-full text-center space-y-8 pt-10">
-            <div className="space-y-2">
-              <div className="mono text-[10px] uppercase tracking-[0.3em] text-emergency">Sign in / sign up</div>
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Choose your account type</h1>
-              <p className="text-sm text-muted-foreground max-w-xl mx-auto">Select Patient if you're seeking care, Provider if you respond on shift, or Organisation admin if you manage a fleet or hospital roster.</p>
+            <div className="space-y-3">
+              <div className="brand-eyebrow justify-center"><span className="vital-dot" /> Sign in · Sign up</div>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight" style={{ fontFamily: "Fraunces, Georgia, serif" }}>Choose your account type</h1>
+              <p className="text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">Select Patient if you're seeking care, Provider if you respond on shift, or Organisation admin if you manage a fleet or hospital roster.</p>
+              <div className="signal-bar max-w-[260px] mx-auto mt-4" />
             </div>
             {errorView}
             <div className="grid md:grid-cols-3 gap-4 text-left">
               {AUDIENCES.map((a) => (
-                <button key={a.id} onClick={() => { setAudience(a.id); navigate({ to: "/auth", search: { as: a.id }, replace: true }); }} className="group rounded-xl border border-hairline bg-panel hover:border-action/60 hover:bg-panel-elevated p-5 transition-colors">
-                  <div className="size-10 rounded-md bg-action/15 text-action grid place-items-center mb-4"><a.icon className="size-5" /></div>
-                  <div className="font-semibold text-lg">{a.title}</div>
-                  <div className="text-[12px] text-muted-foreground mt-1">{a.tagline}</div>
-                  <div className="mono text-[10px] uppercase tracking-widest text-action mt-4 group-hover:translate-x-0.5 transition-transform">Continue →</div>
+                <button key={a.id} onClick={() => { setAudience(a.id); navigate({ to: "/auth", search: { as: a.id }, replace: true }); }} className="group instrument-panel p-5 text-left hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden">
+                  <span aria-hidden className="absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "var(--gradient-brand)" }} />
+                  <div className="size-10 rounded-lg grid place-items-center mb-4 relative" style={{ background: "var(--gradient-brand-soft)" }}>
+                    <a.icon className="size-5" style={{ color: "var(--teal)" }} />
+                  </div>
+                  <div className="font-semibold text-lg tracking-tight">{a.title}</div>
+                  <div className="text-[12px] text-muted-foreground mt-1 leading-relaxed">{a.tagline}</div>
+                  <div className="mono text-[10px] uppercase tracking-widest mt-5 inline-flex items-center gap-1 group-hover:gap-2 transition-all" style={{ color: "var(--teal)" }}>Continue <ArrowRight className="size-3" /></div>
                 </button>
               ))}
             </div>
             <div className="text-[12px] text-muted-foreground">
-              New organisation? <Link to="/business-intake" className="text-emergency hover:underline font-medium">Apply for access</Link>
+              New organisation? <Link to="/business-intake" className="font-medium hover:underline" style={{ color: "var(--teal)" }}>Apply for access</Link>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     );
   }
@@ -241,50 +248,73 @@ function AuthPage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background text-foreground">
-      <div className="hidden lg:flex flex-col justify-between p-10 border-r border-hairline bg-panel">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="size-7 rounded-md bg-emergency grid place-items-center text-emergency-foreground"><Activity className="size-4" /></div>
-          <span className="font-bold tracking-tight">VELOMED <span className="text-emergency">OS</span></span>
+      <div className="hidden lg:flex flex-col justify-between p-10 border-r border-hairline relative overflow-hidden" style={{ background: "var(--gradient-instrument)" }}>
+        <div aria-hidden className="absolute inset-0 brand-wash pointer-events-none" />
+        <div aria-hidden className="absolute inset-0 grid-mesh pointer-events-none" />
+        <div aria-hidden className="absolute -top-24 -left-24 size-96 rounded-full blur-3xl opacity-25 pointer-events-none" style={{ background: "var(--gradient-brand)" }} />
+        <div aria-hidden className="absolute -bottom-32 -right-20 size-80 rounded-full blur-3xl opacity-20 pointer-events-none" style={{ background: "var(--coral)" }} />
+        <Link to="/" className="flex items-center gap-2.5 relative z-10">
+          <BrandMark className="size-7" />
+          <BrandWordmark />
         </Link>
-        <div className="space-y-4 max-w-md">
-          <div className="mono text-[10px] uppercase tracking-[0.22em] text-action">{aud.title} access</div>
-          <h2 className="text-3xl font-bold leading-tight">{audience === "patient" ? "Your care, on the map." : audience === "provider" ? "Sub-six-minute median en-route, every shift." : "One nervous system for your fleet."}</h2>
-          <p className="text-sm text-muted-foreground">{audience === "patient" ? "Request an ambulance, follow it live, share your trip with family." : audience === "provider" ? "Live runsheet, paperless trip reports, fleet tracking from your phone." : "Roster, billing, training compliance and dispatch across every site."}</p>
+        <div className="space-y-5 max-w-md relative z-10">
+          <div className="brand-eyebrow"><span className="vital-dot" /> {aud.title} access</div>
+          <h2 className="text-4xl font-semibold leading-[1.05] tracking-tight" style={{ fontFamily: "Fraunces, Georgia, serif" }}>
+            {audience === "patient" ? "Your care, on the map." : audience === "provider" ? "Sub-six-minute median en-route, every shift." : "One nervous system for your fleet."}
+          </h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">{audience === "patient" ? "Request an ambulance, follow it live, share your trip with family." : audience === "provider" ? "Live runsheet, paperless trip reports, fleet tracking from your phone." : "Roster, billing, training compliance and dispatch across every site."}</p>
+          <div className="signal-bar max-w-[180px]" />
         </div>
-        <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground flex items-center gap-2">
-          <span className="size-1.5 rounded-full bg-stable animate-pulse" /> All systems nominal
+        <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground flex items-center gap-2 relative z-10">
+          <span className="vital-dot" /> All systems nominal · Encrypted channel
         </div>
       </div>
-      <div className="flex items-center justify-center p-6">
+      <main id="main" className="flex items-center justify-center p-6 relative">
+        <div aria-hidden className="absolute inset-0 brand-wash pointer-events-none lg:hidden" />
         <div className="w-full max-w-sm space-y-6">
           <button onClick={() => { setAudience(null); navigate({ to: "/auth", replace: true }); }} className="mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground inline-flex items-center gap-1"><ArrowLeft className="size-3" /> Change account type</button>
-          <div className="space-y-1.5">
-            <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Authenticate · {aud.title}</div>
-            <h1 className="text-2xl font-bold tracking-tight">{audience === "patient" ? "Sign in to your care record" : audience === "provider" ? "Sign in for shift" : "Sign in to your workspace"}</h1>
-            <p className="text-[11px] text-muted-foreground">{audience === "patient" ? "Use Google or email to access your trips, records and shared links." : "Credentials are issued by your superadmin. Google works only for pre-provisioned accounts."}</p>
+          <div className="lg:hidden flex items-center gap-2.5">
+            <BrandMark className="size-7" />
+            <BrandWordmark />
+          </div>
+          <div className="space-y-2">
+            <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Authenticate · <span style={{ color: "var(--teal)" }}>{aud.title}</span></div>
+            <h1 className="text-3xl font-semibold tracking-tight leading-tight" style={{ fontFamily: "Fraunces, Georgia, serif" }}>{audience === "patient" ? "Sign in to your care record" : audience === "provider" ? "Sign in for shift" : "Sign in to your workspace"}</h1>
+            <p className="text-xs text-muted-foreground leading-relaxed">{audience === "patient" ? "Use Google or email to access your trips, records and shared links." : "Credentials are issued by your superadmin. Google works only for pre-provisioned accounts."}</p>
           </div>
           {errorView}
-          <button onClick={google} type="button" className="w-full h-10 rounded-md border border-hairline bg-panel hover:bg-panel-elevated mono text-xs uppercase tracking-widest flex items-center justify-center gap-2">
-            Continue with Google
+          <button onClick={google} type="button" className="w-full h-11 rounded-lg border border-hairline bg-panel/60 hover:bg-panel-elevated hover:border-hairline mono text-[11px] uppercase tracking-widest flex items-center justify-center gap-2.5 transition-colors backdrop-blur-sm">
+            <GoogleGlyph /> Continue with Google
           </button>
           <div className="flex items-center gap-3 mono text-[10px] uppercase tracking-widest text-muted-foreground">
             <div className="h-px flex-1 bg-hairline" />or<div className="h-px flex-1 bg-hairline" />
           </div>
           <form onSubmit={submit} className="space-y-3">
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@hospital.org" className="w-full h-10 px-3 rounded-md bg-input border border-hairline focus:border-action outline-none text-sm" />
-            <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full h-10 px-3 rounded-md bg-input border border-hairline focus:border-action outline-none text-sm" />
-            <button disabled={loading} className="w-full h-10 rounded-md bg-emergency text-emergency-foreground mono text-xs uppercase tracking-widest font-bold hover:bg-emergency/90 disabled:opacity-60">
-              {loading ? "..." : mode === "signin" ? "Sign in" : "Continue"}
+            <input aria-label="Email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@hospital.org" className="w-full h-11 px-3.5 rounded-lg bg-input/70 border border-hairline focus:border-transparent focus:ring-2 outline-none text-sm transition-all" style={{ ['--tw-ring-color' as string]: "var(--teal)" }} />
+            <input aria-label="Password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full h-11 px-3.5 rounded-lg bg-input/70 border border-hairline focus:border-transparent focus:ring-2 outline-none text-sm transition-all" style={{ ['--tw-ring-color' as string]: "var(--teal)" }} />
+            <button disabled={loading} className="w-full h-11 rounded-lg mono text-[11px] uppercase tracking-widest font-bold text-background hover:opacity-95 disabled:opacity-60 transition-all relative overflow-hidden group" style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow-teal)" }}>
+              <span className="relative z-10 inline-flex items-center gap-2 justify-center">{loading ? "Signing in…" : mode === "signin" ? "Sign in" : "Continue"} {!loading && <ArrowRight className="size-3.5" />}</span>
+              <span aria-hidden className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "linear-gradient(135deg, oklch(1 0 0 / 0.14), transparent)" }} />
             </button>
           </form>
           <div className="text-center text-[11px] text-muted-foreground">
             {audience === "patient"
-              ? <>New here? Use Continue with Google to create your patient account.</>
-              : <>Forgot your password? Ask your superadmin to reset it. <Link to="/superadmin/login" className="text-action hover:underline">Superadmin sign-in →</Link></>}
+              ? <>New here? Use <span style={{ color: "var(--teal)" }}>Continue with Google</span> to create your patient account.</>
+              : <>Forgot your password? Ask your superadmin to reset it. <Link to="/superadmin/login" className="hover:underline" style={{ color: "var(--teal)" }}>Superadmin sign-in →</Link></>}
           </div>
-          <div className="text-center text-[10px] text-muted-foreground flex items-center justify-center gap-1.5"><CheckCircle2 className="size-3 text-stable" /> Encrypted sign-in · audit-logged</div>
+          <div className="text-center text-[10px] text-muted-foreground flex items-center justify-center gap-1.5"><CheckCircle2 className="size-3" style={{ color: "var(--teal)" }} /> Encrypted sign-in · audit-logged · KSA PDPL</div>
         </div>
-      </div>
+      </main>
     </div>
+  );
+}
+
+function GoogleGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true">
+      <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.66 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.7 3.3 14.6 2.4 12 2.4 6.7 2.4 2.4 6.7 2.4 12s4.3 9.6 9.6 9.6c5.5 0 9.2-3.9 9.2-9.4 0-.6-.1-1.1-.2-1.6H12z"/>
+      <path fill="#34A853" d="M3.6 7.5l3.2 2.3C7.6 7.9 9.6 6.4 12 6.4c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.7 3.3 14.6 2.4 12 2.4 8.2 2.4 4.9 4.5 3.6 7.5z" opacity="0"/>
+      <path fill="#4285F4" d="M21.2 12.2c0-.6-.1-1.1-.2-1.6H12v3.9h5.5c-.2 1.3-1.1 2.4-2.4 3.1l3.6 2.8c2.1-1.9 3.5-4.8 3.5-8.2z" opacity="0"/>
+    </svg>
   );
 }
