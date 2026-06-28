@@ -61,6 +61,7 @@ import { Route as ApiPublicV1CoursesRouteImport } from './routes/api/public/v1/c
 import { Route as ApiPublicV1ClinicsRouteImport } from './routes/api/public/v1/clinics'
 import { Route as ApiPublicV1ShareTokenRouteImport } from './routes/api/public/v1/share.$token'
 import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/v1/incidents.$id'
+import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiPublicV1VehiclesIdWork_ordersRouteImport } from './routes/api/public/v1/vehicles.$id.work_orders'
 import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/public/v1/vehicles.$id.defects'
 import { Route as ApiPublicV1VehiclesIdCredentialsRouteImport } from './routes/api/public/v1/vehicles.$id.credentials'
@@ -326,6 +327,11 @@ const ApiPublicV1IncidentsIdRoute = ApiPublicV1IncidentsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiPublicV1IncidentsRoute,
 } as any)
+const ApiPublicV1DebugEventsRoute = ApiPublicV1DebugEventsRouteImport.update({
+  id: '/api/public/v1/debug/events',
+  path: '/api/public/v1/debug/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1VehiclesIdWork_ordersRoute =
   ApiPublicV1VehiclesIdWork_ordersRouteImport.update({
     id: '/api/public/v1/vehicles/$id/work_orders',
@@ -401,6 +407,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/stats': typeof ApiPublicV1StatsRoute
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
+  '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
@@ -458,6 +465,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/stats': typeof ApiPublicV1StatsRoute
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
+  '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
@@ -517,6 +525,7 @@ export interface FileRoutesById {
   '/api/public/v1/stats': typeof ApiPublicV1StatsRoute
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
+  '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
@@ -576,6 +585,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/stats'
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
+    | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
     | '/api/public/v1/fleet/$id/location'
@@ -633,6 +643,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/stats'
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
+    | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
     | '/api/public/v1/fleet/$id/location'
@@ -691,6 +702,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/stats'
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
+    | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
     | '/api/public/v1/fleet/$id/location'
@@ -730,6 +742,7 @@ export interface RootRouteChildren {
   ApiPublicV1StatsRoute: typeof ApiPublicV1StatsRoute
   ApiPublicV1Web_intakeRoute: typeof ApiPublicV1Web_intakeRoute
   ApiPublicV1Work_ordersRoute: typeof ApiPublicV1Work_ordersRoute
+  ApiPublicV1DebugEventsRoute: typeof ApiPublicV1DebugEventsRoute
   ApiPublicV1ShareTokenRoute: typeof ApiPublicV1ShareTokenRoute
   ApiPublicV1VehiclesIdCredentialsRoute: typeof ApiPublicV1VehiclesIdCredentialsRoute
   ApiPublicV1VehiclesIdDefectsRoute: typeof ApiPublicV1VehiclesIdDefectsRoute
@@ -1102,6 +1115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1IncidentsIdRouteImport
       parentRoute: typeof ApiPublicV1IncidentsRoute
     }
+    '/api/public/v1/debug/events': {
+      id: '/api/public/v1/debug/events'
+      path: '/api/public/v1/debug/events'
+      fullPath: '/api/public/v1/debug/events'
+      preLoaderRoute: typeof ApiPublicV1DebugEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/vehicles/$id/work_orders': {
       id: '/api/public/v1/vehicles/$id/work_orders'
       path: '/api/public/v1/vehicles/$id/work_orders'
@@ -1264,6 +1284,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1StatsRoute: ApiPublicV1StatsRoute,
   ApiPublicV1Web_intakeRoute: ApiPublicV1Web_intakeRoute,
   ApiPublicV1Work_ordersRoute: ApiPublicV1Work_ordersRoute,
+  ApiPublicV1DebugEventsRoute: ApiPublicV1DebugEventsRoute,
   ApiPublicV1ShareTokenRoute: ApiPublicV1ShareTokenRoute,
   ApiPublicV1VehiclesIdCredentialsRoute: ApiPublicV1VehiclesIdCredentialsRoute,
   ApiPublicV1VehiclesIdDefectsRoute: ApiPublicV1VehiclesIdDefectsRoute,
