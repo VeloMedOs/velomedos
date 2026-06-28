@@ -877,41 +877,151 @@ export type Database = {
           },
         ]
       }
+      legal_acceptances: {
+        Row: {
+          accepted_at: string
+          id: string
+          ip_hash: string | null
+          locale: Database["public"]["Enums"]["legal_locale"]
+          slug: Database["public"]["Enums"]["legal_slug"]
+          subject_email: string | null
+          subject_id: string | null
+          user_agent: string | null
+          version: number
+        }
+        Insert: {
+          accepted_at?: string
+          id?: string
+          ip_hash?: string | null
+          locale: Database["public"]["Enums"]["legal_locale"]
+          slug: Database["public"]["Enums"]["legal_slug"]
+          subject_email?: string | null
+          subject_id?: string | null
+          user_agent?: string | null
+          version: number
+        }
+        Update: {
+          accepted_at?: string
+          id?: string
+          ip_hash?: string | null
+          locale?: Database["public"]["Enums"]["legal_locale"]
+          slug?: Database["public"]["Enums"]["legal_slug"]
+          subject_email?: string | null
+          subject_id?: string | null
+          user_agent?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      legal_document_versions: {
+        Row: {
+          actor_id: string | null
+          body_html: string | null
+          body_md: string
+          change_note: string | null
+          document_id: string
+          effective_date: string | null
+          id: string
+          locale: Database["public"]["Enums"]["legal_locale"]
+          slug: Database["public"]["Enums"]["legal_slug"]
+          snapshot_at: string
+          status: Database["public"]["Enums"]["legal_status"]
+          summary: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          actor_id?: string | null
+          body_html?: string | null
+          body_md: string
+          change_note?: string | null
+          document_id: string
+          effective_date?: string | null
+          id?: string
+          locale: Database["public"]["Enums"]["legal_locale"]
+          slug: Database["public"]["Enums"]["legal_slug"]
+          snapshot_at?: string
+          status: Database["public"]["Enums"]["legal_status"]
+          summary?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          actor_id?: string | null
+          body_html?: string | null
+          body_md?: string
+          change_note?: string | null
+          document_id?: string
+          effective_date?: string | null
+          id?: string
+          locale?: Database["public"]["Enums"]["legal_locale"]
+          slug?: Database["public"]["Enums"]["legal_slug"]
+          snapshot_at?: string
+          status?: Database["public"]["Enums"]["legal_status"]
+          summary?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_document_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "legal_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       legal_documents: {
         Row: {
+          body_html: string | null
           body_md: string
           created_at: string
           effective_date: string | null
           id: string
-          published: boolean
-          slug: string
+          locale: Database["public"]["Enums"]["legal_locale"]
+          published_at: string | null
+          published_by: string | null
+          slug: Database["public"]["Enums"]["legal_slug"]
+          status: Database["public"]["Enums"]["legal_status"]
           subtitle: string | null
+          summary: string | null
           title: string
           updated_at: string
           updated_by: string | null
           version: number
         }
         Insert: {
+          body_html?: string | null
           body_md?: string
           created_at?: string
           effective_date?: string | null
           id?: string
-          published?: boolean
-          slug: string
+          locale?: Database["public"]["Enums"]["legal_locale"]
+          published_at?: string | null
+          published_by?: string | null
+          slug: Database["public"]["Enums"]["legal_slug"]
+          status?: Database["public"]["Enums"]["legal_status"]
           subtitle?: string | null
+          summary?: string | null
           title: string
           updated_at?: string
           updated_by?: string | null
           version?: number
         }
         Update: {
+          body_html?: string | null
           body_md?: string
           created_at?: string
           effective_date?: string | null
           id?: string
-          published?: boolean
-          slug?: string
+          locale?: Database["public"]["Enums"]["legal_locale"]
+          published_at?: string | null
+          published_by?: string | null
+          slug?: Database["public"]["Enums"]["legal_slug"]
+          status?: Database["public"]["Enums"]["legal_status"]
           subtitle?: string | null
+          summary?: string | null
           title?: string
           updated_at?: string
           updated_by?: string | null
@@ -3163,6 +3273,13 @@ export type Database = {
         | "transporting"
         | "completed"
         | "cancelled"
+      legal_locale: "en" | "ar"
+      legal_slug:
+        | "privacy-home"
+        | "terms-of-service"
+        | "hipaa"
+        | "patient-rights"
+      legal_status: "draft" | "in_review" | "published" | "archived"
       portal_role:
         | "superadmin"
         | "finance"
@@ -3367,6 +3484,14 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      legal_locale: ["en", "ar"],
+      legal_slug: [
+        "privacy-home",
+        "terms-of-service",
+        "hipaa",
+        "patient-rights",
+      ],
+      legal_status: ["draft", "in_review", "published", "archived"],
       portal_role: [
         "superadmin",
         "finance",
