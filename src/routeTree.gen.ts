@@ -26,8 +26,10 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiReferenceRouteImport } from './routes/api-reference'
 import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as PrivacyRouteImport } from './routes/Privacy'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PrivacyIndexRouteImport } from './routes/Privacy.index'
 import { Route as TripTokenRouteImport } from './routes/trip.$token'
 import { Route as SuperadminResetRouteImport } from './routes/superadmin.reset'
 import { Route as SuperadminLoginRouteImport } from './routes/superadmin.login'
@@ -52,6 +54,10 @@ import { Route as AuthenticatedCallCenterRouteImport } from './routes/_authentic
 import { Route as AuthenticatedBusinessRouteImport } from './routes/_authenticated/business'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as PrivacyTermsOfServiceRouteImport } from './routes/Privacy.TermsOfService'
+import { Route as PrivacyPatientRightsRouteImport } from './routes/Privacy.PatientRights'
+import { Route as PrivacyHomeRouteImport } from './routes/Privacy.Home'
+import { Route as PrivacyHIPAARouteImport } from './routes/Privacy.HIPAA'
 import { Route as AuthenticatedSuperadminApiDocsRouteImport } from './routes/_authenticated/superadmin.api-docs'
 import { Route as AuthenticatedPatientProfileRouteImport } from './routes/_authenticated/patient.profile'
 import { Route as ApiPublicV1Work_ordersRouteImport } from './routes/api/public/v1/work_orders'
@@ -203,6 +209,11 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/Privacy',
+  path: '/Privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -211,6 +222,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyIndexRoute = PrivacyIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PrivacyRoute,
 } as any)
 const TripTokenRoute = TripTokenRouteImport.update({
   id: '/trip/$token',
@@ -331,6 +347,26 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const PrivacyTermsOfServiceRoute = PrivacyTermsOfServiceRouteImport.update({
+  id: '/TermsOfService',
+  path: '/TermsOfService',
+  getParentRoute: () => PrivacyRoute,
+} as any)
+const PrivacyPatientRightsRoute = PrivacyPatientRightsRouteImport.update({
+  id: '/PatientRights',
+  path: '/PatientRights',
+  getParentRoute: () => PrivacyRoute,
+} as any)
+const PrivacyHomeRoute = PrivacyHomeRouteImport.update({
+  id: '/Home',
+  path: '/Home',
+  getParentRoute: () => PrivacyRoute,
+} as any)
+const PrivacyHIPAARoute = PrivacyHIPAARouteImport.update({
+  id: '/HIPAA',
+  path: '/HIPAA',
+  getParentRoute: () => PrivacyRoute,
 } as any)
 const AuthenticatedSuperadminApiDocsRoute =
   AuthenticatedSuperadminApiDocsRouteImport.update({
@@ -684,6 +720,7 @@ const ApiAdminV1BusinessRequestsIdAdvanceRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/Privacy': typeof PrivacyRouteWithChildren
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/api-reference': typeof ApiReferenceRoute
@@ -701,6 +738,10 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/website': typeof WebsiteRoute
+  '/Privacy/HIPAA': typeof PrivacyHIPAARoute
+  '/Privacy/Home': typeof PrivacyHomeRoute
+  '/Privacy/PatientRights': typeof PrivacyPatientRightsRoute
+  '/Privacy/TermsOfService': typeof PrivacyTermsOfServiceRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/business': typeof AuthenticatedBusinessRoute
@@ -725,6 +766,7 @@ export interface FileRoutesByFullPath {
   '/superadmin/login': typeof SuperadminLoginRoute
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
+  '/Privacy/': typeof PrivacyIndexRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -810,6 +852,10 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/website': typeof WebsiteRoute
+  '/Privacy/HIPAA': typeof PrivacyHIPAARoute
+  '/Privacy/Home': typeof PrivacyHomeRoute
+  '/Privacy/PatientRights': typeof PrivacyPatientRightsRoute
+  '/Privacy/TermsOfService': typeof PrivacyTermsOfServiceRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit': typeof AuthenticatedAuditRoute
   '/business': typeof AuthenticatedBusinessRoute
@@ -834,6 +880,7 @@ export interface FileRoutesByTo {
   '/superadmin/login': typeof SuperadminLoginRoute
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
+  '/Privacy': typeof PrivacyIndexRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -904,6 +951,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/Privacy': typeof PrivacyRouteWithChildren
   '/about': typeof AboutRoute
   '/api-docs': typeof ApiDocsRoute
   '/api-reference': typeof ApiReferenceRoute
@@ -921,6 +969,10 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/website': typeof WebsiteRoute
+  '/Privacy/HIPAA': typeof PrivacyHIPAARoute
+  '/Privacy/Home': typeof PrivacyHomeRoute
+  '/Privacy/PatientRights': typeof PrivacyPatientRightsRoute
+  '/Privacy/TermsOfService': typeof PrivacyTermsOfServiceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/business': typeof AuthenticatedBusinessRoute
@@ -945,6 +997,7 @@ export interface FileRoutesById {
   '/superadmin/login': typeof SuperadminLoginRoute
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
+  '/Privacy/': typeof PrivacyIndexRoute
   '/_authenticated/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -1015,6 +1068,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/Privacy'
     | '/about'
     | '/api-docs'
     | '/api-reference'
@@ -1032,6 +1086,10 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/website'
+    | '/Privacy/HIPAA'
+    | '/Privacy/Home'
+    | '/Privacy/PatientRights'
+    | '/Privacy/TermsOfService'
     | '/admin'
     | '/audit'
     | '/business'
@@ -1056,6 +1114,7 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/superadmin/reset'
     | '/trip/$token'
+    | '/Privacy/'
     | '/patient/profile'
     | '/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1141,6 +1200,10 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/website'
+    | '/Privacy/HIPAA'
+    | '/Privacy/Home'
+    | '/Privacy/PatientRights'
+    | '/Privacy/TermsOfService'
     | '/admin'
     | '/audit'
     | '/business'
@@ -1165,6 +1228,7 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/superadmin/reset'
     | '/trip/$token'
+    | '/Privacy'
     | '/patient/profile'
     | '/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1234,6 +1298,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/Privacy'
     | '/about'
     | '/api-docs'
     | '/api-reference'
@@ -1251,6 +1316,10 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/website'
+    | '/Privacy/HIPAA'
+    | '/Privacy/Home'
+    | '/Privacy/PatientRights'
+    | '/Privacy/TermsOfService'
     | '/_authenticated/admin'
     | '/_authenticated/audit'
     | '/_authenticated/business'
@@ -1275,6 +1344,7 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/superadmin/reset'
     | '/trip/$token'
+    | '/Privacy/'
     | '/_authenticated/patient/profile'
     | '/_authenticated/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1345,6 +1415,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  PrivacyRoute: typeof PrivacyRouteWithChildren
   AboutRoute: typeof AboutRoute
   ApiDocsRoute: typeof ApiDocsRoute
   ApiReferenceRoute: typeof ApiReferenceRoute
@@ -1540,6 +1611,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/Privacy': {
+      id: '/Privacy'
+      path: '/Privacy'
+      fullPath: '/Privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -1553,6 +1631,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/Privacy/': {
+      id: '/Privacy/'
+      path: '/'
+      fullPath: '/Privacy/'
+      preLoaderRoute: typeof PrivacyIndexRouteImport
+      parentRoute: typeof PrivacyRoute
     }
     '/trip/$token': {
       id: '/trip/$token'
@@ -1721,6 +1806,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/Privacy/TermsOfService': {
+      id: '/Privacy/TermsOfService'
+      path: '/TermsOfService'
+      fullPath: '/Privacy/TermsOfService'
+      preLoaderRoute: typeof PrivacyTermsOfServiceRouteImport
+      parentRoute: typeof PrivacyRoute
+    }
+    '/Privacy/PatientRights': {
+      id: '/Privacy/PatientRights'
+      path: '/PatientRights'
+      fullPath: '/Privacy/PatientRights'
+      preLoaderRoute: typeof PrivacyPatientRightsRouteImport
+      parentRoute: typeof PrivacyRoute
+    }
+    '/Privacy/Home': {
+      id: '/Privacy/Home'
+      path: '/Home'
+      fullPath: '/Privacy/Home'
+      preLoaderRoute: typeof PrivacyHomeRouteImport
+      parentRoute: typeof PrivacyRoute
+    }
+    '/Privacy/HIPAA': {
+      id: '/Privacy/HIPAA'
+      path: '/HIPAA'
+      fullPath: '/Privacy/HIPAA'
+      preLoaderRoute: typeof PrivacyHIPAARouteImport
+      parentRoute: typeof PrivacyRoute
     }
     '/_authenticated/superadmin/api-docs': {
       id: '/_authenticated/superadmin/api-docs'
@@ -2246,6 +2359,25 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface PrivacyRouteChildren {
+  PrivacyHIPAARoute: typeof PrivacyHIPAARoute
+  PrivacyHomeRoute: typeof PrivacyHomeRoute
+  PrivacyPatientRightsRoute: typeof PrivacyPatientRightsRoute
+  PrivacyTermsOfServiceRoute: typeof PrivacyTermsOfServiceRoute
+  PrivacyIndexRoute: typeof PrivacyIndexRoute
+}
+
+const PrivacyRouteChildren: PrivacyRouteChildren = {
+  PrivacyHIPAARoute: PrivacyHIPAARoute,
+  PrivacyHomeRoute: PrivacyHomeRoute,
+  PrivacyPatientRightsRoute: PrivacyPatientRightsRoute,
+  PrivacyTermsOfServiceRoute: PrivacyTermsOfServiceRoute,
+  PrivacyIndexRoute: PrivacyIndexRoute,
+}
+
+const PrivacyRouteWithChildren =
+  PrivacyRoute._addFileChildren(PrivacyRouteChildren)
+
 interface AuthRouteChildren {
   AuthErrorRoute: typeof AuthErrorRoute
 }
@@ -2423,6 +2555,7 @@ const ApiPublicV1IncidentsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  PrivacyRoute: PrivacyRouteWithChildren,
   AboutRoute: AboutRoute,
   ApiDocsRoute: ApiDocsRoute,
   ApiReferenceRoute: ApiReferenceRoute,
