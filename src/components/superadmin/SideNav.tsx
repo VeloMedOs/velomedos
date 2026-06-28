@@ -9,7 +9,10 @@ import {
 
 export type SuperTabId =
   | "overview" | "tenants" | "subs" | "plans" | "addons" | "finance"
-  | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug";
+  | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug"
+  | "refunds" | "tickets" | "reviews" | "chat" | "push"
+  | "tests" | "audit" | "smoke" | "bugs" | "releases" | "automation"
+  | "workspace" | "team" | "security";
 
 type Item = {
   id: SuperTabId | `soon:${string}`;
@@ -56,7 +59,7 @@ export function SuperadminSideNav({
       { id: "plans",   label: "Plans & pricing", icon: Package },
       { id: "addons",  label: "Add-ons",         icon: PlusCircle },
       { id: "finance", label: "Financials · P&L", icon: LineChart },
-      { id: "soon:refunds", label: "Refunds",    icon: RefreshCw, soon: true },
+      { id: "refunds", label: "Refunds",         icon: RefreshCw },
     ]},
     { id: "access", label: "Access", items: [
       { id: "roles",      label: "Roles & access", icon: UserCog },
@@ -68,10 +71,10 @@ export function SuperadminSideNav({
       { id: "debug",   label: "Debug",    icon: Bug },
     ]},
     { id: "support", label: "Support", items: [
-      { id: "soon:tickets",  label: "Tickets",       icon: LifeBuoy, soon: true },
-      { id: "soon:reviews",  label: "Reviews",       icon: Star, soon: true },
-      { id: "soon:chat",     label: "Chat & filter", icon: MessageSquare, soon: true },
-      { id: "soon:push",     label: "Push notifications", icon: Bell, soon: true },
+      { id: "tickets", label: "Tickets",       icon: LifeBuoy },
+      { id: "reviews", label: "Reviews",       icon: Star },
+      { id: "chat",    label: "Chat & filter", icon: MessageSquare },
+      { id: "push",    label: "Notifications", icon: Bell },
     ]},
     { id: "cms", label: "Website CMS", items: [
       { id: "soon:pages",   label: "Pages & sections", icon: FileText, soon: true },
@@ -81,17 +84,17 @@ export function SuperadminSideNav({
       { id: "soon:media",   label: "Media library",    icon: ImageIcon, soon: true },
     ]},
     { id: "qa", label: "Quality Control", items: [
-      { id: "soon:tests",     label: "Test runs",       icon: FlaskConical, soon: true },
-      { id: "soon:audit",     label: "Audit log",       icon: ListChecks, soon: true },
-      { id: "soon:smoke",     label: "Smoke reports",   icon: ShieldCheck, soon: true },
-      { id: "soon:bugs",      label: "Bug tracker",     icon: Bug, soon: true },
-      { id: "soon:releases",  label: "Releases",        icon: GitBranch, soon: true },
-      { id: "soon:automation",label: "Automated events",icon: Zap, soon: true },
+      { id: "tests",     label: "Test runs",       icon: FlaskConical },
+      { id: "audit",     label: "Audit log",       icon: ListChecks },
+      { id: "smoke",     label: "Smoke reports",   icon: ShieldCheck },
+      { id: "bugs",      label: "Bug tracker",     icon: Bug },
+      { id: "releases",  label: "Releases",        icon: GitBranch },
+      { id: "automation",label: "Automated events",icon: Zap },
     ]},
     { id: "settings", label: "Settings", items: [
-      { id: "soon:workspace", label: "Workspace", icon: Settings, soon: true },
-      { id: "soon:team",      label: "Team & roles", icon: Users, soon: true },
-      { id: "soon:security",  label: "Security", icon: Shield, soon: true },
+      { id: "workspace", label: "Workspace",     icon: Settings },
+      { id: "team",      label: "Team & roles",  icon: Users },
+      { id: "security",  label: "Security",      icon: Shield },
     ]},
   ];
 
