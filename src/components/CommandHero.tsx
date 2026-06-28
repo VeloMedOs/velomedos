@@ -1456,9 +1456,9 @@ function TeamFallback() {
       <div data-debug-id="offline-dest-eta-bubble" className="absolute -translate-x-1/2 -translate-y-full pointer-events-none z-[30]"
         style={{ top: "calc(10% - 18px)", left: "min(78%, calc(100% - 56px))" }}>
         <div
-          className="px-2 py-[3px] rounded-full shadow-[0_6px_18px_-6px_rgba(31,111,235,0.55)] text-[10px] font-semibold flex items-center gap-1 ring-1 ring-white/30"
+          className="px-2.5 py-[4px] rounded-full shadow-[0_6px_18px_-6px_rgba(31,111,235,0.45)] text-[10px] font-semibold flex items-center gap-1 ring-1 ring-white/40 backdrop-blur-md"
           style={{
-            background: arrived ? "#28D6B6" : "#1F6FEB",
+            background: arrived ? "rgba(40,214,182,0.82)" : "rgba(31,111,235,0.82)",
             color: arrived ? "#080B11" : "#fff",
             fontVariantNumeric: "tabular-nums",
           }}
