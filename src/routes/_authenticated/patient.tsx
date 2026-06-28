@@ -6,6 +6,7 @@ import { GoogleMap } from "@/components/GoogleMap";
 import type { MapMarker, MapPolyline } from "@/components/LeafletMap";
 import { toast } from "sonner";
 import { Crosshair, Hospital, Calendar, Video, ShieldCheck, AlertTriangle, GraduationCap, Activity, ClipboardList, UserCircle2 } from "lucide-react";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { haversineKm, formatElapsed } from "@/lib/distance";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
