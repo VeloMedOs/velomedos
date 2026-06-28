@@ -8,6 +8,7 @@ import {
   Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock, Bug,
 } from "lucide-react";
 import { openApiSpec } from "@/lib/openapi-spec";
+import { openApiAdminSpec, adminEndpointCount } from "@/lib/openapi-admin-spec";
 import { ROLE_META, ROLE_ORDER, CAPABILITIES, effectiveCapabilities, type AppRole } from "@/lib/role-matrix";
 
 export const Route = createFileRoute("/_authenticated/superadmin")({
@@ -808,10 +809,58 @@ function PrivilegesPane({ profiles, roles }: { profiles: Profile[]; roles: RoleR
 function ApiDocsPane() {
   const paths = Object.entries(openApiSpec.paths as Record<string, any>);
   const totalOps = paths.reduce((acc, [, methods]) => acc + Object.keys(methods).length, 0);
+  const adminPaths = Object.entries(openApiAdminSpec.paths as Record<string, any>);
+  const adminOps = adminEndpointCount();
   return (
     <div className="space-y-4">
+      {/* ── Admin Control Plane (internal) ── */}
+      <Card title={`Admin Control Plane · ${openApiAdminSpec.info.version}`} right={
+        <div className="flex items-center gap-2 normal-case">
+          <span className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-stable/15 text-stable border border-stable/30">INTERNAL</span>
+          <a href="/api/admin/v1/openapi" target="_blank" rel="noreferrer" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-hairline hover:bg-panel-elevated">openapi.json ↗</a>
+          <Link to="/superadmin/api-docs" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-stable text-black font-bold">Open in-portal Swagger →</Link>
+        </div>
+      }>
+        <div className="p-4 grid sm:grid-cols-4 gap-px bg-hairline rounded overflow-hidden border border-hairline">
+          <div className="bg-panel p-3"><div className="mono text-[10px] uppercase text-muted-foreground">Routes</div><div className="text-2xl font-bold mono">{adminPaths.length}</div></div>
+          <div className="bg-panel p-3"><div className="mono text-[10px] uppercase text-muted-foreground">Operations</div><div className="text-2xl font-bold mono">{adminOps}</div></div>
+          <div className="bg-panel p-3"><div className="mono text-[10px] uppercase text-muted-foreground">Auth</div><div className="text-xs mono pt-1">x-admin-key · session</div></div>
+          <div className="bg-panel p-3"><div className="mono text-[10px] uppercase text-muted-foreground">Base path</div><div className="text-xs mono pt-1">/api/admin/v1</div></div>
+        </div>
+        <div className="p-4 text-xs text-muted-foreground border-t border-hairline whitespace-pre-line">
+          {openApiAdminSpec.info.description}
+        </div>
+      </Card>
+
+      <Card title="Admin endpoints">
+        <div className="overflow-auto max-h-[420px]">
+          <table className="w-full text-sm">
+            <thead className="mono text-[10px] uppercase tracking-widest text-muted-foreground bg-panel-elevated/40 sticky top-0">
+              <tr><th className="text-left p-2 w-20">Method</th><th className="text-left p-2">Path</th><th className="text-left p-2">Summary</th><th className="text-left p-2">Scope</th></tr>
+            </thead>
+            <tbody className="divide-y divide-hairline">
+              {adminPaths.flatMap(([path, methods]) =>
+                Object.entries(methods as Record<string, any>).map(([m, op]) => {
+                  const scope = (op.description as string | undefined)?.match(/`([a-z]+:[a-z]+)`/)?.[1] ?? "session";
+                  return (
+                    <tr key={`adm-${m}-${path}`}>
+                      <td className="p-2"><span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${m === "get" ? "bg-action/20 text-action" : m === "post" ? "bg-stable/20 text-stable" : m === "delete" ? "bg-critical/20 text-critical" : "bg-caution/20 text-caution"}`}>{m}</span></td>
+                      <td className="p-2 mono text-xs">{path}</td>
+                      <td className="p-2 text-xs">{op.summary ?? ""}</td>
+                      <td className="p-2 mono text-[10px] text-muted-foreground">{scope}</td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* ── Public Product API ── */}
       <Card title={`OpenAPI ${openApiSpec.openapi} · ${openApiSpec.info.version}`} right={
         <div className="flex items-center gap-2 normal-case">
+          <span className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-action/15 text-action border border-action/30">PUBLIC</span>
           <a href="/api/public/v1/openapi" target="_blank" rel="noreferrer" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-hairline hover:bg-panel-elevated">openapi.json ↗</a>
           <Link to="/api-docs" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-action text-action-foreground font-bold">Open Swagger UI →</Link>
         </div>
