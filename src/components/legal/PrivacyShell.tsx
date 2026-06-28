@@ -82,10 +82,10 @@ export function PrivacyShell({ doc, activeKey }: { doc: LegalDoc | null; activeK
       <SiteHeader />
       <div className="relative" dir={rtl ? "rtl" : "ltr"} style={arFont ? { fontFamily: arFont } as React.CSSProperties : undefined}>
         <div aria-hidden className="absolute inset-x-0 top-0 h-[420px] brand-wash pointer-events-none" />
-        <div className="relative max-w-[1100px] mx-auto px-4 lg:px-8 py-14 grid lg:grid-cols-[240px_minmax(0,1fr)] gap-12">
-        <aside className="lg:sticky lg:top-24 self-start print:hidden">
+        <div className="relative max-w-[1100px] mx-auto px-4 lg:px-8 py-14 grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)] gap-8 lg:gap-12">
+        <aside className="min-w-0 lg:sticky lg:top-24 self-start print:hidden">
           <div className="brand-eyebrow mb-4"><span className="vital-dot" /> {rtl ? "المركز القانوني" : "Legal Center"}</div>
-          <nav className="flex lg:flex-col gap-1 overflow-x-auto">
+          <nav className="flex lg:flex-col gap-1 overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {NAV.map((n) => {
               const active = n.key === activeKey;
               const Icon = n.icon;
