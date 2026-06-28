@@ -130,6 +130,7 @@ import { Route as ApiAdminV1LegalDocumentsIdPublishRouteImport } from './routes/
 import { Route as ApiAdminV1ConfigEffectiveSubscriberIdRouteImport } from './routes/api/admin/v1/config.effective.$subscriberId'
 import { Route as ApiAdminV1BusinessRequestsIdConvertRouteImport } from './routes/api/admin/v1/business-requests.$id.convert'
 import { Route as ApiAdminV1BusinessRequestsIdAdvanceRouteImport } from './routes/api/admin/v1/business-requests.$id.advance'
+import { Route as ApiPublicV1HomecareVisitsIdCheckInRouteImport } from './routes/api/public/v1/homecare.visits.$id.check-in'
 
 const WebsiteRoute = WebsiteRouteImport.update({
   id: '/website',
@@ -768,6 +769,12 @@ const ApiAdminV1BusinessRequestsIdAdvanceRoute =
     path: '/advance',
     getParentRoute: () => ApiAdminV1BusinessRequestsIdRoute,
   } as any)
+const ApiPublicV1HomecareVisitsIdCheckInRoute =
+  ApiPublicV1HomecareVisitsIdCheckInRouteImport.update({
+    id: '/check-in',
+    path: '/check-in',
+    getParentRoute: () => ApiPublicV1HomecareVisitsIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -886,10 +893,11 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
-  '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRoute
+  '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/public/v1/homecare/visits/$id/check-in': typeof ApiPublicV1HomecareVisitsIdCheckInRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1007,10 +1015,11 @@ export interface FileRoutesByTo {
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
-  '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRoute
+  '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/public/v1/homecare/visits/$id/check-in': typeof ApiPublicV1HomecareVisitsIdCheckInRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1131,10 +1140,11 @@ export interface FileRoutesById {
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
-  '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRoute
+  '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/public/v1/homecare/visits/$id/check-in': typeof ApiPublicV1HomecareVisitsIdCheckInRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1259,6 +1269,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/public/v1/homecare/visits/$id/check-in'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1380,6 +1391,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/public/v1/homecare/visits/$id/check-in'
   id:
     | '__root__'
     | '/'
@@ -1503,6 +1515,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/public/v1/homecare/visits/$id/check-in'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -2434,6 +2447,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1BusinessRequestsIdAdvanceRouteImport
       parentRoute: typeof ApiAdminV1BusinessRequestsIdRoute
     }
+    '/api/public/v1/homecare/visits/$id/check-in': {
+      id: '/api/public/v1/homecare/visits/$id/check-in'
+      path: '/check-in'
+      fullPath: '/api/public/v1/homecare/visits/$id/check-in'
+      preLoaderRoute: typeof ApiPublicV1HomecareVisitsIdCheckInRouteImport
+      parentRoute: typeof ApiPublicV1HomecareVisitsIdRoute
+    }
   }
 }
 
@@ -2727,13 +2747,29 @@ const ApiPublicV1IncidentsRouteChildren: ApiPublicV1IncidentsRouteChildren = {
 const ApiPublicV1IncidentsRouteWithChildren =
   ApiPublicV1IncidentsRoute._addFileChildren(ApiPublicV1IncidentsRouteChildren)
 
+interface ApiPublicV1HomecareVisitsIdRouteChildren {
+  ApiPublicV1HomecareVisitsIdCheckInRoute: typeof ApiPublicV1HomecareVisitsIdCheckInRoute
+}
+
+const ApiPublicV1HomecareVisitsIdRouteChildren: ApiPublicV1HomecareVisitsIdRouteChildren =
+  {
+    ApiPublicV1HomecareVisitsIdCheckInRoute:
+      ApiPublicV1HomecareVisitsIdCheckInRoute,
+  }
+
+const ApiPublicV1HomecareVisitsIdRouteWithChildren =
+  ApiPublicV1HomecareVisitsIdRoute._addFileChildren(
+    ApiPublicV1HomecareVisitsIdRouteChildren,
+  )
+
 interface ApiPublicV1HomecareVisitsRouteChildren {
-  ApiPublicV1HomecareVisitsIdRoute: typeof ApiPublicV1HomecareVisitsIdRoute
+  ApiPublicV1HomecareVisitsIdRoute: typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
 }
 
 const ApiPublicV1HomecareVisitsRouteChildren: ApiPublicV1HomecareVisitsRouteChildren =
   {
-    ApiPublicV1HomecareVisitsIdRoute: ApiPublicV1HomecareVisitsIdRoute,
+    ApiPublicV1HomecareVisitsIdRoute:
+      ApiPublicV1HomecareVisitsIdRouteWithChildren,
   }
 
 const ApiPublicV1HomecareVisitsRouteWithChildren =
