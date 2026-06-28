@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Bell, X, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "@tanstack/react-router";
 
 type Note = { id: string; title: string; body: string | null; severity: string; link_to: string | null; created_at: string };
 
