@@ -46,6 +46,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
+      <main id="main">
       <CommandHero />
 
       {/* TRUST / STAT STRIP */}
@@ -157,7 +158,7 @@ function Index() {
           </div>
         </div>
       </section>
-
+      </main>
       <SiteFooter />
     </div>
   );

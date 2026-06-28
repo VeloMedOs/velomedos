@@ -82,9 +82,9 @@ function Clinics() {
       <section className="max-w-[1400px] mx-auto px-4 lg:px-8 pb-4 flex flex-wrap gap-2">
         <label className="flex-1 min-w-[220px] relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by clinic name or city" maxLength={120} className="w-full h-10 pl-9 pr-3 rounded-md bg-panel border border-hairline text-sm" />
+          <input aria-label="Search clinics" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by clinic name or city" maxLength={120} className="w-full h-10 pl-9 pr-3 rounded-md bg-panel border border-hairline text-sm" />
         </label>
-        <select value={spec} onChange={(e) => setSpec(e.target.value)} className="h-10 px-3 rounded-md bg-panel border border-hairline text-sm">
+        <select aria-label="Filter by specialty" value={spec} onChange={(e) => setSpec(e.target.value)} className="h-10 px-3 rounded-md bg-panel border border-hairline text-sm">
           <option value="">All specialties</option>
           {specialties.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
