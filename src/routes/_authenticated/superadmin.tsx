@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import {
   Shield, Building2, Activity, KeyRound, Webhook, Users, Server,
   CheckCircle2, XCircle, CreditCard, Package, UserCog, LayoutDashboard,
-  Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock, Bug,
+  Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock, Bug, Fingerprint, AlertTriangle,
 } from "lucide-react";
 import { openApiSpec } from "@/lib/openapi-spec";
 import { openApiAdminSpec, adminEndpointCount } from "@/lib/openapi-admin-spec";
@@ -24,6 +24,19 @@ type Profile = { id: string; full_name: string | null; email: string | null; def
 type RoleRow = { user_id: string; role: string };
 type ApiKey = { id: string; name: string; prefix: string; scopes: string[]; rate_limit_per_min: number; tenant_id: string | null; owner_id: string; created_at: string; last_used_at: string | null };
 
+type Identity = {
+  authed: boolean;
+  userId: string | null;
+  email: string | null;
+  emailVerified: boolean;
+  provider: string | null;
+  roles: string[];
+  rolesError: string | null;
+  tenants: { tenant_id: string; role: string; company_name: string | null; slug: string | null }[];
+  ownedApiKeys: number;
+  fetchedAt: string;
+};
+
 const ALL_ROLES = ["superadmin","admin","dispatcher","developer","business_admin","paramedic","driver","patient"] as const;
 const ALL_SCOPES = ["fleet:read","incidents:read","incidents:write","clinics:read","courses:read","compliance:read","screening:read","screening:write","debug:read","debug:write"] as const;
 const STATUS_COLORS: Record<string, string> = {
@@ -40,6 +53,7 @@ type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "apikeys" | "
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
+  const [identity, setIdentity] = useState<Identity | null>(null);
   const [tab, setTab] = useState<TabId>("overview");
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [reqs, setReqs] = useState<Req[]>([]);
@@ -50,18 +64,45 @@ function Superadmin() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [stats, setStats] = useState({ users: 0, incidents: 0, ambulances: 0, apiKeys: 0, webhooks: 0 });
 
-  useEffect(() => {
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return setAllowed(false);
-      const { data: roles } = await (supabase as any)
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id);
-      const list: string[] = (roles ?? []).map((r: any) => r.role);
-      setAllowed(list.includes("superadmin"));
-    })();
-  }, []);
+  async function diagnose(): Promise<Identity> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      const id: Identity = {
+        authed: false, userId: null, email: null, emailVerified: false, provider: null,
+        roles: [], rolesError: null, tenants: [], ownedApiKeys: 0, fetchedAt: new Date().toISOString(),
+      };
+      setIdentity(id); setAllowed(false); return id;
+    }
+    const [{ data: roleRows, error: rolesErr }, { data: memberRows }, { count: keyCount }] = await Promise.all([
+      (supabase as any).from("user_roles").select("role").eq("user_id", user.id),
+      (supabase as any).from("tenant_members")
+        .select("tenant_id, role, corporate_accounts(company_name, slug)")
+        .eq("user_id", user.id),
+      (supabase as any).from("api_keys").select("id", { count: "exact", head: true }).eq("owner_id", user.id),
+    ]);
+    const roles: string[] = (roleRows ?? []).map((r: any) => r.role);
+    const id: Identity = {
+      authed: true,
+      userId: user.id,
+      email: user.email ?? null,
+      emailVerified: !!user.email_confirmed_at,
+      provider: (user.app_metadata as any)?.provider ?? null,
+      roles,
+      rolesError: rolesErr?.message ?? null,
+      tenants: (memberRows ?? []).map((m: any) => ({
+        tenant_id: m.tenant_id, role: m.role,
+        company_name: m.corporate_accounts?.company_name ?? null,
+        slug: m.corporate_accounts?.slug ?? null,
+      })),
+      ownedApiKeys: keyCount ?? 0,
+      fetchedAt: new Date().toISOString(),
+    };
+    setIdentity(id);
+    setAllowed(roles.includes("superadmin"));
+    return id;
+  }
+
+  useEffect(() => { diagnose(); }, []);
 
   async function load() {
     const [t, r, p, s, pr, ur, keys, prof, inc, amb, ak, wh] = await Promise.all([
@@ -180,14 +221,7 @@ function Superadmin() {
   }
 
   if (allowed === null) return <div className="p-10 mono text-xs text-muted-foreground">Verifying…</div>;
-  if (!allowed) return (
-    <div className="p-10 max-w-xl mx-auto text-center space-y-2">
-      <Shield className="size-10 mx-auto text-emergency" />
-      <h1 className="text-xl font-bold">Superadmin access required</h1>
-      <p className="text-sm text-muted-foreground">Sign in with a VeloMed superadmin account (any verified <code className="mono text-action">@velomedos.com</code> address). Your account does not have the <code className="mono text-action">superadmin</code> role.</p>
-      <Link to="/admin" className="inline-block mt-2 mono text-[11px] uppercase tracking-widest px-3 py-1.5 rounded border border-hairline">Back to admin</Link>
-    </div>
-  );
+  if (!allowed) return <AccessDenied identity={identity} refresh={diagnose} />;
 
   const newReqs = reqs.filter((r) => r.status === "new").length;
   const activeSubs = subs.filter((s) => ["trialing","active","past_due"].includes(s.status));
@@ -290,6 +324,8 @@ function Superadmin() {
         <DebugPane tenants={tenants} />
       )}
 
+      {identity && <IdentityPanel identity={identity} refresh={diagnose} />}
+
       <section className="rounded-xl border border-hairline bg-panel p-4">
         <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-3">Quick links</div>
         <div className="flex flex-wrap gap-2">
@@ -310,6 +346,151 @@ function Superadmin() {
 }
 
 /* ============================== Panes ============================== */
+
+function IdentityPanel({ identity, refresh }: { identity: Identity; refresh: () => Promise<Identity> }) {
+  const [open, setOpen] = useState(true);
+  const copy = (v: string) => { navigator.clipboard?.writeText(v); toast.success("Copied"); };
+  const isSuper = identity.roles.includes("superadmin");
+  return (
+    <section className="rounded-xl border border-hairline bg-panel overflow-hidden">
+      <button onClick={() => setOpen((v) => !v)} className="w-full px-4 py-2.5 border-b border-hairline mono text-[10px] uppercase tracking-widest text-muted-foreground flex items-center justify-between hover:bg-panel-elevated">
+        <span className="flex items-center gap-2"><Fingerprint className="size-3.5 text-action" /> Identity debug · superadmin-only</span>
+        <span className="flex items-center gap-2">
+          <span className={`size-1.5 rounded-full ${isSuper ? "bg-stable" : "bg-emergency"}`} />
+          {isSuper ? "superadmin" : "no role"}
+        </span>
+      </button>
+      {open && (
+        <div className="p-4 grid md:grid-cols-2 gap-4 text-xs">
+          <div className="space-y-2">
+            <Row label="user_id" value={identity.userId ?? "—"} onCopy={identity.userId ? () => copy(identity.userId!) : undefined} mono />
+            <Row label="email" value={identity.email ?? "—"} />
+            <Row label="email_verified" value={identity.emailVerified ? "yes" : "no"} accent={identity.emailVerified ? "text-stable" : "text-caution"} />
+            <Row label="auth_provider" value={identity.provider ?? "—"} />
+            <Row label="fetched_at" value={new Date(identity.fetchedAt).toLocaleString()} />
+          </div>
+          <div className="space-y-2">
+            <div>
+              <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">resolved roles ({identity.roles.length})</div>
+              <div className="flex flex-wrap gap-1">
+                {identity.roles.length === 0 && <span className="mono text-[10px] text-emergency">none</span>}
+                {identity.roles.map((r) => (
+                  <span key={r} className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${r === "superadmin" ? "bg-emergency/20 text-emergency" : "bg-panel-elevated text-foreground"}`}>{r}</span>
+                ))}
+              </div>
+              {identity.rolesError && <div className="mono text-[10px] text-emergency mt-1">role lookup error: {identity.rolesError}</div>}
+            </div>
+            <div>
+              <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">tenants ({identity.tenants.length})</div>
+              {identity.tenants.length === 0 && <span className="mono text-[10px] text-muted-foreground">no tenant memberships</span>}
+              <div className="space-y-1">
+                {identity.tenants.map((t) => (
+                  <div key={t.tenant_id} className="flex items-center justify-between gap-2 border border-hairline rounded px-2 py-1">
+                    <span className="truncate">{t.company_name ?? t.slug ?? t.tenant_id}</span>
+                    <span className="mono text-[10px] text-action uppercase">{t.role}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <Row label="owned_api_keys" value={String(identity.ownedApiKeys)} />
+          </div>
+          <div className="md:col-span-2 flex justify-end">
+            <button onClick={() => refresh()} className="mono text-[10px] uppercase tracking-widest px-3 py-1.5 rounded border border-hairline hover:bg-panel-elevated flex items-center gap-1.5">
+              <RefreshCw className="size-3" /> Re-run diagnostic
+            </button>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Row({ label, value, accent, mono, onCopy }: { label: string; value: string; accent?: string; mono?: boolean; onCopy?: () => void }) {
+  return (
+    <div className="flex items-center justify-between gap-2 border-b border-hairline/60 pb-1">
+      <span className="mono text-[10px] uppercase tracking-widest text-muted-foreground">{label}</span>
+      <span className={`flex items-center gap-2 ${mono ? "mono text-[11px]" : "text-xs"} ${accent ?? "text-foreground"}`}>
+        <span className="truncate max-w-[260px]">{value}</span>
+        {onCopy && <button onClick={onCopy} className="text-muted-foreground hover:text-foreground"><Copy className="size-3" /></button>}
+      </span>
+    </div>
+  );
+}
+
+function AccessDenied({ identity, refresh }: { identity: Identity | null; refresh: () => Promise<Identity> }) {
+  const notAuthed = !identity?.authed;
+  const hasRolesButNotSuper = !!identity?.authed && identity!.roles.length > 0 && !identity!.roles.includes("superadmin");
+  const noRoles = !!identity?.authed && identity!.roles.length === 0;
+  const rolesErrored = !!identity?.rolesError;
+
+  const stage = notAuthed
+    ? { code: "AUTH_MISSING", title: "Not signed in", color: "text-emergency" }
+    : rolesErrored
+    ? { code: "ROLE_LOOKUP_FAILED", title: "Role lookup failed", color: "text-caution" }
+    : noRoles
+    ? { code: "NO_ROLES_ASSIGNED", title: "No roles assigned to this account", color: "text-caution" }
+    : hasRolesButNotSuper
+    ? { code: "ROLE_INSUFFICIENT", title: "Account is missing the superadmin role", color: "text-caution" }
+    : { code: "UNKNOWN", title: "Access denied", color: "text-emergency" };
+
+  return (
+    <main className="max-w-2xl mx-auto p-8 space-y-6">
+      <header className="text-center space-y-2">
+        <Shield className={`size-10 mx-auto ${stage.color}`} />
+        <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">VeloMed Superadmin · /superadmin</div>
+        <h1 className="text-xl font-bold">Access denied</h1>
+        <div className="mono text-[11px] text-muted-foreground">{stage.code} · {stage.title}</div>
+      </header>
+
+      <section className="rounded-xl border border-hairline bg-panel p-4 space-y-3 text-sm">
+        <div className="flex items-center gap-2 mono text-[10px] uppercase tracking-widest text-muted-foreground"><AlertTriangle className="size-3.5 text-caution" /> Diagnosis</div>
+        <ul className="space-y-1.5">
+          <Diag ok={!!identity?.authed} label="Authenticated session present" />
+          <Diag ok={!!identity?.emailVerified} label="Email verified" hint={identity?.email ?? undefined} />
+          <Diag ok={!identity?.rolesError} label="Role lookup succeeded" hint={identity?.rolesError ?? undefined} />
+          <Diag ok={!!identity && identity.roles.length > 0} label="At least one role assigned" hint={identity ? `${identity.roles.length} role(s)` : undefined} />
+          <Diag ok={!!identity?.roles.includes("superadmin")} label="Has 'superadmin' role" />
+        </ul>
+      </section>
+
+      {identity?.authed && (
+        <section className="rounded-xl border border-hairline bg-panel p-4 space-y-2 text-xs">
+          <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Identity snapshot</div>
+          <Row label="user_id" value={identity.userId ?? "—"} mono />
+          <Row label="email" value={identity.email ?? "—"} />
+          <Row label="provider" value={identity.provider ?? "—"} />
+          <Row label="roles" value={identity.roles.join(", ") || "—"} />
+        </section>
+      )}
+
+      <section className="rounded-xl border border-hairline bg-panel p-4 space-y-2 text-sm">
+        <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">Next steps</div>
+        {notAuthed && <p>Your session has expired or is missing. Sign in again, then return to <code className="mono">/superadmin</code>.</p>}
+        {noRoles && <p>Your account is authenticated but has no role rows in <code className="mono">user_roles</code>. Sign in with a verified <code className="mono text-action">@velomedos.com</code> address (which auto-grants superadmin) or ask an existing superadmin to grant your account the role.</p>}
+        {hasRolesButNotSuper && <p>You have roles, but not <code className="mono text-action">superadmin</code>. Ask an existing superadmin to grant it from <Link to="/superadmin" className="text-action underline">/superadmin → Roles &amp; access</Link>, or sign in with a verified <code className="mono">@velomedos.com</code> account.</p>}
+        {rolesErrored && <p>The role lookup query failed. This usually means a database policy or grant is missing on <code className="mono">user_roles</code>. Share the diagnostic code <code className="mono text-action">{stage.code}</code> and the snapshot above.</p>}
+      </section>
+
+      <div className="flex flex-wrap gap-2 justify-center">
+        <button onClick={() => refresh()} className="mono text-[10px] uppercase tracking-widest px-3 py-1.5 rounded border border-hairline hover:bg-panel-elevated flex items-center gap-1.5"><RefreshCw className="size-3" /> Re-run diagnostic</button>
+        <Link to="/auth" className="mono text-[10px] uppercase tracking-widest px-3 py-1.5 rounded border border-hairline hover:bg-panel-elevated">Sign in again</Link>
+        <Link to="/admin" className="mono text-[10px] uppercase tracking-widest px-3 py-1.5 rounded border border-hairline hover:bg-panel-elevated">Back to admin</Link>
+      </div>
+    </main>
+  );
+}
+
+function Diag({ ok, label, hint }: { ok: boolean; label: string; hint?: string }) {
+  return (
+    <li className="flex items-start gap-2 text-sm">
+      {ok ? <CheckCircle2 className="size-4 text-stable shrink-0 mt-0.5" /> : <XCircle className="size-4 text-emergency shrink-0 mt-0.5" />}
+      <div>
+        <div>{label}</div>
+        {hint && <div className="mono text-[10px] text-muted-foreground">{hint}</div>}
+      </div>
+    </li>
+  );
+}
 
 function Card({ title, right, children }: { title: string; right?: React.ReactNode; children: React.ReactNode }) {
   return (
