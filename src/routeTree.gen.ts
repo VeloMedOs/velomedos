@@ -77,6 +77,7 @@ import { Route as ApiAdminV1PrivilegesRouteImport } from './routes/api/admin/v1/
 import { Route as ApiAdminV1PlansRouteImport } from './routes/api/admin/v1/plans'
 import { Route as ApiAdminV1PaymentsRouteImport } from './routes/api/admin/v1/payments'
 import { Route as ApiAdminV1OpenapiRouteImport } from './routes/api/admin/v1/openapi'
+import { Route as ApiAdminV1LegalDocumentsRouteImport } from './routes/api/admin/v1/legal-documents'
 import { Route as ApiAdminV1InvoicesRouteImport } from './routes/api/admin/v1/invoices'
 import { Route as ApiAdminV1FinancialsRouteImport } from './routes/api/admin/v1/financials'
 import { Route as ApiAdminV1BusinessRequestsRouteImport } from './routes/api/admin/v1/business-requests'
@@ -460,6 +461,12 @@ const ApiAdminV1OpenapiRoute = ApiAdminV1OpenapiRouteImport.update({
   path: '/api/admin/v1/openapi',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1LegalDocumentsRoute =
+  ApiAdminV1LegalDocumentsRouteImport.update({
+    id: '/api/admin/v1/legal-documents',
+    path: '/api/admin/v1/legal-documents',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminV1InvoicesRoute = ApiAdminV1InvoicesRouteImport.update({
   id: '/api/admin/v1/invoices',
   path: '/api/admin/v1/invoices',
@@ -720,6 +727,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
   '/api/admin/v1/financials': typeof ApiAdminV1FinancialsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
+  '/api/admin/v1/legal-documents': typeof ApiAdminV1LegalDocumentsRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
   '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
@@ -827,6 +835,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
   '/api/admin/v1/financials': typeof ApiAdminV1FinancialsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
+  '/api/admin/v1/legal-documents': typeof ApiAdminV1LegalDocumentsRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
   '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
@@ -936,6 +945,7 @@ export interface FileRoutesById {
   '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
   '/api/admin/v1/financials': typeof ApiAdminV1FinancialsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
+  '/api/admin/v1/legal-documents': typeof ApiAdminV1LegalDocumentsRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
   '/api/admin/v1/plans': typeof ApiAdminV1PlansRouteWithChildren
@@ -1045,6 +1055,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/business-requests'
     | '/api/admin/v1/financials'
     | '/api/admin/v1/invoices'
+    | '/api/admin/v1/legal-documents'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
     | '/api/admin/v1/plans'
@@ -1152,6 +1163,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/business-requests'
     | '/api/admin/v1/financials'
     | '/api/admin/v1/invoices'
+    | '/api/admin/v1/legal-documents'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
     | '/api/admin/v1/plans'
@@ -1260,6 +1272,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/business-requests'
     | '/api/admin/v1/financials'
     | '/api/admin/v1/invoices'
+    | '/api/admin/v1/legal-documents'
     | '/api/admin/v1/openapi'
     | '/api/admin/v1/payments'
     | '/api/admin/v1/plans'
@@ -1346,6 +1359,7 @@ export interface RootRouteChildren {
   ApiAdminV1BusinessRequestsRoute: typeof ApiAdminV1BusinessRequestsRouteWithChildren
   ApiAdminV1FinancialsRoute: typeof ApiAdminV1FinancialsRoute
   ApiAdminV1InvoicesRoute: typeof ApiAdminV1InvoicesRoute
+  ApiAdminV1LegalDocumentsRoute: typeof ApiAdminV1LegalDocumentsRoute
   ApiAdminV1OpenapiRoute: typeof ApiAdminV1OpenapiRoute
   ApiAdminV1PaymentsRoute: typeof ApiAdminV1PaymentsRouteWithChildren
   ApiAdminV1PlansRoute: typeof ApiAdminV1PlansRouteWithChildren
@@ -1868,6 +1882,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/v1/openapi'
       fullPath: '/api/admin/v1/openapi'
       preLoaderRoute: typeof ApiAdminV1OpenapiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/legal-documents': {
+      id: '/api/admin/v1/legal-documents'
+      path: '/api/admin/v1/legal-documents'
+      fullPath: '/api/admin/v1/legal-documents'
+      preLoaderRoute: typeof ApiAdminV1LegalDocumentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/v1/invoices': {
@@ -2408,6 +2429,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1BusinessRequestsRoute: ApiAdminV1BusinessRequestsRouteWithChildren,
   ApiAdminV1FinancialsRoute: ApiAdminV1FinancialsRoute,
   ApiAdminV1InvoicesRoute: ApiAdminV1InvoicesRoute,
+  ApiAdminV1LegalDocumentsRoute: ApiAdminV1LegalDocumentsRoute,
   ApiAdminV1OpenapiRoute: ApiAdminV1OpenapiRoute,
   ApiAdminV1PaymentsRoute: ApiAdminV1PaymentsRouteWithChildren,
   ApiAdminV1PlansRoute: ApiAdminV1PlansRouteWithChildren,
