@@ -6,6 +6,7 @@ import { GoogleMap } from "@/components/GoogleMap";
 import type { MapMarker, MapPolyline } from "@/components/LeafletMap";
 import { toast } from "sonner";
 import { Crosshair, Hospital, Calendar, Video, ShieldCheck, AlertTriangle, GraduationCap, Activity, ClipboardList, UserCircle2 } from "lucide-react";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { haversineKm, formatElapsed } from "@/lib/distance";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -57,7 +58,8 @@ function Patient() {
 
   return (
     <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between gap-2">
+        <NotificationBell />
         <Link to="/patient/profile" className="mono text-[10px] uppercase tracking-widest text-action hover:underline inline-flex items-center gap-1"><UserCircle2 className="size-3" /> Your profile</Link>
       </div>
       <div className="grid grid-cols-3 gap-1 p-1 bg-panel rounded-lg border border-hairline mono text-[10px] uppercase tracking-widest">

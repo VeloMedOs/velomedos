@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, Ambulance, Activity, Users, GraduationCap, Stethoscope } from "lucide-react";
 import { BusinessSideNav } from "@/components/business/SideNav";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 export const Route = createFileRoute("/_authenticated/business")({
   head: () => ({ meta: [{ title: "Business Workspace · VeloMed OS" }] }),
@@ -86,6 +87,7 @@ function BusinessWorkspace() {
           <div className="hidden md:flex gap-2">
             <Link to="/dispatch" className="mono text-[11px] uppercase tracking-widest px-3 py-2 rounded text-white font-bold" style={{ background: primary }}>Open dispatch →</Link>
             <Link to="/fleet" className="mono text-[11px] uppercase tracking-widest px-3 py-2 rounded border border-hairline hover:bg-panel-elevated">Fleet</Link>
+            <NotificationBell />
           </div>
         </div>
       </header>
