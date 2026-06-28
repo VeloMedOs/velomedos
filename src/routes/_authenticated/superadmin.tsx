@@ -20,7 +20,7 @@ import {
   RefundsPane, ReviewsPane, ChatFiltersPane, NotificationsAdminPane,
   TestRunsPane, SmokeReportsPane, ReleasesPane, AutomationsPane,
   WorkspacePane, SecurityPane, AuditLogPane, TicketsPane, BugsPane,
-  TeamRolesShortcut,
+  TeamRolesShortcut, LegalDocsPane,
 } from "@/components/superadmin/OpsPanes";
 
 export const Route = createFileRoute("/_authenticated/superadmin")({
@@ -399,6 +399,7 @@ function Superadmin() {
       {tab === "workspace"  && <WorkspacePane />}
       {tab === "team"       && <TeamRolesShortcut />}
       {tab === "security"   && <SecurityPane />}
+      {tab === "legal"      && <LegalDocsPane />}
 
       {identity && <IdentityPanel identity={identity} refresh={diagnose} />}
 
