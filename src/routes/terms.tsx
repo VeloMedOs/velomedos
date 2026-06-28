@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { SITE } from "@/lib/site-config";
+import { pageLdScripts } from "@/components/Jsonld";
 
 const title = "Terms of service — VeloMed OS";
 const desc = "Terms governing use of the VeloMed OS public website, REST API, and operator and patient applications.";
@@ -10,9 +11,15 @@ export const Route = createFileRoute("/terms")({
     meta: [
       { title }, { name: "description", content: desc },
       { property: "og:title", content: title }, { property: "og:description", content: desc },
-      { property: "og:url", content: "/terms" }, { name: "robots", content: "index,follow" },
+      { property: "og:url", content: "https://velomedos.com/terms" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: desc },
+      { name: "robots", content: "index,follow" },
     ],
-    links: [{ rel: "canonical", href: "/terms" }],
+    links: [{ rel: "canonical", href: "https://velomedos.com/terms" }],
+    scripts: pageLdScripts({ path: "/terms", name: title, description: desc }),
   }),
   component: Terms,
 });
