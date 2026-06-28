@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import {
   Shield, LayoutDashboard, Building2, Webhook, CreditCard, Package, RefreshCw,
   UserCog, Lock, KeyRound, BookOpen, Bug, ChevronsLeft, ChevronsRight,
-  LifeBuoy, MessageSquare, Star, Bell, Globe, FileText, Search, Newspaper,
+  LifeBuoy, MessageSquare, Star, Bell, FileText, Search, Newspaper,
   FolderOpen, Image as ImageIcon, FlaskConical, ListChecks, ShieldCheck,
-  GitBranch, Zap, Settings, Users,
+  GitBranch, Zap, Settings, Users, LineChart, PlusCircle,
 } from "lucide-react";
 
 export type SuperTabId =
-  | "overview" | "tenants" | "subs" | "plans" | "roles" | "apikeys"
-  | "privileges" | "apidocs" | "requests" | "debug";
+  | "overview" | "tenants" | "subs" | "plans" | "addons" | "finance"
+  | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug";
 
 type Item = {
   id: SuperTabId | `soon:${string}`;
@@ -51,10 +51,12 @@ export function SuperadminSideNav({
       { id: "tenants",  label: "Tenants",  icon: Building2 },
       { id: "requests", label: "Requests", icon: Webhook, badge: badges.requests },
     ]},
-    { id: "revenue", label: "Revenue", items: [
-      { id: "subs",  label: "Subscriptions", icon: CreditCard, badge: badges.subs },
-      { id: "plans", label: "Plans",         icon: Package },
-      { id: "soon:refunds", label: "Refunds", icon: RefreshCw, soon: true },
+    { id: "revenue", label: "Subscriptions", items: [
+      { id: "subs",    label: "Active subs",     icon: CreditCard, badge: badges.subs },
+      { id: "plans",   label: "Plans & pricing", icon: Package },
+      { id: "addons",  label: "Add-ons",         icon: PlusCircle },
+      { id: "finance", label: "Financials · P&L", icon: LineChart },
+      { id: "soon:refunds", label: "Refunds",    icon: RefreshCw, soon: true },
     ]},
     { id: "access", label: "Access", items: [
       { id: "roles",      label: "Roles & access", icon: UserCog },
