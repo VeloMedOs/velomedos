@@ -307,12 +307,12 @@ function Superadmin() {
     <main className="max-w-[1600px] mx-auto p-6 space-y-6">
       <header className="flex items-end justify-between">
         <div>
-          <div className="mono text-[10px] uppercase tracking-[0.22em] text-coral flex items-center gap-2"><Shield className="size-3" /> VeloMed Superadmin</div>
+          <div className="mono text-[10px] uppercase tracking-[0.22em] text-teal flex items-center gap-2"><Shield className="size-3" /> VeloMed Superadmin</div>
           <h1 className="text-2xl font-bold tracking-tight">Platform control plane</h1>
           <div className="text-xs text-muted-foreground mt-1">Tenants · subscriptions · roles · pipeline</div>
         </div>
         <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-          <span className="size-1.5 rounded-full bg-coral animate-pulse" /> Global · all tenants
+          <span className="size-1.5 rounded-full bg-teal animate-pulse" /> Global · all tenants
         </div>
       </header>
 
@@ -342,7 +342,7 @@ function Superadmin() {
           const active = tab === t.id;
           return (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex items-center gap-2 px-3 py-2 mono text-[11px] uppercase tracking-widest border-b-2 transition-colors ${active ? "border-coral text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+              className={`flex items-center gap-2 px-3 py-2 mono text-[11px] uppercase tracking-widest border-b-2 transition-colors ${active ? "border-teal text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
               <t.icon className="size-3.5" />{t.label}
               {t.badge ? <span className="ml-1 px-1.5 py-0.5 rounded bg-caution/20 text-caution text-[9px]">{t.badge}</span> : null}
             </button>
@@ -437,7 +437,7 @@ function IdentityPanel({ identity, refresh }: { identity: Identity; refresh: () 
               <div className="space-y-1">
                 {identity.roleHits.map((h, i) => (
                   <div key={`${h.source}-${h.role}-${h.tenant_id ?? "g"}-${i}`} className="flex items-center justify-between gap-2 border border-hairline rounded px-2 py-1">
-                    <span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${h.role === "superadmin" ? "bg-coral/20 text-coral" : "bg-panel-elevated text-foreground"}`}>{h.role}</span>
+                    <span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${h.role === "superadmin" ? "bg-teal/20 text-teal" : "bg-panel-elevated text-foreground"}`}>{h.role}</span>
                     <span className="flex items-center gap-1.5">
                       <span className="mono text-[9px] uppercase tracking-widest text-muted-foreground">{h.source}</span>
                       {h.tenant_id && (
@@ -598,7 +598,7 @@ function OverviewPane({ stats, subs, plans, tenants, reqs }: { stats: any; subs:
                 <span className="text-muted-foreground">{count} · {fmtMoney(plan.price_cents, plan.currency)}/{plan.billing_period}</span>
               </div>
               <div className="h-1.5 rounded bg-panel-elevated overflow-hidden">
-                <div className="h-full bg-action" style={{ width: `${(count / totalActive) * 100}%` }} />
+                <div className="h-full bg-teal" style={{ width: `${(count / totalActive) * 100}%` }} />
               </div>
             </div>
           ))}
