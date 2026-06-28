@@ -14,6 +14,7 @@ export default defineConfig({
     // Pre-render high-signal public routes so crawlers receive complete HTML immediately.
     prerender: {
       enabled: true,
+      crawlLinks: false,
       pages: [
         { path: "/resources" },
         { path: "/contact" },
