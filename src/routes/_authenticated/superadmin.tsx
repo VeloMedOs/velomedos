@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import {
   Shield, Building2, Activity, KeyRound, Webhook, Users, Server,
   CheckCircle2, XCircle, CreditCard, Package, UserCog, LayoutDashboard,
-  Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock,
+  Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock, Bug,
 } from "lucide-react";
 import { openApiSpec } from "@/lib/openapi-spec";
 import { ROLE_META, ROLE_ORDER, CAPABILITIES, effectiveCapabilities, type AppRole } from "@/lib/role-matrix";
@@ -35,7 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
 const fmtMoney = (c: number, cur: string) =>
   c === 0 ? "Custom" : new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(c / 100);
 
-type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "apikeys" | "privileges" | "apidocs" | "requests";
+type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug";
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
@@ -205,6 +205,7 @@ function Superadmin() {
     { id: "privileges",label:"Privileges",    icon: Lock },
     { id: "apidocs",  label: "API docs",      icon: BookOpen },
     { id: "requests", label: "Requests",      icon: Webhook, badge: newReqs || undefined },
+    { id: "debug",    label: "Debug",         icon: Bug },
   ];
 
   return (
@@ -280,6 +281,9 @@ function Superadmin() {
       )}
       {tab === "requests" && (
         <RequestsPane reqs={reqs} review={review} />
+      )}
+      {tab === "debug" && (
+        <DebugPane tenants={tenants} />
       )}
 
       <section className="rounded-xl border border-hairline bg-panel p-4">
