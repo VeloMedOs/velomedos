@@ -61,8 +61,10 @@ export function SiteFooter() {
           ["Business onboarding","/business-intake"],
           ["Talk to us","/contact"],
           ["Sign in","/auth"],
-          ["Privacy","/privacy"],
-          ["Terms","/terms"],
+          ["Privacy","/Privacy/Home"],
+          ["Terms","/Privacy/TermsOfService"],
+          ["HIPAA","/Privacy/HIPAA"],
+          ["Patient Rights","/Privacy/PatientRights"],
         ]} />
       </div>
       <div className="border-t border-hairline">
