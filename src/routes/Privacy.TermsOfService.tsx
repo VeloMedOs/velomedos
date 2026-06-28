@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getLegalDoc } from "@/lib/legal.functions";
 import { PrivacyShell } from "@/components/legal/PrivacyShell";
+import { pageLdScripts } from "@/components/Jsonld";
 
 const TITLE = "Terms of Service — VeloMed OS";
 const DESC  = "The legally binding contract governing your use of the VeloMed OS platform and the services offered by VeloMed Infrastructure Group.";
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/Privacy/TermsOfService")({
       { rel: "alternate", hrefLang: "en", href: "https://velomedos.com/Privacy/TermsOfService?locale=en" },
       { rel: "alternate", hrefLang: "ar", href: "https://velomedos.com/Privacy/TermsOfService?locale=ar" },
     ],
+    scripts: pageLdScripts({ path: "/Privacy/TermsOfService", name: TITLE, description: DESC }),
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData({
     queryKey: ["legal", "terms-of-service", "en"],

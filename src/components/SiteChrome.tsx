@@ -100,6 +100,7 @@ export function SiteFooter() {
           <FooterCol title="Privacy & Legal" links={[
             ["Privacy Notice", "/Privacy/Home"],
             ["Terms of Service", "/Privacy/TermsOfService"],
+            ["Terms summary", "/terms"],
             ["HIPAA-Aligned Safeguards", "/Privacy/HIPAA"],
             ["Patient Rights", "/Privacy/PatientRights"],
           ]} />

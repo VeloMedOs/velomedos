@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getLegalDoc } from "@/lib/legal.functions";
 import { PrivacyShell } from "@/components/legal/PrivacyShell";
+import { pageLdScripts } from "@/components/Jsonld";
 
 const TITLE = "Patient Rights & Responsibilities — VeloMed OS";
 const DESC  = "The rights you can expect when receiving care through the VeloMed OS platform, aligned with the Saudi MoH Patient Bill of Rights and the CHI Beneficiary Charter.";
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/Privacy/PatientRights")({
       { rel: "alternate", hrefLang: "en", href: "https://velomedos.com/Privacy/PatientRights?locale=en" },
       { rel: "alternate", hrefLang: "ar", href: "https://velomedos.com/Privacy/PatientRights?locale=ar" },
     ],
+    scripts: pageLdScripts({ path: "/Privacy/PatientRights", name: TITLE, description: DESC }),
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData({
     queryKey: ["legal", "patient-rights", "en"],

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getLegalDoc } from "@/lib/legal.functions";
 import { PrivacyShell } from "@/components/legal/PrivacyShell";
+import { pageLdScripts } from "@/components/Jsonld";
 
 const TITLE = "HIPAA Notice of Privacy Practices — VeloMed OS";
 const DESC  = "How VeloMed safeguards Protected Health Information as a Business Associate under the HIPAA Privacy, Security, and Breach Notification Rules.";
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/Privacy/HIPAA")({
       { rel: "alternate", hrefLang: "en", href: "https://velomedos.com/Privacy/HIPAA?locale=en" },
       { rel: "alternate", hrefLang: "ar", href: "https://velomedos.com/Privacy/HIPAA?locale=ar" },
     ],
+    scripts: pageLdScripts({ path: "/Privacy/HIPAA", name: TITLE, description: DESC }),
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData({
     queryKey: ["legal", "hipaa", "en"],
