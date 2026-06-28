@@ -48,7 +48,7 @@ type Identity = {
 const ALL_ROLES = ["superadmin","admin","dispatcher","developer","business_admin","paramedic","driver","patient"] as const;
 const ALL_SCOPES = ["fleet:read","incidents:read","incidents:write","clinics:read","courses:read","compliance:read","screening:read","screening:write","debug:read","debug:write"] as const;
 const STATUS_COLORS: Record<string, string> = {
-  trialing:   "bg-action/20 text-sky",
+  trialing:   "bg-sky/20 text-sky",
   active:     "bg-stable/20 text-stable",
   past_due:   "bg-caution/20 text-caution",
   cancelled:  "bg-muted text-muted-foreground",
@@ -742,7 +742,7 @@ function SubsPane({
           <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="h-10 px-2 rounded bg-input border border-hairline text-sm">
             {["trialing","active","past_due","suspended","cancelled"].map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-          <button onClick={create} disabled={busy} className="h-10 px-4 rounded bg-action text-sky-foreground mono text-xs uppercase tracking-widest font-bold">Create</button>
+          <button onClick={create} disabled={busy} className="h-10 px-4 rounded bg-teal text-background hover:bg-teal-deep transition-colors mono text-xs uppercase tracking-widest font-bold">Create</button>
         </div>
       )}
       <div className="overflow-auto">
@@ -985,7 +985,7 @@ function PrivilegesEditor() {
                   return (
                     <td key={r} className={`p-1 text-center ${saving === key ? "opacity-50" : ""}`}>
                       <div className="inline-flex items-center gap-0.5">
-                        <button onClick={() => toggle(r, m, "can_view")} className={`mono text-[9px] uppercase px-1.5 py-0.5 rounded border ${cell.can_view ? "border-action/60 bg-action/20 text-sky" : "border-hairline text-muted-foreground hover:text-foreground"}`}>V</button>
+                        <button onClick={() => toggle(r, m, "can_view")} className={`mono text-[9px] uppercase px-1.5 py-0.5 rounded border ${cell.can_view ? "border-sky/60 bg-sky/20 text-sky" : "border-hairline text-muted-foreground hover:text-foreground"}`}>V</button>
                         <button onClick={() => toggle(r, m, "can_manage")} className={`mono text-[9px] uppercase px-1.5 py-0.5 rounded border ${cell.can_manage ? "border-coral/60 bg-coral/20 text-coral" : "border-hairline text-muted-foreground hover:text-foreground"}`}>M</button>
                         {has && <button onClick={() => clearCell(r, m)} title="Reset" className="opacity-40 hover:opacity-100"><Trash2 className="size-2.5" /></button>}
                       </div>
@@ -998,7 +998,7 @@ function PrivilegesEditor() {
         </table>
       </div>
       <div className="p-3 border-t border-hairline mono text-[10px] uppercase tracking-widest text-muted-foreground flex gap-4">
-        <span><span className="px-1.5 py-0.5 rounded border border-action/60 bg-action/20 text-sky mr-1">V</span> view</span>
+        <span><span className="px-1.5 py-0.5 rounded border border-sky/60 bg-sky/20 text-sky mr-1">V</span> view</span>
         <span><span className="px-1.5 py-0.5 rounded border border-coral/60 bg-coral/20 text-coral mr-1">M</span> manage</span>
         <span className="text-muted-foreground/70">grants persist to portal_role_privileges via /api/admin/v1/privileges</span>
       </div>
@@ -1038,7 +1038,7 @@ function RolesPane({
               <div className="flex items-center gap-1.5 flex-wrap">
                 {myRoles.length === 0 && <span className="mono text-[10px] text-muted-foreground">no roles</span>}
                 {myRoles.map((r) => (
-                  <span key={r} className={`group inline-flex items-center gap-1 mono text-[10px] uppercase px-2 py-0.5 rounded ${r === "superadmin" ? "bg-coral/20 text-coral" : r === "business_admin" ? "bg-action/20 text-sky" : "bg-panel-elevated text-foreground"}`}>
+                  <span key={r} className={`group inline-flex items-center gap-1 mono text-[10px] uppercase px-2 py-0.5 rounded ${r === "superadmin" ? "bg-coral/20 text-coral" : r === "business_admin" ? "bg-sky/20 text-sky" : "bg-panel-elevated text-foreground"}`}>
                     {r}
                     <button onClick={() => revokeRole(p.id, r)} className="opacity-50 hover:opacity-100"><Trash2 className="size-2.5" /></button>
                   </span>
@@ -1152,7 +1152,7 @@ function ApiKeysPane({
               {tenants.map((t) => <option key={t.id} value={t.id}>{t.company_name}</option>)}
             </select>
             <input type="number" min={1} max={6000} value={rate} onChange={(e) => setRate(Math.max(1, Number(e.target.value) || 60))} className="h-10 px-3 rounded bg-input border border-hairline text-sm mono" title="Rate limit per minute" />
-            <button onClick={() => issue()} className="h-10 px-4 rounded bg-action text-sky-foreground mono text-xs uppercase tracking-widest font-bold whitespace-nowrap">Generate</button>
+            <button onClick={() => issue()} className="h-10 px-4 rounded bg-teal text-background hover:bg-teal-deep transition-colors mono text-xs uppercase tracking-widest font-bold whitespace-nowrap">Generate</button>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {ALL_SCOPES.map((s) => {
@@ -1160,7 +1160,7 @@ function ApiKeysPane({
               return (
                 <button key={s} type="button"
                   onClick={() => setScopes(on ? scopes.filter((x) => x !== s) : [...scopes, s])}
-                  className={`mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border ${on ? "border-action/60 bg-action/20 text-sky" : "border-hairline text-muted-foreground hover:text-foreground"}`}>
+                  className={`mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border ${on ? "border-sky/60 bg-sky/20 text-sky" : "border-hairline text-muted-foreground hover:text-foreground"}`}>
                   {s}
                 </button>
               );
@@ -1209,7 +1209,7 @@ function ApiKeysPane({
                     </div>
                   </div>
                   <button onClick={() => issue(k)} title="Rotate (issue new key, revoke this one)"
-                    className="size-9 grid place-items-center rounded text-muted-foreground hover:text-sky hover:bg-action/10"><RefreshCw className="size-4" /></button>
+                    className="size-9 grid place-items-center rounded text-muted-foreground hover:text-sky hover:bg-sky/10"><RefreshCw className="size-4" /></button>
                   <button onClick={() => revoke(k.id)} title="Revoke"
                     className="size-9 grid place-items-center rounded text-muted-foreground hover:text-coral hover:bg-coral/10"><Trash2 className="size-4" /></button>
                 </div>
@@ -1349,7 +1349,7 @@ function ApiDocsPane() {
                   const scope = (op.description as string | undefined)?.match(/`([a-z]+:[a-z]+)`/)?.[1] ?? "session";
                   return (
                     <tr key={`adm-${m}-${path}`}>
-                      <td className="p-2"><span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${m === "get" ? "bg-action/20 text-sky" : m === "post" ? "bg-stable/20 text-stable" : m === "delete" ? "bg-critical/20 text-critical" : "bg-caution/20 text-caution"}`}>{m}</span></td>
+                      <td className="p-2"><span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${m === "get" ? "bg-sky/20 text-sky" : m === "post" ? "bg-stable/20 text-stable" : m === "delete" ? "bg-critical/20 text-critical" : "bg-caution/20 text-caution"}`}>{m}</span></td>
                       <td className="p-2 mono text-xs">{path}</td>
                       <td className="p-2 text-xs">{op.summary ?? ""}</td>
                       <td className="p-2 mono text-[10px] text-muted-foreground">{scope}</td>
@@ -1365,9 +1365,9 @@ function ApiDocsPane() {
       {/* ── Public Product API ── */}
       <Card title={`OpenAPI ${openApiSpec.openapi} · ${openApiSpec.info.version}`} right={
         <div className="flex items-center gap-2 normal-case">
-          <span className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-action/15 text-sky border border-action/30">PUBLIC</span>
+          <span className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-sky/15 text-sky border border-sky/30">PUBLIC</span>
           <a href="/api/public/v1/openapi" target="_blank" rel="noreferrer" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-hairline hover:bg-panel-elevated">openapi.json ↗</a>
-          <Link to="/api-docs" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-action text-sky-foreground font-bold">Open Swagger UI →</Link>
+          <Link to="/api-docs" className="mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-teal text-background hover:bg-teal-deep transition-colors font-bold">Open Swagger UI →</Link>
         </div>
       }>
         <div className="p-4 grid sm:grid-cols-3 gap-px bg-hairline rounded overflow-hidden border border-hairline">
@@ -1392,7 +1392,7 @@ function ApiDocsPane() {
                   const scope = (op.description as string | undefined)?.match(/`([a-z]+:[a-z]+)`/)?.[1] ?? "public";
                   return (
                     <tr key={`${m}-${path}`}>
-                      <td className="p-2"><span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${m === "get" ? "bg-action/20 text-sky" : m === "post" ? "bg-stable/20 text-stable" : "bg-caution/20 text-caution"}`}>{m}</span></td>
+                      <td className="p-2"><span className={`mono text-[10px] uppercase px-2 py-0.5 rounded ${m === "get" ? "bg-sky/20 text-sky" : m === "post" ? "bg-stable/20 text-stable" : "bg-caution/20 text-caution"}`}>{m}</span></td>
                       <td className="p-2 mono text-xs">{path}</td>
                       <td className="p-2 text-xs">{op.summary ?? ""}</td>
                       <td className="p-2 mono text-[10px] text-muted-foreground">{scope}</td>
@@ -1410,7 +1410,7 @@ function ApiDocsPane() {
           {ALL_SCOPES.map((s) => (
             <span key={s} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline">{s}</span>
           ))}
-          <span className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-action/50 bg-action/10 text-sky">*</span>
+          <span className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-sky/50 bg-sky/10 text-sky">*</span>
         </div>
       </Card>
     </div>
@@ -1479,7 +1479,7 @@ function DebugPane({ tenants }: { tenants: Tenant[] }) {
   }, [events, tenants]);
 
   const SEV: Record<string, string> = {
-    info: "bg-action/15 text-sky",
+    info: "bg-sky/15 text-sky",
     warn: "bg-caution/20 text-caution",
     error: "bg-coral/20 text-coral",
     critical: "bg-coral text-coral-foreground",

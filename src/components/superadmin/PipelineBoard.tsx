@@ -9,8 +9,8 @@ type Stage = typeof STAGES[number];
 
 const STAGE_META: Record<Stage, { label: string; tone: string }> = {
   request:     { label: "Request",     tone: "bg-muted text-muted-foreground" },
-  contacted:   { label: "Contacted",   tone: "bg-action/15 text-sky" },
-  demo:        { label: "Demo",        tone: "bg-action/25 text-sky" },
+  contacted:   { label: "Contacted",   tone: "bg-sky/15 text-sky" },
+  demo:        { label: "Demo",        tone: "bg-sky/25 text-sky" },
   prospect:    { label: "Prospect",    tone: "bg-caution/20 text-caution" },
   lead:        { label: "Lead",        tone: "bg-caution/30 text-caution" },
   negotiation: { label: "Negotiation", tone: "bg-teal/20 text-teal" },
