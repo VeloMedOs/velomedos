@@ -291,21 +291,18 @@ function Superadmin() {
     return acc;
   }, 0);
 
-  const TABS: { id: TabId; label: string; icon: any; badge?: number }[] = [
-    { id: "overview", label: "Overview",      icon: LayoutDashboard },
-    { id: "tenants",  label: "Tenants",       icon: Building2 },
-    { id: "subs",     label: "Subscriptions", icon: CreditCard, badge: activeSubs.length },
-    { id: "plans",    label: "Plans",         icon: Package },
-    { id: "roles",    label: "Roles & access",icon: UserCog },
-    { id: "apikeys",  label: "API keys",      icon: KeyRound, badge: apiKeys.length || undefined },
-    { id: "privileges",label:"Privileges",    icon: Lock },
-    { id: "apidocs",  label: "API docs",      icon: BookOpen },
-    { id: "requests", label: "Requests",      icon: Webhook, badge: newReqs || undefined },
-    { id: "debug",    label: "Debug",         icon: Bug },
-  ];
-
   return (
-    <main className="max-w-[1600px] mx-auto p-6 space-y-6">
+    <div className="flex w-full min-h-screen bg-background">
+      <SuperadminSideNav
+        tab={tab}
+        setTab={(t) => setTab(t as TabId)}
+        badges={{
+          subs: activeSubs.length || undefined,
+          requests: newReqs || undefined,
+          apiKeys: apiKeys.length || undefined,
+        }}
+      />
+      <main className="flex-1 min-w-0 max-w-[1600px] mx-auto p-6 space-y-6">
       <header className="flex items-end justify-between">
         <div>
           <div className="mono text-[10px] uppercase tracking-[0.22em] text-teal flex items-center gap-2"><Shield className="size-3" /> VeloMed Superadmin</div>
@@ -336,20 +333,6 @@ function Superadmin() {
           </div>
         ))}
       </section>
-
-      {/* Tab bar */}
-      <div className="flex flex-wrap gap-1 border-b border-hairline">
-        {TABS.map((t) => {
-          const active = tab === t.id;
-          return (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex items-center gap-2 px-3 py-2 mono text-[11px] uppercase tracking-widest border-b-2 transition-colors ${active ? "border-teal text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
-              <t.icon className="size-3.5" />{t.label}
-              {t.badge ? <span className="ml-1 px-1.5 py-0.5 rounded bg-caution/20 text-caution text-[9px]">{t.badge}</span> : null}
-            </button>
-          );
-        })}
-      </div>
 
       {tab === "overview" && (
         <OverviewPane stats={stats} subs={subs} plans={plans} tenants={tenants} reqs={reqs} />
@@ -399,7 +382,8 @@ function Superadmin() {
           ))}
         </div>
       </section>
-    </main>
+      </main>
+    </div>
   );
 }
 
