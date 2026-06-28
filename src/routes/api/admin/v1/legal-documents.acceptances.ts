@@ -22,7 +22,7 @@ export const Route = createFileRoute("/api/admin/v1/legal-documents/acceptances"
       const rows = data ?? [];
       if (format === "csv") {
         const head = "slug,locale,version,subject_id,subject_email,ip_hash,user_agent,accepted_at";
-        const body = rows.map((r) => [r.slug, r.locale, r.version, r.subject_id ?? "", r.subject_email ?? "", r.ip_hash ?? "",
+        const body = rows.map((r: any) => [r.slug, r.locale, r.version, r.subject_id ?? "", r.subject_email ?? "", r.ip_hash ?? "",
           JSON.stringify(r.user_agent ?? ""), r.accepted_at].join(",")).join("\n");
         return new Response(head + "\n" + body, { headers: { "content-type": "text/csv", "content-disposition": "attachment; filename=legal-acceptances.csv" } });
       }
