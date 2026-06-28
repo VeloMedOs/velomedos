@@ -6,6 +6,7 @@ import {
   Shield, Building2, Activity, KeyRound, Webhook, Users, Server,
   CheckCircle2, XCircle, CreditCard, Package, UserCog, LayoutDashboard,
   Plus, Trash2, Search, BadgeCheck, Pause, Play, RefreshCw, Copy, BookOpen, Lock, Bug, Fingerprint, AlertTriangle,
+  LineChart, PlusCircle, TrendingUp, TrendingDown,
 } from "lucide-react";
 import { openApiSpec } from "@/lib/openapi-spec";
 import { openApiAdminSpec, adminEndpointCount } from "@/lib/openapi-admin-spec";
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/superadmin")({
 
 type Tenant = { id: string; company_name: string; slug: string | null; logo_url: string | null; status: string; plan_tier: string; country: string | null; created_at: string };
 type Req = { id: string; company_name: string; contact_name: string; contact_email: string; contact_phone: string | null; country: string | null; fleet_size: number | null; use_case: string | null; status: string; created_at: string };
-type Plan = { id: string; code: string; name: string; description: string | null; price_cents: number; currency: string; billing_period: string; included_seats: number; features: string[]; is_active: boolean; sort_order: number };
+type Plan = { id: string; code: string; name: string; description: string | null; price_cents: number; currency: string; billing_period: string; included_seats: number; features: string[]; is_active: boolean; sort_order: number; eyebrow?: string | null; tagline?: string | null; units_label?: string | null; seats_label?: string | null; api_label?: string | null; is_public?: boolean; highlight?: boolean; cta_label?: string | null; cta_to?: string | null; };
 type Sub = { id: string; tenant_id: string; plan_id: string; status: string; seats: number; current_period_start: string; current_period_end: string | null; cancel_at_period_end: boolean; notes: string | null };
 type Profile = { id: string; full_name: string | null; email: string | null; default_role: string | null };
 type RoleRow = { user_id: string; role: string };
@@ -58,7 +59,7 @@ const STATUS_COLORS: Record<string, string> = {
 const fmtMoney = (c: number, cur: string) =>
   c === 0 ? "Custom" : new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(c / 100);
 
-type TabId = "overview" | "tenants" | "subs" | "plans" | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug";
+type TabId = "overview" | "tenants" | "subs" | "plans" | "addons" | "finance" | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug";
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
@@ -345,6 +346,12 @@ function Superadmin() {
       )}
       {tab === "plans" && (
         <PlansPane plans={plans} togglePlan={togglePlan} subs={subs} reload={load} />
+      )}
+      {tab === "addons" && (
+        <AddonsPane />
+      )}
+      {tab === "finance" && (
+        <FinancialsPane />
       )}
       {tab === "roles" && (
         <RolesPane profiles={profiles} roles={roles} grantRole={grantRole} revokeRole={revokeRole} />
@@ -831,6 +838,15 @@ function PlanEditor({ plan, onClose, onSaved }: { plan: Plan | null; onClose: ()
     features: (plan?.features ?? []).join("\n"),
     is_active: plan?.is_active ?? true,
     sort_order: plan?.sort_order ?? 100,
+    eyebrow: plan?.eyebrow ?? "",
+    tagline: plan?.tagline ?? "",
+    units_label: plan?.units_label ?? "",
+    seats_label: plan?.seats_label ?? "",
+    api_label: plan?.api_label ?? "",
+    is_public: plan?.is_public ?? false,
+    highlight: plan?.highlight ?? false,
+    cta_label: plan?.cta_label ?? "Book a demo",
+    cta_to: plan?.cta_to ?? "/demo",
   });
   const [busy, setBusy] = useState(false);
   async function save() {
@@ -873,6 +889,28 @@ function PlanEditor({ plan, onClose, onSaved }: { plan: Plan | null; onClose: ()
           </div>
           <Lbl k="Description"><textarea value={f.description ?? ""} onChange={(e) => setF({ ...f, description: e.target.value })} rows={2} className="w-full px-2 py-2 rounded bg-input border border-hairline text-sm" /></Lbl>
           <Lbl k="Features (one per line)"><textarea value={f.features} onChange={(e) => setF({ ...f, features: e.target.value })} rows={5} className="w-full px-2 py-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+          <div className="rounded-md border border-hairline bg-panel-elevated/40 p-3 space-y-3">
+            <div className="mono text-[10px] uppercase tracking-widest text-teal">Public website (velomedos.com/pricing)</div>
+            <div className="grid grid-cols-2 gap-2">
+              <Lbl k="Eyebrow"><input value={f.eyebrow} onChange={(e) => setF({ ...f, eyebrow: e.target.value })} placeholder="Single branch / Most chosen…" className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="Tagline"><input value={f.tagline} onChange={(e) => setF({ ...f, tagline: e.target.value })} placeholder="One-line pitch" className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="Units label"><input value={f.units_label} onChange={(e) => setF({ ...f, units_label: e.target.value })} placeholder="Up to 50 units" className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="Seats label"><input value={f.seats_label} onChange={(e) => setF({ ...f, seats_label: e.target.value })} placeholder="10 dispatcher seats" className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="API label"><input value={f.api_label} onChange={(e) => setF({ ...f, api_label: e.target.value })} placeholder="100k API calls/mo" className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="CTA label"><input value={f.cta_label} onChange={(e) => setF({ ...f, cta_label: e.target.value })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="CTA link"><input value={f.cta_to} onChange={(e) => setF({ ...f, cta_to: e.target.value })} className="w-full h-9 px-2 rounded bg-input border border-hairline mono text-xs" /></Lbl>
+              <Lbl k="Show on website">
+                <select value={String(f.is_public)} onChange={(e) => setF({ ...f, is_public: e.target.value === "true" })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm">
+                  <option value="true">Public</option><option value="false">Hidden</option>
+                </select>
+              </Lbl>
+              <Lbl k="Highlight (most chosen)">
+                <select value={String(f.highlight)} onChange={(e) => setF({ ...f, highlight: e.target.value === "true" })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm">
+                  <option value="false">No</option><option value="true">Yes</option>
+                </select>
+              </Lbl>
+            </div>
+          </div>
           <div className="flex justify-end gap-2 pt-2 border-t border-hairline">
             <button onClick={onClose} className="mono text-[10px] uppercase tracking-widest px-3 py-2 rounded border border-hairline">Cancel</button>
             <button onClick={save} disabled={busy} className="mono text-[10px] uppercase tracking-widest px-4 py-2 rounded bg-teal text-background font-bold disabled:opacity-60">{plan ? "Save changes" : "Create plan"}</button>
@@ -1556,6 +1594,288 @@ function DebugPane({ tenants }: { tenants: Tenant[] }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ============================== Add-ons CRUD ============================== */
+
+type Addon = {
+  id: string; code: string; name: string; description: string | null;
+  unit_label: string; unit_type: string; price_cents: number | null; price_display: string | null;
+  icon: string | null; is_active: boolean; sort_order: number;
+};
+
+const ADDON_ICONS = ["Stethoscope","Truck","GraduationCap","Code2","ClipboardCheck","Shield","Package","Zap","Radio"];
+
+function AddonsPane() {
+  const [rows, setRows] = useState<Addon[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [editing, setEditing] = useState<Addon | "new" | null>(null);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const j = await adminFetch<{ addons: Addon[] }>("/api/admin/v1/addons");
+      setRows(j.addons);
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(); }, []);
+
+  async function destroy(id: string) {
+    if (!confirm("Delete this add-on?")) return;
+    try { await adminFetch(`/api/admin/v1/addons/${id}`, { method: "DELETE" }); toast.success("Deleted"); load(); }
+    catch (e) { toast.error((e as Error).message); }
+  }
+  async function toggleActive(a: Addon) {
+    try { await adminFetch(`/api/admin/v1/addons/${a.id}`, { method: "PATCH", body: { is_active: !a.is_active } }); load(); }
+    catch (e) { toast.error((e as Error).message); }
+  }
+
+  return (
+    <>
+      <Card title={`Add-ons · ${rows.length}`} right={
+        <div className="flex items-center gap-2">
+          <button onClick={load} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated inline-flex items-center gap-1">
+            <RefreshCw className={`size-3 ${loading ? "animate-spin" : ""}`} /> reload
+          </button>
+          <button onClick={() => setEditing("new")} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded bg-teal text-background font-bold inline-flex items-center gap-1">
+            <Plus className="size-3" /> New add-on
+          </button>
+        </div>
+      }>
+        <div className="divide-y divide-hairline">
+          {rows.length === 0 && <div className="p-6 text-sm text-muted-foreground">No add-ons configured.</div>}
+          {rows.map((a) => (
+            <div key={a.id} className="px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+              <div className="min-w-0 flex items-center gap-3">
+                <div className="size-9 rounded-md bg-teal/10 border border-hairline grid place-items-center text-teal">
+                  <PlusCircle className="size-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="font-semibold flex items-center gap-2">{a.name} <span className="mono text-[10px] text-muted-foreground">{a.code}</span></div>
+                  <div className="mono text-[10px] text-muted-foreground">{a.unit_label} · {a.unit_type}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="text-xl font-bold mono">{a.price_display ?? (a.price_cents ? `$${(a.price_cents/100).toFixed(2)}` : "—")}</div>
+                <button onClick={() => toggleActive(a)} className={`mono text-[10px] uppercase px-2 py-1 rounded ${a.is_active ? "bg-stable/20 text-stable" : "bg-muted text-muted-foreground"}`}>{a.is_active ? "Active" : "Paused"}</button>
+                <button onClick={() => setEditing(a)} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated">Edit</button>
+                <button onClick={() => destroy(a.id)} className="size-8 grid place-items-center rounded text-muted-foreground hover:text-coral hover:bg-coral/10"><Trash2 className="size-4" /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="px-4 py-2 border-t border-hairline mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          Active add-ons are surfaced on the public /pricing page through <code className="text-teal">/api/public/v1/pricing</code>.
+        </div>
+      </Card>
+      {editing && <AddonEditor addon={editing === "new" ? null : editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); }} />}
+    </>
+  );
+}
+
+function AddonEditor({ addon, onClose, onSaved }: { addon: Addon | null; onClose: () => void; onSaved: () => void }) {
+  const [f, setF] = useState({
+    code: addon?.code ?? "",
+    name: addon?.name ?? "",
+    description: addon?.description ?? "",
+    unit_label: addon?.unit_label ?? "",
+    unit_type: addon?.unit_type ?? "per_month",
+    price_display: addon?.price_display ?? "",
+    price_cents: addon?.price_cents ?? 0,
+    icon: addon?.icon ?? "Package",
+    is_active: addon?.is_active ?? true,
+    sort_order: addon?.sort_order ?? 100,
+  });
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    if (!f.code.trim() || !f.name.trim() || !f.unit_label.trim()) return toast.error("Code, name and unit label required");
+    setBusy(true);
+    try {
+      const body = { ...f, price_cents: Number(f.price_cents) || 0, sort_order: Number(f.sort_order) || 0 };
+      if (addon) await adminFetch(`/api/admin/v1/addons/${addon.id}`, { method: "PATCH", body });
+      else       await adminFetch(`/api/admin/v1/addons`, { method: "POST", body });
+      toast.success(addon ? "Add-on updated" : "Add-on created");
+      onSaved();
+    } catch (e) { toast.error((e as Error).message); }
+    finally { setBusy(false); }
+  }
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm grid place-items-center p-4" onClick={onClose}>
+      <div className="bg-panel border border-hairline rounded-xl w-full max-w-xl max-h-[88vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="p-4 border-b border-hairline flex items-center justify-between">
+          <div className="font-semibold">{addon ? `Edit add-on · ${addon.code}` : "New add-on"}</div>
+          <button onClick={onClose} className="size-7 grid place-items-center rounded hover:bg-panel-elevated"><XCircle className="size-4" /></button>
+        </div>
+        <div className="p-4 space-y-3 text-sm">
+          <div className="grid grid-cols-2 gap-2">
+            <Lbl k="Code (slug)"><input value={f.code} onChange={(e) => setF({ ...f, code: e.target.value })} className="w-full h-9 px-2 rounded bg-input border border-hairline mono text-xs" /></Lbl>
+            <Lbl k="Display name"><input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+            <Lbl k="Unit label"><input value={f.unit_label} onChange={(e) => setF({ ...f, unit_label: e.target.value })} placeholder="per pod / month" className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+            <Lbl k="Unit type">
+              <select value={f.unit_type} onChange={(e) => setF({ ...f, unit_type: e.target.value })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm">
+                {["per_month","per_year","pct_gmv","per_1k_calls","per_claim","one_time"].map((x) => <option key={x} value={x}>{x}</option>)}
+              </select>
+            </Lbl>
+            <Lbl k="Price display"><input value={f.price_display ?? ""} onChange={(e) => setF({ ...f, price_display: e.target.value })} placeholder="$ 850 or 6 %" className="w-full h-9 px-2 rounded bg-input border border-hairline mono text-xs" /></Lbl>
+            <Lbl k="Price (cents, optional)"><input type="number" value={f.price_cents ?? 0} onChange={(e) => setF({ ...f, price_cents: Number(e.target.value) })} className="w-full h-9 px-2 rounded bg-input border border-hairline mono text-xs" /></Lbl>
+            <Lbl k="Icon">
+              <select value={f.icon ?? "Package"} onChange={(e) => setF({ ...f, icon: e.target.value })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm">
+                {ADDON_ICONS.map((x) => <option key={x} value={x}>{x}</option>)}
+              </select>
+            </Lbl>
+            <Lbl k="Sort order"><input type="number" value={f.sort_order} onChange={(e) => setF({ ...f, sort_order: Number(e.target.value) })} className="w-full h-9 px-2 rounded bg-input border border-hairline mono text-xs" /></Lbl>
+            <Lbl k="Active">
+              <select value={String(f.is_active)} onChange={(e) => setF({ ...f, is_active: e.target.value === "true" })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm">
+                <option value="true">Active</option><option value="false">Paused</option>
+              </select>
+            </Lbl>
+          </div>
+          <Lbl k="Description"><textarea value={f.description ?? ""} onChange={(e) => setF({ ...f, description: e.target.value })} rows={2} className="w-full px-2 py-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+          <div className="flex justify-end gap-2 pt-2 border-t border-hairline">
+            <button onClick={onClose} className="mono text-[10px] uppercase tracking-widest px-3 py-2 rounded border border-hairline">Cancel</button>
+            <button onClick={save} disabled={busy} className="mono text-[10px] uppercase tracking-widest px-4 py-2 rounded bg-teal text-background font-bold disabled:opacity-60">{addon ? "Save changes" : "Create add-on"}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================== Financials ============================== */
+
+type Financials = {
+  currency: string;
+  summary: { mrr_cents: number; arr_cents: number; active_subscriptions: number; trialing: number; past_due: number; paying_tenants: number; arpa_cents: number };
+  pnl: { assumptions: Record<string, number>; revenue_cents: number; cogs_cents: number; gross_profit_cents: number; opex: { sales_marketing_cents: number; rnd_cents: number; general_admin_cents: number; total_cents: number }; ebitda_cents: number; note: string };
+  by_plan: Array<{ plan_id: string; plan_name: string; subscribers: number; mrr_cents: number }>;
+  by_country: Array<{ country: string; subscribers: number; mrr_cents: number }>;
+  trend_6mo: Array<{ label: string; mrr_cents: number; new_subs: number }>;
+  generated_at: string;
+};
+
+function FinancialsPane() {
+  const [data, setData] = useState<Financials | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    try { setData(await adminFetch<Financials>("/api/admin/v1/financials")); }
+    catch (e) { toast.error((e as Error).message); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(); }, []);
+
+  if (!data) return <Card title="Financials"><div className="p-6 mono text-xs text-muted-foreground">Loading…</div></Card>;
+
+  const cur = data.currency;
+  const peak = Math.max(1, ...data.trend_6mo.map((m) => m.mrr_cents));
+  const arrowFor = (n: number) => n >= 0 ? <TrendingUp className="size-3 inline" /> : <TrendingDown className="size-3 inline" />;
+
+  return (
+    <div className="space-y-4">
+      <Card title="Revenue summary" right={
+        <button onClick={load} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated inline-flex items-center gap-1">
+          <RefreshCw className={`size-3 ${loading ? "animate-spin" : ""}`} /> reload
+        </button>
+      }>
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-px bg-hairline">
+          {[
+            { k: "MRR",        v: fmtMoney(data.summary.mrr_cents, cur), accent: "text-teal" },
+            { k: "ARR",        v: fmtMoney(data.summary.arr_cents, cur), accent: "text-sky" },
+            { k: "ARPA",       v: fmtMoney(data.summary.arpa_cents, cur) },
+            { k: "Active subs",v: data.summary.active_subscriptions },
+            { k: "Trialing",   v: data.summary.trialing, accent: "text-caution" },
+            { k: "Past due",   v: data.summary.past_due, accent: "text-coral" },
+          ].map((c) => (
+            <div key={c.k} className="bg-panel p-4">
+              <div className="mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">{c.k}</div>
+              <div className={`text-2xl font-bold mono mt-1 ${c.accent ?? ""}`}>{c.v as any}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <div className="grid lg:grid-cols-2 gap-4">
+        <Card title="6-month MRR trend">
+          <div className="p-4">
+            <div className="flex items-end gap-2 h-40">
+              {data.trend_6mo.map((m, i) => {
+                const h = Math.max(2, Math.round((m.mrr_cents / peak) * 100));
+                const prev = data.trend_6mo[i-1]?.mrr_cents ?? m.mrr_cents;
+                const delta = m.mrr_cents - prev;
+                return (
+                  <div key={m.label} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="mono text-[9px] text-muted-foreground">{fmtMoney(m.mrr_cents, cur)}</div>
+                    <div className="w-full rounded-t bg-teal/70 hover:bg-teal transition-colors" style={{ height: `${h}%` }} title={`${m.label}: ${fmtMoney(m.mrr_cents, cur)} (Δ ${fmtMoney(delta, cur)})`} />
+                    <div className="mono text-[10px] uppercase text-muted-foreground">{m.label}</div>
+                    <div className={`mono text-[9px] ${delta >= 0 ? "text-stable" : "text-coral"}`}>{arrowFor(delta)} {delta >= 0 ? "+" : ""}{fmtMoney(delta, cur)}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Profit & loss (modelled)" right={<span className="mono text-[10px] text-muted-foreground normal-case">SaaS ratios · plug AR/AP to replace</span>}>
+          <div className="p-4 space-y-2 text-sm">
+            <PL row="Revenue (MRR)" v={data.pnl.revenue_cents} cur={cur} bold />
+            <PL row="COGS · hosting + support" v={-data.pnl.cogs_cents} cur={cur} muted />
+            <PL row="Gross profit" v={data.pnl.gross_profit_cents} cur={cur} bold accent="text-stable" />
+            <div className="h-px bg-hairline my-1" />
+            <PL row="Sales & marketing" v={-data.pnl.opex.sales_marketing_cents} cur={cur} muted />
+            <PL row="R&D" v={-data.pnl.opex.rnd_cents} cur={cur} muted />
+            <PL row="G&A" v={-data.pnl.opex.general_admin_cents} cur={cur} muted />
+            <PL row="Total opex" v={-data.pnl.opex.total_cents} cur={cur} />
+            <div className="h-px bg-hairline my-1" />
+            <PL row="EBITDA" v={data.pnl.ebitda_cents} cur={cur} bold accent={data.pnl.ebitda_cents >= 0 ? "text-stable" : "text-coral"} />
+            <div className="mono text-[10px] text-muted-foreground pt-2 border-t border-hairline mt-2">{data.pnl.note}</div>
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-4">
+        <Card title="MRR by plan">
+          <div className="divide-y divide-hairline">
+            {data.by_plan.length === 0 && <div className="p-6 text-sm text-muted-foreground">No active subscriptions yet.</div>}
+            {data.by_plan.map((p) => (
+              <div key={p.plan_id} className="px-4 py-2.5 flex items-center justify-between">
+                <div>
+                  <div className="font-semibold">{p.plan_name}</div>
+                  <div className="mono text-[10px] text-muted-foreground">{p.subscribers} subscriber{p.subscribers === 1 ? "" : "s"}</div>
+                </div>
+                <div className="mono font-bold">{fmtMoney(p.mrr_cents, cur)}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+        <Card title="MRR by country">
+          <div className="divide-y divide-hairline">
+            {data.by_country.length === 0 && <div className="p-6 text-sm text-muted-foreground">—</div>}
+            {data.by_country.map((p) => (
+              <div key={p.country} className="px-4 py-2.5 flex items-center justify-between">
+                <div>
+                  <div className="font-semibold">{p.country}</div>
+                  <div className="mono text-[10px] text-muted-foreground">{p.subscribers} subscriber{p.subscribers === 1 ? "" : "s"}</div>
+                </div>
+                <div className="mono font-bold">{fmtMoney(p.mrr_cents, cur)}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function PL({ row, v, cur, bold, muted, accent }: { row: string; v: number; cur: string; bold?: boolean; muted?: boolean; accent?: string }) {
+  const sign = v < 0 ? "−" : "";
+  return (
+    <div className={`flex items-center justify-between ${bold ? "font-semibold" : ""} ${muted ? "text-muted-foreground" : ""}`}>
+      <span>{row}</span>
+      <span className={`mono ${accent ?? ""}`}>{sign}{fmtMoney(Math.abs(v), cur)}</span>
     </div>
   );
 }

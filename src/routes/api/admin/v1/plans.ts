@@ -23,6 +23,10 @@ export const Route = createFileRoute("/api/admin/v1/plans")({
           price_cents: body.price_cents, currency: body.currency ?? "USD",
           billing_period: body.billing_period ?? "monthly", included_seats: body.included_seats ?? 1,
           features: body.features ?? [], is_active: body.is_active ?? true, sort_order: body.sort_order ?? 0,
+          eyebrow: body.eyebrow ?? null, tagline: body.tagline ?? null,
+          units_label: body.units_label ?? null, seats_label: body.seats_label ?? null, api_label: body.api_label ?? null,
+          is_public: body.is_public ?? false, highlight: body.highlight ?? false,
+          cta_label: body.cta_label ?? null, cta_to: body.cta_to ?? null,
         };
         const { data, error } = await adminDb().from("subscription_plans").insert(insert).select().single();
         if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
