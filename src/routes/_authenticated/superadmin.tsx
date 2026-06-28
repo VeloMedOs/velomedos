@@ -1143,6 +1143,7 @@ function PrivilegesPane({ profiles, roles }: { profiles: Profile[]; roles: RoleR
   const effective = effectiveCapabilities(selectedRoles);
   return (
     <div className="space-y-4">
+      <PrivilegesEditor />
       <div className="grid lg:grid-cols-4 gap-3">
         {ROLE_ORDER.map((r) => {
           const m = ROLE_META[r];
