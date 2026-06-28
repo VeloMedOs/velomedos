@@ -689,21 +689,46 @@ function TeamView() {
           {routes.map((r, i) => (
             <RouteBubble key={i} minutes={r.minutes} primary={i === 0} index={i} total={routes.length} />
           ))}
-          {/* Bottom sheet: ETA + actions */}
-          <div data-debug-id="team-eta-bubble" className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-xl bg-white/75 border border-white/40 shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 sm:min-w-[260px] backdrop-blur-md">
-            <div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
+          {/* Bottom sheet: ETA + telemetry — elite glass card */}
+          <div
+            data-debug-id="team-eta-bubble"
+            className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-[22px] border border-white/50 bg-white/40 shadow-[0_12px_40px_-12px_rgba(8,11,17,0.45)] backdrop-blur-2xl px-4 py-3 flex items-center justify-between gap-3 text-slate-900 sm:w-[320px] overflow-hidden"
+          >
+            {/* subtle progress wash at bottom */}
+            <div
+              className="absolute bottom-0 left-0 h-[3px] transition-[width] duration-300"
+              style={{
+                width: `${Math.round(Math.min(tel.progress, 1) * 100)}%`,
+                background: tel.progress >= 0.999
+                  ? "linear-gradient(90deg, #28D6B6, #4FB6F7)"
+                  : "linear-gradient(90deg, #4FB6F7, #1F6FEB)",
+                boxShadow: tel.progress >= 0.999
+                  ? "0 0 14px rgba(40,214,182,0.5)"
+                  : "0 0 14px rgba(79,182,247,0.5)",
+              }}
+            />
+            <div className="relative min-w-0">
+              <div className="text-[9px] font-bold uppercase tracking-[0.22em] text-slate-500/90 leading-none mb-1">
+                ETA · {TEAM_B.label}
+              </div>
+              <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight leading-tight truncate">
+                General Hospital
+              </div>
               <div
-                className="text-xl font-bold"
-                style={{ color: tel.progress >= 0.999 ? BRAND.teal : BRAND.blueDeep }}
+                className="text-[34px] font-bold tracking-tighter leading-none mt-1"
+                style={{ color: tel.progress >= 0.999 ? BRAND.tealDeep : BRAND.blueDeep, fontVariantNumeric: "tabular-nums" }}
               >
                 {tel.progress >= 0.999 ? "Arrived" : fmtMinSec(tel.totalSec * (1 - tel.progress))}
               </div>
             </div>
-            <div className="h-9 w-px bg-slate-200" />
-            <div className="flex flex-col text-[11px] text-slate-700 min-w-0">
-              <span className="flex items-center gap-1.5"><Clock className="size-3.5" /> {Math.round(Math.min(tel.progress, 1) * 100)}%</span>
-              <span className="mono text-slate-500">{Math.max(0, tel.totalKm * (1 - Math.min(tel.progress, 1))).toFixed(2)} km left · {Math.round(tel.speedKmh)} km/h</span>
+            <div className="flex flex-col items-end text-[10px] text-slate-600 leading-tight min-w-0"
+              style={{ fontVariantNumeric: "tabular-nums" }}>
+              <span className="flex items-center gap-1.5 font-semibold">
+                <Clock className="size-3.5" style={{ color: tel.progress >= 0.999 ? BRAND.tealDeep : BRAND.blueDeep }} />
+                {Math.round(Math.min(tel.progress, 1) * 100)}%
+              </span>
+              <span className="mono text-slate-500">{Math.max(0, tel.totalKm * (1 - Math.min(tel.progress, 1))).toFixed(2)} km left</span>
+              <span className="mono text-slate-500">{Math.round(tel.speedKmh)} km/h</span>
             </div>
           </div>
           {/* Compass / layers */}
@@ -1428,9 +1453,9 @@ function TeamFallback() {
       <div data-debug-id="offline-dest-eta-bubble" className="absolute -translate-x-1/2 -translate-y-full pointer-events-none z-[30]"
         style={{ top: "calc(10% - 18px)", left: "min(78%, calc(100% - 56px))" }}>
         <div
-          className="px-2 py-[3px] rounded-full shadow-[0_6px_18px_-6px_rgba(31,111,235,0.55)] text-[10px] font-semibold flex items-center gap-1 ring-1 ring-white/30"
+          className="px-2.5 py-[4px] rounded-full shadow-[0_6px_18px_-6px_rgba(31,111,235,0.45)] text-[10px] font-semibold flex items-center gap-1 ring-1 ring-white/40 backdrop-blur-md"
           style={{
-            background: arrived ? "#28D6B6" : "#1F6FEB",
+            background: arrived ? "rgba(40,214,182,0.82)" : "rgba(31,111,235,0.82)",
             color: arrived ? "#080B11" : "#fff",
             fontVariantNumeric: "tabular-nums",
           }}
@@ -1443,18 +1468,21 @@ function TeamFallback() {
       {/* Alternate route ETA pill */}
       <div data-debug-id="offline-alt-eta-pill" className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[25]"
         style={{ top: "32%", left: "42%" }}>
-        <div className="px-2.5 py-1 rounded-full border border-white/70 bg-white/95 backdrop-blur text-slate-900 shadow-md text-[11px] font-semibold flex items-center gap-1.5"
+        <div className="px-2.5 py-1 rounded-full border border-white/50 bg-white/40 backdrop-blur-xl text-slate-900 shadow-[0_6px_18px_-6px_rgba(8,11,17,0.3)] text-[11px] font-semibold flex items-center gap-1.5"
           style={{ fontVariantNumeric: "tabular-nums" }}>
-          7 min <span className="text-slate-400 font-normal">· alt</span>
+          7 min <span className="text-slate-500 font-normal">· alt</span>
         </div>
       </div>
 
-      {/* Bottom-left ETA card — Patek-grade telemetry */}
-      <div data-debug-id="offline-eta-card" className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[300px] z-[40] rounded-2xl overflow-hidden border border-white/40 bg-white/75 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+      {/* Bottom-left ETA card — elite glass telemetry */}
+      <div
+        data-debug-id="offline-eta-card"
+        className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[320px] z-[40] rounded-[22px] overflow-hidden border border-white/50 bg-white/40 shadow-[0_12px_40px_-12px_rgba(8,11,17,0.45)] backdrop-blur-2xl"
+      >
         <div className="px-4 pt-3 pb-3">
           <div className="flex items-start justify-between">
             <div>
-              <div className="mono text-[9px] font-bold tracking-[0.22em] uppercase text-slate-400 leading-none mb-1">
+              <div className="mono text-[9px] font-bold tracking-[0.22em] uppercase text-slate-500/90 leading-none mb-1">
                 ETA · Al Mana
               </div>
               <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight leading-tight">
@@ -1469,26 +1497,34 @@ function TeamFallback() {
             </div>
           </div>
           <div className="mt-2 flex items-end justify-between gap-3">
-            <div className="text-[34px] font-bold tracking-tighter leading-none"
-              style={{ color: arrived ? "#0F7F66" : "#1F6FEB", fontVariantNumeric: "tabular-nums" }}>
+            <div
+              className="text-[34px] font-bold tracking-tighter leading-none"
+              style={{ color: arrived ? "#0F7F66" : "#1F6FEB", fontVariantNumeric: "tabular-nums" }}
+            >
               {arrived ? "0:00" : etaStr}
             </div>
-            <div className="text-right mono text-[10px] text-slate-500 leading-tight"
-              style={{ fontVariantNumeric: "tabular-nums" }}>
+            <div
+              className="text-right mono text-[10px] text-slate-500 leading-tight"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
               <div>{Math.max(0, tel.totalKm * (1 - pct)).toFixed(2)} km left</div>
               <div className="mt-0.5">{Math.round(tel.speedKmh)} km/h</div>
             </div>
           </div>
         </div>
-        <div className="h-1 w-full bg-slate-100 relative">
-          <div className="absolute inset-y-0 left-0 transition-[width] duration-300"
+        <div className="h-[3px] w-full bg-white/20 relative">
+          <div
+            className="absolute inset-y-0 left-0 transition-[width] duration-300"
             style={{
               width: `${Math.round(pct * 100)}%`,
-              background: arrived ? "#28D6B6" : "#1F6FEB",
+              background: arrived
+                ? "linear-gradient(90deg, #28D6B6, #4FB6F7)"
+                : "linear-gradient(90deg, #4FB6F7, #1F6FEB)",
               boxShadow: arrived
-                ? "0 0 12px rgba(40,214,182,0.55)"
-                : "0 0 12px rgba(31,111,235,0.55)",
-            }} />
+                ? "0 0 14px rgba(40,214,182,0.5)"
+                : "0 0 14px rgba(79,182,247,0.5)",
+            }}
+          />
         </div>
       </div>
 
