@@ -20,7 +20,12 @@ function AuthLayout() {
 
   useEffect(() => {
     if (state === "out") {
-      window.location.replace("/auth");
+      // Route the user to the correct sign-in surface for the area they were
+      // trying to reach. /superadmin has its own locked, secret-backed login.
+      const path = typeof window !== "undefined" ? window.location.pathname : "";
+      const target = path.startsWith("/superadmin") ? "/superadmin/login" : "/auth";
+      const next = encodeURIComponent(path + (window.location.search || ""));
+      window.location.replace(`${target}?next=${next}`);
     }
   }, [state]);
 
