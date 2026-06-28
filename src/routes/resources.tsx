@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
 import { RESOURCES, SITE } from "@/lib/site-config";
 import { ArrowRight, BookOpen } from "lucide-react";
-import { breadcrumbLd, jsonld } from "@/components/Jsonld";
+import { breadcrumbLd, jsonld, pageLdScripts } from "@/components/Jsonld";
 
 const title = "Resources & insights — VeloMed OS";
 const desc = "Operating notes on ambulance dispatch SLAs, fleet compliance and medical mobility from the VeloMed Infrastructure team.";
@@ -25,6 +25,7 @@ export const Route = createFileRoute("/resources")({
       { type: "application/ld+json", children: jsonld(breadcrumbLd([
         { name: "Home", href: "/" }, { name: "Resources", href: "/resources" },
       ])) },
+      ...pageLdScripts({ path: "/resources", name: title, description: desc, type: "CollectionPage" }),
     ],
   }),
   component: Resources,
