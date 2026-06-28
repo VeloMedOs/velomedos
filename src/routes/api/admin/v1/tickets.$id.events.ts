@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { adminAudit, json, preflight, requireAdmin, serviceClient } from "@/lib/api-admin";
+import { adminAudit, adminDb, json, preflight, requireAdmin } from "@/lib/api-admin";
 
 export const Route = createFileRoute("/api/admin/v1/tickets/$id/events")({
   server: {
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/api/admin/v1/tickets/$id/events")({
         const auth = await requireAdmin(request, "tickets:write"); if (!auth.ok) return auth.res;
         const body = await request.json().catch(() => null) as { body?: string } | null;
         if (!body?.body) return json({ error: "missing_body", code: "validation", request_id: crypto.randomUUID() }, 400);
-        const { data, error } = await serviceClient().from("portal_ticket_events").insert({ ticket_id: params.id, body: body.body, actor_id: auth.userId }).select().single();
+        const { data, error } = await adminDb().from("portal_ticket_events").insert({ ticket_id: params.id, body: body.body, actor_id: auth.userId }).select().single();
         if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "ticket.comment", "portal_tickets", params.id, null);
         return json(data, 201);

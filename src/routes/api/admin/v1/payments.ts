@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { adminAudit, json, preflight, requireAdmin, serviceClient } from "@/lib/api-admin";
+import { adminAudit, adminDb, json, preflight, requireAdmin } from "@/lib/api-admin";
 
 export const Route = createFileRoute("/api/admin/v1/payments")({
   server: {
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/api/admin/v1/payments")({
         if (!auth.ok) return auth.res;
         const url = new URL(request.url);
         const status = url.searchParams.get("status");
-        const db = serviceClient();
+        const db = adminDb();
         let q = db.from("portal_payments").select("*").order("created_at", { ascending: false }).limit(200);
         if (status) q = q.eq("status", status);
         const { data, error } = await q;
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/admin/v1/payments")({
         const body = await request.json().catch(() => null) as Record<string, unknown> | null;
         if (!body) return json({ error: "invalid_json", code: "validation", request_id: crypto.randomUUID() }, 400);
         const row = { ...body, status: (body.status as string) ?? "pending" };
-        const db = serviceClient();
+        const db = adminDb();
         const { data, error } = await db.from("portal_payments").insert(row as never).select().single();
         if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "payment.record", "portal_payments", data.id, body);

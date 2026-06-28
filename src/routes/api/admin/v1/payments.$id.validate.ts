@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { adminAudit, json, preflight, requireAdmin, serviceClient } from "@/lib/api-admin";
+import { adminAudit, adminDb, json, preflight, requireAdmin } from "@/lib/api-admin";
 
 export const Route = createFileRoute("/api/admin/v1/payments/$id/validate")({
   server: {
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/api/admin/v1/payments/$id/validate")({
       POST: async ({ request, params }) => {
         const auth = await requireAdmin(request, "billing:write");
         if (!auth.ok) return auth.res;
-        const db = serviceClient();
+        const db = adminDb();
         const { data, error } = await db.from("portal_payments").update({
           status: "succeeded", validated_by: auth.userId, validated_at: new Date().toISOString(),
         }).eq("id", params.id).select().single();

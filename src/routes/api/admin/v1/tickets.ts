@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { adminAudit, json, preflight, requireAdmin, serviceClient } from "@/lib/api-admin";
+import { adminAudit, adminDb, json, preflight, requireAdmin } from "@/lib/api-admin";
 
 export const Route = createFileRoute("/api/admin/v1/tickets")({
   server: {
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/api/admin/v1/tickets")({
         const url = new URL(request.url);
         const type = url.searchParams.get("type");
         const status = url.searchParams.get("status");
-        let q = serviceClient().from("portal_tickets").select("*").order("created_at", { ascending: false }).limit(200);
+        let q = adminDb().from("portal_tickets").select("*").order("created_at", { ascending: false }).limit(200);
         if (type) q = q.eq("type", type);
         if (status) q = q.eq("status", status);
         const { data, error } = await q;
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/api/admin/v1/tickets")({
         const auth = await requireAdmin(request, "tickets:write"); if (!auth.ok) return auth.res;
         const body = await request.json().catch(() => null) as Record<string, unknown> | null;
         if (!body?.subject || !body?.type) return json({ error: "missing_fields", code: "validation", request_id: crypto.randomUUID() }, 400);
-        const { data, error } = await serviceClient().from("portal_tickets").insert({ ...body, created_by: auth.userId } as never).select().single();
+        const { data, error } = await adminDb().from("portal_tickets").insert({ ...body, created_by: auth.userId } as never).select().single();
         if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "ticket.create", "portal_tickets", data.id, body);
         return json(data, 201);

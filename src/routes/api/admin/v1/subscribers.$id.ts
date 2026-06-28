@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { adminAudit, json, preflight, requireAdmin, serviceClient } from "@/lib/api-admin";
+import { adminAudit, adminDb, json, preflight, requireAdmin } from "@/lib/api-admin";
 
 export const Route = createFileRoute("/api/admin/v1/subscribers/$id")({
   server: {
@@ -8,7 +8,7 @@ export const Route = createFileRoute("/api/admin/v1/subscribers/$id")({
       GET: async ({ request, params }) => {
         const auth = await requireAdmin(request, "subscribers:read");
         if (!auth.ok) return auth.res;
-        const db = serviceClient();
+        const db = adminDb();
         const id = params.id;
         const [acct, subs, pays, bugs, usage, ticks] = await Promise.all([
           db.from("corporate_accounts").select("*").eq("id", id).maybeSingle(),
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/api/admin/v1/subscribers/$id")({
         if (!body) return json({ error: "invalid_json", code: "validation", request_id: crypto.randomUUID() }, 400);
         const status = body.status ?? ({ suspend: "suspended", resume: "active", cancel: "churned", activate: "active" } as Record<string, string>)[body.action ?? ""];
         if (!status) return json({ error: "missing_action_or_status", code: "validation", request_id: crypto.randomUUID() }, 400);
-        const db = serviceClient();
+        const db = adminDb();
         const { data, error } = await db.from("corporate_accounts").update({ status }).eq("id", params.id).select().single();
         if (error) return json({ error: error.message, code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, `subscriber.${body.action ?? "status"}`, "corporate_accounts", params.id, { status });

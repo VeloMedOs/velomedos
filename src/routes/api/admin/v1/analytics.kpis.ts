@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { json, preflight, requireAdmin, serviceClient } from "@/lib/api-admin";
+import { adminDb, json, preflight, requireAdmin } from "@/lib/api-admin";
 
 export const Route = createFileRoute("/api/admin/v1/analytics/kpis")({
   server: {
@@ -7,7 +7,7 @@ export const Route = createFileRoute("/api/admin/v1/analytics/kpis")({
       OPTIONS: () => preflight(),
       GET: async ({ request }) => {
         const auth = await requireAdmin(request, "analytics:read"); if (!auth.ok) return auth.res;
-        const db = serviceClient();
+        const db = adminDb();
         const [accts, subs] = await Promise.all([
           db.from("corporate_accounts").select("id, status, created_at"),
           db.from("portal_subscriptions").select("status, price_cents, currency, cycle"),
