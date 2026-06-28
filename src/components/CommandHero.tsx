@@ -690,7 +690,7 @@ function TeamView() {
             <RouteBubble key={i} minutes={r.minutes} primary={i === 0} index={i} total={routes.length} />
           ))}
           {/* Bottom sheet: ETA + actions */}
-          <div data-debug-id="team-eta-bubble" className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 sm:min-w-[260px]">
+          <div data-debug-id="team-eta-bubble" className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-xl bg-white/75 border border-white/40 shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 sm:min-w-[260px] backdrop-blur-md">
             <div>
               <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
               <div
