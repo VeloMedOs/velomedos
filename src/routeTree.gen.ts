@@ -78,6 +78,7 @@ import { Route as ApiAdminV1SubscribersIdRouteImport } from './routes/api/admin/
 import { Route as ApiAdminV1DiagnosticsSuperadminRouteImport } from './routes/api/admin/v1/diagnostics.superadmin'
 import { Route as ApiAdminV1ConfigOverridesRouteImport } from './routes/api/admin/v1/config.overrides'
 import { Route as ApiAdminV1ConfigBaseRouteImport } from './routes/api/admin/v1/config.base'
+import { Route as ApiAdminV1BusinessRequestsIdRouteImport } from './routes/api/admin/v1/business-requests.$id'
 import { Route as ApiAdminV1AnalyticsKpisRouteImport } from './routes/api/admin/v1/analytics.kpis'
 import { Route as ApiPublicV1VehiclesIdWork_ordersRouteImport } from './routes/api/public/v1/vehicles.$id.work_orders'
 import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/public/v1/vehicles.$id.defects'
@@ -436,6 +437,12 @@ const ApiAdminV1ConfigBaseRoute = ApiAdminV1ConfigBaseRouteImport.update({
   path: '/api/admin/v1/config/base',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1BusinessRequestsIdRoute =
+  ApiAdminV1BusinessRequestsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiAdminV1BusinessRequestsRoute,
+  } as any)
 const ApiAdminV1AnalyticsKpisRoute = ApiAdminV1AnalyticsKpisRouteImport.update({
   id: '/api/admin/v1/analytics/kpis',
   path: '/api/admin/v1/analytics/kpis',
@@ -526,7 +533,7 @@ export interface FileRoutesByFullPath {
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
-  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRoute
+  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
@@ -546,6 +553,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
+  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRoute
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
@@ -604,7 +612,7 @@ export interface FileRoutesByTo {
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
-  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRoute
+  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
@@ -624,6 +632,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
+  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRoute
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
@@ -684,7 +693,7 @@ export interface FileRoutesById {
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
-  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRoute
+  '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/openapi': typeof ApiAdminV1OpenapiRoute
   '/api/admin/v1/payments': typeof ApiAdminV1PaymentsRouteWithChildren
@@ -704,6 +713,7 @@ export interface FileRoutesById {
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
+  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRoute
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
@@ -784,6 +794,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
     | '/api/admin/v1/analytics/kpis'
+    | '/api/admin/v1/business-requests/$id'
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
@@ -862,6 +873,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
     | '/api/admin/v1/analytics/kpis'
+    | '/api/admin/v1/business-requests/$id'
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
@@ -941,6 +953,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
     | '/api/admin/v1/analytics/kpis'
+    | '/api/admin/v1/business-requests/$id'
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
@@ -980,7 +993,7 @@ export interface RootRouteChildren {
   TripTokenRoute: typeof TripTokenRoute
   ApiAdminV1AuditRoute: typeof ApiAdminV1AuditRoute
   ApiAdminV1BugsRoute: typeof ApiAdminV1BugsRoute
-  ApiAdminV1BusinessRequestsRoute: typeof ApiAdminV1BusinessRequestsRoute
+  ApiAdminV1BusinessRequestsRoute: typeof ApiAdminV1BusinessRequestsRouteWithChildren
   ApiAdminV1InvoicesRoute: typeof ApiAdminV1InvoicesRoute
   ApiAdminV1OpenapiRoute: typeof ApiAdminV1OpenapiRoute
   ApiAdminV1PaymentsRoute: typeof ApiAdminV1PaymentsRouteWithChildren
@@ -1497,6 +1510,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1ConfigBaseRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/v1/business-requests/$id': {
+      id: '/api/admin/v1/business-requests/$id'
+      path: '/$id'
+      fullPath: '/api/admin/v1/business-requests/$id'
+      preLoaderRoute: typeof ApiAdminV1BusinessRequestsIdRouteImport
+      parentRoute: typeof ApiAdminV1BusinessRequestsRoute
+    }
     '/api/admin/v1/analytics/kpis': {
       id: '/api/admin/v1/analytics/kpis'
       path: '/api/admin/v1/analytics/kpis'
@@ -1648,6 +1668,20 @@ const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
   ServicesRouteChildren,
 )
 
+interface ApiAdminV1BusinessRequestsRouteChildren {
+  ApiAdminV1BusinessRequestsIdRoute: typeof ApiAdminV1BusinessRequestsIdRoute
+}
+
+const ApiAdminV1BusinessRequestsRouteChildren: ApiAdminV1BusinessRequestsRouteChildren =
+  {
+    ApiAdminV1BusinessRequestsIdRoute: ApiAdminV1BusinessRequestsIdRoute,
+  }
+
+const ApiAdminV1BusinessRequestsRouteWithChildren =
+  ApiAdminV1BusinessRequestsRoute._addFileChildren(
+    ApiAdminV1BusinessRequestsRouteChildren,
+  )
+
 interface ApiAdminV1PaymentsRouteChildren {
   ApiAdminV1PaymentsIdValidateRoute: typeof ApiAdminV1PaymentsIdValidateRoute
 }
@@ -1727,7 +1761,7 @@ const rootRouteChildren: RootRouteChildren = {
   TripTokenRoute: TripTokenRoute,
   ApiAdminV1AuditRoute: ApiAdminV1AuditRoute,
   ApiAdminV1BugsRoute: ApiAdminV1BugsRoute,
-  ApiAdminV1BusinessRequestsRoute: ApiAdminV1BusinessRequestsRoute,
+  ApiAdminV1BusinessRequestsRoute: ApiAdminV1BusinessRequestsRouteWithChildren,
   ApiAdminV1InvoicesRoute: ApiAdminV1InvoicesRoute,
   ApiAdminV1OpenapiRoute: ApiAdminV1OpenapiRoute,
   ApiAdminV1PaymentsRoute: ApiAdminV1PaymentsRouteWithChildren,
