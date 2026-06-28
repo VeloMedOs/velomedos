@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/superadmin")({
 
 type Tenant = { id: string; company_name: string; slug: string | null; logo_url: string | null; status: string; plan_tier: string; country: string | null; created_at: string };
 type Req = { id: string; company_name: string; contact_name: string; contact_email: string; contact_phone: string | null; country: string | null; fleet_size: number | null; use_case: string | null; status: string; created_at: string };
-type Plan = { id: string; code: string; name: string; description: string | null; price_cents: number; currency: string; billing_period: string; included_seats: number; features: string[]; is_active: boolean; sort_order: number };
+type Plan = { id: string; code: string; name: string; description: string | null; price_cents: number; currency: string; billing_period: string; included_seats: number; features: string[]; is_active: boolean; sort_order: number; eyebrow?: string | null; tagline?: string | null; units_label?: string | null; seats_label?: string | null; api_label?: string | null; is_public?: boolean; highlight?: boolean; cta_label?: string | null; cta_to?: string | null; };
 type Sub = { id: string; tenant_id: string; plan_id: string; status: string; seats: number; current_period_start: string; current_period_end: string | null; cancel_at_period_end: boolean; notes: string | null };
 type Profile = { id: string; full_name: string | null; email: string | null; default_role: string | null };
 type RoleRow = { user_id: string; role: string };
@@ -838,6 +838,15 @@ function PlanEditor({ plan, onClose, onSaved }: { plan: Plan | null; onClose: ()
     features: (plan?.features ?? []).join("\n"),
     is_active: plan?.is_active ?? true,
     sort_order: plan?.sort_order ?? 100,
+    eyebrow: plan?.eyebrow ?? "",
+    tagline: plan?.tagline ?? "",
+    units_label: plan?.units_label ?? "",
+    seats_label: plan?.seats_label ?? "",
+    api_label: plan?.api_label ?? "",
+    is_public: plan?.is_public ?? false,
+    highlight: plan?.highlight ?? false,
+    cta_label: plan?.cta_label ?? "Book a demo",
+    cta_to: plan?.cta_to ?? "/demo",
   });
   const [busy, setBusy] = useState(false);
   async function save() {
@@ -880,6 +889,28 @@ function PlanEditor({ plan, onClose, onSaved }: { plan: Plan | null; onClose: ()
           </div>
           <Lbl k="Description"><textarea value={f.description ?? ""} onChange={(e) => setF({ ...f, description: e.target.value })} rows={2} className="w-full px-2 py-2 rounded bg-input border border-hairline text-sm" /></Lbl>
           <Lbl k="Features (one per line)"><textarea value={f.features} onChange={(e) => setF({ ...f, features: e.target.value })} rows={5} className="w-full px-2 py-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+          <div className="rounded-md border border-hairline bg-panel-elevated/40 p-3 space-y-3">
+            <div className="mono text-[10px] uppercase tracking-widest text-teal">Public website (velomedos.com/pricing)</div>
+            <div className="grid grid-cols-2 gap-2">
+              <Lbl k="Eyebrow"><input value={f.eyebrow} onChange={(e) => setF({ ...f, eyebrow: e.target.value })} placeholder="Single branch / Most chosen…" className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="Tagline"><input value={f.tagline} onChange={(e) => setF({ ...f, tagline: e.target.value })} placeholder="One-line pitch" className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="Units label"><input value={f.units_label} onChange={(e) => setF({ ...f, units_label: e.target.value })} placeholder="Up to 50 units" className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="Seats label"><input value={f.seats_label} onChange={(e) => setF({ ...f, seats_label: e.target.value })} placeholder="10 dispatcher seats" className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="API label"><input value={f.api_label} onChange={(e) => setF({ ...f, api_label: e.target.value })} placeholder="100k API calls/mo" className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="CTA label"><input value={f.cta_label} onChange={(e) => setF({ ...f, cta_label: e.target.value })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm" /></Lbl>
+              <Lbl k="CTA link"><input value={f.cta_to} onChange={(e) => setF({ ...f, cta_to: e.target.value })} className="w-full h-9 px-2 rounded bg-input border border-hairline mono text-xs" /></Lbl>
+              <Lbl k="Show on website">
+                <select value={String(f.is_public)} onChange={(e) => setF({ ...f, is_public: e.target.value === "true" })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm">
+                  <option value="true">Public</option><option value="false">Hidden</option>
+                </select>
+              </Lbl>
+              <Lbl k="Highlight (most chosen)">
+                <select value={String(f.highlight)} onChange={(e) => setF({ ...f, highlight: e.target.value === "true" })} className="w-full h-9 px-2 rounded bg-input border border-hairline text-sm">
+                  <option value="false">No</option><option value="true">Yes</option>
+                </select>
+              </Lbl>
+            </div>
+          </div>
           <div className="flex justify-end gap-2 pt-2 border-t border-hairline">
             <button onClick={onClose} className="mono text-[10px] uppercase tracking-widest px-3 py-2 rounded border border-hairline">Cancel</button>
             <button onClick={save} disabled={busy} className="mono text-[10px] uppercase tracking-widest px-4 py-2 rounded bg-teal text-background font-bold disabled:opacity-60">{plan ? "Save changes" : "Create plan"}</button>
