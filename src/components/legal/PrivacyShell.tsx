@@ -4,6 +4,7 @@ import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { LegalRenderer } from "./LegalRenderer";
 import { ShieldCheck, FileText, HeartPulse, UserCheck, Printer, Languages, Check } from "lucide-react";
 import type { LegalDoc } from "@/lib/legal.functions";
+import { trackNavClick } from "@/lib/track-nav";
 
 const NAV: { to: string; label: string; labelAr: string; icon: any; key: string }[] = [
   { to: "/Privacy/Home",           label: "Privacy",          labelAr: "الخصوصية",       icon: ShieldCheck, key: "privacy-home" },
@@ -93,6 +94,7 @@ export function PrivacyShell({ doc, activeKey }: { doc: LegalDoc | null; activeK
                   key={n.to}
                   to={n.to}
                   search={{ locale } as any}
+                  onClick={() => trackNavClick({ event_name: "privacy_sidebar_click", target_path: n.to, surface: "sidebar", locale })}
                   className={`group relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] whitespace-nowrap transition-all ${
                     active
                       ? "bg-panel-elevated text-foreground shadow-[inset_0_1px_0_oklch(1_0_0/0.04)]"
@@ -179,6 +181,7 @@ export function PrivacyShell({ doc, activeKey }: { doc: LegalDoc | null; activeK
                       const I = n.icon;
                       return (
                         <Link key={n.to} to={n.to} search={{ locale } as any}
+                          onClick={() => trackNavClick({ event_name: "privacy_related_click", target_path: n.to, surface: "inline", locale })}
                           className="flex items-center gap-2 rounded-lg border border-hairline px-3 py-2.5 hover:bg-panel-elevated transition-colors text-[13px]">
                           <I className="size-3.5 text-teal" /> {rtl ? n.labelAr : n.label}
                         </Link>
