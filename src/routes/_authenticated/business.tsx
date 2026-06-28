@@ -74,7 +74,7 @@ function BusinessWorkspace() {
         <div className="bg-panel p-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
             {tenant.logo_url ? (
-              <img src={tenant.logo_url} alt={tenant.company_name} className="h-14 bg-white rounded-md object-contain p-2" />
+              <img src={tenant.logo_url} alt={tenant.company_name} width={56} height={56} loading="lazy" decoding="async" className="h-14 bg-white rounded-md object-contain p-2" />
             ) : (
               <div className="size-14 rounded-md grid place-items-center text-white font-bold text-xl" style={{ background: primary }}>{tenant.company_name[0]}</div>
             )}

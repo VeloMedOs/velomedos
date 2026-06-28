@@ -1,0 +1,21 @@
+{
+  "$schema": "./bundle-budgets.schema.json",
+  "description": "Per-asset gzipped size budgets for public route bundles. Fail CI when an asset exceeds budget.",
+  "assetsDir": "dist/client/assets",
+  "budgets": [
+    { "pattern": "**/index-*.js",     "maxGzipKB": 90,  "label": "App entry" },
+    { "pattern": "**/index-*.css",    "maxGzipKB": 50,  "label": "App CSS" },
+    { "pattern": "**/root-*.js",      "maxGzipKB": 25,  "label": "Root layout" },
+    { "pattern": "**/index_-*.js",    "maxGzipKB": 60,  "label": "Home route" },
+    { "pattern": "**/pricing-*.js",   "maxGzipKB": 40,  "label": "Pricing route" },
+    { "pattern": "**/about-*.js",     "maxGzipKB": 40,  "label": "About route" },
+    { "pattern": "**/services-*.js",  "maxGzipKB": 40,  "label": "Services route" },
+    { "pattern": "**/contact-*.js",   "maxGzipKB": 35,  "label": "Contact route" },
+    { "pattern": "**/resources-*.js", "maxGzipKB": 35,  "label": "Resources route" },
+    { "pattern": "**/PrivacyShell-*.js", "maxGzipKB": 25, "label": "Privacy shell" }
+  ],
+  "totals": {
+    "js":  { "maxGzipKB": 1200, "label": "All JS combined (gzip)" },
+    "css": { "maxGzipKB": 120,  "label": "All CSS combined (gzip)" }
+  }
+}

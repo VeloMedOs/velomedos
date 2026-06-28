@@ -673,7 +673,7 @@ function TenantsPane({
           return (
             <div key={t.id} className="px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-3 min-w-0">
-                {t.logo_url ? <img src={t.logo_url} alt="" className="size-10 rounded bg-white object-contain p-1" /> : <div className="size-10 rounded bg-panel-elevated grid place-items-center text-muted-foreground"><Building2 className="size-4" /></div>}
+                {t.logo_url ? <img src={t.logo_url} alt="" width={40} height={40} loading="lazy" decoding="async" className="size-10 rounded bg-white object-contain p-1" /> : <div className="size-10 rounded bg-panel-elevated grid place-items-center text-muted-foreground"><Building2 className="size-4" /></div>}
                 <div className="min-w-0">
                   <div className="font-semibold truncate">{t.company_name}</div>
                   <div className="mono text-[11px] text-muted-foreground truncate">{t.slug} · {t.country} · joined {new Date(t.created_at).toLocaleDateString()}</div>
