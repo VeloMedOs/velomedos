@@ -1286,7 +1286,7 @@ function ClusterShell({ children, label, live = true }: { children: React.ReactN
 
 function Gauge360({ label, unit, value, max, color, icon }: { label: string; unit: string; value: number; max: number; color: string; icon?: React.ReactNode }) {
   const pct = Math.max(0, Math.min(1, value / max));
-  const R = 34;
+  const R = 36;
   const C = 2 * Math.PI * R;
   // 270° arc starting at 135°
   const arc = C * 0.75;
@@ -1296,13 +1296,13 @@ function Gauge360({ label, unit, value, max, color, icon }: { label: string; uni
       <div className="mt-2 grid place-items-center">
         <div className="relative size-[110px]">
           <svg viewBox="0 0 80 80" className="absolute inset-0 -rotate-[135deg]">
-            <circle cx="40" cy="40" r={R} fill="none" stroke="oklch(0.22 0.02 240)" strokeWidth="6" strokeDasharray={`${arc} ${C}`} strokeLinecap="round" />
-            <circle cx="40" cy="40" r={R} fill="none" stroke={color} strokeWidth="6" strokeDasharray={`${filled} ${C}`} strokeLinecap="round" style={{ filter: `drop-shadow(0 0 6px ${color}90)`, transition: "stroke-dasharray 200ms linear" }} />
+            <circle cx="40" cy="40" r={R} fill="none" stroke="oklch(0.24 0.015 240)" strokeWidth="2" strokeDasharray={`${arc} ${C}`} strokeLinecap="round" />
+            <circle cx="40" cy="40" r={R} fill="none" stroke={color} strokeWidth="2.5" strokeDasharray={`${filled} ${C}`} strokeLinecap="round" style={{ transition: "stroke-dasharray 200ms linear" }} />
           </svg>
           <div className="absolute inset-0 grid place-items-center text-center">
             <div>
-              <div className="mono text-[9px] uppercase tracking-widest text-muted-foreground flex items-center gap-1 justify-center">{icon}{unit}</div>
-              <div className="font-serif text-3xl tabular-nums leading-none mt-0.5" style={{ color }}>{value}</div>
+              <div className="mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground/80 flex items-center gap-1 justify-center">{icon}{unit}</div>
+              <div className="font-serif text-[28px] font-light tabular-nums leading-none mt-1 text-foreground">{value}</div>
             </div>
           </div>
         </div>
@@ -1313,7 +1313,7 @@ function Gauge360({ label, unit, value, max, color, icon }: { label: string; uni
 
 function EtaCluster({ remainSec, progress, distLeftKm, arrived }: { remainSec: number; progress: number; distLeftKm: number; arrived: boolean }) {
   const pct = Math.max(0, Math.min(1, progress));
-  const R = 34, C = 2 * Math.PI * R;
+  const R = 36, C = 2 * Math.PI * R;
   const filled = C * pct;
   const color = arrived ? BRAND.teal : BRAND.blueDeep;
   return (
@@ -1321,16 +1321,16 @@ function EtaCluster({ remainSec, progress, distLeftKm, arrived }: { remainSec: n
       <div className="mt-2 grid place-items-center">
         <div className="relative size-[110px]">
           <svg viewBox="0 0 80 80" className="absolute inset-0 -rotate-90">
-            <circle cx="40" cy="40" r={R} fill="none" stroke="oklch(0.22 0.02 240)" strokeWidth="6" />
-            <circle cx="40" cy="40" r={R} fill="none" stroke={color} strokeWidth="6" strokeDasharray={`${filled} ${C}`} strokeLinecap="round" style={{ filter: `drop-shadow(0 0 8px ${color}90)`, transition: "stroke-dasharray 200ms linear" }} />
+            <circle cx="40" cy="40" r={R} fill="none" stroke="oklch(0.24 0.015 240)" strokeWidth="2" />
+            <circle cx="40" cy="40" r={R} fill="none" stroke={color} strokeWidth="2.5" strokeDasharray={`${filled} ${C}`} strokeLinecap="round" style={{ transition: "stroke-dasharray 200ms linear" }} />
           </svg>
           <div className="absolute inset-0 grid place-items-center text-center">
             <div>
-              <div className="mono text-[9px] uppercase tracking-widest text-muted-foreground">{arrived ? "Status" : "Arriving in"}</div>
-              <div className="font-serif text-3xl tabular-nums leading-none mt-0.5" style={{ color }}>
+              <div className="mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground/80">{arrived ? "Status" : "Arriving in"}</div>
+              <div className="font-serif text-[28px] font-light tabular-nums leading-none mt-1" style={{ color }}>
                 {arrived ? "✓" : fmtMinSec(remainSec)}
               </div>
-              <div className="mono text-[10px] text-muted-foreground mt-1 tabular-nums">{distLeftKm.toFixed(1)} km · {Math.round(pct * 100)}%</div>
+              <div className="mono text-[9px] text-muted-foreground/70 mt-1 tabular-nums">{distLeftKm.toFixed(1)} km · {Math.round(pct * 100)}%</div>
             </div>
           </div>
         </div>
