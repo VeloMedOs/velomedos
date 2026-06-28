@@ -682,7 +682,7 @@ function TeamView() {
       {!failed && (
         <>
           {/* Crew chip */}
-          <div className="absolute top-3 left-3 z-[40] max-w-[calc(100%-96px)] rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[11px] sm:text-[12px] font-medium flex items-center gap-2 truncate">
+          <div data-debug-id="team-crew-chip" className="absolute top-3 left-3 z-[40] max-w-[calc(100%-96px)] rounded-full bg-white text-slate-900 shadow-md px-3 py-1.5 text-[11px] sm:text-[12px] font-medium flex items-center gap-2 truncate">
             <span className="size-2 rounded-full animate-pulse" style={{ background: BRAND.teal }} /> Crew 04 · ALS · 2 onboard
           </div>
           {/* Route time bubbles — Google Maps style */}
@@ -690,7 +690,7 @@ function TeamView() {
             <RouteBubble key={i} minutes={r.minutes} primary={i === 0} index={i} total={routes.length} />
           ))}
           {/* Bottom sheet: ETA + actions */}
-          <div className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 sm:min-w-[260px]">
+          <div data-debug-id="team-eta-bubble" className="absolute bottom-3 left-3 right-16 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-[40] rounded-xl bg-white shadow-lg px-4 py-2.5 flex items-center gap-4 text-slate-900 sm:min-w-[260px]">
             <div>
               <div className="text-[10px] uppercase tracking-widest text-slate-500 font-medium">ETA · {TEAM_B.label}</div>
               <div
