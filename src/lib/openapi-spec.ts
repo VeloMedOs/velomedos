@@ -178,6 +178,30 @@ export const openApiSpec = {
     "/share/{token}": {
       get: { summary: "Public live trip snapshot (no API key, token-only)", parameters: [{ name: "token", in: "path", required: true, schema: { type: "string" } }], security: [], responses: { "200": { description: "OK" }, "410": { description: "Expired or revoked" } } },
     },
+    "/debug/events": {
+      get: {
+        summary: "Debug · list events (per tenant, kind, severity, viewport)",
+        description: "Requires scope `debug:read`. Supports query params `tenant_id`, `kind`, `severity`, `viewport`, `since`, `limit` (max 500).",
+        parameters: [
+          { name: "tenant_id", in: "query", schema: { type: "string", format: "uuid" } },
+          { name: "kind", in: "query", schema: { type: "string", enum: ["glitch","snapshot","metric","error","info"] } },
+          { name: "severity", in: "query", schema: { type: "string", enum: ["info","warn","error","critical"] } },
+          { name: "viewport", in: "query", schema: { type: "string", enum: ["mobile","tablet","desktop"] } },
+          { name: "since", in: "query", schema: { type: "string", format: "date-time" } },
+          { name: "limit", in: "query", schema: { type: "integer", maximum: 500, default: 100 } },
+        ],
+        responses: { "200": { description: "OK — `{ events: DebugEvent[] }`" }, "401": { description: "Missing API key" }, "403": { description: "Missing scope `debug:read`" } },
+      },
+      post: {
+        summary: "Debug · ingest one or many events (overlay, console, Playwright)",
+        description: "Requires scope `debug:write`. Accepts a single object or an array. Used by the in-app debug overlay and by Playwright visual-regression runners to classify glitches per business.",
+        requestBody: { required: true, content: { "application/json": { schema: { oneOf: [
+          { $ref: "#/components/schemas/DebugEvent" },
+          { type: "array", items: { $ref: "#/components/schemas/DebugEvent" } },
+        ] } } } },
+        responses: { "200": { description: "OK — `{ ok, inserted, ids }`" }, "400": { description: "Invalid input" }, "403": { description: "Missing scope `debug:write`" } },
+      },
+    },
     "/web_intake": {
       post: {
         summary: "Public website intake — creates an incident or a lead",
