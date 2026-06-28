@@ -1450,7 +1450,7 @@ function TeamFallback() {
       </div>
 
       {/* Bottom-left ETA card — Patek-grade telemetry */}
-      <div data-debug-id="offline-eta-card" className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[300px] z-[40] rounded-2xl overflow-hidden border border-white/15 bg-white/[0.97] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+      <div data-debug-id="offline-eta-card" className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[300px] z-[40] rounded-2xl overflow-hidden border border-white/40 bg-white/75 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl">
         <div className="px-4 pt-3 pb-3">
           <div className="flex items-start justify-between">
             <div>
