@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
  *  would (via session). Throws on non-2xx with the API error envelope. */
 export async function adminFetch<T = unknown>(
   path: string,
-  init?: RequestInit & { body?: unknown },
+  init?: Omit<RequestInit, "body"> & { body?: unknown },
 ): Promise<T> {
   const { data: { session } } = await supabase.auth.getSession();
   const headers = new Headers(init?.headers as HeadersInit | undefined);
