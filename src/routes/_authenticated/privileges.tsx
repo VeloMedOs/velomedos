@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle2, Search, Shield, UserCog } from "lucide-react";
+import { CheckCircle2, Search, Shield, UserCog, Sparkles } from "lucide-react";
 import {
   ROLE_META, ROLE_ORDER, CAPABILITIES, capabilitiesByArea,
   effectiveCapabilities, type AppRole,
 } from "@/lib/role-matrix";
+import { adminEndpointCount, openApiAdminSpec } from "@/lib/openapi-admin-spec";
 
 export const Route = createFileRoute("/_authenticated/privileges")({
   head: () => ({ meta: [
@@ -127,7 +128,17 @@ function PrivilegesPage() {
       <section className="space-y-3">
         {Object.entries(areas).map(([area, caps]) => (
           <div key={area} className="rounded-xl border border-hairline bg-panel overflow-hidden">
-            <div className="px-4 py-2 border-b border-hairline mono text-[10px] uppercase tracking-widest text-muted-foreground">{area}</div>
+            <div className="px-4 py-2 border-b border-hairline flex items-center justify-between gap-2">
+              <span className="mono text-[10px] uppercase tracking-widest text-muted-foreground">{area}</span>
+              <span className="mono text-[10px] uppercase tracking-widest text-action/80 flex items-center gap-2">
+                {caps.length} capabilities
+                {area === "Admin API" && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-action/30 bg-action/10 text-action">
+                    <Sparkles className="size-3" /> {adminEndpointCount()} endpoints · {Object.keys(openApiAdminSpec.paths).length} routes
+                  </span>
+                )}
+              </span>
+            </div>
             <div className="overflow-auto">
               <table className="w-full text-sm">
                 <thead className="mono text-[9px] uppercase tracking-widest text-muted-foreground bg-panel-elevated/40">
