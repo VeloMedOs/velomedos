@@ -1604,96 +1604,9 @@ function TeamFallback() {
         <span className="mono text-[9px] uppercase tracking-widest text-white/55">Al Thuqbah · Origin</span>
       </div>
 
-      {/* Destination ETA bubble (above the pin) */}
-      <div data-debug-id="offline-dest-eta-bubble" className="absolute -translate-x-1/2 -translate-y-full pointer-events-none z-[30]"
-        style={{ top: "calc(10% - 18px)", left: "min(78%, calc(100% - 56px))" }}>
-        <div className="rounded-full p-[1px] bg-gradient-to-br from-white/80 to-white/20 shadow-[0_6px_20px_-6px_rgba(31,111,235,0.38)]">
-          <div
-            className="px-2.5 py-[4px] rounded-full text-[10px] font-semibold flex items-center gap-1 backdrop-blur-md"
-            style={{
-              background: arrived ? "rgba(40,214,182,0.76)" : "rgba(31,111,235,0.76)",
-              color: arrived ? "#080B11" : "#fff",
-              fontVariantNumeric: "tabular-nums",
-            }}
-          >
-            <Clock className="size-2.5 opacity-80" /> {etaStr}
-            <span className="inline-block size-1 rounded-full" style={{ background: arrived ? "#080B11" : "#28D6B6" }} />
-          </div>
-        </div>
-      </div>
-
-      {/* Alternate route ETA pill */}
-      <div data-debug-id="offline-alt-eta-pill" className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[25]"
-        style={{ top: "32%", left: "42%" }}>
-        <div className="rounded-full p-[1px] bg-gradient-to-br from-white/75 to-white/20 shadow-[0_6px_20px_-6px_rgba(79,182,247,0.35)]">
-          <div className="rounded-full px-2.5 py-1 bg-white/25 backdrop-blur-xl text-slate-900 text-[11px] font-semibold flex items-center gap-1.5"
-            style={{ fontVariantNumeric: "tabular-nums", textShadow: "0 1px 1px rgba(255,255,255,0.6)" }}>
-            7 min <span className="text-slate-500 font-normal">· alt</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom-left ETA card — elite glass telemetry */}
-      <div
-        data-debug-id="offline-eta-card"
-        className="absolute bottom-3 left-3 right-16 sm:right-auto sm:w-[320px] z-[40] rounded-[22px] p-[1px] bg-gradient-to-br from-white/75 via-white/30 to-white/10"
-        style={{
-          boxShadow: arrived
-            ? "0 14px 44px -12px rgba(40,214,182,0.34)"
-            : "0 14px 44px -12px rgba(31,111,235,0.30)",
-        }}
-      >
-        <div className="relative rounded-[21px] bg-white/30 backdrop-blur-2xl overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-white/25 via-white/10 to-transparent" />
-          <div className="relative px-4 pt-3 pb-3">
-            <div className="flex items-start justify-between">
-              <div style={{ textShadow: "0 1px 1px rgba(255,255,255,0.65)" }}>
-                <div className="mono text-[9px] font-bold tracking-[0.22em] uppercase text-slate-500/90 leading-none mb-1">
-                  ETA · Al Mana
-                </div>
-                <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-tight leading-tight">
-                  General Hospital
-                </div>
-              </div>
-              <div className="flex items-center gap-1 text-slate-500" style={{ textShadow: "0 1px 1px rgba(255,255,255,0.65)" }}>
-                <Clock className="size-3" />
-                <span className="mono text-[11px] font-bold" style={{ fontVariantNumeric: "tabular-nums" }}>
-                  {Math.round(pct * 100)}%
-                </span>
-              </div>
-            </div>
-            <div className="mt-2 flex items-end justify-between gap-3">
-              <div
-                className="text-[34px] font-bold tracking-tighter leading-none"
-                style={{ color: arrived ? "#0F7F66" : "#1F6FEB", fontVariantNumeric: "tabular-nums", textShadow: "0 1px 1px rgba(255,255,255,0.65)" }}
-              >
-                {arrived ? "0:00" : etaStr}
-              </div>
-              <div
-                className="text-right mono text-[10px] text-slate-500 leading-tight"
-                style={{ fontVariantNumeric: "tabular-nums", textShadow: "0 1px 1px rgba(255,255,255,0.65)" }}
-              >
-                <div>{Math.max(0, tel.totalKm * (1 - pct)).toFixed(2)} km left</div>
-                <div className="mt-0.5">{Math.round(tel.speedKmh)} km/h</div>
-              </div>
-            </div>
-          </div>
-          <div className="relative h-[3px] w-full bg-white/20">
-            <div
-              className="absolute inset-y-0 left-0 transition-[width] duration-300"
-              style={{
-                width: `${Math.round(pct * 100)}%`,
-                background: arrived
-                  ? "linear-gradient(90deg, #28D6B6, #4FB6F7)"
-                  : "linear-gradient(90deg, #4FB6F7, #1F6FEB)",
-                boxShadow: arrived
-                  ? "0 0 14px rgba(40,214,182,0.5)"
-                  : "0 0 14px rgba(79,182,247,0.5)",
-              }}
-            />
-          </div>
-        </div>
-      </div>
+      <OfflineDestEtaBubble etaStr={etaStr} arrived={arrived} />
+      <OfflineAltEtaPill />
+      <OfflineEtaCard tel={tel} pct={pct} etaStr={etaStr} arrived={arrived} />
 
       {/* Compass FAB */}
       <div className="absolute bottom-3 right-3 z-[45]">
