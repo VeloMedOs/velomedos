@@ -1714,50 +1714,125 @@ export type Database = {
           },
         ]
       }
-      subscription_plans: {
+      subscription_addons: {
         Row: {
-          billing_period: string
           code: string
           created_at: string
-          currency: string
           description: string | null
-          features: Json
+          icon: string | null
           id: string
-          included_seats: number
           is_active: boolean
           name: string
-          price_cents: number
+          price_cents: number | null
+          price_display: string | null
           sort_order: number
+          unit_label: string
+          unit_type: string
           updated_at: string
         }
         Insert: {
-          billing_period?: string
           code: string
           created_at?: string
-          currency?: string
           description?: string | null
-          features?: Json
+          icon?: string | null
           id?: string
-          included_seats?: number
           is_active?: boolean
           name: string
-          price_cents?: number
+          price_cents?: number | null
+          price_display?: string | null
           sort_order?: number
+          unit_label: string
+          unit_type?: string
           updated_at?: string
         }
         Update: {
-          billing_period?: string
           code?: string
           created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_cents?: number | null
+          price_display?: string | null
+          sort_order?: number
+          unit_label?: string
+          unit_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscription_plans: {
+        Row: {
+          api_label: string | null
+          billing_period: string
+          code: string
+          created_at: string
+          cta_label: string | null
+          cta_to: string | null
+          currency: string
+          description: string | null
+          eyebrow: string | null
+          features: Json
+          highlight: boolean
+          id: string
+          included_seats: number
+          is_active: boolean
+          is_public: boolean
+          name: string
+          price_cents: number
+          seats_label: string | null
+          sort_order: number
+          tagline: string | null
+          units_label: string | null
+          updated_at: string
+        }
+        Insert: {
+          api_label?: string | null
+          billing_period?: string
+          code: string
+          created_at?: string
+          cta_label?: string | null
+          cta_to?: string | null
           currency?: string
           description?: string | null
+          eyebrow?: string | null
           features?: Json
+          highlight?: boolean
           id?: string
           included_seats?: number
           is_active?: boolean
+          is_public?: boolean
+          name: string
+          price_cents?: number
+          seats_label?: string | null
+          sort_order?: number
+          tagline?: string | null
+          units_label?: string | null
+          updated_at?: string
+        }
+        Update: {
+          api_label?: string | null
+          billing_period?: string
+          code?: string
+          created_at?: string
+          cta_label?: string | null
+          cta_to?: string | null
+          currency?: string
+          description?: string | null
+          eyebrow?: string | null
+          features?: Json
+          highlight?: boolean
+          id?: string
+          included_seats?: number
+          is_active?: boolean
+          is_public?: boolean
           name?: string
           price_cents?: number
+          seats_label?: string | null
           sort_order?: number
+          tagline?: string | null
+          units_label?: string | null
           updated_at?: string
         }
         Relationships: []
