@@ -63,3 +63,8 @@ export async function adminAudit(actorId: string | null, action: string, target:
 }
 
 export { json, preflight, serviceClient };
+
+/** Loose-typed Supabase client for admin handlers — avoids fighting the regenerated `Database` type
+ *  for the new `portal_*` tables which are added in the same prompt and not yet in the typegen. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function adminDb(): any { return serviceClient() as unknown as any; }
