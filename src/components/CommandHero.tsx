@@ -179,7 +179,7 @@ function effectiveBgLuminance(start: Element | null): number | null {
   return relLuminance(r, g, b);
 }
 
-function useAdaptiveGlass(ref: React.RefObject<HTMLElement>, opts?: { mode?: "light" | "dark" | "auto"; intervalMs?: number; }): GlassTone {
+function useAdaptiveGlass(ref: React.RefObject<HTMLElement | null>, opts?: { mode?: "light" | "dark" | "auto"; intervalMs?: number; }): GlassTone {
   const intervalMs = opts?.intervalMs ?? 650;
   const seedLum = opts?.mode === "dark" ? 0.12 : opts?.mode === "light" ? 0.82 : 0.5;
   const [lum, setLum] = useState<number>(seedLum);
