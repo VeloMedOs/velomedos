@@ -87,6 +87,7 @@ import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/pub
 import { Route as ApiAdminV1TicketsIdEventsRouteImport } from './routes/api/admin/v1/tickets.$id.events'
 import { Route as ApiAdminV1PaymentsIdValidateRouteImport } from './routes/api/admin/v1/payments.$id.validate'
 import { Route as ApiAdminV1ConfigEffectiveSubscriberIdRouteImport } from './routes/api/admin/v1/config.effective.$subscriberId'
+import { Route as ApiAdminV1BusinessRequestsIdAdvanceRouteImport } from './routes/api/admin/v1/business-requests.$id.advance'
 
 const WebsiteRoute = WebsiteRouteImport.update({
   id: '/website',
@@ -490,6 +491,12 @@ const ApiAdminV1ConfigEffectiveSubscriberIdRoute =
     path: '/api/admin/v1/config/effective/$subscriberId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAdminV1BusinessRequestsIdAdvanceRoute =
+  ApiAdminV1BusinessRequestsIdAdvanceRouteImport.update({
+    id: '/advance',
+    path: '/advance',
+    getParentRoute: () => ApiAdminV1BusinessRequestsIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -553,7 +560,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
-  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRoute
+  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRouteWithChildren
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
@@ -562,6 +569,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
+  '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
@@ -632,7 +640,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
-  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRoute
+  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRouteWithChildren
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
@@ -641,6 +649,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
+  '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
@@ -713,7 +722,7 @@ export interface FileRoutesById {
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
-  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRoute
+  '/api/admin/v1/business-requests/$id': typeof ApiAdminV1BusinessRequestsIdRouteWithChildren
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
@@ -722,6 +731,7 @@ export interface FileRoutesById {
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
+  '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
@@ -803,6 +813,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
+    | '/api/admin/v1/business-requests/$id/advance'
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
@@ -882,6 +893,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
+    | '/api/admin/v1/business-requests/$id/advance'
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
@@ -962,6 +974,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/debug/events'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
+    | '/api/admin/v1/business-requests/$id/advance'
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
@@ -1573,6 +1586,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1ConfigEffectiveSubscriberIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/v1/business-requests/$id/advance': {
+      id: '/api/admin/v1/business-requests/$id/advance'
+      path: '/advance'
+      fullPath: '/api/admin/v1/business-requests/$id/advance'
+      preLoaderRoute: typeof ApiAdminV1BusinessRequestsIdAdvanceRouteImport
+      parentRoute: typeof ApiAdminV1BusinessRequestsIdRoute
+    }
   }
 }
 
@@ -1668,13 +1688,29 @@ const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
   ServicesRouteChildren,
 )
 
+interface ApiAdminV1BusinessRequestsIdRouteChildren {
+  ApiAdminV1BusinessRequestsIdAdvanceRoute: typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
+}
+
+const ApiAdminV1BusinessRequestsIdRouteChildren: ApiAdminV1BusinessRequestsIdRouteChildren =
+  {
+    ApiAdminV1BusinessRequestsIdAdvanceRoute:
+      ApiAdminV1BusinessRequestsIdAdvanceRoute,
+  }
+
+const ApiAdminV1BusinessRequestsIdRouteWithChildren =
+  ApiAdminV1BusinessRequestsIdRoute._addFileChildren(
+    ApiAdminV1BusinessRequestsIdRouteChildren,
+  )
+
 interface ApiAdminV1BusinessRequestsRouteChildren {
-  ApiAdminV1BusinessRequestsIdRoute: typeof ApiAdminV1BusinessRequestsIdRoute
+  ApiAdminV1BusinessRequestsIdRoute: typeof ApiAdminV1BusinessRequestsIdRouteWithChildren
 }
 
 const ApiAdminV1BusinessRequestsRouteChildren: ApiAdminV1BusinessRequestsRouteChildren =
   {
-    ApiAdminV1BusinessRequestsIdRoute: ApiAdminV1BusinessRequestsIdRoute,
+    ApiAdminV1BusinessRequestsIdRoute:
+      ApiAdminV1BusinessRequestsIdRouteWithChildren,
   }
 
 const ApiAdminV1BusinessRequestsRouteWithChildren =
