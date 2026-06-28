@@ -74,6 +74,7 @@ import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiAdminV1UsageDailyRouteImport } from './routes/api/admin/v1/usage.daily'
 import { Route as ApiAdminV1SubscribersIdRouteImport } from './routes/api/admin/v1/subscribers.$id'
+import { Route as ApiAdminV1DiagnosticsSuperadminRouteImport } from './routes/api/admin/v1/diagnostics.superadmin'
 import { Route as ApiAdminV1ConfigOverridesRouteImport } from './routes/api/admin/v1/config.overrides'
 import { Route as ApiAdminV1ConfigBaseRouteImport } from './routes/api/admin/v1/config.base'
 import { Route as ApiAdminV1AnalyticsKpisRouteImport } from './routes/api/admin/v1/analytics.kpis'
@@ -411,6 +412,12 @@ const ApiAdminV1SubscribersIdRoute = ApiAdminV1SubscribersIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiAdminV1SubscribersRoute,
 } as any)
+const ApiAdminV1DiagnosticsSuperadminRoute =
+  ApiAdminV1DiagnosticsSuperadminRouteImport.update({
+    id: '/api/admin/v1/diagnostics/superadmin',
+    path: '/api/admin/v1/diagnostics/superadmin',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminV1ConfigOverridesRoute =
   ApiAdminV1ConfigOverridesRouteImport.update({
     id: '/api/admin/v1/config/overrides',
@@ -533,6 +540,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
+  '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -609,6 +617,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
+  '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -687,6 +696,7 @@ export interface FileRoutesById {
   '/api/admin/v1/analytics/kpis': typeof ApiAdminV1AnalyticsKpisRoute
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
+  '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -765,6 +775,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/analytics/kpis'
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
+    | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
@@ -841,6 +852,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/analytics/kpis'
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
+    | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
@@ -918,6 +930,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/analytics/kpis'
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
+    | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/public/v1/debug/events'
@@ -975,6 +988,7 @@ export interface RootRouteChildren {
   ApiAdminV1AnalyticsKpisRoute: typeof ApiAdminV1AnalyticsKpisRoute
   ApiAdminV1ConfigBaseRoute: typeof ApiAdminV1ConfigBaseRoute
   ApiAdminV1ConfigOverridesRoute: typeof ApiAdminV1ConfigOverridesRoute
+  ApiAdminV1DiagnosticsSuperadminRoute: typeof ApiAdminV1DiagnosticsSuperadminRoute
   ApiAdminV1UsageDailyRoute: typeof ApiAdminV1UsageDailyRoute
   ApiPublicV1DebugEventsRoute: typeof ApiPublicV1DebugEventsRoute
   ApiPublicV1ShareTokenRoute: typeof ApiPublicV1ShareTokenRoute
@@ -1441,6 +1455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1SubscribersIdRouteImport
       parentRoute: typeof ApiAdminV1SubscribersRoute
     }
+    '/api/admin/v1/diagnostics/superadmin': {
+      id: '/api/admin/v1/diagnostics/superadmin'
+      path: '/api/admin/v1/diagnostics/superadmin'
+      fullPath: '/api/admin/v1/diagnostics/superadmin'
+      preLoaderRoute: typeof ApiAdminV1DiagnosticsSuperadminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/v1/config/overrides': {
       id: '/api/admin/v1/config/overrides'
       path: '/api/admin/v1/config/overrides'
@@ -1706,6 +1727,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1AnalyticsKpisRoute: ApiAdminV1AnalyticsKpisRoute,
   ApiAdminV1ConfigBaseRoute: ApiAdminV1ConfigBaseRoute,
   ApiAdminV1ConfigOverridesRoute: ApiAdminV1ConfigOverridesRoute,
+  ApiAdminV1DiagnosticsSuperadminRoute: ApiAdminV1DiagnosticsSuperadminRoute,
   ApiAdminV1UsageDailyRoute: ApiAdminV1UsageDailyRoute,
   ApiPublicV1DebugEventsRoute: ApiPublicV1DebugEventsRoute,
   ApiPublicV1ShareTokenRoute: ApiPublicV1ShareTokenRoute,

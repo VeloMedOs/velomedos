@@ -35,6 +35,12 @@ type Identity = {
   tenants: { tenant_id: string; role: string; company_name: string | null; slug: string | null }[];
   ownedApiKeys: number;
   fetchedAt: string;
+  lookupUserId: string | null;
+  roleHits: { role: string; source: "user_roles" | "portal_role_assignments" | "tenant_members"; tenant_id?: string | null }[];
+  roleErrors: { user_roles: string | null; portal_role_assignments: string | null; tenant_members: string | null };
+  diagnosticCode: string;
+  source: "api" | "fallback";
+  requestId: string | null;
 };
 
 const ALL_ROLES = ["superadmin","admin","dispatcher","developer","business_admin","paramedic","driver","patient"] as const;
@@ -65,11 +71,50 @@ function Superadmin() {
   const [stats, setStats] = useState({ users: 0, incidents: 0, ambulances: 0, apiKeys: 0, webhooks: 0 });
 
   async function diagnose(): Promise<Identity> {
+    // Prefer the dedicated diagnostics endpoint so the UI stays in sync with
+    // the same role-resolution logic the API uses. Fall back to a direct
+    // read against `user_roles` only if the endpoint is unreachable.
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    try {
+      const res = await fetch("/api/admin/v1/diagnostics/superadmin", {
+        headers: token ? { authorization: `Bearer ${token}` } : {},
+      });
+      if (res.ok) {
+        const j = await res.json();
+        const id: Identity = {
+          authed: !!j.authed,
+          userId: j.user_id ?? null,
+          email: j.email ?? null,
+          emailVerified: !!j.email_verified,
+          provider: j.provider ?? null,
+          roles: (j.resolved_roles ?? []) as string[],
+          rolesError: j.role_errors?.user_roles ?? null,
+          tenants: (j.tenants ?? []) as Identity["tenants"],
+          ownedApiKeys: j.owned_api_keys ?? 0,
+          fetchedAt: j.fetched_at ?? new Date().toISOString(),
+          lookupUserId: j.lookup_user_id ?? null,
+          roleHits: (j.roles ?? []) as Identity["roleHits"],
+          roleErrors: j.role_errors ?? { user_roles: null, portal_role_assignments: null, tenant_members: null },
+          diagnosticCode: j.code ?? "UNKNOWN",
+          source: "api",
+          requestId: j.request_id ?? null,
+        };
+        setIdentity(id);
+        setAllowed(id.roles.includes("superadmin"));
+        return id;
+      }
+    } catch { /* fall through to fallback */ }
+
+    // Fallback path — direct DB read.
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       const id: Identity = {
         authed: false, userId: null, email: null, emailVerified: false, provider: null,
         roles: [], rolesError: null, tenants: [], ownedApiKeys: 0, fetchedAt: new Date().toISOString(),
+        lookupUserId: null, roleHits: [],
+        roleErrors: { user_roles: null, portal_role_assignments: null, tenant_members: null },
+        diagnosticCode: "AUTH_MISSING", source: "fallback", requestId: null,
       };
       setIdentity(id); setAllowed(false); return id;
     }
@@ -81,6 +126,10 @@ function Superadmin() {
       (supabase as any).from("api_keys").select("id", { count: "exact", head: true }).eq("owner_id", user.id),
     ]);
     const roles: string[] = (roleRows ?? []).map((r: any) => r.role);
+    const hits: Identity["roleHits"] = [
+      ...((roleRows ?? []) as any[]).map((r) => ({ role: r.role as string, source: "user_roles" as const })),
+      ...((memberRows ?? []) as any[]).map((m) => ({ role: m.role as string, source: "tenant_members" as const, tenant_id: m.tenant_id as string })),
+    ];
     const id: Identity = {
       authed: true,
       userId: user.id,
@@ -96,6 +145,12 @@ function Superadmin() {
       })),
       ownedApiKeys: keyCount ?? 0,
       fetchedAt: new Date().toISOString(),
+      lookupUserId: user.id,
+      roleHits: hits,
+      roleErrors: { user_roles: rolesErr?.message ?? null, portal_role_assignments: null, tenant_members: null },
+      diagnosticCode: roles.includes("superadmin") ? "OK" : (roles.length === 0 ? "NO_ROLES_ASSIGNED" : "ROLE_INSUFFICIENT"),
+      source: "fallback",
+      requestId: null,
     };
     setIdentity(id);
     setAllowed(roles.includes("superadmin"));
