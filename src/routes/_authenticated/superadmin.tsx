@@ -14,6 +14,8 @@ import { ROLE_META, ROLE_ORDER, CAPABILITIES, effectiveCapabilities, type AppRol
 import { PipelineBoard } from "@/components/superadmin/PipelineBoard";
 import { adminFetch } from "@/lib/admin-fetch";
 import { SuperadminSideNav } from "@/components/superadmin/SideNav";
+import { useServerFn } from "@tanstack/react-start";
+import { createOperator } from "@/lib/superadmin.functions";
 
 export const Route = createFileRoute("/_authenticated/superadmin")({
   head: () => ({ meta: [{ title: "Superadmin · VeloMed OS" }] }),
