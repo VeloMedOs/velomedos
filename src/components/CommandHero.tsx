@@ -122,6 +122,129 @@ function fmtHHMM(totalSec: number) {
   const sec = s % 60;
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
+
+/* ============================================================
+   Adaptive Glass — samples brightness under an overlay element
+   (ETA card / bubble) so we can dial bg opacity + text color in
+   real time. Keeps the map clearly visible while text stays
+   readable on both bright (snow/roads) and dark (satellite/road
+   shoulder) backgrounds.
+   ============================================================ */
+type GlassTone = {
+  lum: number;             // 0..1 estimated luminance under the card
+  isDark: boolean;         // luminance < 0.5
+  bg: string;              // rgba() — adaptive white|dark glass
+  border: string;          // rgba() — gradient-edge tone
+  text: string;            // primary text color
+  textMuted: string;       // secondary text color
+  textShadow: string;      // legibility halo behind text
+  ringShadow: string;      // outer glow color (brand-tinted)
+};
+
+function srgbChannel(c: number) {
+  const x = c / 255;
+  return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+}
+function relLuminance(r: number, g: number, b: number) {
+  return 0.2126 * srgbChannel(r) + 0.7152 * srgbChannel(g) + 0.0722 * srgbChannel(b);
+}
+function parseRGBA(str: string): [number, number, number, number] | null {
+  const m = str.match(/rgba?\(([^)]+)\)/i);
+  if (!m) return null;
+  const parts = m[1].split(",").map((s) => parseFloat(s.trim()));
+  if (parts.length < 3) return null;
+  return [parts[0], parts[1], parts[2], parts[3] ?? 1];
+}
+function effectiveBgLuminance(start: Element | null): number | null {
+  // Walk up, accumulating composited colors over white page background.
+  let r = 255, g = 255, b = 255;
+  let composed = false;
+  let el: Element | null = start;
+  const seen: Array<[number, number, number, number]> = [];
+  while (el && el !== document.body) {
+    const cs = getComputedStyle(el);
+    const c = parseRGBA(cs.backgroundColor || "");
+    if (c && c[3] > 0) seen.push(c);
+    el = el.parentElement;
+  }
+  // Composite from bottom-most (page) up
+  for (let i = seen.length - 1; i >= 0; i--) {
+    const [sr, sg, sb, sa] = seen[i];
+    r = sr * sa + r * (1 - sa);
+    g = sg * sa + g * (1 - sa);
+    b = sb * sa + b * (1 - sa);
+    composed = true;
+  }
+  if (!composed) return null;
+  return relLuminance(r, g, b);
+}
+
+function useAdaptiveGlass(ref: React.RefObject<HTMLElement>, opts?: { mode?: "light" | "dark" | "auto"; intervalMs?: number; }): GlassTone {
+  const intervalMs = opts?.intervalMs ?? 650;
+  const seedLum = opts?.mode === "dark" ? 0.12 : opts?.mode === "light" ? 0.82 : 0.5;
+  const [lum, setLum] = useState<number>(seedLum);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let stopped = false;
+    const sample = () => {
+      if (stopped) return;
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.width < 8 || rect.height < 8) return;
+      const points: Array<[number, number]> = [
+        [rect.left + rect.width * 0.18, rect.top + rect.height * 0.5],
+        [rect.left + rect.width * 0.5,  rect.top + rect.height * 0.5],
+        [rect.left + rect.width * 0.82, rect.top + rect.height * 0.5],
+        [rect.left + rect.width * 0.5,  rect.top + rect.height * 0.2],
+        [rect.left + rect.width * 0.5,  rect.top + rect.height * 0.8],
+      ];
+      // Hide briefly so elementFromPoint reaches underlying map layers
+      const prevVis = el.style.visibility;
+      el.style.visibility = "hidden";
+      let total = 0, n = 0;
+      for (const [x, y] of points) {
+        if (x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) continue;
+        const under = document.elementFromPoint(x, y);
+        const L = effectiveBgLuminance(under);
+        if (L != null) { total += L; n++; }
+      }
+      el.style.visibility = prevVis;
+      if (n === 0) return;
+      const next = total / n;
+      // Smooth toward the new sample to avoid flicker
+      setLum((prev) => prev * 0.55 + next * 0.45);
+    };
+    const raf = requestAnimationFrame(sample);
+    const id = window.setInterval(sample, intervalMs);
+    return () => { stopped = true; cancelAnimationFrame(raf); window.clearInterval(id); };
+  }, [ref, intervalMs]);
+
+  const isDark = lum < 0.5;
+  // Bright maps → lighter glass; dark maps → darker glass. Always lean toward
+  // transparency so the underlying roads/cars stay visible.
+  // Light side: alpha 0.14 → 0.30 as lum increases (more white wash on bright base).
+  // Dark side: alpha 0.22 → 0.40 as lum decreases (more body for legibility).
+  const a = isDark
+    ? 0.22 + (0.5 - lum) * 0.36   // up to ~0.40
+    : 0.14 + (lum - 0.5) * 0.32;  // up to ~0.30
+  const alpha = Math.max(0.12, Math.min(0.42, a));
+  const bg = isDark
+    ? `rgba(10, 17, 24, ${alpha.toFixed(3)})`
+    : `rgba(255, 255, 255, ${alpha.toFixed(3)})`;
+  const border = isDark
+    ? `rgba(255,255,255,${(0.18 + (0.5 - lum) * 0.25).toFixed(3)})`
+    : `rgba(255,255,255,${(0.55 + (lum - 0.5) * 0.4).toFixed(3)})`;
+  const text = isDark ? "#F5F8FC" : "#0F1A2B";
+  const textMuted = isDark ? "rgba(226,232,240,0.78)" : "rgba(71,85,105,0.85)";
+  const textShadow = isDark
+    ? "0 1px 1px rgba(0,0,0,0.55)"
+    : "0 1px 1px rgba(255,255,255,0.7)";
+  const ringShadow = isDark
+    ? "0 14px 44px -14px rgba(79,182,247,0.45)"
+    : "0 14px 44px -14px rgba(31,111,235,0.28)";
+  return { lum, isDark, bg, border, text, textMuted, textShadow, ringShadow };
+}
 /** Shortest signed angular delta in degrees, normalized to (-180, 180]. */
 function shortestAngleDelta(from: number, to: number) {
   let d = ((to - from) % 360 + 540) % 360 - 180;
