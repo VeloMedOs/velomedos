@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, Ambulance, Activity, Users, GraduationCap, Stethoscope } from "lucide-react";
 import { BusinessSideNav } from "@/components/business/SideNav";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 export const Route = createFileRoute("/_authenticated/business")({
   head: () => ({ meta: [{ title: "Business Workspace · VeloMed OS" }] }),
