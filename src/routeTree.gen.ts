@@ -52,6 +52,7 @@ import { Route as AuthenticatedBusinessRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedSuperadminApiDocsRouteImport } from './routes/_authenticated/superadmin.api-docs'
+import { Route as AuthenticatedPatientProfileRouteImport } from './routes/_authenticated/patient.profile'
 import { Route as ApiPublicV1Work_ordersRouteImport } from './routes/api/public/v1/work_orders'
 import { Route as ApiPublicV1Web_intakeRouteImport } from './routes/api/public/v1/web_intake'
 import { Route as ApiPublicV1StatsRouteImport } from './routes/api/public/v1/stats'
@@ -318,6 +319,12 @@ const AuthenticatedSuperadminApiDocsRoute =
     id: '/api-docs',
     path: '/api-docs',
     getParentRoute: () => AuthenticatedSuperadminRoute,
+  } as any)
+const AuthenticatedPatientProfileRoute =
+  AuthenticatedPatientProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AuthenticatedPatientRoute,
   } as any)
 const ApiPublicV1Work_ordersRoute = ApiPublicV1Work_ordersRouteImport.update({
   id: '/api/public/v1/work_orders',
@@ -619,7 +626,7 @@ export interface FileRoutesByFullPath {
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/fleet': typeof AuthenticatedFleetRoute
-  '/patient': typeof AuthenticatedPatientRoute
+  '/patient': typeof AuthenticatedPatientRouteWithChildren
   '/privileges': typeof AuthenticatedPrivilegesRoute
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
@@ -634,6 +641,7 @@ export interface FileRoutesByFullPath {
   '/superadmin/login': typeof SuperadminLoginRoute
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
+  '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
@@ -714,7 +722,7 @@ export interface FileRoutesByTo {
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/fleet': typeof AuthenticatedFleetRoute
-  '/patient': typeof AuthenticatedPatientRoute
+  '/patient': typeof AuthenticatedPatientRouteWithChildren
   '/privileges': typeof AuthenticatedPrivilegesRoute
   '/provider': typeof AuthenticatedProviderRoute
   '/rentals': typeof AuthenticatedRentalsRoute
@@ -729,6 +737,7 @@ export interface FileRoutesByTo {
   '/superadmin/login': typeof SuperadminLoginRoute
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
+  '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
@@ -811,7 +820,7 @@ export interface FileRoutesById {
   '/_authenticated/developer': typeof AuthenticatedDeveloperRoute
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
   '/_authenticated/fleet': typeof AuthenticatedFleetRoute
-  '/_authenticated/patient': typeof AuthenticatedPatientRoute
+  '/_authenticated/patient': typeof AuthenticatedPatientRouteWithChildren
   '/_authenticated/privileges': typeof AuthenticatedPrivilegesRoute
   '/_authenticated/provider': typeof AuthenticatedProviderRoute
   '/_authenticated/rentals': typeof AuthenticatedRentalsRoute
@@ -826,6 +835,7 @@ export interface FileRoutesById {
   '/superadmin/login': typeof SuperadminLoginRoute
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
+  '/_authenticated/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
@@ -923,6 +933,7 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/superadmin/reset'
     | '/trip/$token'
+    | '/patient/profile'
     | '/superadmin/api-docs'
     | '/api/admin/v1/addons'
     | '/api/admin/v1/audit'
@@ -1018,6 +1029,7 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/superadmin/reset'
     | '/trip/$token'
+    | '/patient/profile'
     | '/superadmin/api-docs'
     | '/api/admin/v1/addons'
     | '/api/admin/v1/audit'
@@ -1114,6 +1126,7 @@ export interface FileRouteTypes {
     | '/superadmin/login'
     | '/superadmin/reset'
     | '/trip/$token'
+    | '/_authenticated/patient/profile'
     | '/_authenticated/superadmin/api-docs'
     | '/api/admin/v1/addons'
     | '/api/admin/v1/audit'
@@ -1536,6 +1549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSuperadminApiDocsRouteImport
       parentRoute: typeof AuthenticatedSuperadminRoute
     }
+    '/_authenticated/patient/profile': {
+      id: '/_authenticated/patient/profile'
+      path: '/profile'
+      fullPath: '/patient/profile'
+      preLoaderRoute: typeof AuthenticatedPatientProfileRouteImport
+      parentRoute: typeof AuthenticatedPatientRoute
+    }
     '/api/public/v1/work_orders': {
       id: '/api/public/v1/work_orders'
       path: '/api/public/v1/work_orders'
@@ -1896,6 +1916,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedPatientRouteChildren {
+  AuthenticatedPatientProfileRoute: typeof AuthenticatedPatientProfileRoute
+}
+
+const AuthenticatedPatientRouteChildren: AuthenticatedPatientRouteChildren = {
+  AuthenticatedPatientProfileRoute: AuthenticatedPatientProfileRoute,
+}
+
+const AuthenticatedPatientRouteWithChildren =
+  AuthenticatedPatientRoute._addFileChildren(AuthenticatedPatientRouteChildren)
+
 interface AuthenticatedSuperadminRouteChildren {
   AuthenticatedSuperadminApiDocsRoute: typeof AuthenticatedSuperadminApiDocsRoute
 }
@@ -1919,7 +1950,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDeveloperRoute: typeof AuthenticatedDeveloperRoute
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
   AuthenticatedFleetRoute: typeof AuthenticatedFleetRoute
-  AuthenticatedPatientRoute: typeof AuthenticatedPatientRoute
+  AuthenticatedPatientRoute: typeof AuthenticatedPatientRouteWithChildren
   AuthenticatedPrivilegesRoute: typeof AuthenticatedPrivilegesRoute
   AuthenticatedProviderRoute: typeof AuthenticatedProviderRoute
   AuthenticatedRentalsRoute: typeof AuthenticatedRentalsRoute
@@ -1938,7 +1969,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDeveloperRoute: AuthenticatedDeveloperRoute,
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
   AuthenticatedFleetRoute: AuthenticatedFleetRoute,
-  AuthenticatedPatientRoute: AuthenticatedPatientRoute,
+  AuthenticatedPatientRoute: AuthenticatedPatientRouteWithChildren,
   AuthenticatedPrivilegesRoute: AuthenticatedPrivilegesRoute,
   AuthenticatedProviderRoute: AuthenticatedProviderRoute,
   AuthenticatedRentalsRoute: AuthenticatedRentalsRoute,
