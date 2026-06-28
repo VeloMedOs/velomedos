@@ -5,6 +5,9 @@
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { visualizer } from "rollup-plugin-visualizer";
+
+const ANALYZE = process.env.ANALYZE === "true" || process.env.ANALYZE === "1";
 
 export default defineConfig({
   tanstackStart: {
@@ -15,5 +18,22 @@ export default defineConfig({
     // looks for `dist/server/server.js`, but our Nitro/Cloudflare build emits
     // `dist/server/index.mjs`, which breaks the build. SSR already returns complete
     // HTML on first byte for our public routes, so crawlers still get full markup.
+  },
+  vite: {
+    build: {
+      rollupOptions: {
+        plugins: ANALYZE
+          ? [
+              visualizer({
+                filename: "dist/bundle-report.html",
+                template: "treemap",
+                gzipSize: true,
+                brotliSize: true,
+                open: false,
+              }) as unknown as never,
+            ]
+          : [],
+      },
+    },
   },
 });

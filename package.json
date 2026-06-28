@@ -13,7 +13,10 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test:e2e": "playwright test",
-    "test:responsive": "playwright test tests/visual/responsive-overflow.spec.ts"
+    "test:responsive": "playwright test tests/visual/responsive-overflow.spec.ts",
+    "analyze": "ANALYZE=true vite build",
+    "budget": "node scripts/check-bundle-budget.mjs",
+    "budget:check": "bun run build && node scripts/check-bundle-budget.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
