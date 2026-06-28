@@ -163,6 +163,64 @@ export const openApiAdminSpec = {
     },
     "/usage/daily": { get: { summary: "Daily usage by subscriber", description: "Scope `analytics:read`. Query `?subscriber_id=` and `?days=` (default 60).", responses: ok("OK") } },
     "/audit": { get: { summary: "Portal audit log", description: "Scope `audit:read`. Query `?limit=` (max 500).", responses: ok("OK") } },
+
+    "/ops/refunds": {
+      get:    { summary: "List refunds", description: "Scope `billing:read`. Filters: `?status=&subscriber_id=`.", responses: ok("OK") },
+      post:   { summary: "Issue a refund", description: "Scope `billing:write`. Body: `{ payment_id?, amount_cents, currency?, reason?, status?, external_ref? }`.", responses: { 201: { description: "Created" } } },
+      patch:  { summary: "Update a refund row", description: "Scope `billing:write`. Body must include `id`.", responses: ok("OK") },
+      delete: { summary: "Delete a refund row", description: "Scope `billing:write`. Query `?id=`.", responses: ok("OK") },
+    },
+    "/ops/reviews": {
+      get:    { summary: "List trip reviews", description: "Scope `tickets:read`. Filter `?status=&tenant_id=`.", responses: ok("OK") },
+      post:   { summary: "Create a review on behalf of a patient", description: "Scope `tickets:write`.", responses: { 201: { description: "Created" } } },
+      patch:  { summary: "Moderate a review (status, moderated_by)", description: "Scope `tickets:write`.", responses: ok("OK") },
+      delete: { summary: "Delete a review", responses: ok("OK") },
+    },
+    "/ops/chat-filters": {
+      get:    { summary: "List chat filter rules", description: "Scope `config:read`.", responses: ok("OK") },
+      post:   { summary: "Create a filter", description: "Scope `config:write`. Body: `{ pattern, kind, action, is_active? }`.", responses: { 201: { description: "Created" } } },
+      patch:  { summary: "Update a filter", responses: ok("OK") },
+      delete: { summary: "Delete a filter", responses: ok("OK") },
+    },
+    "/ops/notifications": {
+      get:    { summary: "List notifications", description: "Scope `tickets:read`. Filter `?audience=&severity=`.", responses: ok("OK") },
+      post:   { summary: "Broadcast a notification", description: "Scope `tickets:write`. Audience: `all|superadmin|tenant|patient|provider|user`. For `tenant` or `user`, set `audience_tenant_id` or `audience_user_id`.", responses: { 201: { description: "Created" } } },
+      patch:  { summary: "Edit a notification", responses: ok("OK") },
+      delete: { summary: "Delete a notification", responses: ok("OK") },
+    },
+    "/ops/test-runs": {
+      get:    { summary: "List CI test runs", description: "Scope `analytics:read`.", responses: ok("OK") },
+      post:   { summary: "Record a test run (CI ingest)", description: "Scope `config:write`.", responses: { 201: { description: "Created" } } },
+      patch:  { summary: "Update a test run", responses: ok("OK") },
+      delete: { summary: "Delete a test run", responses: ok("OK") },
+    },
+    "/ops/smoke-reports": {
+      get:    { summary: "List smoke / health probes", description: "Scope `analytics:read`.", responses: ok("OK") },
+      post:   { summary: "Append a probe result", description: "Scope `config:write`.", responses: { 201: { description: "Created" } } },
+      delete: { summary: "Delete a probe result", responses: ok("OK") },
+    },
+    "/ops/releases": {
+      get:    { summary: "List releases", description: "Scope `config:read`.", responses: ok("OK") },
+      post:   { summary: "Create a release", description: "Scope `config:write`.", responses: { 201: { description: "Created" } } },
+      patch:  { summary: "Update or publish a release", description: "Set `status=published` and `published_at` to push to the public release feed.", responses: ok("OK") },
+      delete: { summary: "Delete a release", responses: ok("OK") },
+    },
+    "/ops/automations": {
+      get:    { summary: "List automated events / jobs", description: "Scope `config:read`.", responses: ok("OK") },
+      post:   { summary: "Register an automation", description: "Scope `config:write`. Body: `{ name, kind, schedule?, target_url?, is_active? }`.", responses: { 201: { description: "Created" } } },
+      patch:  { summary: "Update an automation", responses: ok("OK") },
+      delete: { summary: "Delete an automation", responses: ok("OK") },
+    },
+    "/ops/security": {
+      get:   { summary: "Read global security settings", description: "Scope `config:read`. Singleton row keyed `global`.", responses: ok("OK") },
+      patch: { summary: "Update global security settings", description: "Scope `config:write`. Fields: `password_min_length`, `password_require_symbol`, `password_require_number`, `mfa_required_roles`, `session_ttl_minutes`, `ip_allowlist`.", responses: ok("OK") },
+    },
+    "/ops/workspace": {
+      get:    { summary: "List workspace key/value settings", description: "Scope `config:read`. Public read at the table level for brand text.", responses: ok("OK") },
+      put:    { summary: "Upsert a workspace setting", description: "Scope `config:write`. Body: `{ key, value, description? }`.", responses: ok("OK") },
+      delete: { summary: "Delete a workspace setting", description: "Scope `config:write`. Query `?key=`.", responses: ok("OK") },
+    },
+
     "/openapi": { get: { summary: "This spec (machine-readable)", security: [], responses: ok("OK") } },
   },
 } as const;
