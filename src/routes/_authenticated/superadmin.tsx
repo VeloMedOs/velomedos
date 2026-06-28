@@ -54,8 +54,11 @@ function Superadmin() {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return setAllowed(false);
-      const { data: roles } = await (supabase as any).rpc("get_user_roles", { _user_id: user.id });
-      const list: string[] = (roles ?? []).map((r: any) => typeof r === "string" ? r : r.role);
+      const { data: roles } = await (supabase as any)
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      const list: string[] = (roles ?? []).map((r: any) => r.role);
       setAllowed(list.includes("superadmin"));
     })();
   }, []);
