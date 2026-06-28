@@ -1471,9 +1471,9 @@ function TeamFallback() {
       {/* Alternate route ETA pill */}
       <div data-debug-id="offline-alt-eta-pill" className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-[25]"
         style={{ top: "32%", left: "42%" }}>
-        <div className="px-2.5 py-1 rounded-full border border-white/70 bg-white/95 backdrop-blur text-slate-900 shadow-md text-[11px] font-semibold flex items-center gap-1.5"
+        <div className="px-2.5 py-1 rounded-full border border-white/50 bg-white/40 backdrop-blur-xl text-slate-900 shadow-[0_6px_18px_-6px_rgba(8,11,17,0.3)] text-[11px] font-semibold flex items-center gap-1.5"
           style={{ fontVariantNumeric: "tabular-nums" }}>
-          7 min <span className="text-slate-400 font-normal">· alt</span>
+          7 min <span className="text-slate-500 font-normal">· alt</span>
         </div>
       </div>
 
