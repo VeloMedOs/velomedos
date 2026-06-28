@@ -293,5 +293,114 @@ export const openApiSpec = {
         responses: { "201": { description: "Created", content: { "application/json": { schema: { $ref: "#/components/schemas/ScreeningOrder" } } } } },
       },
     },
+    "/homecare/recipients": {
+      get: {
+        tags: ["Homecare"],
+        summary: "List care recipients",
+        description: "Requires scope `homecare:read`. Optional `?tenant_id=`.",
+        parameters: [{ name: "tenant_id", in: "query", required: false, schema: { type: "string", format: "uuid" } }],
+        responses: { "200": { description: "OK" } },
+      },
+    },
+    "/homecare/care-plans": {
+      get: {
+        tags: ["Homecare"],
+        summary: "List care plans",
+        description: "Requires scope `homecare:read`. Filter by `recipient_id`, `plan_type`, `status`.",
+        parameters: [
+          { name: "recipient_id", in: "query", schema: { type: "string", format: "uuid" } },
+          { name: "plan_type", in: "query", schema: { type: "string", enum: ["general_nursing","wound_care","chronic_disease","post_op","palliative","elderly_care","maternal_newborn","medication_mgmt","physiotherapy"] } },
+          { name: "status", in: "query", schema: { type: "string" } },
+        ],
+        responses: { "200": { description: "OK" } },
+      },
+      post: {
+        tags: ["Homecare"],
+        summary: "Create a care plan (with optional template tasks)",
+        description: "Requires scope `homecare:write`.",
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["tenant_id","recipient_id","plan_type","frequency","start_date"], properties: {
+          tenant_id: { type: "string", format: "uuid" },
+          recipient_id: { type: "string", format: "uuid" },
+          plan_type: { type: "string" },
+          frequency: { type: "string", enum: ["one_off","daily","weekly","biweekly","monthly","custom"] },
+          start_date: { type: "string", format: "date" }, end_date: { type: "string", format: "date", nullable: true },
+          required_skills: { type: "array", items: { type: "string" } },
+          notes: { type: "string", nullable: true },
+          tasks: { type: "array", items: { type: "object", properties: { title: { type: "string" }, instructions: { type: "string" }, requires_vitals: { type: "boolean" } } } },
+        } } } } },
+        responses: { "201": { description: "Created" } },
+      },
+    },
+    "/homecare/visits": {
+      get: {
+        tags: ["Homecare"],
+        summary: "List home-visit schedule",
+        description: "Requires scope `homecare:read`. Filter by `date` (YYYY-MM-DD), `status`, `caregiver_id`, `recipient_id`.",
+        parameters: [
+          { name: "date", in: "query", schema: { type: "string", format: "date" } },
+          { name: "status", in: "query", schema: { type: "string", enum: ["scheduled","en_route","checked_in","in_progress","completed","missed","cancelled"] } },
+          { name: "caregiver_id", in: "query", schema: { type: "string", format: "uuid" } },
+          { name: "recipient_id", in: "query", schema: { type: "string", format: "uuid" } },
+        ],
+        responses: { "200": { description: "OK" } },
+      },
+      post: {
+        tags: ["Homecare"],
+        summary: "Schedule a home visit",
+        description: "Requires scope `homecare:write`.",
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["tenant_id","care_plan_id","recipient_id","scheduled_start","scheduled_end"], properties: {
+          tenant_id: { type: "string", format: "uuid" },
+          care_plan_id: { type: "string", format: "uuid" },
+          recipient_id: { type: "string", format: "uuid" },
+          caregiver_id: { type: "string", format: "uuid", nullable: true },
+          scheduled_start: { type: "string", format: "date-time" },
+          scheduled_end: { type: "string", format: "date-time" },
+        } } } } },
+        responses: { "201": { description: "Created" } },
+      },
+    },
+    "/homecare/visits/{id}": {
+      get: {
+        tags: ["Homecare"],
+        summary: "Visit detail with tasks, vitals and MAR",
+        description: "Requires scope `homecare:read`.",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+        responses: { "200": { description: "OK" }, "404": { description: "Not found" } },
+      },
+    },
+    "/homecare/visits/{id}/check-in": {
+      post: {
+        tags: ["Homecare"],
+        summary: "Geofenced check-in",
+        description: "Requires scope `homecare:write`. Body `{lat,lng}` — returns `{ distance_m, evv_verified, evv_exception }`. The EVV trigger computes distance and verification server-side; an out-of-range check-in is allowed but flagged with `evv_exception`.",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["lat","lng"], properties: { lat: { type: "number" }, lng: { type: "number" } } } } } },
+        responses: { "200": { description: "OK" } },
+      },
+    },
+    "/homecare/visits/{id}/check-out": {
+      post: {
+        tags: ["Homecare"],
+        summary: "Check-out, finalise tasks/vitals/MAR and run EVV",
+        description: "Requires scope `homecare:write`. Only EVV-verified visits emit the `homecare.visit.verified` usage event.",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["lat","lng"], properties: {
+          lat: { type: "number" }, lng: { type: "number" }, notes: { type: "string", nullable: true },
+          tasks: { type: "array", items: { type: "object", properties: { id: { type: "string", format: "uuid" }, title: { type: "string" }, completed: { type: "boolean" } } } },
+          vitals: { type: "array", items: { type: "object", required: ["type","value"], properties: { type: { type: "string" }, value: { type: "string" }, unit: { type: "string" } } } },
+          medications: { type: "array", items: { type: "object", required: ["drug_name"], properties: { drug_name: { type: "string" }, dose: { type: "string" }, route: { type: "string" }, status: { type: "string" } } } },
+        } } } } },
+        responses: { "200": { description: "OK" } },
+      },
+    },
+    "/homecare/visits/{id}/evv": {
+      get: {
+        tags: ["Homecare"],
+        summary: "EVV audit record (for payer / regulator export)",
+        description: "Requires scope `homecare:read`. Returns the visit, recipient anchor, applied policy (geofence radius, tolerance) and the verification outcome.",
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+        responses: { "200": { description: "OK" }, "404": { description: "Not found" } },
+      },
+    },
   },
 } as const;
