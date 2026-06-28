@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { GoogleMap } from "@/components/GoogleMap";
 import type { MapMarker, MapPolyline } from "@/components/LeafletMap";
 import { toast } from "sonner";
-import { Crosshair, Hospital, Calendar, Video, ShieldCheck, AlertTriangle, GraduationCap, Activity, ClipboardList } from "lucide-react";
+import { Crosshair, Hospital, Calendar, Video, ShieldCheck, AlertTriangle, GraduationCap, Activity, ClipboardList, UserCircle2 } from "lucide-react";
 import { haversineKm, formatElapsed } from "@/lib/distance";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -57,6 +57,9 @@ function Patient() {
 
   return (
     <div className="max-w-md mx-auto p-4 space-y-4 pb-24">
+      <div className="flex items-center justify-end">
+        <Link to="/patient/profile" className="mono text-[10px] uppercase tracking-widest text-action hover:underline inline-flex items-center gap-1"><UserCircle2 className="size-3" /> Your profile</Link>
+      </div>
       <div className="grid grid-cols-3 gap-1 p-1 bg-panel rounded-lg border border-hairline mono text-[10px] uppercase tracking-widest">
         {(["now", "care", "history"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)} className={`h-9 rounded ${tab === t ? "bg-panel-elevated text-foreground" : "text-muted-foreground"}`}>{t}</button>
