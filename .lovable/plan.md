@@ -1,67 +1,25 @@
-# Superadmin Access Hardening
+## Problem
 
-## Why /superadmin shows 404 today
+Google sign-in fails because Supabase-wide sign-up is currently **disabled** (`disable_signup: true` was set when we locked down the superadmin flow). That switch blocks **all** new identities, OAuth included — so a first-time Google user gets rejected before your custom Google OAuth client is even consulted. Existing Google users may also hit "Database error saving new user" if their `auth.users` row doesn't exist yet.
 
-The route exists at `src/routes/_authenticated/superadmin.tsx` and works on the latest preview build. `www.velomedos.com/superadmin` returns 404 because the **published** deployment is older than the route. After this change lands we re‑publish and the URL resolves.
+Your custom Google Client ID + Secret are already saved in Lovable Cloud → Auth Settings → Google, so no credential work is needed.
 
-## Goals
+## Fix
 
-1. `/superadmin` is reachable, but never publicly self‑service.
-2. Exactly one superadmin identity exists: `Superadmin@velomedOs.com`, credentials sourced from a project secret named `SUPERADMIN_SECRET` (label shown to user as “Superadmin Secret”). and the secret wil lbe used as the Password [Later on OTP linked to One Mobile number or 2FA for extra security layer]
-3. Superadmin password can be reset only via a numeric verification code emailed to that exact mailbox. or infuture through Superadmin Mobile Number OTP
-4. All other portal users (developers, call‑center agents, future roles) are provisioned by the superadmin and sign in with the credentials the superadmin gives them in the respected Role & Rospensibility Table — no public sign‑up for any portal role.
+1. **Re-enable sign-ups at the auth layer** via `supabase--configure_auth` (`disable_signup: false`, keep `auto_confirm_email: false`, keep HIBP on). The existing `handle_new_user` trigger auto-creates a `profiles` row and grants the `patient` role to any new auth user — exactly what we want for Google sign-ups.
+2. **Keep password sign-up closed at the UI layer.** `src/routes/auth.tsx` already hides the sign-up form and routes `superadmin@velomedos.com` to `/superadmin/login`. No change needed there — operators are still invite-only because there is no password sign-up surface, and the superadmin identity is still secret-gated.
+3. **Verify the OAuth call site is correct.** Confirm `auth.tsx` uses `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin })` (public same-origin URL, not a protected route). It already does — no change.
+4. **Add a post-OAuth role-aware redirect.** After Google returns and the session hydrates, route the user by role: superadmin → `/superadmin`, operator roles → `/dispatch`, patient → `/patient`. Today everyone lands on `/dispatch`, which 403s a patient and feels broken. Small change in `auth.tsx`'s `getUser().then(...)` and the `onAuthStateChange` path.
+5. **Smoke-test in headless Chromium**: hit `/auth`, click Continue with Google (use the Lovable broker which works in the preview iframe), assert the broker reaches `accounts.google.com` (proves your client ID is live), and capture the screenshot.
 
-## Plan
+## Out of scope
 
-### 1. Secret + bootstrap
+- No changes to your Google Cloud Console config — credentials are already saved.
+- No changes to superadmin flow, password reset, or operator provisioning.
+- No new tables, no RLS changes (the existing `handle_new_user` trigger covers patient provisioning).
 
-- Add a project secret `**SUPERADMIN_SECRET**` (the value is the initial superadmin password). Stored server‑side only, never sent to the browser.
-- Add server function `bootstrapSuperadmin()` that runs on first hit to `/superadmin/login`:
-  - If no `auth.users` row exists for `superadmin@velomedos.com`, create one via `supabaseAdmin.auth.admin.createUser` with `email_confirm: true` and password = `SUPERADMIN_SECRET`.
-  - Insert `user_roles(role='superadmin')` for that user.
-  - Idempotent — safe on every cold start.
+## Technical notes
 
-### 2. Sign‑up lockdown
-
-- Call `supabase--configure_auth` with `disable_signup: true` so no one can create accounts from the client SDK.
-- Strip the “Create account” tab from `src/routes/auth.tsx`; keep sign‑in + Google for the operational portals only.
-- Add a guard on `/auth` that refuses sign‑in attempts for `superadmin@velomedos.com` and redirects them to `/superadmin/login`.
-
-### 3. Dedicated superadmin login surface
-
-- New public route `src/routes/superadmin.login.tsx`:
-  - Email is locked to `superadmin@velomedos.com` (read‑only).
-  - Password field + “Forgot password”.
-  - On submit calls `supabase.auth.signInWithPassword`. Server‑side `requireSuperadmin` middleware confirms the `superadmin` role before allowing the session to land on `/superadmin`.
-- `_authenticated/superadmin.tsx` keeps the existing `AUTH_MISSING / ROLE_INSUFFICIENT` denial screen as defense in depth.
-
-### 4. Email‑code password reset (no magic links)
-
-- New table `superadmin_reset_codes(id, code_hash, expires_at, consumed_at, attempts)`.
-- Server functions:
-  - `requestSuperadminReset()` → generates a 6‑digit code, stores SHA‑256 hash with 10‑min TTL, sends the code to `superadmin@velomedos.com` via the Lovable email infra (auth template scaffolded with `email_domain--scaffold_auth_email_templates`).
-  - `confirmSuperadminReset({ code, newPassword })` → verifies hash, marks consumed, calls `supabaseAdmin.auth.admin.updateUserById` to set the new password, then rotates `SUPERADMIN_SECRET` value in memory only (the secret remains the *initial* bootstrap; live password lives in auth).
-- UI: `/superadmin/reset` two‑step form (request code → enter code + new password).
-- Rate‑limited (max 5 attempts / 15 min per IP) and only ever targets the single hard‑coded mailbox.
-
-### 5. Operator‑managed credentials for other roles
-
-- Superadmin → **Roles & access** pane gains an “Invite operator” action:
-  - Inputs: email, display name, role (developer, call‑center, dispatcher, …).
-  - Calls new admin endpoint `POST /api/admin/v1/operators` which uses `supabaseAdmin.auth.admin.createUser` with a generated strong password, inserts the matching `user_roles` row, and returns the one‑time credentials for the superadmin to hand off.
-  - Optional “force password change on first login” flag stored on `profiles`; enforced by a middleware redirect to `/account/change-password` until cleared.
-- Existing operators list shows status, last sign‑in, and a “Reset password” action that regenerates a one‑time password (same handoff flow). No self‑service signup anywhere.
-
-### 6. Verification
-
-- After build: visit `/superadmin/login`, sign in with `SUPERADMIN_SECRET`, confirm `/superadmin` loads and identity panel shows `superadmin` role from `user_roles`.
-- Trigger password reset, receive the 6‑digit code at the mailbox, set a new password, sign in again.
-- Create a test call‑center operator from the Roles pane, confirm they can sign in at `/auth` with the granted password and cannot reach `/superadmin`.
-- Re‑publish so `www.velomedos.com/superadmin` stops 404’ing.
-
-## Technical notes (for reference)
-
-- Files added/changed: `src/routes/superadmin.login.tsx`, `src/routes/superadmin.reset.tsx`, `src/lib/superadmin.functions.ts`, `src/lib/superadmin.server.ts`, `src/routes/api/admin/v1/operators.ts`, edits to `src/routes/auth.tsx`, `src/routes/_authenticated/superadmin.tsx` (Roles pane), new migration for `superadmin_reset_codes` + GRANTs.
-- Secret to add: `SUPERADMIN_SECRET` (initial password only — the live password lives in `auth.users`).
-- Email templates: scaffolded via auth email infra; requires the project email domain to be set up (will trigger that dialog if missing).
-- `supabase--configure_auth` flags: `disable_signup: true`, leave others unchanged.
+- `supabase--configure_auth` is the only way to flip `disable_signup` — re-running it is idempotent.
+- `handle_new_user` already inserts into `profiles` + grants either Provider under specific role or `patient` in `user_roles` on every new `auth.users` row, so Google sign-ups inherit patient access automatically with no extra code.
+- The Lovable-managed Google broker (`@/integrations/lovable`) transparently uses your custom Client ID/Secret once they're saved in Auth Settings — same code path, your credentials.
