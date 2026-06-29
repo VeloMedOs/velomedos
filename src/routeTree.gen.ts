@@ -77,6 +77,7 @@ import { Route as ApiPublicV1Business_intakeRouteImport } from './routes/api/pub
 import { Route as ApiPublicTelemetryNavClickRouteImport } from './routes/api/public/telemetry.nav-click'
 import { Route as ApiPublicLegalSlugRouteImport } from './routes/api/public/legal.$slug'
 import { Route as ApiClinicalV1OpenapiRouteImport } from './routes/api/clinical/v1/openapi'
+import { Route as ApiClinicalV1BeneficiariesRouteImport } from './routes/api/clinical/v1/beneficiaries'
 import { Route as ApiAdminV1TicketsRouteImport } from './routes/api/admin/v1/tickets'
 import { Route as ApiAdminV1TenantSubscriptionsRouteImport } from './routes/api/admin/v1/tenant-subscriptions'
 import { Route as ApiAdminV1SubscriptionsRouteImport } from './routes/api/admin/v1/subscriptions'
@@ -482,6 +483,12 @@ const ApiClinicalV1OpenapiRoute = ApiClinicalV1OpenapiRouteImport.update({
   path: '/api/clinical/v1/openapi',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiClinicalV1BeneficiariesRoute =
+  ApiClinicalV1BeneficiariesRouteImport.update({
+    id: '/api/clinical/v1/beneficiaries',
+    path: '/api/clinical/v1/beneficiaries',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminV1TicketsRoute = ApiAdminV1TicketsRouteImport.update({
   id: '/api/admin/v1/tickets',
   path: '/api/admin/v1/tickets',
@@ -882,6 +889,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
+  '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -1009,6 +1017,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
+  '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -1140,6 +1149,7 @@ export interface FileRoutesById {
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
+  '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -1271,6 +1281,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/subscriptions'
     | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
+    | '/api/clinical/v1/beneficiaries'
     | '/api/clinical/v1/openapi'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -1398,6 +1409,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/subscriptions'
     | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
+    | '/api/clinical/v1/beneficiaries'
     | '/api/clinical/v1/openapi'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -1528,6 +1540,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/subscriptions'
     | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
+    | '/api/clinical/v1/beneficiaries'
     | '/api/clinical/v1/openapi'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -1629,6 +1642,7 @@ export interface RootRouteChildren {
   ApiAdminV1SubscriptionsRoute: typeof ApiAdminV1SubscriptionsRoute
   ApiAdminV1TenantSubscriptionsRoute: typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   ApiAdminV1TicketsRoute: typeof ApiAdminV1TicketsRouteWithChildren
+  ApiClinicalV1BeneficiariesRoute: typeof ApiClinicalV1BeneficiariesRoute
   ApiClinicalV1OpenapiRoute: typeof ApiClinicalV1OpenapiRoute
   ApiPublicLegalSlugRoute: typeof ApiPublicLegalSlugRouteWithChildren
   ApiPublicTelemetryNavClickRoute: typeof ApiPublicTelemetryNavClickRoute
@@ -2148,6 +2162,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/openapi'
       fullPath: '/api/clinical/v1/openapi'
       preLoaderRoute: typeof ApiClinicalV1OpenapiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/beneficiaries': {
+      id: '/api/clinical/v1/beneficiaries'
+      path: '/api/clinical/v1/beneficiaries'
+      fullPath: '/api/clinical/v1/beneficiaries'
+      preLoaderRoute: typeof ApiClinicalV1BeneficiariesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/v1/tickets': {
@@ -2952,6 +2973,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1TenantSubscriptionsRoute:
     ApiAdminV1TenantSubscriptionsRouteWithChildren,
   ApiAdminV1TicketsRoute: ApiAdminV1TicketsRouteWithChildren,
+  ApiClinicalV1BeneficiariesRoute: ApiClinicalV1BeneficiariesRoute,
   ApiClinicalV1OpenapiRoute: ApiClinicalV1OpenapiRoute,
   ApiPublicLegalSlugRoute: ApiPublicLegalSlugRouteWithChildren,
   ApiPublicTelemetryNavClickRoute: ApiPublicTelemetryNavClickRoute,
