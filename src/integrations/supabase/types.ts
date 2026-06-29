@@ -2036,7 +2036,6 @@ export type Database = {
           coverage_id: string | null
           created_at: string
           created_by: string | null
-          discharge_disposition: string | null
           encounter_number: string
           episode_of_care_id: string | null
           id: string
@@ -2065,7 +2064,6 @@ export type Database = {
           coverage_id?: string | null
           created_at?: string
           created_by?: string | null
-          discharge_disposition?: string | null
           encounter_number: string
           episode_of_care_id?: string | null
           id?: string
@@ -2094,7 +2092,6 @@ export type Database = {
           coverage_id?: string | null
           created_at?: string
           created_by?: string | null
-          discharge_disposition?: string | null
           encounter_number?: string
           episode_of_care_id?: string | null
           id?: string
@@ -2285,6 +2282,141 @@ export type Database = {
           },
           {
             foreignKeyName: "encounter_diagnosis_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      encounter_emergency: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          emergency_arrival_code: string | null
+          emergency_department_disposition: string | null
+          emergency_service_start: string | null
+          encounter_id: string
+          id: string
+          tenant_id: string
+          triage_category: string | null
+          triage_date: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          emergency_arrival_code?: string | null
+          emergency_department_disposition?: string | null
+          emergency_service_start?: string | null
+          encounter_id: string
+          id?: string
+          tenant_id: string
+          triage_category?: string | null
+          triage_date?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          emergency_arrival_code?: string | null
+          emergency_department_disposition?: string | null
+          emergency_service_start?: string | null
+          encounter_id?: string
+          id?: string
+          tenant_id?: string
+          triage_category?: string | null
+          triage_date?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encounter_emergency_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: true
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounter_emergency_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      encounter_hospitalization: {
+        Row: {
+          admission_source: string | null
+          admission_specialty: string | null
+          admitted_at: string | null
+          created_at: string
+          created_by: string | null
+          discharge_disposition: string | null
+          discharge_specialty: string | null
+          discharged_at: string | null
+          encounter_id: string
+          id: string
+          intended_length_of_stay: string | null
+          length_of_stay_days: number | null
+          origin: string | null
+          re_admission: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          admission_source?: string | null
+          admission_specialty?: string | null
+          admitted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          discharge_disposition?: string | null
+          discharge_specialty?: string | null
+          discharged_at?: string | null
+          encounter_id: string
+          id?: string
+          intended_length_of_stay?: string | null
+          length_of_stay_days?: number | null
+          origin?: string | null
+          re_admission?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          admission_source?: string | null
+          admission_specialty?: string | null
+          admitted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          discharge_disposition?: string | null
+          discharge_specialty?: string | null
+          discharged_at?: string | null
+          encounter_id?: string
+          id?: string
+          intended_length_of_stay?: string | null
+          length_of_stay_days?: number | null
+          origin?: string | null
+          re_admission?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encounter_hospitalization_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: true
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounter_hospitalization_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
@@ -6295,6 +6427,11 @@ export type Database = {
       }
     }
     Functions: {
+      encounter_advance_journey: {
+        Args: { _enc_id: string; _to: string }
+        Returns: undefined
+      }
+      encounter_journey_rank: { Args: { _state: string }; Returns: number }
       encounter_maybe_advance_documented: {
         Args: { _enc_id: string }
         Returns: undefined
