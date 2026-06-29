@@ -116,6 +116,16 @@ export const ClinicalAPI = {
     clinicalFetch<{ data: any }>(`/api/clinical/v1/claims/${id}/ready`, { method: "POST", body: {} }),
   submitClaim: (id: string, note?: string) =>
     clinicalFetch<{ data: any }>(`/api/clinical/v1/claims/${id}/submit`, { method: "POST", body: { note } }),
+  getClaimCompleteness: (id: string) =>
+    clinicalFetch<{
+      claim_id: string;
+      claim_type: string | null;
+      billing_model: string | null;
+      ok: boolean;
+      missing: Array<{ code: string; category: string; stage: "mds" | "drg" | "rcm"; message: string; severity: "error" | "warning" }>;
+      drg: { required: boolean; present: boolean; grouper_version_ok: boolean; los_ok: boolean; achi_ok: boolean; pdx_match_ok: boolean };
+      rcm: { eligibility_ok: boolean; executed_only_ok: boolean; snapshot_locked: boolean; auth_ok: boolean };
+    }>(`/api/clinical/v1/claims/${id}/completeness`),
 
   // Masters
   listMaster: (resource: string) =>
