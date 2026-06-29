@@ -131,6 +131,7 @@ import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/p
 import { Route as ApiPublicV1VehiclesIdCredentialsRouteImport } from './routes/api/public/v1/vehicles.$id.credentials'
 import { Route as ApiPublicV1HomecareVisitsIdRouteImport } from './routes/api/public/v1/homecare.visits.$id'
 import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/public/v1/fleet.$id.location'
+import { Route as ApiClinicalV1BeneficiariesIdFhirRouteImport } from './routes/api/clinical/v1/beneficiaries.$id.fhir'
 import { Route as ApiClinicalV1BeneficiariesIdCoverageRouteImport } from './routes/api/clinical/v1/beneficiaries.$id.coverage'
 import { Route as ApiAdminV1TicketsIdEventsRouteImport } from './routes/api/admin/v1/tickets.$id.events'
 import { Route as ApiAdminV1PaymentsIdValidateRouteImport } from './routes/api/admin/v1/payments.$id.validate'
@@ -780,6 +781,12 @@ const ApiPublicV1FleetIdLocationRoute =
     path: '/$id/location',
     getParentRoute: () => ApiPublicV1FleetRoute,
   } as any)
+const ApiClinicalV1BeneficiariesIdFhirRoute =
+  ApiClinicalV1BeneficiariesIdFhirRouteImport.update({
+    id: '/fhir',
+    path: '/fhir',
+    getParentRoute: () => ApiClinicalV1BeneficiariesIdRoute,
+  } as any)
 const ApiClinicalV1BeneficiariesIdCoverageRoute =
   ApiClinicalV1BeneficiariesIdCoverageRouteImport.update({
     id: '/coverage',
@@ -965,6 +972,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
+  '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
@@ -1096,6 +1104,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
+  '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
@@ -1231,6 +1240,7 @@ export interface FileRoutesById {
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
+  '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
@@ -1366,6 +1376,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
     | '/api/clinical/v1/beneficiaries/$id/coverage'
+    | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
@@ -1497,6 +1508,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
     | '/api/clinical/v1/beneficiaries/$id/coverage'
+    | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
@@ -1631,6 +1643,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/payments/$id/validate'
     | '/api/admin/v1/tickets/$id/events'
     | '/api/clinical/v1/beneficiaries/$id/coverage'
+    | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
@@ -2581,6 +2594,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1FleetIdLocationRouteImport
       parentRoute: typeof ApiPublicV1FleetRoute
     }
+    '/api/clinical/v1/beneficiaries/$id/fhir': {
+      id: '/api/clinical/v1/beneficiaries/$id/fhir'
+      path: '/fhir'
+      fullPath: '/api/clinical/v1/beneficiaries/$id/fhir'
+      preLoaderRoute: typeof ApiClinicalV1BeneficiariesIdFhirRouteImport
+      parentRoute: typeof ApiClinicalV1BeneficiariesIdRoute
+    }
     '/api/clinical/v1/beneficiaries/$id/coverage': {
       id: '/api/clinical/v1/beneficiaries/$id/coverage'
       path: '/coverage'
@@ -2927,12 +2947,15 @@ const ApiAdminV1TicketsRouteWithChildren =
 
 interface ApiClinicalV1BeneficiariesIdRouteChildren {
   ApiClinicalV1BeneficiariesIdCoverageRoute: typeof ApiClinicalV1BeneficiariesIdCoverageRoute
+  ApiClinicalV1BeneficiariesIdFhirRoute: typeof ApiClinicalV1BeneficiariesIdFhirRoute
 }
 
 const ApiClinicalV1BeneficiariesIdRouteChildren: ApiClinicalV1BeneficiariesIdRouteChildren =
   {
     ApiClinicalV1BeneficiariesIdCoverageRoute:
       ApiClinicalV1BeneficiariesIdCoverageRoute,
+    ApiClinicalV1BeneficiariesIdFhirRoute:
+      ApiClinicalV1BeneficiariesIdFhirRoute,
   }
 
 const ApiClinicalV1BeneficiariesIdRouteWithChildren =
