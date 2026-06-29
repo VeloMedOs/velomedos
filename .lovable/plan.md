@@ -1,83 +1,78 @@
-# Phase 7 — Claim Assembly + FHIR Bundle — REVISED
+# Phase 8 — Portal Wiring for the Mini-HIS — REVISED
 
-Billing layer on Phase 6's coded/grouped encounters. Branches by `encounter.reimbursement_model`: OP/ER → itemized SBS; IP → AR-DRG bundle. Produces the FHIR Claim bundle (unified health file) + a stub submission (real gateway = Phase 9). Standing rule: **API-first, fully wired.**
+Frontend-only: consume the existing `/api/clinical/v1/*` endpoints from the three operator portals with shadcn/ui as-is. Patient app is a separate doc. Standing rule still applies (no orphan tables/ endpoints — though this phase adds almost none).
 
-> Lovable's draft was largely right (reimbursement branch, `priceDrg` outliers, one-active-claim guard, cost-only IP snapshot, and it picked up the docs milestone). Changes tagged **[AMENDED]** / **[NEW]**.
+> Lovable's three-portal structure is right. Changes tagged **[AMENDED]** / **[NEW]**. Verified: no `me` endpoint exists; `admin-fetch.ts` exists; `admin.tsx`/`provider.tsx`/`superadmin.tsx` exist.
 
-## Role prerequisite [NEW]
+## One justified new endpoint [NEW]
 
-`biller` is **not** in the Phase-0 `clinical_role` enum. Add it: `ALTER TYPE clinical_role ADD VALUE IF NOT EXISTS 'biller';` (or use the existing `cashier`). Routes below assume `biller` exists.
+There is no current-user endpoint, so UI role-gating has nothing to read. Add a tiny `src/routes/api/clinical/v1/me.ts` — GET → `{ userId, tenantId, role, clinicalRole }` from `requireTenant`. This is the only new API in the phase.
 
-## Database migration
+## Security note — UI gating is cosmetic [NEW]
 
-Tenant-scoped, RLS, GRANTs, audit triggers, monotonic journey advance to `claim_ready`.
+`useClinicalRole()` hides tabs/actions for UX only. The **server routes (Phases 1–7) are the authorization boundary** via `requireClinicalRole`; hiding a button is never the control. Do not move any authorization decision into the client.
 
-- `claim` — header: `encounter_id`, `coverage_id`, `provider_claim_no` (unique per tenant), `invoice_no`, `claim_type` (professional|institutional|pharmacy|oral|vision), `claim_subtype` (op|ip|emergency), `billing_model` (itemized_sbs|drg_bundled), `drg_assignment_id NULL`, totals in halalas (`total_net_minor`, `total_patient_share_minor`, `total_payer_share_minor`, `currency` 'SAR'), `status` (draft|ready|submitted|accepted|rejected), `nphies_response jsonb`, `submitted_at`, `replaces_claim_id uuid NULL fk→claim` **[NEW — resubmission/correction lineage after a rejection; NPHIES wires it in Phase 9]**.
-- `claim_item` — line snapshot (OP payer-facing; IP cost-only audit): `sequence_no`, `charge_item_id`, `service_type`, `service_code` (SBS), `non_standard_code`, `description`, `quantity`, `unit_price_minor`, `factor`, `discount_minor`, `tax_minor`, `patient_share_minor`, `payer_share_minor`, `net_minor`, `is_package`, `body_site`, `sub_site`, `cost_only bool`.
-- **Claim-level sequenced MDS arrays (snapshotted)** **[NEW — NPHIES requires these; items reference their sequences]**:
-  - `claim_diagnosis` — `claim_id`, `sequence_no`, `icd10am_code`, `display`, `role`, `present_on_admission`.
-  - `claim_care_team` — `claim_id`, `sequence_no`, `practitioner_ref`, `role`, `speciality`.
-  - `claim_supporting_info` — `claim_id`, `sequence_no`, `category`, `code`, `value`, `unit`, `timing`. Populated from `vitals_observation` **+** `clinical_supporting_info` — this is the CHI-mandated MDS the payer requires (Phase 10 rejects claims missing it).
-- `claim_item_link` — `claim_id`, `item_sequence_no`, `link_type` (diagnosis|care_team|supporting_info), `target_sequence_no` → **references the claim-level sequence arrays above, not the encounter tables' rank** **[AMENDED]**.
+## Scope by portal
 
-Triggers: `claim_advance_journey` (status ready/submitted → journey `claim_ready`/`submitted`, monotonic); one-active-claim-per-encounter partial unique (status in draft|ready|submitted|accepted) — a `rejected` claim allows a new one (resubmission).
+**Provider portal** — `src/routes/_authenticated/provider.tsx` + `src/components/provider/*`. Clinical workspace gated by `clinical_role` (via `me`). Journey tabs:
 
-## Pricing & assembly libs
+1. **Registration** (`registrar`) — Beneficiary search/create; attach Coverage (payer/TPA/network/plan/class).
+2. **Encounters** (`physician`, `nurse`) — episode → encounter (OP/ER/IP); detail sub-panes: Diagnosis (ICD-10-AM, principal/secondary + POA), Vitals, Supporting-info notes (HPI/exam/plan), Care team, Orders (Lab/Rad/EP/Service/Rx — shows priced lines, in/out-of-network + preauth flags).
+3. **Admission/Discharge** (`physician`, `case_manager`) — admit form; discharge form (disposition, separation mode, ventilation hours, cause of death when deceased; LOS shown).
+4. **Coding & Grouper** (`coder`) — finalize Dx/procedures; IP "Run AR-DRG grouper" → assigned DRG + relative weight (disabled until discharged).
+5. **Claims** (`biller`, `case_manager`) — "Assemble claim" on a finished(OP)/grouped(IP) encounter → itemized vs DRG-bundled view, pricing trace (incl. applied DRG adjustments + share split), FHIR bundle preview, **Mark Ready**, **Submit** (stub). Left rail `ClinicalSideNav`; role visibility hides unusable tabs (cosmetic, per note above).
 
-- `src/lib/mds/drg-pricing.ts` — `priceDrg(encounterId)`: resolve `drg_base_rate` by `(payer_id, network_id, drg_version)`; `base = round(base_rate_minor * drg.relative_weight)`; apply `drg_price_adjustment` by `priority` (outliers vs LOS/cost trims, short-stay per-diem, ICU, same-day) via `pricing_rule scope='drg_outlier'`; **then apply the plan copay/deductible (**`pricing_rule scope='share'`**) to split the bundle into patient vs payer share** **[AMENDED — was undefined]**. Returns `{ payer_share_minor, patient_share_minor, net_minor, applied_adjustments[] }`.
-- `src/lib/mds/claim-assembly.ts`:
-  - `assembleItemized(encounterId)`: project `charge_item` → `claim_item` (sequenced); build `claim_diagnosis` (from `encounter_diagnosis`), `claim_care_team` (from `encounter_care_team`), `claim_supporting_info` **(from** `vitals_observation` **+** `clinical_supporting_info`**)**, then `claim_item_link` rows referencing those claim-level sequences; sum totals. **[AMENDED — +supporting info]**
-  - `assembleDrgBundle(encounterId)`: same claim-level diagnosis/careTeam/supportingInfo build; attach `drg_assignment_id`; totals from `priceDrg`; snapshot `charge_item` as `claim_item` `cost_only=true` (audit detail, not the payer bill).
-- `src/lib/mds/fhir/claim.ts` — FHIR R4 `Bundle` (type=collection): `Claim` + `Patient`, `Coverage`, `Encounter`, `Condition`s, `CareTeam`, `Claim.supportingInfo[]` **from** `claim_supporting_info`, and either `Claim.item[]` (OP) or the DRG package line (IP). **[VERIFY — NPHIES institutional DRG profile: does the IP claim submit the DRG package line only, or itemized lines + a DRG indicator? Structure** `claim_item`**/FHIR to match the KSA institutional claim IG before shipping.]**
-- `src/lib/mds/schema/claims.ts` — `ClaimCreate`, `ClaimAssembleRequest`, `ClaimSubmitRequest`.
+**Admin tenant portal** — extend `src/routes/_authenticated/admin.tsx` + `src/components/admin/clinical/*`. Consumes Phase-3 master endpoints. Manages the tenant's **contractual** layer only:
 
-## API routes (`src/routes/api/clinical/v1/`)
+- Insurance chain: Payers, TPAs, Networks, Insurance Plans, Network Membership.
+- Service Master (multi-code rows: SBS + ACHI + LOINC), Drug Master (GTIN/MRID/SFDA).
+- Price Lists & Items (incl. the `cost` list), **Pricing Rules — tenant overrides editable, global defaults shown read-only** **[AMENDED]**.
+- **DRG contractual only: DRG Base Rates (per payer/network/version) + DRG Price Adjustments** (outliers/ICU/per-diem/same-day). **The DRG catalog itself is NOT here** — it's national reference, managed in superadmin. **[AMENDED — was "DRG catalog … Phase 6/7"; reference vs contractual split from Phase 3]**
+- Read-only **Claims & Reconciliation**: charged total vs grouped DRG net vs patient/payer shares (the IP margin view; `cost_only` charges vs DRG payment).
 
-`requireTenant` / `requireClinicalRole(['biller','coder','tenant_admin'])`, audit, envelope.
+**Superadmin portal** — extend `src/routes/_authenticated/superadmin.tsx`.
 
-- `encounters.$id.claim.ts` — POST assemble. Guards: **OP requires** `encounter.status='finished'` **[AMENDED — was clinically_documented+; bill only a completed visit]**; IP requires `journey_state >= grouped`. Branch on `reimbursement_model`. Idempotent unless `?force=true`. Sets `status='ready'`, journey `claim_ready`. GET = current active claim.
-- `claims.ts` — GET list (status, billing_model, encounter_id, date range, pagination).
-- `claims.$id.ts` — GET detail (header + items + claim-level arrays + links); PATCH/DELETE (draft only).
-- `claims.$id.items.ts` — GET items.
-- `claims.$id.fhir.ts` — GET → FHIR Bundle (unified health file).
-- `claims.$id.submit.ts` — POST stub: validates `status='ready'`, sets `submitted`, writes synthetic `nphies_response`, journey `submitted`. Real gateway Phase 9.
+- **DRG reference catalog** (AR-DRG v9 codes/weights/trims) load + manage via `/api/admin/v1/drgs` (superadmin-gated, Phase 3). **[NEW — the reference layer lives here, not in admin tenant]**
+- **Global** `pricing_rule` **defaults** (`tenant_id IS NULL`) management. **[NEW]**
+- Cross-tenant **Clinical Operations**: read-only encounters/claims with tenant filter, status, totals.
+- Confirm `/superadmin/api-docs` exposes Claims/Coding/Grouper tags.
 
-## OpenAPI
+## Shared frontend bits
 
-Tags `Claims`, `FHIR Claim`; paths for all routes; schemas `Claim`, `ClaimItem`, `ClaimDiagnosis`, `ClaimCareTeam`, `ClaimSupportingInfo`, `ClaimItemLink`, `FhirClaimBundle`, `DrgPricingResult`.
+- `src/lib/clinical-api.ts` — typed fetch around `/api/clinical/v1/*` mirroring `admin-fetch.ts`, envelope `{ error, code, request_id }` handling.
+- `src/lib/clinical-roles.ts` — `useClinicalRole()` reading `me.clinicalRole`; gates UI only.
+- `src/components/provider/*`: `BeneficiaryPicker`, `CoverageForm`, `EncounterTimeline`, `DiagnosisPicker`, `VitalsForm`, `SupportingInfoForm`, `OrderForms`, `AdmissionForm`, `DischargeForm`, `GrouperPanel`, `ClaimAssembler`, `ClaimDetail`, `FhirBundleViewer`.
+
+## Out of scope
+
+No new tables/migrations; the only new endpoint is `me`. No NPHIES real submission (Phase 9); no patient app; no marketing/branding changes.
 
 ## Acceptance
 
-1. OP (status=finished) with charge_items → claim `itemized_sbs`; totals = Σ `charge_item.net_minor`; FHIR `Claim.item[]` match; `Claim.supportingInfo[]` **carries vitals + notes**. **[AMENDED]**
-2. IP (grouped) → `drg_bundled`; `payer_share = base_rate*relative_weight ± adjustments`, **patient share = plan copay/deductible on the bundle**; `applied_adjustments` traceable; FHIR exposes DRG line; `claim_item` rows `cost_only`. **[AMENDED]**
-3. Assembling an OP encounter not yet `finished` → 409. **[NEW]**
-4. Submit `ready` → `submitted`, journey `submitted`.
-5. Typecheck clean.
+- Provider drives end-to-end against live APIs: register → encounter → Dx + vitals + notes → lab order → admit → discharge → code → grouper → assemble claim → mark ready → submit (stub).
+- Admin manages contractual masters incl. DRG base rates + adjustments (but **not** the DRG catalog).
+- Superadmin loads/manages the DRG reference catalog + global pricing defaults, and views cross-tenant claims read-only. **[AMENDED]**
+- Role-gating verified cosmetic: a hidden action still 403s server-side if forced. **[NEW]**
 
-- **API coverage:** `claim`→encounters.$id.claim + claims(.$id); `claim_item`→claims.$id.items; `claim_diagnosis`/`claim_care_team`/`claim_supporting_info`/`claim_item_link`→ claims.$id detail + fhir. No orphan tables.
+## Delivery & Documentation milestone (standing DoD — most content lands here)
 
-## Delivery & Documentation milestone (standing DoD)
-
-- `docs/his-technical-manual.md` — Phase 7: claim data model (header + line + the three claim-level sequenced arrays + links), the **DRG pricing algorithm with worked OP and IP examples** (normal case, a high-cost outlier trim, a short-stay per-diem, and the copay/deductible split), FHIR bundle composition incl. SupportingInfo projection, the OP-finished / IP-grouped preconditions, and the NPHIES IP-claim-structure decision once verified.
-- `docs/his-user-manual.md` — biller workflow: assemble → review → submit; why IP totals come from the DRG bundle not line sums; what `cost_only` lines mean; resubmitting a rejected claim.
-- `docs/changelog.md` — Phase 7 entry.
+- `docs/his-user-manual.md` — this is the phase the user manual becomes real. Full role-based screen walkthroughs with the actual UI flow: registrar (register + coverage), physician/nurse (encounter, document, order), coder (code + grouper), biller (assemble + submit), tenant_admin (masters, price lists, DRG rates, pricing rules), superadmin (DRG catalog load, global defaults, cross-tenant view). Each screen: what it's for, who can use it, step-by-step.
+- `docs/his-technical-manual.md` — frontend architecture: `clinical-api`/`clinical-roles`, the `me` endpoint, component inventory, and an explicit "UI role-gating is UX, not security — server enforces" subsection so the boundary is never misread.
+- `docs/changelog.md` — Phase 8 entry.
 
 ## Files touched
 
 ```
-supabase migration (claim + claim_item + claim_diagnosis + claim_care_team + claim_supporting_info
-                    + claim_item_link; biller enum value; triggers/RLS/GRANTs)
-src/lib/mds/drg-pricing.ts        (new; outliers + share split)
-src/lib/mds/claim-assembly.ts     (new; +supporting-info projection, claim-level sequences)
-src/lib/mds/fhir/claim.ts         (new; +SupportingInfo; IP structure per NPHIES IG)
-src/lib/mds/schema/claims.ts      (new)
-src/routes/api/clinical/v1/encounters.$id.claim.ts | claims.ts | claims.$id.ts |
-   claims.$id.items.ts | claims.$id.fhir.ts | claims.$id.submit.ts   (new)
-src/lib/openapi-clinical-spec.ts  (extend: tags + schemas + paths)
-docs/his-technical-manual.md | his-user-manual.md | changelog.md      (update; worked pricing examples)
+src/routes/api/clinical/v1/me.ts                              (new — only new endpoint)
+src/lib/clinical-api.ts | clinical-roles.ts                   (new)
+src/routes/_authenticated/provider.tsx                        (extend: clinical workspace)
+src/routes/_authenticated/admin.tsx                           (extend: Clinical section — contractual only)
+src/routes/_authenticated/superadmin.tsx                      (extend: DRG reference + global defaults + cross-tenant)
+src/components/provider/* | src/components/admin/clinical/*    (new)
+docs/his-user-manual.md (major) | his-technical-manual.md | changelog.md   (update)
 
 ```
 
-Out of scope (later): real NPHIES submission + adjudication reconciliation (Phase 9); strict CHI/NPHIES validation (Phase 10); claims UI (Phase 8).
+Out of scope (later): real NPHIES submission (Phase 9); strict validation (Phase 10); PROMs (Phase 11).
 
-&nbsp;
+Approve and Lovable ships the `me` endpoint + components.  

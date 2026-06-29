@@ -28,3 +28,18 @@ AR-DRG codes a completed episode of care: length of stay, mechanical-ventilation
 ### What `superseded` means
 
 Each grouper run is preserved. Only one row per encounter is `assigned` (current); historical runs become `superseded` but remain available via `GET /encounters/:id/drg`.
+## Phase 8 — Clinical Workspace screens
+
+### Provider — `/clinical`
+Tabbed workspace with role-aware visibility. UI gating is cosmetic; the server enforces via `requireClinicalRole`.
+
+- **Registration** (`registrar`) — Search/create beneficiary, attach Coverage (payer/network/plan/member_id).
+- **Encounters** (`physician`, `nurse`, `case_manager`) — Browse encounters, record Vitals, add ICD-10-AM Diagnoses, Admit (IP) and Discharge.
+- **Coding · DRG** (`coder`, `case_manager`) — List inpatient encounters; "Run grouper" on discharged/coded encounters.
+- **Claims** (`biller`, `case_manager`, `cashier`) — Assemble claim from a finished encounter; view itemized vs DRG bundle totals; preview FHIR Bundle; Mark Ready; Submit (Phase 7 stub — real NPHIES is Phase 9).
+
+### Admin tenant — `/clinical-masters`
+Four contractual groups: Insurance Chain, Service Catalog, Pricing, DRG (Base Rates + Price Adjustments). The DRG **catalog** (codes/weights) is reference data — managed in the superadmin portal, not here.
+
+### Superadmin — `/clinical-superadmin`
+Cross-tenant claims, read-only. Filter by tenant and status; view billing model, patient/payer share and grand total.

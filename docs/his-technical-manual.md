@@ -38,3 +38,19 @@ After grouper response, we best-effort lookup `drg` by `(drg_code, version)`. If
 - `POST /api/clinical/v1/encounters/:id/code` — finalize; requires class=IMP, journey ≥ `discharged`, encounter has principal Dx, `principal_diagnosis_id` matches.
 - `POST /api/clinical/v1/encounters/:id/group` — run grouper; requires class=IMP, journey ≥ `coded`. Idempotent unless `{ force: true }`.
 - `GET /api/clinical/v1/encounters/:id/drg` — current assignment + history.
+## Phase 8 — Portal architecture
+
+### Surfaces
+- `/clinical` (`src/routes/_authenticated/clinical.tsx`) — provider HIS workspace.
+- `/clinical-masters` (`src/routes/_authenticated/clinical-masters.tsx`) — tenant_admin masters CRUD.
+- `/clinical-superadmin` (`src/routes/_authenticated/clinical-superadmin.tsx`) — superadmin cross-tenant claims (direct Supabase read; gated by `user_roles.role = 'superadmin'`).
+
+### Shared
+- `src/lib/clinical-api.ts` — `clinicalFetch<T>` + `ClinicalAPI.*` typed wrappers. Injects Supabase bearer; supports `x-tenant-id` header. Throws `ClinicalApiError(message, status, code, payload)` on non-2xx.
+- `src/lib/clinical-roles.ts` — `useClinicalMe()` reads `GET /api/clinical/v1/me`; `canAct(me, allowed)` returns true for the requested clinical roles or `tenant_admin`.
+
+### Security boundary (do not misread)
+UI role-gating in `clinical.tsx` and disabled buttons in `clinical-masters.tsx` are **UX only**. The authorization boundary is the server: every `/api/clinical/v1/*` route uses `requireClinicalRole` or `requireTenant`. A hidden action still 403s if invoked directly.
+
+### New endpoint
+- `GET /api/clinical/v1/me` → `{ data: { user_id, tenant_id, role, clinical_role } }`. Requires bearer; otherwise standard envelope.
