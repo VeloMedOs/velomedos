@@ -45,6 +45,17 @@ export const openApiClinicalSpec = {
     { name: "CareTeam", description: "Practitioners assigned to an encounter." },
     { name: "Vitals", description: "Vitals observations recorded during an encounter." },
     { name: "SupportingInfo", description: "Narrative MDS categories (HPI, exam, plan, history, investigation)." },
+    { name: "Payers", description: "Phase-3 Master · payers (insurance companies)." },
+    { name: "TPAs", description: "Phase-3 Master · third-party administrators." },
+    { name: "Policies", description: "Phase-3 Master · insurance policies." },
+    { name: "InsuranceClasses", description: "Phase-3 Master · classes under a policy." },
+    { name: "InsurancePlans", description: "Phase-3 Master · plans under a class (co-pay, deductible, limits)." },
+    { name: "Networks", description: "Phase-3 Master · provider networks + facility memberships." },
+    { name: "Services", description: "Phase-3 Master · multi-coded service catalog (SBS / ACHI / LOINC)." },
+    { name: "Drugs", description: "Phase-3 Master · drug catalog (GTIN / MRID / SFDA)." },
+    { name: "PriceLists", description: "Phase-3 Master · cash and payer-network itemized price lists." },
+    { name: "DRGBaseRates", description: "Phase-3 Master · negotiated AR-DRG base rates per payer." },
+    { name: "DRGAdjustments", description: "Phase-3 Master · DRG outlier / ICU / same-day / transfer adjustments." },
   ],
   paths: {
     "/openapi": {
