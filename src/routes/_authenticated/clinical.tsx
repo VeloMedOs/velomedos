@@ -3,18 +3,19 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   UserPlus, Stethoscope, FileText, Hospital, Receipt,
-  Lock, RefreshCw, Send, CheckCircle2,
+  Lock, RefreshCw, Send, CheckCircle2, HeartPulse,
 } from "lucide-react";
 import { ClinicalAPI, ClinicalApiError } from "@/lib/clinical-api";
 import { useClinicalMe, canAct, type ClinicalRole } from "@/lib/clinical-roles";
 import { ClaimCompletenessPanel } from "@/components/clinical/ClaimCompletenessPanel";
+import { OutcomesPane } from "@/components/clinical/OutcomesPane";
 
 export const Route = createFileRoute("/_authenticated/clinical")({
   head: () => ({ meta: [{ title: "Clinical Workspace · VeloMed OS" }] }),
   component: ClinicalWorkspace,
 });
 
-type TabId = "registration" | "encounters" | "coding" | "claims";
+type TabId = "registration" | "encounters" | "coding" | "claims" | "vbhc";
 
 type Beneficiary = { id: string; full_name: string; document_id: string | null };
 type Encounter = {
@@ -70,6 +71,7 @@ function ClinicalWorkspace() {
     { id: "encounters",   label: "Encounters",   icon: Stethoscope, allowed: ["physician", "nurse", "case_manager"] },
     { id: "coding",       label: "Coding · DRG", icon: FileText,    allowed: ["coder", "case_manager"] },
     { id: "claims",       label: "Claims",       icon: Receipt,     allowed: ["biller", "case_manager", "cashier"] },
+    { id: "vbhc",         label: "VBHC · PROMs", icon: HeartPulse,  allowed: ["case_manager", "physician", "nurse", "registrar", "tenant_admin"] },
   ];
 
   return (
@@ -119,6 +121,7 @@ function ClinicalWorkspace() {
       {tab === "encounters"   && <EncountersPane />}
       {tab === "coding"       && <CodingPane />}
       {tab === "claims"       && <ClaimsPane />}
+      {tab === "vbhc"         && <OutcomesPane />}
     </div>
   );
 }
