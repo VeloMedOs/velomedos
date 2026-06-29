@@ -1,66 +1,293 @@
-# Phase 3 Addendum v2 — Price List Builder + Bulk Pricing + Insights & Comparison
+/**
 
-Revises Lovable's addendum plan and adds the three you asked for: **bulk pricing actions**, **enhanced copy/replicate UX**, and an **RCM insights & comparison layer**. Keeps Lovable's core (scope generalization, duplicate-with-factor, catalog feed, payer-wise SBS) — those are correct.
+ * VeloMed OS — Clinical / RCM roles & privileges matrix (HIS).
 
-> Tags: **[KEEP]** Lovable's, **[FIX]** corrections, **[NEW]** the additions.
+ *
 
-## A. Corrections to Lovable's plan [FIX]
+ * Parallel to `role-matrix.ts` (which governs the *platform* AppRole axis). This file
 
-1. `cost` **list distinguishable** — backfilling `list_type='cost'` → `scope_level='cash'` loses it. Add `is_cost_basis bool DEFAULT false` and set it for cost lists; the Phase-4 resolver uses cost lists only for `drg_bundled` cost-only pricing, never as a patient/payer cash list.
-2. `service_code` **unique** — drop the redundant `is_primary_billing` column from the key: `UNIQUE (service_id, payer_id) WHERE is_primary_billing` (one primary per service+payer; `payer_id IS NULL` = global). Functionally what Lovable meant, cleaner.
-3. Everything else in Lovable's §1–§4 ships as written.
+ * is the single source of truth for the HIS/RCM `clinical_role` axis stored on
 
-## B. Bulk pricing actions [NEW] (from the Contract-Management mind-map: add/copy/export/import,
+ * `tenant_members.clinical_role`, surfaced in the Superadmin "HIS / RCM Privileges" tab
 
-update-at-date, AM↔PM, referral pricing) `POST /price-lists/{id}/items:bulk-update` — body `{ filter?{service_type|category|code_system|ids}, op: 'pct'|'amount'|'set'|'factor', value, effective_date?, time_band?('am'|'pm'|null), referral_status?('referral'|'non_referral'|null), dry_run?:bool }`.
+ * and consumed by the per-module clinical/RCM API guards `requireClinicalRole`,
 
-- Applies to matched lines: percentage change, absolute delta, set value, or factor.
-- **Effective-dated**: when `effective_date` is set, writes a `price_list_item_version` row (future-dated) rather than mutating now — supports "update prices at a certain date".
-- **Time band (AM/PM)** + **referral-status** pricing variants stored on the line (`time_band`, `referral_status` columns) — from the mind-map's "AM-PM" and "consultation price by referral status".
-- `dry_run` returns the would-be changes (powers the preview in §D). `POST /price-lists/{id}/items:bulk-activate` / `:bulk-deactivate` (by filter/ids). `POST /price-lists/{id}/export` (CSV/XLSX of items+codes) · `POST …/import` (upsert from CSV/XLSX, validated against catalog + payer-wise codes, returns row-level errors). Export/import the mind-map calls for. `price_list_item_version` [NEW table] — `price_list_item_id`, `unit_price_minor`, `factor`, `effective_from`, `effective_to`, `change_reason`, `changed_by` — the **price-change log** (mind-map "Update prices log") + effective-dated future prices. Resolver picks the version effective on service date.
+ * `requireClinicalModule`).
 
-## C. Copy / replicate UX [NEW] — beyond single duplicate
+ *
 
-`POST /price-lists/{id}/replicate` — replicate **one source to many targets** in a single action: `{ targets:[{ scope_level, scope_ref_id, name?, factor? }], copy_items:bool }`.
+ * Capabilities are *actions* (grantable write/operation permissions), classified per
 
-- Creates N derived lists (each with its own `parent_price_list_id` + `derive_factor`), e.g. clone "Standard" to every Class in a policy at ×0.9, or to five payers at different factors at once.
-- Parallels Contract Management's **"Create and Copy Profile"** (benefit-profile clone) — same UX pattern for price lists. **UI** (masters price-list pane):
-- **Replicate wizard**: pick source → multi-select targets (payer/TPA/policy/class/network tree) → per-target factor (or one factor for all) → preview deltas → commit.
-- **Duplicate-with-factor** modal (Lovable's) retained for the single-target case.
-- **Bulk-edit toolbar** on the items grid: select lines → apply pct/amount/set/factor, set effective date, AM/PM, referral variant, activate/deactivate, export selection.
-- **Import** drawer with validation summary.
+ * MODULE (area) so the matrix doubles as the access-control map for the module-scoped
 
-## D. Insights & comparison layer [NEW] — the RCM analytics you asked for
+ * API namespaces. READ access is modelled separately:
 
-`GET /price-lists/compare?left={id}&right={id}` — line-by-line diff of two lists (or derived vs `parent_price_list_id`): per service/drug → left price, right price, Δ, Δ%, missing-on-one-side flag. Powers "this payer vs that payer", "derived vs parent", "our list vs contractual tariff". `GET /price-lists/{id}/insights` — for one list:
+ *   - a role can VIEW any module in which it holds at least one capability;
 
-- **Catalog coverage**: % of active `service_master`/`drug_master` priced vs unpriced (gaps to fill).
-- **Payer-wise code coverage**: services missing a payer-specific SBS where the list is payer-scoped.
-- **Margin view (RCM)**: for each line, cash price vs payer price vs **cost list** (`is_cost_basis`) → margin %; for IP, surface the **DRG bundle vs cost** signal by linking `drg_base_rate × relative_weight` against the cost-list sum (the revenue-vs-cost picture R4 produces).
-- **Outliers**: lines priced far from the tenant median / from the parent (possible data errors).
-- **Effective-date timeline**: upcoming scheduled price changes from `price_list_item_version`. `GET /pricing/insights/summary` — cross-list KPIs: count of lists by scope, derived-from-parent chains, payers with no active list (coverage gap), services unpriced across all lists. **UI** — an **Insights tab** on the price-list pane: coverage donut, margin table (cash/payer/cost/ DRG), comparison view (pick two lists), upcoming-changes timeline. Read-mostly; links into bulk-edit to fix gaps.
+ *   - `read_only` is a view-only role: zero action capabilities, but it may GET every
 
-## E. Phase 4 resolver [KEEP + small]
+ *     module. The API guard enforces "read_only ⇒ GET-only" — see `requireClinicalModule`.
 
-Precedence `class → policy → tpa → payer → network(tier) → cash`; prefer payer-specific `service_code`; **pick the** `price_list_item_version` **effective on the service date** (so future-dated bulk updates apply automatically).
+ *
 
-## F. Phase 10 validation contributions (declared)
+ * Modules: Registration/Eligibility (R1) · Authorization (R2) · Clinical (enc/orders) ·
 
-- Bulk/effective-dated changes are versioned + audited (no silent mass price mutation).
-- Import validates every row against catalog + payer-wise codes before commit.
-- Cost lists (`is_cost_basis`) never used as a patient/payer cash list.
+ *   Coding & DRG (P6) · Billing OP/ER (R3) · Billing IP (R4) · Claims & Remittance (R5) ·
 
-## G. Verification
+ *   Deposits (R6) · Cash & ZATCA (R7) · Masters & Contracts (P3/R1) · VBHC (P11) · Docs.
 
-- Bulk pct −10% on a filter → only matched lines change; `dry_run` matches the committed result; versions written; effective-dated change not applied before its date.
-- Replicate "Standard" to 3 classes at ×0.9 → 3 derived lists, each parent-linked, items 10% lower.
-- Compare derived vs parent → all Δ = −10%; compare two payer lists → variance table.
-- Insights: coverage donut correct; an unpriced service shows as a gap; margin table shows cash/payer/ cost/DRG; payer-wise code gap flagged.
-- Export → edit → import round-trips with row-level validation.
+ */
 
-## H. Docs (DoD)
+export type ClinicalRole =
 
-- `docs/his-technical-manual.md`: bulk-update/versioning model, replicate API, insights/comparison contracts, effective-dated resolution.
-- `docs/his-rcm-user-manual.md` (tenant_admin): "Bulk-update prices (by %/amount/date/AM-PM/referral)", "Replicate a list to many payers/classes", "Compare two price lists", "Read pricing insights & margin", "Export / import a price list".
+  | "tenant_admin"
 
-Net-new tables: `price_list_item_version`. Net-new columns: `price_list.is_cost_basis`, `price_list_item.time_band/referral_status`. New endpoints: bulk-update/activate/export/import, replicate, compare, insights ×3.  
+  | "registrar"
+
+  | "front_office"
+
+  | "physician"
+
+  | "nurse"
+
+  | "lab_tech"
+
+  | "radiologist"
+
+  | "pharmacist"
+
+  | "coder"
+
+  | "case_manager"
+
+  | "rcm"
+
+  | "approval_officer"
+
+  | "cashier"
+
+  | "biller"
+
+  | "claims_officer"
+
+  | "finance"
+
+  | "read_only";
+
+export const CLINICAL_ROLE_ORDER: ClinicalRole[] = [
+
+  "tenant_admin", "registrar", "front_office", "physician", "nurse",
+
+  "lab_tech", "radiologist", "pharmacist", "coder", "case_manager",
+
+  "rcm", "approval_officer", "cashier", "biller", "claims_officer",
+
+  "finance", "read_only",
+
+];
+
+/** View-only role: no action capabilities, GET-only across every module. */
+
+export const READ_ONLY_ROLE: ClinicalRole = "read_only";
+
+export type ClinicalRoleMeta = {
+
+  role: ClinicalRole;
+
+  label: string;
+
+  group: "clinical" | "coding" | "front_office" | "rcm" | "finance" | "admin";
+
+  blurb: string;
+
+  tone: string; // tailwind chip classes (reuse existing design tokens)
+
+};
+
+export const CLINICAL_ROLE_META: Record<ClinicalRole, ClinicalRoleMeta> = {
+
+  tenant_admin:    { role: "tenant_admin",    label: "Tenant Admin",      group: "admin",        tone: "bg-action/20 text-action",          blurb: "Owns clinical masters, price lists, DRG rates, pricing & approval rules for the tenant." },
+
+  registrar:       { role: "registrar",       label: "Registrar",         group: "front_office", tone: "bg-action/20 text-action",          blurb: "Registers beneficiaries and coverage; opens visits." },
+
+  front_office:    { role: "front_office",    label: "Front Office",      group: "front_office", tone: "bg-action/20 text-action",          blurb: "Reception: eligibility check, exceptions (referral/emergency/newborn), self-pay vs insured." },
+
+  physician:       { role: "physician",       label: "Physician",         group: "clinical",     tone: "bg-stable/20 text-stable",          blurb: "Opens encounters, documents, diagnoses, orders, prescribes; requests authorizations." },
+
+  nurse:           { role: "nurse",           label: "Nurse",             group: "clinical",     tone: "bg-stable/20 text-stable",          blurb: "Vitals, supporting-info notes, order execution support, admission/discharge tasks." },
+
+  lab_tech:        { role: "lab_tech",        label: "Lab Technician",    group: "clinical",     tone: "bg-stable/20 text-stable",          blurb: "Lab orders and results." },
+
+  radiologist:     { role: "radiologist",     label: "Radiologist",       group: "clinical",     tone: "bg-stable/20 text-stable",          blurb: "Imaging orders, reports and results." },
+
+  pharmacist:      { role: "pharmacist",      label: "Pharmacist",        group: "clinical",     tone: "bg-stable/20 text-stable",          blurb: "Dispensing, substitutions, medication authorization triggers." },
+
+  coder:           { role: "coder",           label: "Clinical Coder",    group: "coding",       tone: "bg-panel-elevated text-foreground", blurb: "Finalizes ICD-10-AM / ACHI coding; runs the AR-DRG grouper for inpatient." },
+
+  case_manager:    { role: "case_manager",    label: "Case Manager",      group: "coding",       tone: "bg-panel-elevated text-foreground", blurb: "Utilization / DRG review; admission & discharge coordination." },
+
+  rcm:             { role: "rcm",             label: "RCM Officer",       group: "rcm",          tone: "bg-action/20 text-action",          blurb: "Works eligibility/authorization/claims worklists; payer communication." },
+
+  approval_officer:{ role: "approval_officer",label: "Approval Officer",  group: "rcm",          tone: "bg-action/20 text-action",          blurb: "Pre-authorization decisioning and declaration workflow." },
+
+  cashier:         { role: "cashier",         label: "Cashier",           group: "finance",      tone: "bg-action/20 text-action",          blurb: "OP/ER & IP collections, deposits, receipts, refunds (method-governed)." },
+
+  biller:          { role: "biller",          label: "Biller",            group: "finance",      tone: "bg-action/20 text-action",          blurb: "Bill allocation, claim assembly & submission." },
+
+  claims_officer:  { role: "claims_officer",  label: "Claims Officer",    group: "rcm",          tone: "bg-action/20 text-action",          blurb: "Batching, e-claims, remittance matching, denial management & resubmission." },
+
+  finance:         { role: "finance",         label: "Finance",           group: "finance",      tone: "bg-emergency/20 text-emergency",    blurb: "Remittance posting, refund/write-off approval, ZATCA & D365 reconciliation." },
+
+  read_only:       { role: "read_only",       label: "Read Only",         group: "clinical",     tone: "bg-muted text-muted-foreground",    blurb: "View-only across every permitted HIS module; cannot perform actions." },
+
+};
+
+export type ClinicalCapability = {
+
+  id: string;
+
+  /** Module = the API namespace it governs. */
+
+  module: string;
+
+  apiNamespace: string;
+
+  label: string;
+
+  description: string;
+
+  /** Roles granted this action. `read_only` is never listed — it is GET-only by rule. */
+
+  roles: ClinicalRole[];
+
+};
+
+export const CLINICAL_CAPABILITIES: ClinicalCapability[] = [
+
+  // Registration & Eligibility (R1)
+
+  { id: "reg.beneficiary",   module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/beneficiaries",       label: "Register beneficiary & coverage", description: "Create/update patient demographics and insurance coverage.", roles: ["tenant_admin","registrar"] },
+
+  { id: "reg.eligibility",   module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/eligibility",         label: "Check eligibility & exceptions",  description: "Run insurance check; capture referral/emergency/newborn exceptions; self-pay.", roles: ["tenant_admin","front_office","rcm"] },
+
+  { id: "reg.activation",    module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/policy-activations",  label: "Policy activation",               description: "Work the policy-activation worklist; activate class + membership.", roles: ["tenant_admin","rcm"] },
+
+  // Authorization (R2)
+
+  { id: "auth.request",      module: "Authorization",              apiNamespace: "/api/clinical/v1/auth",                label: "Raise & work authorizations",     description: "Create, scrub, submit and communicate pre-authorizations.", roles: ["tenant_admin","rcm","approval_officer","physician","pharmacist"] },
+
+  { id: "auth.decide",       module: "Authorization",              apiNamespace: "/api/clinical/v1/auth",                label: "Authorization decisioning",       description: "Approve/partial/reject; declaration workflow; post-decision governance.", roles: ["tenant_admin","approval_officer"] },
+
+  { id: "auth.rules",        module: "Authorization",              apiNamespace: "/api/clinical/v1/masters/approval-rules", label: "Manage approval & trigger rules", description: "Configure authorization trigger & approval rule masters.", roles: ["tenant_admin","rcm"] },
+
+  // Clinical (encounter / orders)
+
+  { id: "clin.encounter",    module: "Clinical",                   apiNamespace: "/api/clinical/v1/encounters",          label: "Encounter & documentation",       description: "Open encounters, diagnoses, vitals, supporting-info notes, care team.", roles: ["tenant_admin","physician","nurse"] },
+
+  { id: "clin.orders",       module: "Clinical",                   apiNamespace: "/api/clinical/v1/encounters/*/orders", label: "Place clinical orders",           description: "Lab/radiology/EP/service orders and prescriptions.", roles: ["tenant_admin","physician","nurse","lab_tech","radiologist","pharmacist"] },
+
+  { id: "clin.admit",        module: "Clinical",                   apiNamespace: "/api/clinical/v1/encounters/*/admit",  label: "Admission & discharge MDS",       description: "Hospitalization, emergency disposition, discharge sequence.", roles: ["tenant_admin","physician","case_manager","nurse"] },
+
+  // Coding & DRG (Phase 6)
+
+  { id: "code.finalize",     module: "Coding & DRG",               apiNamespace: "/api/clinical/v1/encounters/*/code",   label: "Finalize coding",                 description: "Confirm ICD-10-AM principal/additional Dx and ACHI procedures.", roles: ["tenant_admin","coder"] },
+
+  { id: "[code.group](http://code.group)",        module: "Coding & DRG",               apiNamespace: "/api/clinical/v1/encounters/*/group",  label: "Run AR-DRG grouper",              description: "Assemble MDS and assign the DRG (inpatient).", roles: ["tenant_admin","coder","case_manager"] },
+
+  // Billing — OP/ER (R3)
+
+  { id: "bill.op",           module: "Billing — OP/ER",            apiNamespace: "/api/clinical/v1/billing",             label: "OP/ER bill & collect",            description: "Allocate executed-only bills, collect copay, receipts.", roles: ["tenant_admin","cashier","biller","rcm"] },
+
+  { id: "[bill.discount](http://bill.discount)",     module: "Billing — OP/ER",            apiNamespace: "/api/clinical/v1/billing/*/discount",  label: "Apply self-pay discount",         description: "Governed, capped, role-scoped self-pay discounts.", roles: ["tenant_admin","cashier"] },
+
+  // Billing — IP/Day-Case (R4)
+
+  { id: "bill.ip",           module: "Billing — IP/Day-Case",      apiNamespace: "/api/clinical/v1/ip",                  label: "Admission & IP accounting",       description: "Admission lounge/reception, package, daily charges, DRG-bundled bill.", roles: ["tenant_admin","rcm","cashier","case_manager"] },
+
+  // Claims & Remittance (R5 / P7 / P9)
+
+  { id: "claim.assemble",    module: "Claims & Remittance",        apiNamespace: "/api/clinical/v1/claims",              label: "Assemble & submit claims",        description: "Build FHIR claim, batch, submit to NPHIES.", roles: ["tenant_admin","biller","claims_officer"] },
+
+  { id: "claim.remit",       module: "Claims & Remittance",        apiNamespace: "/api/clinical/v1/claims-mgmt",         label: "Remittance & denial",             description: "Match remittance, manage denials, resubmit.", roles: ["tenant_admin","claims_officer","rcm"] },
+
+  { id: "[claim.post](http://claim.post)",        module: "Claims & Remittance",        apiNamespace: "/api/clinical/v1/claims-mgmt/remittances/*/post", label: "Post payments (finance)", description: "Finance-gated remittance posting & write-off disposition.", roles: ["tenant_admin","finance"] },
+
+  // Deposits & Refunds (R6)
+
+  { id: "dep.collect",       module: "Deposits & Refunds",         apiNamespace: "/api/clinical/v1/deposits",            label: "Deposits & refunds",              description: "Collect deposits (incl. caution), refunds, credit notes, wallet.", roles: ["tenant_admin","cashier","biller"] },
+
+  { id: "dep.approve",       module: "Deposits & Refunds",         apiNamespace: "/api/clinical/v1/deposits/refund-requests/*/approve", label: "Approve refunds", description: "Permission-gated refund approval hierarchy.", roles: ["tenant_admin","finance","rcm"] },
+
+  // Cash & ZATCA (R7)
+
+  { id: "cash.collect",      module: "Cash & ZATCA",               apiNamespace: "/api/clinical/v1/cash",                label: "Cash collection & session",       description: "Method-aware collection/refund; cashbox open/close.", roles: ["tenant_admin","cashier"] },
+
+  { id: "[cash.tax](http://cash.tax)",          module: "Cash & ZATCA",               apiNamespace: "/api/clinical/v1/tax",                 label: "ZATCA e-invoicing",               description: "Issue B2B/B2C invoices, credit/debit notes, VAT reversal.", roles: ["tenant_admin","finance","biller"] },
+
+  { id: "cash.interfaces",   module: "Cash & ZATCA",               apiNamespace: "/api/clinical/v1/interfaces",          label: "Interface monitoring",            description: "D365/ZATCA/POS/NPHIES interface logs and daily summaries.", roles: ["tenant_admin","finance"] },
+
+  // Masters & Contracts (P3 / R1 / addendum)
+
+  { id: "mast.catalog",      module: "Masters & Contracts",        apiNamespace: "/api/clinical/v1/masters",             label: "Manage masters & price lists",    description: "Service/drug masters, multi-coding, price lists, bulk pricing, DRG contractual rates.", roles: ["tenant_admin"] },
+
+  { id: "mast.drg.ref",      module: "Masters & Contracts",        apiNamespace: "/api/admin/v1/drgs",                   label: "Load DRG reference (platform)",   description: "National AR-DRG weights — superadmin/platform only.", roles: ["tenant_admin"] },
+
+  { id: "mast.contracts",    module: "Masters & Contracts",        apiNamespace: "/api/clinical/v1/masters/contracts",   label: "Contract management",             description: "Payer agreements, deductibles/limits, governed effective-dated changes.", roles: ["tenant_admin","rcm"] },
+
+  // VBHC (Phase 11)
+
+  { id: "vbhc.assign",       module: "VBHC Outcomes",              apiNamespace: "/api/clinical/v1/prom-assignments",    label: "PROMs / PREMs",                   description: "Assign instruments, review outcomes, submit PRM MDS.", roles: ["tenant_admin","case_manager","physician"] },
+
+  // Documentation
+
+  { id: "docs.write",        module: "Documentation",              apiNamespace: "/api/clinical/v1/docs",                label: "Maintain manuals",                description: "Edit/version the HIS & RCM documentation (superadmin/tenant_admin).", roles: ["tenant_admin"] },
+
+];
+
+/** Every module that appears in the matrix, in declaration order. */
+
+export const CLINICAL_MODULES: string[] = [...new Set(CLINICAL_[CAPABILITIES.map](http://CAPABILITIES.map)((c) => c.module))];
+
+export function isReadOnly(role: ClinicalRole): boolean {
+
+  return role === READ_ONLY_ROLE;
+
+}
+
+export function clinicalCapabilitiesByModule(): Record<string, ClinicalCapability[]> {
+
+  return CLINICAL_CAPABILITIES.reduce<Record<string, ClinicalCapability[]>>((acc, c) => {
+
+    (acc[c.module] ||= []).push(c);
+
+    return acc;
+
+  }, {});
+
+}
+
+/** Action capabilities granted to a role. `read_only` has none (it is GET-only by rule). */
+
+export function effectiveClinicalCapabilities(role: ClinicalRole): ClinicalCapability[] {
+
+  if (isReadOnly(role)) return [];
+
+  return CLINICAL_CAPABILITIES.filter((c) => c.roles.includes(role));
+
+}
+
+/**
+
+ * Modules a role can reach. `read_only` may view every module (GET-only); any other role
+
+ * reaches the modules in which it holds at least one action capability.
+
+ */
+
+export function modulesForRole(role: ClinicalRole): string[] {
+
+  if (isReadOnly(role)) return [...CLINICAL_MODULES];
+
+  return [...new Set(effectiveClinicalCapabilities(role).map((c) => c.module))];
+
+}  

@@ -7637,6 +7637,11 @@ export type Database = {
         | "tenant_admin"
         | "read_only"
         | "biller"
+        | "front_office"
+        | "rcm"
+        | "approval_officer"
+        | "claims_officer"
+        | "finance"
       code_system_kind:
         | "diagnosis"
         | "procedure"
@@ -7920,6 +7925,11 @@ export const Constants = {
         "tenant_admin",
         "read_only",
         "biller",
+        "front_office",
+        "rcm",
+        "approval_officer",
+        "claims_officer",
+        "finance",
       ],
       code_system_kind: [
         "diagnosis",
