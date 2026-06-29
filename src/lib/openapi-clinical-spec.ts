@@ -56,6 +56,13 @@ export const openApiClinicalSpec = {
     { name: "PriceLists", description: "Phase-3 Master · cash and payer-network itemized price lists." },
     { name: "DRGBaseRates", description: "Phase-3 Master · negotiated AR-DRG base rates per payer." },
     { name: "DRGAdjustments", description: "Phase-3 Master · DRG outlier / ICU / same-day / transfer adjustments." },
+    { name: "Orders/Lab", description: "Phase-4 · Laboratory orders and items (LOINC)." },
+    { name: "Orders/Radiology", description: "Phase-4 · Imaging orders and items (modality / body site)." },
+    { name: "Orders/Electrophysiology", description: "Phase-4 · EEG / EMG / NCS / ECG orders." },
+    { name: "Orders/Service", description: "Phase-4 · Procedure / service orders (ACHI via Service Master)." },
+    { name: "Prescriptions", description: "Phase-4 · Drug prescriptions and dispense events." },
+    { name: "Charges", description: "Phase-4 · Per-encounter charge_item ledger and totals." },
+    { name: "PricingRules", description: "Phase-4 · Tenant pricing/eligibility/share rules (global defaults read-only)." },
   ],
   paths: {
     "/openapi": {
