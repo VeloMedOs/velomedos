@@ -310,6 +310,17 @@ export const resetDemo = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const gate = await requireSuperadmin();
     if (!gate.ok) return { ok: false as const, error: gate.error };
+    return runResetDemo(data.reseed);
+  });
+
+/** Direct callable — used by the REST route handler. */
+export async function runResetDemoFromHeader(authHeader: string, reseed: boolean) {
+  const gate = await requireSuperadminFromHeader(authHeader);
+  if (!gate.ok) return { ok: false as const, error: gate.error };
+  return runResetDemo(reseed);
+}
+
+async function runResetDemo(reseed: boolean) {
     const tenant = await resolveDemoTenant();
     if (!tenant.ok) return { ok: false as const, error: tenant.error };
 
@@ -329,7 +340,7 @@ export const resetDemo = createServerFn({ method: "POST" })
     const { invalidateDemoCache } = await import("@/lib/demo-mode");
     invalidateDemoCache(tenant.id);
 
-    if (data.reseed) {
+    if (reseed) {
       const seeded = await seedBeneficiaries(tenant.id);
       return {
         ok: true as const,
@@ -339,4 +350,4 @@ export const resetDemo = createServerFn({ method: "POST" })
       };
     }
     return { ok: true as const, tenant_id: tenant.id, deleted };
-  });
+}
