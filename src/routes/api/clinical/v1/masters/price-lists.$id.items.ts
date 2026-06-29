@@ -2,11 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PriceListItemCreate } from "@/lib/mds/schema/masters";
 import { childListCreate } from "./_crud";
 import { assertMasterOwnership } from "../_helpers";
+import { preflight } from "@/lib/api-clinical";
 
 export const Route = createFileRoute("/api/clinical/v1/masters/price-lists/$id/items")({
   server: {
     handlers: {
-      OPTIONS: () => new Response(null, { status: 204 }),
+      OPTIONS: () => preflight(),
       GET: async ({ request, params }) => childListCreate({
         request, parentId: params.id, parentTable: "price_list", parentFkColumn: "price_list_id",
         childTable: "price_list_item", audit: "price_list_item", createSchema: PriceListItemCreate,
