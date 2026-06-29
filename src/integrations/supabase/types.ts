@@ -972,8 +972,10 @@ export type Database = {
           lat: number | null
           lng: number | null
           name: string
+          nphies_provider_id: string | null
           phone: string | null
           specialties: string[] | null
+          tenant_id: string | null
         }
         Insert: {
           address?: string | null
@@ -982,8 +984,10 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           name: string
+          nphies_provider_id?: string | null
           phone?: string | null
           specialties?: string[] | null
+          tenant_id?: string | null
         }
         Update: {
           address?: string | null
@@ -992,10 +996,20 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           name?: string
+          nphies_provider_id?: string | null
           phone?: string | null
           specialties?: string[] | null
+          tenant_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clinics_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       code_system: {
         Row: {
@@ -1221,6 +1235,7 @@ export type Database = {
           relation_with_subscriber: string
           status: string
           tenant_id: string
+          tpa_id: string | null
           tpa_nphies_id: string | null
           updated_at: string
           updated_by: string | null
@@ -1243,6 +1258,7 @@ export type Database = {
           relation_with_subscriber: string
           status?: string
           tenant_id: string
+          tpa_id?: string | null
           tpa_nphies_id?: string | null
           updated_at?: string
           updated_by?: string | null
@@ -1265,6 +1281,7 @@ export type Database = {
           relation_with_subscriber?: string
           status?: string
           tenant_id?: string
+          tpa_id?: string | null
           tpa_nphies_id?: string | null
           updated_at?: string
           updated_by?: string | null
@@ -1278,10 +1295,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "coverage_insurance_plan_fk"
+            columns: ["insurance_plan_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_plan"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coverage_network_fk"
+            columns: ["network_id"]
+            isOneToOne: false
+            referencedRelation: "network"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coverage_payer_fk"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coverage_policy_fk"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policy"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "coverage_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coverage_tpa_fk"
+            columns: ["tpa_id"]
+            isOneToOne: false
+            referencedRelation: "tpa"
             referencedColumns: ["id"]
           },
         ]
@@ -1492,6 +1544,278 @@ export type Database = {
           },
         ]
       }
+      drg: {
+        Row: {
+          active: boolean
+          adrg: string | null
+          avg_los: number | null
+          code_system_id: string
+          created_at: string
+          drg_code: string
+          drg_name: string | null
+          high_trim_los: number | null
+          id: string
+          low_trim_los: number | null
+          mdc: string | null
+          partition: string | null
+          relative_weight: number
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          active?: boolean
+          adrg?: string | null
+          avg_los?: number | null
+          code_system_id: string
+          created_at?: string
+          drg_code: string
+          drg_name?: string | null
+          high_trim_los?: number | null
+          id?: string
+          low_trim_los?: number | null
+          mdc?: string | null
+          partition?: string | null
+          relative_weight: number
+          updated_at?: string
+          version: string
+        }
+        Update: {
+          active?: boolean
+          adrg?: string | null
+          avg_los?: number | null
+          code_system_id?: string
+          created_at?: string
+          drg_code?: string
+          drg_name?: string | null
+          high_trim_los?: number | null
+          id?: string
+          low_trim_los?: number | null
+          mdc?: string | null
+          partition?: string | null
+          relative_weight?: number
+          updated_at?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drg_code_system_id_fkey"
+            columns: ["code_system_id"]
+            isOneToOne: false
+            referencedRelation: "code_system"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drg_base_rate: {
+        Row: {
+          base_rate_minor: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          drg_version: string
+          effective_from: string | null
+          effective_to: string | null
+          id: string
+          network_id: string | null
+          payer_id: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          base_rate_minor: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          drg_version: string
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          network_id?: string | null
+          payer_id: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          base_rate_minor?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          drg_version?: string
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          network_id?: string | null
+          payer_id?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drg_base_rate_network_id_fkey"
+            columns: ["network_id"]
+            isOneToOne: false
+            referencedRelation: "network"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drg_base_rate_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drg_base_rate_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drg_price_adjustment: {
+        Row: {
+          active: boolean
+          adj_type: string
+          created_at: string
+          created_by: string | null
+          drg_version: string | null
+          formula: Json | null
+          id: string
+          marginal_rate: number | null
+          payer_id: string | null
+          per_diem_minor: number | null
+          priority: number
+          tenant_id: string
+          threshold: number | null
+          trim_basis: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          adj_type: string
+          created_at?: string
+          created_by?: string | null
+          drg_version?: string | null
+          formula?: Json | null
+          id?: string
+          marginal_rate?: number | null
+          payer_id?: string | null
+          per_diem_minor?: number | null
+          priority?: number
+          tenant_id: string
+          threshold?: number | null
+          trim_basis?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          adj_type?: string
+          created_at?: string
+          created_by?: string | null
+          drg_version?: string | null
+          formula?: Json | null
+          id?: string
+          marginal_rate?: number | null
+          payer_id?: string | null
+          per_diem_minor?: number | null
+          priority?: number
+          tenant_id?: string
+          threshold?: number | null
+          trim_basis?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drg_price_adjustment_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drg_price_adjustment_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drug_master: {
+        Row: {
+          active: boolean
+          atc_code: string | null
+          created_at: string
+          created_by: string | null
+          form: string | null
+          generic_name: string
+          gtin: string | null
+          id: string
+          internal_code: string
+          mrid: string | null
+          route: string | null
+          sfda_sci_code: string | null
+          strength: string | null
+          tenant_id: string
+          trade_name: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          atc_code?: string | null
+          created_at?: string
+          created_by?: string | null
+          form?: string | null
+          generic_name: string
+          gtin?: string | null
+          id?: string
+          internal_code: string
+          mrid?: string | null
+          route?: string | null
+          sfda_sci_code?: string | null
+          strength?: string | null
+          tenant_id: string
+          trade_name?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          atc_code?: string | null
+          created_at?: string
+          created_by?: string | null
+          form?: string | null
+          generic_name?: string
+          gtin?: string | null
+          id?: string
+          internal_code?: string
+          mrid?: string | null
+          route?: string | null
+          sfda_sci_code?: string | null
+          strength?: string | null
+          tenant_id?: string
+          trade_name?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drug_master_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       encounter: {
         Row: {
           beneficiary_id: string
@@ -1600,6 +1924,20 @@ export type Database = {
             columns: ["episode_of_care_id"]
             isOneToOne: false
             referencedRelation: "episode_of_care"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounter_location_fk"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounter_location_fk"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "clinics_public"
             referencedColumns: ["id"]
           },
           {
@@ -1954,6 +2292,117 @@ export type Database = {
           },
         ]
       }
+      insurance_class: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string | null
+          policy_id: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string | null
+          policy_id: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string | null
+          policy_id?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insurance_class_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insurance_class_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      insurance_plan: {
+        Row: {
+          annual_limit_minor: number | null
+          class_id: string
+          code: string
+          copay_percent: number | null
+          created_at: string
+          created_by: string | null
+          deductible_minor: number | null
+          id: string
+          name: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          annual_limit_minor?: number | null
+          class_id: string
+          code: string
+          copay_percent?: number | null
+          created_at?: string
+          created_by?: string | null
+          deductible_minor?: number | null
+          id?: string
+          name?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          annual_limit_minor?: number | null
+          class_id?: string
+          code?: string
+          copay_percent?: number | null
+          created_at?: string
+          created_by?: string | null
+          deductible_minor?: number | null
+          id?: string
+          name?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insurance_plan_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_class"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insurance_plan_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       legal_acceptances: {
         Row: {
           accepted_at: string
@@ -2182,6 +2631,125 @@ export type Database = {
           user_agent_hash?: string | null
         }
         Relationships: []
+      }
+      network: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          payer_id: string
+          tenant_id: string
+          tier: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          payer_id: string
+          tenant_id: string
+          tier?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          payer_id?: string
+          tenant_id?: string
+          tier?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "network_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "network_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      network_membership: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          in_network: boolean
+          network_id: string
+          provider_facility_id: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          in_network?: boolean
+          network_id: string
+          provider_facility_id: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          in_network?: boolean
+          network_id?: string
+          provider_facility_id?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "network_membership_network_id_fkey"
+            columns: ["network_id"]
+            isOneToOne: false
+            referencedRelation: "network"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "network_membership_provider_facility_id_fkey"
+            columns: ["provider_facility_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "network_membership_provider_facility_id_fkey"
+            columns: ["provider_facility_id"]
+            isOneToOne: false
+            referencedRelation: "clinics_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "network_membership_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       oauth_events: {
         Row: {
@@ -2807,6 +3375,53 @@ export type Database = {
         }
         Relationships: []
       }
+      payer: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          nphies_payer_id: string
+          payer_type: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          nphies_payer_id: string
+          payer_type?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          nphies_payer_id?: string
+          payer_type?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payer_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_settings: {
         Row: {
           key: string
@@ -2827,6 +3442,66 @@ export type Database = {
           value?: Json
         }
         Relationships: []
+      }
+      policy: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          effective_date: string | null
+          expiry_date: string | null
+          id: string
+          name: string | null
+          payer_id: string
+          policy_number: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          effective_date?: string | null
+          expiry_date?: string | null
+          id?: string
+          name?: string | null
+          payer_id: string
+          policy_number: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          effective_date?: string | null
+          expiry_date?: string | null
+          id?: string
+          name?: string | null
+          payer_id?: string
+          policy_number?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policy_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       portal_api_keys: {
         Row: {
@@ -3402,6 +4077,159 @@ export type Database = {
           },
         ]
       }
+      price_list: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          currency: string
+          effective_date: string | null
+          expiry_date: string | null
+          id: string
+          list_type: string
+          name: string
+          network_id: string | null
+          payer_id: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          effective_date?: string | null
+          expiry_date?: string | null
+          id?: string
+          list_type: string
+          name: string
+          network_id?: string | null
+          payer_id?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          effective_date?: string | null
+          expiry_date?: string | null
+          id?: string
+          list_type?: string
+          name?: string
+          network_id?: string | null
+          payer_id?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_list_network_id_fkey"
+            columns: ["network_id"]
+            isOneToOne: false
+            referencedRelation: "network"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_list_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_list_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_list_item: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          default_factor: number
+          drug_id: string | null
+          id: string
+          is_package: boolean
+          patient_share_percent: number | null
+          price_list_id: string
+          service_id: string | null
+          tax_percent: number | null
+          tenant_id: string
+          unit_price_minor: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          default_factor?: number
+          drug_id?: string | null
+          id?: string
+          is_package?: boolean
+          patient_share_percent?: number | null
+          price_list_id: string
+          service_id?: string | null
+          tax_percent?: number | null
+          tenant_id: string
+          unit_price_minor: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          default_factor?: number
+          drug_id?: string | null
+          id?: string
+          is_package?: boolean
+          patient_share_percent?: number | null
+          price_list_id?: string
+          service_id?: string | null
+          tax_percent?: number | null
+          tenant_id?: string
+          unit_price_minor?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_list_item_drug_id_fkey"
+            columns: ["drug_id"]
+            isOneToOne: false
+            referencedRelation: "drug_master"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_list_item_price_list_id_fkey"
+            columns: ["price_list_id"]
+            isOneToOne: false
+            referencedRelation: "price_list"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_list_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_master"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_list_item_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           blood_type: string | null
@@ -3674,6 +4502,129 @@ export type Database = {
           },
         ]
       }
+      service_code: {
+        Row: {
+          code: string
+          code_system_id: string
+          created_at: string
+          created_by: string | null
+          display: string | null
+          id: string
+          is_primary_billing: boolean
+          service_id: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          code_system_id: string
+          created_at?: string
+          created_by?: string | null
+          display?: string | null
+          id?: string
+          is_primary_billing?: boolean
+          service_id: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          code_system_id?: string
+          created_at?: string
+          created_by?: string | null
+          display?: string | null
+          id?: string
+          is_primary_billing?: boolean
+          service_id?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_code_code_system_id_fkey"
+            columns: ["code_system_id"]
+            isOneToOne: false
+            referencedRelation: "code_system"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_code_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_master"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_code_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_master: {
+        Row: {
+          active: boolean
+          body_site: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          internal_code: string
+          is_package: boolean
+          modality: string | null
+          name: string
+          service_type: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          body_site?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          internal_code: string
+          is_package?: boolean
+          modality?: string | null
+          name: string
+          service_type: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          body_site?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          internal_code?: string
+          is_package?: boolean
+          modality?: string | null
+          name?: string
+          service_type?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_master_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_addons: {
         Row: {
           code: string
@@ -3932,6 +4883,50 @@ export type Database = {
           },
           {
             foreignKeyName: "tenant_subscriptions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tpa: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          nphies_tpa_id: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          nphies_tpa_id: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          nphies_tpa_id?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tpa_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
