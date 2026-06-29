@@ -71,15 +71,15 @@ async function requireSuperadmin(): Promise<{ ok: true; userId: string } | { ok:
 
 async function resolveDemoTenant(): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await (supabaseAdmin as any)
     .from("corporate_accounts")
     .select("id, is_demo")
     .eq("slug", DEMO_SLUG)
     .maybeSingle();
   if (error) return { ok: false, error: error.message };
   if (!data) return { ok: false, error: "demo_tenant_missing" };
-  if (!(data as { is_demo?: boolean }).is_demo) return { ok: false, error: "tenant_not_flagged_demo" };
-  return { ok: true, id: (data as { id: string }).id };
+  if (!data.is_demo) return { ok: false, error: "tenant_not_flagged_demo" };
+  return { ok: true, id: data.id as string };
 }
 
 function demoPassword(): string {
