@@ -1,0 +1,339 @@
+/**
+ * Demo Environment — provisioning, seeding, and reset.
+ *
+ * Every server function in this module is superadmin-gated AND restricted to
+ * the tenant flagged `is_demo = true` (slug `demo-hospital`). The reset path
+ * uses scoped `DELETE FROM ... WHERE tenant_id = $demo` in FK-child-first
+ * order — it NEVER issues `TRUNCATE`, which would wipe sibling tenants.
+ *
+ * Idempotency strategy
+ * --------------------
+ *   - Users:        listUsers() + create-or-skip; tenant_members upsert.
+ *   - Beneficiaries: upsert keyed on (tenant_id, patient_file_no).
+ *   - Encounters/claims: identified by deterministic file numbers so a
+ *                        re-seed after reset reproduces identical IDs.
+ */
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+const DEMO_SLUG = "demo-hospital";
+const DEFAULT_PASSWORD_FALLBACK = "DemoVeloMed!2026";
+
+type AppRole =
+  | "superadmin" | "admin" | "dispatcher" | "developer" | "business_admin"
+  | "paramedic" | "driver" | "patient";
+
+type ClinicalRole =
+  | "registrar" | "physician" | "nurse" | "lab_tech" | "radiologist"
+  | "pharmacist" | "coder" | "case_manager" | "cashier" | "tenant_admin"
+  | "read_only" | "biller" | "front_office" | "rcm" | "approval_officer"
+  | "claims_officer" | "finance";
+
+type DemoAccount = {
+  email: string;
+  full_name: string;
+  app_role: AppRole;
+  clinical_role: ClinicalRole | null;
+  lands_on: string;
+};
+
+/** The 13 demo accounts. Single shared password from `DEMO_USER_PASSWORD`. */
+export const DEMO_ACCOUNTS: DemoAccount[] = [
+  { email: "superadmin@demo.velomedos.com", full_name: "Demo Superadmin",   app_role: "superadmin",     clinical_role: null,                lands_on: "/superadmin" },
+  { email: "admin@demo.velomedos.com",      full_name: "Demo Tenant Admin", app_role: "business_admin", clinical_role: "tenant_admin",      lands_on: "/clinical" },
+  { email: "doctor@demo.velomedos.com",     full_name: "Dr. Demo Physician",app_role: "paramedic",      clinical_role: "physician",         lands_on: "/clinical" },
+  { email: "nurse@demo.velomedos.com",      full_name: "Demo Nurse",        app_role: "paramedic",      clinical_role: "nurse",             lands_on: "/clinical" },
+  { email: "coder@demo.velomedos.com",      full_name: "Demo Coder",        app_role: "developer",      clinical_role: "coder",             lands_on: "/clinical" },
+  { email: "rcm@demo.velomedos.com",        full_name: "Demo RCM",          app_role: "developer",      clinical_role: "rcm",               lands_on: "/clinical" },
+  { email: "approver@demo.velomedos.com",   full_name: "Demo Approver",     app_role: "developer",      clinical_role: "approval_officer",  lands_on: "/clinical" },
+  { email: "cashier@demo.velomedos.com",    full_name: "Demo Cashier",      app_role: "developer",      clinical_role: "cashier",           lands_on: "/clinical" },
+  { email: "biller@demo.velomedos.com",     full_name: "Demo Biller",       app_role: "developer",      clinical_role: "biller",            lands_on: "/clinical" },
+  { email: "claims@demo.velomedos.com",     full_name: "Demo Claims Officer",app_role: "developer",     clinical_role: "claims_officer",    lands_on: "/clinical" },
+  { email: "finance@demo.velomedos.com",    full_name: "Demo Finance",      app_role: "developer",      clinical_role: "finance",           lands_on: "/clinical" },
+  { email: "readonly@demo.velomedos.com",   full_name: "Demo Read-Only",    app_role: "developer",      clinical_role: "read_only",         lands_on: "/clinical" },
+  { email: "patient@demo.velomedos.com",    full_name: "Demo Patient",      app_role: "patient",        clinical_role: null,                lands_on: "/patient" },
+];
+
+async function requireSuperadmin(): Promise<{ ok: true; userId: string } | { ok: false; error: string }> {
+  const { getRequestHeader } = await import("@tanstack/react-start/server");
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const auth = getRequestHeader("authorization") ?? "";
+  const token = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7) : "";
+  if (!token) return { ok: false, error: "unauthorized" };
+  const { data: u } = await supabaseAdmin.auth.getUser(token);
+  if (!u?.user) return { ok: false, error: "unauthorized" };
+  const { data: hasRole } = await supabaseAdmin.rpc("has_role", { _user_id: u.user.id, _role: "superadmin" });
+  if (!hasRole) return { ok: false, error: "forbidden" };
+  return { ok: true, userId: u.user.id };
+}
+
+async function resolveDemoTenant(): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("corporate_accounts")
+    .select("id, is_demo")
+    .eq("slug", DEMO_SLUG)
+    .maybeSingle();
+  if (error) return { ok: false, error: error.message };
+  if (!data) return { ok: false, error: "demo_tenant_missing" };
+  if (!(data as { is_demo?: boolean }).is_demo) return { ok: false, error: "tenant_not_flagged_demo" };
+  return { ok: true, id: (data as { id: string }).id };
+}
+
+function demoPassword(): string {
+  return process.env.DEMO_USER_PASSWORD ?? DEFAULT_PASSWORD_FALLBACK;
+}
+
+async function findUserIdByEmail(email: string): Promise<string | null> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  // Supabase admin SDK has no getUserByEmail — page through listUsers and match.
+  let page = 1;
+  for (;;) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+    if (error) return null;
+    const hit = data.users.find((u) => (u.email ?? "").toLowerCase() === email.toLowerCase());
+    if (hit) return hit.id;
+    if (!data.users.length || data.users.length < 200) return null;
+    page += 1;
+    if (page > 25) return null;
+  }
+}
+
+/* ============================================================== */
+/* PROVISION USERS                                                  */
+/* ============================================================== */
+
+export const provisionDemoUsers = createServerFn({ method: "POST" }).handler(async () => {
+  const gate = await requireSuperadmin();
+  if (!gate.ok) return { ok: false as const, error: gate.error };
+  const tenant = await resolveDemoTenant();
+  if (!tenant.ok) return { ok: false as const, error: tenant.error };
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const password = demoPassword();
+  const provisioned: Array<{ email: string; user_id: string; status: "created" | "existing" }> = [];
+
+  for (const acct of DEMO_ACCOUNTS) {
+    let userId = await findUserIdByEmail(acct.email);
+    let status: "created" | "existing" = "existing";
+    if (!userId) {
+      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+        email: acct.email,
+        password,
+        email_confirm: true,
+        user_metadata: { full_name: acct.full_name, demo: true },
+      });
+      if (error || !data.user) {
+        // Handle race: "already registered"
+        if (String(error?.message ?? "").toLowerCase().includes("already")) {
+          userId = await findUserIdByEmail(acct.email);
+        }
+        if (!userId) {
+          return { ok: false as const, error: `create_failed:${acct.email}:${error?.message ?? "unknown"}` };
+        }
+      } else {
+        userId = data.user.id;
+        status = "created";
+      }
+    } else {
+      // Reset password to the shared rotatable secret.
+      await supabaseAdmin.auth.admin.updateUserById(userId, { password });
+    }
+
+    await supabaseAdmin.from("user_roles").upsert(
+      { user_id: userId, role: acct.app_role },
+      { onConflict: "user_id,role" },
+    );
+    await supabaseAdmin.from("profiles").upsert({
+      id: userId,
+      email: acct.email,
+      full_name: acct.full_name,
+      default_role: acct.app_role,
+    });
+    await (supabaseAdmin as any).from("tenant_members").upsert(
+      {
+        tenant_id: tenant.id,
+        user_id: userId,
+        role: acct.app_role,
+        clinical_role: acct.clinical_role,
+      },
+      { onConflict: "tenant_id,user_id" },
+    );
+
+    provisioned.push({ email: acct.email, user_id: userId, status });
+  }
+
+  return {
+    ok: true as const,
+    tenant_id: tenant.id,
+    password_source: process.env.DEMO_USER_PASSWORD ? "secret" : "fallback",
+    accounts: provisioned,
+  };
+});
+
+/* ============================================================== */
+/* SEED TRANSACTIONAL DATA                                          */
+/* ============================================================== */
+
+/** Seed beneficiaries linked to the patient demo user when possible. */
+async function seedBeneficiaries(tenantId: string): Promise<{ ids: Record<string, string> }> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const patientUserId = await findUserIdByEmail("patient@demo.velomedos.com");
+
+  const rows = [
+    { file: "DEMO-OP-001", first: "Layla",  last: "Al-Harbi",  dob: "1986-04-12", gender: "female", insured: true,  user: patientUserId },
+    { file: "DEMO-OP-002", first: "Khalid", last: "Al-Otaibi", dob: "1992-09-03", gender: "male",   insured: false, user: null },
+    { file: "DEMO-IP-003", first: "Sara",   last: "Mansoor",   dob: "1971-11-22", gender: "female", insured: true,  user: null },
+    { file: "DEMO-ER-004", first: "Yousef", last: "Hassan",    dob: "1958-02-08", gender: "male",   insured: true,  user: null },
+  ];
+
+  const ids: Record<string, string> = {};
+  for (const r of rows) {
+    const { data: existing } = await (supabaseAdmin as any)
+      .from("beneficiary")
+      .select("id")
+      .eq("tenant_id", tenantId)
+      .eq("patient_file_no", r.file)
+      .maybeSingle();
+    if (existing?.id) {
+      ids[r.file] = existing.id;
+      if (r.user) {
+        await (supabaseAdmin as any).from("beneficiary").update({ patient_user_id: r.user }).eq("id", existing.id);
+      }
+      continue;
+    }
+    const { data: ins, error } = await (supabaseAdmin as any).from("beneficiary").insert({
+      tenant_id: tenantId,
+      patient_file_no: r.file,
+      first_name: r.first,
+      last_name: r.last,
+      full_name: `${r.first} ${r.last}`,
+      dob: r.dob,
+      gender: r.gender,
+      nationality: "SA",
+      document_type: "national_id",
+      document_id: `1${Math.abs(r.file.split("").reduce((a, c) => a + c.charCodeAt(0), 0)) % 999999999}`.padStart(10, "0"),
+      patient_user_id: r.user,
+      address_country: "SA",
+      preferred_language: "ar",
+    }).select("id").single();
+    if (error) throw new Error(`beneficiary_seed_failed:${r.file}:${error.message}`);
+    ids[r.file] = ins.id;
+  }
+  return { ids };
+}
+
+export const seedDemo = createServerFn({ method: "POST" }).handler(async () => {
+  const gate = await requireSuperadmin();
+  if (!gate.ok) return { ok: false as const, error: gate.error };
+  const tenant = await resolveDemoTenant();
+  if (!tenant.ok) return { ok: false as const, error: tenant.error };
+
+  // Provision users first so beneficiaries can link patient_user_id.
+  const { data: list } = await (await import("@/integrations/supabase/client.server")).supabaseAdmin
+    .auth.admin.listUsers({ page: 1, perPage: 200 });
+  const haveAll = DEMO_ACCOUNTS.every((a) =>
+    list?.users.some((u) => (u.email ?? "").toLowerCase() === a.email),
+  );
+  if (!haveAll) {
+    return { ok: false as const, error: "users_not_provisioned: call provisionDemoUsers first" };
+  }
+
+  const beneficiaries = await seedBeneficiaries(tenant.id);
+
+  return {
+    ok: true as const,
+    tenant_id: tenant.id,
+    beneficiaries: Object.keys(beneficiaries.ids).length,
+    note:
+      "Masters (payers/policies/services/drugs/DRG) and pre-built journey encounters are seeded by the SQL fixture pack in supabase/migrations/<ts>_demo_seed_masters.sql (run separately).",
+  };
+});
+
+/* ============================================================== */
+/* RESET                                                            */
+/* ============================================================== */
+
+/**
+ * Tables deleted (FK-child-first). Tables that may not exist in every
+ * environment are wrapped in try/catch so the reset still completes.
+ */
+const TRANSACTIONAL_TABLES_CHILD_FIRST = [
+  "claim_supporting_info",
+  "claim_diagnosis",
+  "claim_item_link",
+  "claim_item",
+  "claim_care_team",
+  "claim_submission_attempt",
+  "claim",
+  "charge_item",
+  "prescription_item",
+  "prescription",
+  "lab_order_item",
+  "lab_order",
+  "radiology_order_item",
+  "radiology_order",
+  "ep_order_item",
+  "electrophysiology_order",
+  "service_order_item",
+  "service_order",
+  "encounter_care_team",
+  "encounter_diagnosis",
+  "clinical_supporting_info",
+  "clinical_coding",
+  "vitals_observation",
+  "encounter_emergency",
+  "encounter_hospitalization",
+  "drg_assignment",
+  "encounter",
+  "episode_of_care",
+  "prom_response",
+  "prem_response",
+  "prom_assignment",
+  "coverage_class",
+  "coverage",
+  "beneficiary",
+  "nphies_message_log",
+] as const;
+
+const ResetInput = z.object({
+  reseed: z.boolean().optional().default(true),
+});
+
+export const resetDemo = createServerFn({ method: "POST" })
+  .inputValidator((d) => ResetInput.parse(d ?? {}))
+  .handler(async ({ data }) => {
+    const gate = await requireSuperadmin();
+    if (!gate.ok) return { ok: false as const, error: gate.error };
+    const tenant = await resolveDemoTenant();
+    if (!tenant.ok) return { ok: false as const, error: tenant.error };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const deleted: Record<string, number | string> = {};
+    for (const table of TRANSACTIONAL_TABLES_CHILD_FIRST) {
+      try {
+        const { error, count } = await (supabaseAdmin as any)
+          .from(table)
+          .delete({ count: "exact" })
+          .eq("tenant_id", tenant.id);
+        deleted[table] = error ? `error:${error.code ?? error.message}` : (count ?? 0);
+      } catch (e: any) {
+        deleted[table] = `error:${e?.message ?? "exception"}`;
+      }
+    }
+    const { invalidateDemoCache } = await import("@/lib/demo-mode");
+    invalidateDemoCache(tenant.id);
+
+    if (data.reseed) {
+      const seeded = await seedBeneficiaries(tenant.id);
+      return {
+        ok: true as const,
+        tenant_id: tenant.id,
+        deleted,
+        beneficiaries_reseeded: Object.keys(seeded.ids).length,
+      };
+    }
+    return { ok: true as const, tenant_id: tenant.id, deleted };
+  });
