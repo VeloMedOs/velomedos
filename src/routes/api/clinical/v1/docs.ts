@@ -9,7 +9,7 @@ import { listDocs } from "@/lib/his-docs";
 export const Route = createFileRoute("/api/clinical/v1/docs")({
   server: {
     handlers: {
-      OPTIONS: () => preflight(["GET"]),
+      OPTIONS: () => preflight(),
       GET: async ({ request }) => {
         const guard = await requireTenant(request);
         if (!guard.ok) return guard.res;

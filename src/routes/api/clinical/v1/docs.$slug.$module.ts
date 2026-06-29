@@ -12,7 +12,7 @@ import { getDoc, sliceDocByModule } from "@/lib/his-docs";
 export const Route = createFileRoute("/api/clinical/v1/docs/$slug/$module")({
   server: {
     handlers: {
-      OPTIONS: () => preflight(["GET"]),
+      OPTIONS: () => preflight(),
       GET: async ({ request, params }) => {
         const guard = await requireTenant(request);
         if (!guard.ok) return guard.res;
