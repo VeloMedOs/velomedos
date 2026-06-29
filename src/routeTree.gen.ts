@@ -186,6 +186,7 @@ import { Route as ApiPublicV1HomecareVisitsIdCheckInRouteImport } from './routes
 import { Route as ApiClinicalV1MastersServicesIdCodesRouteImport } from './routes/api/clinical/v1/masters/services.$id.codes'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items'
 import { Route as ApiClinicalV1MastersNetworksIdMembershipsRouteImport } from './routes/api/clinical/v1/masters/networks.$id.memberships'
+import { Route as ApiClinicalV1EncountersIdOrdersLabRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.lab'
 
 const WebsiteRoute = WebsiteRouteImport.update({
   id: '/website',
@@ -1148,6 +1149,12 @@ const ApiClinicalV1MastersNetworksIdMembershipsRoute =
     path: '/memberships',
     getParentRoute: () => ApiClinicalV1MastersNetworksIdRoute,
   } as any)
+const ApiClinicalV1EncountersIdOrdersLabRoute =
+  ApiClinicalV1EncountersIdOrdersLabRouteImport.update({
+    id: '/orders/lab',
+    path: '/orders/lab',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -1320,6 +1327,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/masters/networks/$id/memberships': typeof ApiClinicalV1MastersNetworksIdMembershipsRoute
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
@@ -1496,6 +1504,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/masters/networks/$id/memberships': typeof ApiClinicalV1MastersNetworksIdMembershipsRoute
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
@@ -1676,6 +1685,7 @@ export interface FileRoutesById {
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/masters/networks/$id/memberships': typeof ApiClinicalV1MastersNetworksIdMembershipsRoute
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
@@ -1856,6 +1866,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/masters/networks/$id/memberships'
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/services/$id/codes'
@@ -2032,6 +2043,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/masters/networks/$id/memberships'
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/services/$id/codes'
@@ -2211,6 +2223,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/masters/networks/$id/memberships'
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/services/$id/codes'
@@ -3565,6 +3578,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1MastersNetworksIdMembershipsRouteImport
       parentRoute: typeof ApiClinicalV1MastersNetworksIdRoute
     }
+    '/api/clinical/v1/encounters/$id/orders/lab': {
+      id: '/api/clinical/v1/encounters/$id/orders/lab'
+      path: '/orders/lab'
+      fullPath: '/api/clinical/v1/encounters/$id/orders/lab'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdOrdersLabRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
+    }
   }
 }
 
@@ -3891,6 +3911,7 @@ interface ApiClinicalV1EncountersIdRouteChildren {
   ApiClinicalV1EncountersIdFhirRoute: typeof ApiClinicalV1EncountersIdFhirRoute
   ApiClinicalV1EncountersIdSupportingInfoRoute: typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   ApiClinicalV1EncountersIdVitalsRoute: typeof ApiClinicalV1EncountersIdVitalsRoute
+  ApiClinicalV1EncountersIdOrdersLabRoute: typeof ApiClinicalV1EncountersIdOrdersLabRoute
 }
 
 const ApiClinicalV1EncountersIdRouteChildren: ApiClinicalV1EncountersIdRouteChildren =
@@ -3905,6 +3926,8 @@ const ApiClinicalV1EncountersIdRouteChildren: ApiClinicalV1EncountersIdRouteChil
     ApiClinicalV1EncountersIdSupportingInfoRoute:
       ApiClinicalV1EncountersIdSupportingInfoRoute,
     ApiClinicalV1EncountersIdVitalsRoute: ApiClinicalV1EncountersIdVitalsRoute,
+    ApiClinicalV1EncountersIdOrdersLabRoute:
+      ApiClinicalV1EncountersIdOrdersLabRoute,
   }
 
 const ApiClinicalV1EncountersIdRouteWithChildren =
