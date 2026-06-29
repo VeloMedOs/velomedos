@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/attempts")({
       OPTIONS: () => preflight(),
       GET: async ({ request, params }) => {
         const auth = await requireClinicalRole(request, [
-          "biller", "case_manager", "physician", "admin_clerk",
+          "biller", "case_manager", "physician", "registrar",
         ]);
         if (!auth.ok) return auth.res;
 
