@@ -804,6 +804,155 @@ export type Database = {
           },
         ]
       }
+      charge_item: {
+        Row: {
+          achi_code: string | null
+          body_site: string | null
+          cost_only: boolean
+          created_at: string
+          currency: string
+          description: string | null
+          discount_minor: number
+          drug_id: string | null
+          encounter_id: string
+          factor: number
+          gtin: string | null
+          id: string
+          in_network: boolean | null
+          internal_code: string
+          loinc_code: string | null
+          mrid: string | null
+          net_minor: number | null
+          order_item_id: string
+          order_item_table: string
+          ordered_at: string
+          ordered_by: string | null
+          patient_share_minor: number
+          payer_share_minor: number
+          price_list_id: string | null
+          pricing_mode: Database["public"]["Enums"]["charge_pricing_mode"]
+          quantity: number
+          quantity_code: string | null
+          rule_trace: Json | null
+          sbs_code: string | null
+          service_id: string | null
+          service_type: string | null
+          source_type: string
+          status: Database["public"]["Enums"]["charge_status"]
+          tax_minor: number
+          tenant_id: string
+          unit_price_minor: number | null
+          updated_at: string
+        }
+        Insert: {
+          achi_code?: string | null
+          body_site?: string | null
+          cost_only?: boolean
+          created_at?: string
+          currency?: string
+          description?: string | null
+          discount_minor?: number
+          drug_id?: string | null
+          encounter_id: string
+          factor?: number
+          gtin?: string | null
+          id?: string
+          in_network?: boolean | null
+          internal_code: string
+          loinc_code?: string | null
+          mrid?: string | null
+          net_minor?: number | null
+          order_item_id: string
+          order_item_table: string
+          ordered_at?: string
+          ordered_by?: string | null
+          patient_share_minor?: number
+          payer_share_minor?: number
+          price_list_id?: string | null
+          pricing_mode: Database["public"]["Enums"]["charge_pricing_mode"]
+          quantity?: number
+          quantity_code?: string | null
+          rule_trace?: Json | null
+          sbs_code?: string | null
+          service_id?: string | null
+          service_type?: string | null
+          source_type: string
+          status?: Database["public"]["Enums"]["charge_status"]
+          tax_minor?: number
+          tenant_id: string
+          unit_price_minor?: number | null
+          updated_at?: string
+        }
+        Update: {
+          achi_code?: string | null
+          body_site?: string | null
+          cost_only?: boolean
+          created_at?: string
+          currency?: string
+          description?: string | null
+          discount_minor?: number
+          drug_id?: string | null
+          encounter_id?: string
+          factor?: number
+          gtin?: string | null
+          id?: string
+          in_network?: boolean | null
+          internal_code?: string
+          loinc_code?: string | null
+          mrid?: string | null
+          net_minor?: number | null
+          order_item_id?: string
+          order_item_table?: string
+          ordered_at?: string
+          ordered_by?: string | null
+          patient_share_minor?: number
+          payer_share_minor?: number
+          price_list_id?: string | null
+          pricing_mode?: Database["public"]["Enums"]["charge_pricing_mode"]
+          quantity?: number
+          quantity_code?: string | null
+          rule_trace?: Json | null
+          sbs_code?: string | null
+          service_id?: string | null
+          service_type?: string | null
+          source_type?: string
+          status?: Database["public"]["Enums"]["charge_status"]
+          tax_minor?: number
+          tenant_id?: string
+          unit_price_minor?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charge_item_drug_id_fkey"
+            columns: ["drug_id"]
+            isOneToOne: false
+            referencedRelation: "drug_master"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "charge_item_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "charge_item_price_list_id_fkey"
+            columns: ["price_list_id"]
+            isOneToOne: false
+            referencedRelation: "price_list"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "charge_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_master"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinic_bookings: {
         Row: {
           clinic_id: string
@@ -1816,6 +1965,68 @@ export type Database = {
           },
         ]
       }
+      electrophysiology_order: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          encounter_id: string
+          id: string
+          notes: string | null
+          ordered_at: string
+          ordered_by: string | null
+          preauth_ref: string | null
+          preauth_required: boolean
+          preauth_status: Database["public"]["Enums"]["preauth_status"] | null
+          priority: string | null
+          status: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id: string
+          id?: string
+          notes?: string | null
+          ordered_at?: string
+          ordered_by?: string | null
+          preauth_ref?: string | null
+          preauth_required?: boolean
+          preauth_status?: Database["public"]["Enums"]["preauth_status"] | null
+          priority?: string | null
+          status?: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id?: string
+          id?: string
+          notes?: string | null
+          ordered_at?: string
+          ordered_by?: string | null
+          preauth_ref?: string | null
+          preauth_required?: boolean
+          preauth_status?: Database["public"]["Enums"]["preauth_status"] | null
+          priority?: string | null
+          status?: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "electrophysiology_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       encounter: {
         Row: {
           beneficiary_id: string
@@ -2116,6 +2327,66 @@ export type Database = {
           },
         ]
       }
+      ep_order_item: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          interpretation: string | null
+          order_id: string
+          performed_at: string | null
+          service_id: string | null
+          status: Database["public"]["Enums"]["charge_status"]
+          study_type: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          interpretation?: string | null
+          order_id: string
+          performed_at?: string | null
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["charge_status"]
+          study_type?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          interpretation?: string | null
+          order_id?: string
+          performed_at?: string | null
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["charge_status"]
+          study_type?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ep_order_item_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "electrophysiology_order"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ep_order_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_master"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       episode_of_care: {
         Row: {
           beneficiary_id: string
@@ -2399,6 +2670,137 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_order: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          encounter_id: string
+          id: string
+          notes: string | null
+          ordered_at: string
+          ordered_by: string | null
+          preauth_ref: string | null
+          preauth_required: boolean
+          preauth_status: Database["public"]["Enums"]["preauth_status"] | null
+          priority: string | null
+          status: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id: string
+          id?: string
+          notes?: string | null
+          ordered_at?: string
+          ordered_by?: string | null
+          preauth_ref?: string | null
+          preauth_required?: boolean
+          preauth_status?: Database["public"]["Enums"]["preauth_status"] | null
+          priority?: string | null
+          status?: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id?: string
+          id?: string
+          notes?: string | null
+          ordered_at?: string
+          ordered_by?: string | null
+          preauth_ref?: string | null
+          preauth_required?: boolean
+          preauth_status?: Database["public"]["Enums"]["preauth_status"] | null
+          priority?: string | null
+          status?: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_order_item: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          loinc_code: string | null
+          order_id: string
+          result_at: string | null
+          result_status: string | null
+          result_unit: string | null
+          result_value: string | null
+          service_id: string | null
+          specimen: string | null
+          status: Database["public"]["Enums"]["charge_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          loinc_code?: string | null
+          order_id: string
+          result_at?: string | null
+          result_status?: string | null
+          result_unit?: string | null
+          result_value?: string | null
+          service_id?: string | null
+          specimen?: string | null
+          status?: Database["public"]["Enums"]["charge_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          loinc_code?: string | null
+          order_id?: string
+          result_at?: string | null
+          result_status?: string | null
+          result_unit?: string | null
+          result_value?: string | null
+          service_id?: string | null
+          specimen?: string | null
+          status?: Database["public"]["Enums"]["charge_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_order_item_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "lab_order"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lab_order_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_master"
             referencedColumns: ["id"]
           },
         ]
@@ -4077,6 +4479,153 @@ export type Database = {
           },
         ]
       }
+      prescription: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          encounter_id: string
+          id: string
+          notes: string | null
+          ordered_at: string
+          ordered_by: string | null
+          preauth_ref: string | null
+          preauth_required: boolean
+          preauth_status: Database["public"]["Enums"]["preauth_status"] | null
+          status: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id: string
+          id?: string
+          notes?: string | null
+          ordered_at?: string
+          ordered_by?: string | null
+          preauth_ref?: string | null
+          preauth_required?: boolean
+          preauth_status?: Database["public"]["Enums"]["preauth_status"] | null
+          status?: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id?: string
+          id?: string
+          notes?: string | null
+          ordered_at?: string
+          ordered_by?: string | null
+          preauth_ref?: string | null
+          preauth_required?: boolean
+          preauth_status?: Database["public"]["Enums"]["preauth_status"] | null
+          status?: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prescription_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prescription_item: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          dispense_status: string | null
+          dispensed_at: string | null
+          dispensed_by: string | null
+          dose: string | null
+          drug_id: string
+          duration: string | null
+          frequency: string | null
+          id: string
+          order_id: string
+          quantity: number
+          quantity_code: string | null
+          selection_reason: string | null
+          status: Database["public"]["Enums"]["charge_status"]
+          substitute_drug_id: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          dispense_status?: string | null
+          dispensed_at?: string | null
+          dispensed_by?: string | null
+          dose?: string | null
+          drug_id: string
+          duration?: string | null
+          frequency?: string | null
+          id?: string
+          order_id: string
+          quantity?: number
+          quantity_code?: string | null
+          selection_reason?: string | null
+          status?: Database["public"]["Enums"]["charge_status"]
+          substitute_drug_id?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          dispense_status?: string | null
+          dispensed_at?: string | null
+          dispensed_by?: string | null
+          dose?: string | null
+          drug_id?: string
+          duration?: string | null
+          frequency?: string | null
+          id?: string
+          order_id?: string
+          quantity?: number
+          quantity_code?: string | null
+          selection_reason?: string | null
+          status?: Database["public"]["Enums"]["charge_status"]
+          substitute_drug_id?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prescription_item_drug_id_fkey"
+            columns: ["drug_id"]
+            isOneToOne: false
+            referencedRelation: "drug_master"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prescription_item_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "prescription"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prescription_item_substitute_drug_id_fkey"
+            columns: ["substitute_drug_id"]
+            isOneToOne: false
+            referencedRelation: "drug_master"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       price_list: {
         Row: {
           active: boolean
@@ -4230,6 +4779,51 @@ export type Database = {
           },
         ]
       }
+      pricing_rule: {
+        Row: {
+          action: Json
+          active: boolean
+          condition: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          priority: number
+          scope: Database["public"]["Enums"]["pricing_rule_scope"]
+          tenant_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          action?: Json
+          active?: boolean
+          condition?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          priority?: number
+          scope: Database["public"]["Enums"]["pricing_rule_scope"]
+          tenant_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          action?: Json
+          active?: boolean
+          condition?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          priority?: number
+          scope?: Database["public"]["Enums"]["pricing_rule_scope"]
+          tenant_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           blood_type: string | null
@@ -4286,6 +4880,134 @@ export type Database = {
           verified_at?: string | null
         }
         Relationships: []
+      }
+      radiology_order: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          encounter_id: string
+          id: string
+          notes: string | null
+          ordered_at: string
+          ordered_by: string | null
+          preauth_ref: string | null
+          preauth_required: boolean
+          preauth_status: Database["public"]["Enums"]["preauth_status"] | null
+          priority: string | null
+          status: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id: string
+          id?: string
+          notes?: string | null
+          ordered_at?: string
+          ordered_by?: string | null
+          preauth_ref?: string | null
+          preauth_required?: boolean
+          preauth_status?: Database["public"]["Enums"]["preauth_status"] | null
+          priority?: string | null
+          status?: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id?: string
+          id?: string
+          notes?: string | null
+          ordered_at?: string
+          ordered_by?: string | null
+          preauth_ref?: string | null
+          preauth_required?: boolean
+          preauth_status?: Database["public"]["Enums"]["preauth_status"] | null
+          priority?: string | null
+          status?: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radiology_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      radiology_order_item: {
+        Row: {
+          body_site: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          modality: string | null
+          order_id: string
+          performed_at: string | null
+          report_status: string | null
+          report_text: string | null
+          service_id: string | null
+          status: Database["public"]["Enums"]["charge_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body_site?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          modality?: string | null
+          order_id: string
+          performed_at?: string | null
+          report_status?: string | null
+          report_text?: string | null
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["charge_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body_site?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          modality?: string | null
+          order_id?: string
+          performed_at?: string | null
+          report_status?: string | null
+          report_text?: string | null
+          service_id?: string | null
+          status?: Database["public"]["Enums"]["charge_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "radiology_order_item_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "radiology_order"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radiology_order_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_master"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rentals: {
         Row: {
@@ -4621,6 +5343,131 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_order: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          encounter_id: string
+          id: string
+          notes: string | null
+          ordered_at: string
+          ordered_by: string | null
+          preauth_ref: string | null
+          preauth_required: boolean
+          preauth_status: Database["public"]["Enums"]["preauth_status"] | null
+          priority: string | null
+          status: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id: string
+          id?: string
+          notes?: string | null
+          ordered_at?: string
+          ordered_by?: string | null
+          preauth_ref?: string | null
+          preauth_required?: boolean
+          preauth_status?: Database["public"]["Enums"]["preauth_status"] | null
+          priority?: string | null
+          status?: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id?: string
+          id?: string
+          notes?: string | null
+          ordered_at?: string
+          ordered_by?: string | null
+          preauth_ref?: string | null
+          preauth_required?: boolean
+          preauth_status?: Database["public"]["Enums"]["preauth_status"] | null
+          priority?: string | null
+          status?: Database["public"]["Enums"]["clinical_order_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_order_item: {
+        Row: {
+          body_site: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          order_id: string
+          performed_at: string | null
+          quantity: number
+          service_id: string
+          status: Database["public"]["Enums"]["charge_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body_site?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          order_id: string
+          performed_at?: string | null
+          quantity?: number
+          service_id: string
+          status?: Database["public"]["Enums"]["charge_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body_site?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          order_id?: string
+          performed_at?: string | null
+          quantity?: number
+          service_id?: string
+          status?: Database["public"]["Enums"]["charge_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_order_item_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "service_order"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_order_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_master"
             referencedColumns: ["id"]
           },
         ]
@@ -5546,6 +6393,19 @@ export type Database = {
         | "completed"
         | "missed"
         | "cancelled"
+      charge_pricing_mode: "cash" | "insured" | "drg_bundled"
+      charge_status:
+        | "ordered"
+        | "collected"
+        | "in_progress"
+        | "resulted"
+        | "dispensed"
+        | "cancelled"
+      clinical_order_status:
+        | "ordered"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
       clinical_role:
         | "registrar"
         | "physician"
@@ -5597,6 +6457,14 @@ export type Database = {
         | "call_center"
         | "developer"
         | "analyst"
+      preauth_status: "not_required" | "pending" | "approved" | "rejected"
+      pricing_rule_scope:
+        | "eligibility"
+        | "share"
+        | "package"
+        | "substitution"
+        | "drg_outlier"
+        | "out_of_network"
       screening_order_status:
         | "booked"
         | "sample_collected"
@@ -5805,6 +6673,21 @@ export const Constants = {
         "missed",
         "cancelled",
       ],
+      charge_pricing_mode: ["cash", "insured", "drg_bundled"],
+      charge_status: [
+        "ordered",
+        "collected",
+        "in_progress",
+        "resulted",
+        "dispensed",
+        "cancelled",
+      ],
+      clinical_order_status: [
+        "ordered",
+        "in_progress",
+        "completed",
+        "cancelled",
+      ],
       clinical_role: [
         "registrar",
         "physician",
@@ -5861,6 +6744,15 @@ export const Constants = {
         "call_center",
         "developer",
         "analyst",
+      ],
+      preauth_status: ["not_required", "pending", "approved", "rejected"],
+      pricing_rule_scope: [
+        "eligibility",
+        "share",
+        "package",
+        "substitution",
+        "drg_outlier",
+        "out_of_network",
       ],
       screening_order_status: [
         "booked",
