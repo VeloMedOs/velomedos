@@ -17,6 +17,7 @@ export type ClinicalRole =
   | "radiologist"
   | "pharmacist"
   | "coder"
+  | "biller"
   | "case_manager"
   | "cashier"
   | "tenant_admin"

@@ -953,6 +953,388 @@ export type Database = {
           },
         ]
       }
+      claim: {
+        Row: {
+          billing_model: string
+          claim_subtype: string
+          claim_type: string
+          coverage_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          drg_assignment_id: string | null
+          encounter_id: string
+          id: string
+          invoice_no: string | null
+          nphies_response: Json | null
+          pricing_trace: Json | null
+          provider_claim_no: string
+          replaces_claim_id: string | null
+          status: string
+          submitted_at: string | null
+          tenant_id: string
+          total_net_minor: number
+          total_patient_share_minor: number
+          total_payer_share_minor: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          billing_model: string
+          claim_subtype: string
+          claim_type: string
+          coverage_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          drg_assignment_id?: string | null
+          encounter_id: string
+          id?: string
+          invoice_no?: string | null
+          nphies_response?: Json | null
+          pricing_trace?: Json | null
+          provider_claim_no: string
+          replaces_claim_id?: string | null
+          status?: string
+          submitted_at?: string | null
+          tenant_id: string
+          total_net_minor?: number
+          total_patient_share_minor?: number
+          total_payer_share_minor?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          billing_model?: string
+          claim_subtype?: string
+          claim_type?: string
+          coverage_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          drg_assignment_id?: string | null
+          encounter_id?: string
+          id?: string
+          invoice_no?: string | null
+          nphies_response?: Json | null
+          pricing_trace?: Json | null
+          provider_claim_no?: string
+          replaces_claim_id?: string | null
+          status?: string
+          submitted_at?: string | null
+          tenant_id?: string
+          total_net_minor?: number
+          total_patient_share_minor?: number
+          total_payer_share_minor?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_coverage_id_fkey"
+            columns: ["coverage_id"]
+            isOneToOne: false
+            referencedRelation: "coverage"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_drg_assignment_id_fkey"
+            columns: ["drg_assignment_id"]
+            isOneToOne: false
+            referencedRelation: "drg_assignment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_replaces_claim_id_fkey"
+            columns: ["replaces_claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_care_team: {
+        Row: {
+          claim_id: string
+          created_at: string
+          id: string
+          is_primary: boolean | null
+          practitioner_user_id: string | null
+          role: string | null
+          sequence_no: number
+          speciality: string | null
+          tenant_id: string
+        }
+        Insert: {
+          claim_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          practitioner_user_id?: string | null
+          role?: string | null
+          sequence_no: number
+          speciality?: string | null
+          tenant_id: string
+        }
+        Update: {
+          claim_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          practitioner_user_id?: string | null
+          role?: string | null
+          sequence_no?: number
+          speciality?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_care_team_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_diagnosis: {
+        Row: {
+          claim_id: string
+          code: string
+          code_system: string | null
+          created_at: string
+          display: string | null
+          id: string
+          present_on_admission: string | null
+          role: string | null
+          sequence_no: number
+          tenant_id: string
+        }
+        Insert: {
+          claim_id: string
+          code: string
+          code_system?: string | null
+          created_at?: string
+          display?: string | null
+          id?: string
+          present_on_admission?: string | null
+          role?: string | null
+          sequence_no: number
+          tenant_id: string
+        }
+        Update: {
+          claim_id?: string
+          code?: string
+          code_system?: string | null
+          created_at?: string
+          display?: string | null
+          id?: string
+          present_on_admission?: string | null
+          role?: string | null
+          sequence_no?: number
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_diagnosis_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_item: {
+        Row: {
+          body_site: string | null
+          charge_item_id: string | null
+          claim_id: string
+          cost_only: boolean
+          created_at: string
+          description: string | null
+          discount_minor: number
+          factor: number
+          id: string
+          is_package: boolean
+          net_minor: number
+          non_standard_code: string | null
+          patient_share_minor: number
+          payer_share_minor: number
+          quantity: number
+          sequence_no: number
+          service_code: string | null
+          service_type: string | null
+          sub_site: string | null
+          tax_minor: number
+          tenant_id: string
+          unit_price_minor: number
+        }
+        Insert: {
+          body_site?: string | null
+          charge_item_id?: string | null
+          claim_id: string
+          cost_only?: boolean
+          created_at?: string
+          description?: string | null
+          discount_minor?: number
+          factor?: number
+          id?: string
+          is_package?: boolean
+          net_minor?: number
+          non_standard_code?: string | null
+          patient_share_minor?: number
+          payer_share_minor?: number
+          quantity?: number
+          sequence_no: number
+          service_code?: string | null
+          service_type?: string | null
+          sub_site?: string | null
+          tax_minor?: number
+          tenant_id: string
+          unit_price_minor?: number
+        }
+        Update: {
+          body_site?: string | null
+          charge_item_id?: string | null
+          claim_id?: string
+          cost_only?: boolean
+          created_at?: string
+          description?: string | null
+          discount_minor?: number
+          factor?: number
+          id?: string
+          is_package?: boolean
+          net_minor?: number
+          non_standard_code?: string | null
+          patient_share_minor?: number
+          payer_share_minor?: number
+          quantity?: number
+          sequence_no?: number
+          service_code?: string | null
+          service_type?: string | null
+          sub_site?: string | null
+          tax_minor?: number
+          tenant_id?: string
+          unit_price_minor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_item_charge_item_id_fkey"
+            columns: ["charge_item_id"]
+            isOneToOne: false
+            referencedRelation: "charge_item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_item_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_item_link: {
+        Row: {
+          claim_id: string
+          created_at: string
+          id: string
+          item_sequence_no: number
+          link_type: string
+          target_sequence_no: number
+          tenant_id: string
+        }
+        Insert: {
+          claim_id: string
+          created_at?: string
+          id?: string
+          item_sequence_no: number
+          link_type: string
+          target_sequence_no: number
+          tenant_id: string
+        }
+        Update: {
+          claim_id?: string
+          created_at?: string
+          id?: string
+          item_sequence_no?: number
+          link_type?: string
+          target_sequence_no?: number
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_item_link_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_supporting_info: {
+        Row: {
+          category: string
+          claim_id: string
+          code: string | null
+          code_system: string | null
+          created_at: string
+          id: string
+          sequence_no: number
+          source_id: string | null
+          source_table: string | null
+          tenant_id: string
+          timing: string | null
+          unit: string | null
+          value: string | null
+        }
+        Insert: {
+          category: string
+          claim_id: string
+          code?: string | null
+          code_system?: string | null
+          created_at?: string
+          id?: string
+          sequence_no: number
+          source_id?: string | null
+          source_table?: string | null
+          tenant_id: string
+          timing?: string | null
+          unit?: string | null
+          value?: string | null
+        }
+        Update: {
+          category?: string
+          claim_id?: string
+          code?: string | null
+          code_system?: string | null
+          created_at?: string
+          id?: string
+          sequence_no?: number
+          source_id?: string | null
+          source_table?: string | null
+          tenant_id?: string
+          timing?: string | null
+          unit?: string | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_supporting_info_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinic_bookings: {
         Row: {
           clinic_id: string
@@ -6699,6 +7081,7 @@ export type Database = {
         | "cashier"
         | "tenant_admin"
         | "read_only"
+        | "biller"
       code_system_kind:
         | "diagnosis"
         | "procedure"
@@ -6981,6 +7364,7 @@ export const Constants = {
         "cashier",
         "tenant_admin",
         "read_only",
+        "biller",
       ],
       code_system_kind: [
         "diagnosis",
