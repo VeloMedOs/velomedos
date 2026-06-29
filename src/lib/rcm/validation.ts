@@ -21,6 +21,7 @@ export type RcmReadiness = {
   missing: MissingItem[];
   flags: {
     eligibility_ok: boolean;
+    eligibility_lifecycle_ok: boolean;
     executed_only_ok: boolean;
     snapshot_locked: boolean;
     auth_ok: boolean;
@@ -50,6 +51,7 @@ export function validateClaimRcmReadiness(b: ReadinessBundle): RcmReadiness {
   const claim = b.claim ?? {};
   const flags = {
     eligibility_ok: true,
+    eligibility_lifecycle_ok: true,
     executed_only_ok: true,
     snapshot_locked: true,
     auth_ok: true,
@@ -82,6 +84,23 @@ export function validateClaimRcmReadiness(b: ReadinessBundle): RcmReadiness {
     }
   } else if (!claim.coverage_id && !isCash && claim.billing_model !== "drg_bundled") {
     // not blocking — cash claims may legitimately lack coverage
+  }
+
+  // R1 — visit_eligibility lifecycle: when the loader provides a snapshot of
+  // the linked visit_eligibility, only `insured` (or `self_pay` for cash)
+  // permits claim submission.
+  const ve = (b as unknown as { visitEligibility?: { status?: string } }).visitEligibility;
+  if (ve && ve.status) {
+    const okStatus = isCash ? ve.status === "self_pay" : ve.status === "insured";
+    if (!okStatus) {
+      flags.eligibility_lifecycle_ok = false;
+      add(
+        missing,
+        "eligibility_lifecycle_not_ready",
+        "eligibility",
+        `Visit eligibility status is '${ve.status}'. Must be ${isCash ? "self_pay" : "insured"} before submission.`,
+      );
+    }
   }
 
   // R3 — executed-only on all charged items
