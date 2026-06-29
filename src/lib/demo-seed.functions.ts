@@ -56,17 +56,20 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
   { email: "patient@demo.velomedos.com",    full_name: "Demo Patient",      app_role: "patient",        clinical_role: null,                lands_on: "/patient" },
 ];
 
-async function requireSuperadmin(): Promise<{ ok: true; userId: string } | { ok: false; error: string }> {
-  const { getRequestHeader } = await import("@tanstack/react-start/server");
+async function requireSuperadminFromHeader(authHeader: string): Promise<{ ok: true; userId: string } | { ok: false; error: string }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const auth = getRequestHeader("authorization") ?? "";
-  const token = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7) : "";
+  const token = (authHeader || "").toLowerCase().startsWith("bearer ") ? authHeader.slice(7) : "";
   if (!token) return { ok: false, error: "unauthorized" };
   const { data: u } = await supabaseAdmin.auth.getUser(token);
   if (!u?.user) return { ok: false, error: "unauthorized" };
   const { data: hasRole } = await supabaseAdmin.rpc("has_role", { _user_id: u.user.id, _role: "superadmin" });
   if (!hasRole) return { ok: false, error: "forbidden" };
   return { ok: true, userId: u.user.id };
+}
+
+async function requireSuperadmin(): Promise<{ ok: true; userId: string } | { ok: false; error: string }> {
+  const { getRequestHeader } = await import("@tanstack/react-start/server");
+  return requireSuperadminFromHeader(getRequestHeader("authorization") ?? "");
 }
 
 async function resolveDemoTenant(): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
