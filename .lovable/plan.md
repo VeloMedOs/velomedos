@@ -1,122 +1,86 @@
-# Phase 0 — Mini-HIS / NPHIES MDS Foundations (REVISED)
+# Phase 1 — Registration MDS (Beneficiary + Coverage) — REVISED
 
-Guardrails only — no clinical business tables, no patient data. Revised to carry the KSA code-system reality (ICD-10-AM, ACHI, AR-DRG v9, SBS v3, LOINC, GTIN/MRID) and the inpatient-DRG vs outpatient-itemized split that the later phases depend on.
+Journey entry point for the clinical vertical: NPHIES `Beneficiary`, `Coverage`, `CoverageClass` as tenant-scoped tables, FHIR mappers, Zod schemas. Permissive validation; strict MDS waits for Phase 10.
 
-Existing app untouched. New `/api/clinical/v1/*` namespace alongside `/api/admin/v1/*` and `/api/public/v1/*`.
+> Lovable's draft was faithful and repo-aligned (`touch_updated_at()` exists; `is_tenant_member` mirrors the existing `has_role`/`is_portal_staff` pattern; GRANT→RLS→POLICY matches `tenant_members`). Changes below are tagged **[AMENDED]** / **[NEW]**; everything untagged is kept as Lovable proposed.
 
-> Changes from the first Phase 0 draft are tagged **[AMENDED]** or **[NEW]**. Everything untagged is unchanged from the version Lovable already proposed.
+## Standing rule (applies to this and every later phase) [NEW]
 
----
+**API-first, fully wired.** No orphan tables and no orphan endpoints:
 
-## What gets built
+- Every new table is reachable through the API — either its own CRUD routes or a parent's nested routes (e.g. `coverage_class` via the coverage endpoints).
+- Every route reads/writes a real table; no stubbed handlers returning static data.
+- Each phase's verification lists an **API coverage** line mapping every new table → the route(s) that read and write it.
 
-### 1. Security hygiene (unchanged)
+## 1. Supabase migration
 
-- Add `.env` to `.gitignore` (currently tracked).
-- Sweep client code for any `SUPABASE_SERVICE_ROLE_KEY` reference — fail loud if found.
+Three tables, tenant-scoped, RLS on, GRANT → ENABLE RLS → POLICY, plus:
 
-### 2. Supabase migration — clinical foundations
+- `is_tenant_member(_user_id uuid, _tenant uuid) → boolean` — `SECURITY DEFINER`, `SET search_path = public`, reads `tenant_members`. (Confirmed: no such helper exists yet; this matches the repo's `has_role`/`is_portal_staff` convention.)
+- `beneficiary`
+  - `tenant_id`, `patient_file_no`, `first_name`, `middle_name`, `last_name`, `full_name NOT NULL`, `dob date NOT NULL`, `gender text NOT NULL`, `nationality`, `document_type text NOT NULL`, `document_id text NOT NULL`, `contact_number`, `ehealth_id`, `residency_type`, `marital_status`, `blood_group`, `preferred_language`, `email`, `address_line`, `address_street`, `address_city`, `address_district`, `address_state`, `address_postal_code`, `address_country`, `occupation`, `religion`, `birth_weight_grams int NULL` **[AMENDED — restored from master doc; neonate AR-DRG grouper input (Phase 6)]**, `patient_user_id uuid NULL` **[AMENDED — restored; links the beneficiary to an auth user for the patient app identity model (Phase 8)]**, `journey_state text NOT NULL DEFAULT 'registered'`, `created_by`, `updated_by`, standard `id/created_at/updated_at`.
+  - `UNIQUE (tenant_id, document_type, document_id)`.
+  - Indexes on `(tenant_id, full_name)`, `(tenant_id, patient_file_no)`, `(patient_user_id)` **partial WHERE patient_user_id IS NOT NULL** **[NEW — patient-app lookup]**.
+  - **Note [NEW]:** `journey_state` here is only the *registration milestone*. The authoritative per-visit journey state lives on `encounter`/`episode_of_care` (Phase 2); do not drive later logic off `beneficiary.journey_state`.
+- `coverage`
+  - `tenant_id`, `beneficiary_id fk→beneficiary ON DELETE CASCADE`, `coverage_type text NOT NULL`, `member_id text NOT NULL`, `policy_number`, `expiry_date date`, `payer_nphies_id text NOT NULL`, `tpa_nphies_id`, `relation_with_subscriber text NOT NULL`, `policy_holder text NOT NULL`, `status text NOT NULL DEFAULT 'active'`, **nullable Phase-3 FK placeholders (UUID, no FK target yet):** `payer_id`**,** `policy_id`**,** `insurance_plan_id`**,** `network_id` **[AMENDED — renamed** `plan_id`**→**`insurance_plan_id` **to match the Phase-3** `insurance_plan` **table, and restored** `network_id` **(the pricing resolver walks coverage→plan AND network in Phase 4)]**, standard fields.
+- `coverage_class`
+  - `tenant_id`, `coverage_id fk→coverage ON DELETE CASCADE`, `type text NOT NULL CHECK (type IN ('group','plan'))`, `value text NOT NULL`, `display_name`, standard fields.
+- **RLS** on each (SELECT/INSERT/UPDATE/DELETE to `authenticated` gated by `is_tenant_member(auth.uid(), tenant_id)`; `service_role` full bypass).
+- `updated_at` **trigger** reuses existing `public.touch_updated_at()`. (Confirmed present.)
 
-- **enum** `clinical_role` **[AMENDED]** — `registrar, physician, nurse, lab_tech, radiologist, pharmacist, coder, case_manager, cashier, tenant_admin, read_only`. (`coder` and `case_manager` added — clinical coding and utilization/DRG review are distinct accountable roles; AR-DRG output quality depends on the coder.)
-- `tenant_members.clinical_role` — nullable column added.
-- `code_system` **[AMENDED — versioning is now first-class]** `id, key text unique, name, kind, source_authority, oid nullable, version, edition, is_current boolean default true, effective_from date, effective_to date, created_at, updated_at`.
-  - `kind` enum: `diagnosis | procedure | billing | drg | drug | lab | coding_standard | lov`.
-  - Rationale: CHI re-versions these (ICD-10-AM 10th, AR-DRG v9.0, SBS v3). Code values and prices are pinned to a `code_system` row, so a version bump is additive (insert a new `code_system` row + its `code_value`s, flip `is_current`) and never rewrites history. The DRG implementation guidance treats version control as a core requirement.
-- `code_value` — `id, code_system_id fk, code, display, parent_code, active, attributes jsonb` **[AMENDED: +attributes jsonb]**.
-  - `parent_code` supports hierarchical systems (AR-DRG: MDC → ADRG → DRG; ICD chapters).
-  - `attributes jsonb` holds system-specific fields without schema churn (e.g. a DRG row's `relative_weight`, `mdc`, `adrg`, `partition`; a drug row's `atc`, `strength`).
-- `clinical_audit` — `id, tenant_id, actor_id, action, target, target_id, payload jsonb, created_at`. (unchanged)
+## 2. FHIR mapping layer (pure, no DB)
 
-RLS on all four:
+- `src/lib/mds/fhir/patient.ts` — `beneficiaryToFhirPatient(row)` → FHIR R4 Patient, KSA identifier from `document_type`, name.text + given/family, gender, birthDate, telecom, address, extensions for nationality/occupation/religion.
+- `src/lib/mds/fhir/coverage.ts` — `coverageToFhirCoverage(coverage, classes, patientRef)` → FHIR Coverage (payor identifier = NPHIES payer id, subscriberId = member_id, relationship, period.end = expiry_date, class[] from `coverage_class`).
+- `src/lib/mds/fhir/identifier-systems.ts` — document_type/relation/coverage_type LOV → NPHIES URIs.
+  - **[AMENDED] Verify the canonical NPHIES identifier system URIs against the current NPHIES IG before shipping** (e.g. national id vs iqama vs passport). The values must match NPHIES exactly or the payer will reject the bundle. Source these from `code_system`/`code_value` where possible rather than hardcoding.
 
-- `code_system` / `code_value` — read to `authenticated`, write to `service_role` only.
-- `clinical_audit` — readable to tenant members (via `tenant_members`), insert via service role only.
-- Grants per the public-schema-grant rule on every new table.
+## 3. Zod schemas
 
-**Seed** `code_system` **[AMENDED — real KSA-adopted systems with versions]**:
+`src/lib/mds/schema/registration.ts`: `BeneficiaryCreate`, `BeneficiaryUpdate` (partial), `CoverageCreate` (optional `classes: CoverageClassCreate[]`), `CoverageClassCreate`, `CoverageUpdate` **(partial — status/expiry/policy linkage)** **[NEW — backs the coverage PATCH]**. Required: `full_name, dob, gender, document_type, document_id`; coverage `member_id, payer_nphies_id, coverage_type, relation_with_subscriber, policy_holder`. Rest optional. Phase 10 tightens.
 
+## 4. Routes (all under `src/routes/api/clinical/v1/`)
 
-| key        | name                                 | kind            | source       | version |
-| ---------- | ------------------------------------ | --------------- | ------------ | ------- |
-| icd-10-am  | ICD-10-AM (diagnoses)                | diagnosis       | IHACPA / CHI | 10th    |
-| achi       | ACHI (interventions/procedures)      | procedure       | IHACPA / CHI | 10th    |
-| acs        | Australian Coding Standards          | coding_standard | IHACPA / CHI | 10th    |
-| ar-drg     | AR-DRG (MDC / ADRG / DRG)            | drg             | IHACPA / CHI | 9.0     |
-| sbs        | Saudi Billing System (non-admitted)  | billing         | CHI          | 3       |
-| loinc      | LOINC (lab observations)             | lab             | Regenstrief  | current |
-| gtin       | GTIN (drug trade item / barcode)     | drug            | GS1          | -       |
-| mrid       | SFDA Medication Registration ID      | drug            | SFDA         | -       |
-| sfda-sci   | SFDA scientific/drug register code   | drug            | SFDA         | -       |
-| nphies-lov | NPHIES LOV / ValueSets (placeholder) | lov             | NPHIES       | -       |
+`createFileRoute` + `server.handlers`, `preflight()` CORS, `requireTenant` for reads, `requireClinicalRole(request, ['registrar'])` for writes (`tenant_admin` implicit), every write audits + returns the standard envelope.
 
+- `beneficiaries.ts` — `GET` paginated (filters `q`, `document_id`, `limit`, `offset`); `POST` create (sets `journey_state='registered'`, `tenant_id` from context).
+- `beneficiaries.$id.ts` — `GET` one (tenant-scoped); `PATCH` update.
+- `beneficiaries.$id.coverage.ts` — `GET` coverages + classes; `POST` create coverage with nested `classes[]` in one transaction.
+  - **[AMENDED — security] Because this handler uses the service client (RLS bypassed), it MUST first load the** `$id` **beneficiary and assert** `beneficiary.tenant_id === auth.tenantId` **before inserting; return 404 otherwise. Apply this ownership check to every service-client write that takes an id from the URL.**
+- `coverage.$id.ts` **[NEW] —** `GET` **one;** `PATCH` **update (status, expiry_date, policy linkage); same tenant-ownership guard. Makes coverage fully API-managed, not write-once.**
+- `beneficiaries.$id.fhir.ts` — `GET` → `{ patient, coverages: [{ coverage, classes }] }` via mappers.
 
-`code_value` left empty (loaded Phase 3/9 from CHI-provided files). **Note for the team:** ICD-10-AM, ACHI, ACS and AR-DRG are licensed classifications; store only the KSA-adopted code values loaded from CHI-provided files — do not redistribute the source classification, and do not generate codes.
+## 5. OpenAPI
 
-### 3. Clinical auth helper — `src/lib/api-clinical.ts` (unchanged)
+Extend `src/lib/openapi-clinical-spec.ts`: tags `Registration`, `Coverage`, `FHIR`; schemas `Beneficiary`, `BeneficiaryCreate`, `Coverage`, `CoverageCreate`, `CoverageUpdate`, `CoverageClass`, `FhirPatient`, `FhirCoverage`; path entries for the **five** routes (incl. the new `coverage.$id`) with params, bodies, and 200/201/400/401/403/404/409 responses.
 
-- `requireTenant(request)` → resolves bearer → user → `tenant_members` → `{ ok, userId, tenantId, role, clinicalRole }` or 401/403 envelope.
-- `requireClinicalRole(request, roles: ClinicalRole[])` → builds on `requireTenant`.
-- `clinicalAudit(actorId, tenantId, action, target, targetId, payload)` → best-effort.
-- Re-exports `json`, `preflight`, `serviceClient`.
-- Error envelope: `{ error, code, request_id: crypto.randomUUID() }`.
+## 6. Verification
 
-### 4. Journey state machine skeleton — `src/lib/mds/state-machine.ts` **[AMENDED]**
+- `bun run build` green; existing Playwright suites pass.
+- Swagger smoke (`/superadmin/api-docs` → Clinical): create beneficiary in tenant A; tenant-B member cannot read it (404); duplicate `(document_type, document_id)` → 409; `beneficiaries/:id/fhir` returns Patient with `identifier[0].system` matching document type; PATCH a coverage's status; **attempt to POST coverage onto another tenant's beneficiary id → 404 (ownership guard holds)** **[NEW]**.
+- `psql`: RLS enabled on all three tables; grants for `authenticated` + `service_role`.
+- **API coverage [NEW]:** `beneficiary` → beneficiaries(.$id); `coverage` → beneficiaries.$id.coverage + coverage.$id; `coverage_class` → beneficiaries.$id.coverage (nested). No orphan tables.
 
-Pure module, no DB. Two amendments anticipate the IP/DRG path without overbuilding:
-
-- Type `JourneyState = 'registered' | 'encounter_open' | 'clinically_documented' | 'investigations_ordered' | 'admitted' | 'discharged' | 'coded' | 'grouped' | 'claim_ready' | 'submitted' | 'void'`.
-  - **[NEW]** `coded` (clinical coding complete) and `grouped` (AR-DRG assigned) sit between `discharged` and `claim_ready` — they apply to **inpatient** journeys only. Outpatient journeys skip straight from documented/discharged to `claim_ready`.
-- `TRANSITIONS: Record<JourneyState, JourneyState[]>`.
-- `canTransition(from, to, role)` — permissive in Phase 0 (logs a reason if it would block, but always allows). Strict gates land in Phase 9.
-- **[NEW]** Export a `reimbursementModel(encounterClass)` helper stub returning `'drg_bundled'` for inpatient (`IMP`) and `'itemized_sbs'` otherwise. Permissive/no-op now; Phase 4 pricing and Phase 6 claim assembly branch on it.
-
-### 5. Clinical OpenAPI surface (unchanged structure)
-
-- `src/lib/openapi-clinical-spec.ts` — OpenAPI 3.1.0, `servers: [{ url: '/api/clinical/v1' }]`, bearer security scheme, empty `paths`. **[AMENDED]** `info.title = "VeloMed OS Clinical API"`, and the description notes two claim shapes will be hosted: itemized (SBS) and DRG-bundled.
-- `src/routes/api/clinical/v1/openapi.ts` — `createFileRoute` server handler returning JSON.
-- Update `src/routes/_authenticated/superadmin.api-docs.tsx` — add a third toggle **Clinical** next to Admin/Public, pointing at `/api/clinical/v1/openapi`. Existing toggles untouched.
-
-### 6. Verification (unchanged + one addition)
-
-- TypeScript builds.
-- Existing `route-redirects` and `responsive-overflow` Playwright suites still pass.
-- New smoke check: `/api/clinical/v1/openapi` returns valid JSON with `info.title = "VeloMed OS Clinical API"`.
-- Superadmin api-docs page renders all three spec toggles.
-- **[NEW]** `code_system` seed query returns the 10 systems above with `is_current = true` and correct `version`/`edition` for icd-10-am (10th), achi (10th), ar-drg (9.0), sbs (3).
-
----
-
-## Out of scope for Phase 0 (amended)
-
-- Any clinical business tables (beneficiary, coverage, encounter, orders, claims) — Phase 1+.
-- Loading actual `code_value` rows (ICD-10-AM, ACHI, SBS, AR-DRG weights, drug lists) — Phase 3/9.
-- **[NEW]** AR-DRG grouper integration — its own phase (see "Downstream" below). **Do NOT build or reimplement a grouper**; it is licensed CHI-approved external software, integrated like the NPHIES gateway (feed MDS → receive DRG).
-- **[NEW]** PROMs/PREMs (VBHC outcomes) capture — later phase; CHI is standardizing these as an NPHIES MDS (PROMIS-10 favored over EQ-5D in the CHI pilot).
-- UI surfaces in patient/provider/business portals — Phase 7.
-- Strict MDS enforcement — Phase 9.
-- Real NPHIES gateway calls — Phase 8.
-
-## Files created / touched
+## Files touched
 
 ```
-.gitignore                                          (append .env)
-supabase migration                                  (enum, 4 tables w/ versioned code_system, RLS, grants, seeds)
-src/lib/api-clinical.ts                             (new)
-src/lib/mds/state-machine.ts                        (new — +coded/grouped states, reimbursementModel stub)
-src/lib/openapi-clinical-spec.ts                    (new)
-src/routes/api/clinical/v1/openapi.ts               (new)
-src/routes/_authenticated/superadmin.api-docs.tsx   (add Clinical toggle)
+supabase migration (3 tables + is_tenant_member + RLS + grants + triggers;
+                    beneficiary +birth_weight_grams +patient_user_id;
+                    coverage +network_id, plan_id→insurance_plan_id)
+src/lib/mds/fhir/identifier-systems.ts                (new; verify NPHIES URIs)
+src/lib/mds/fhir/patient.ts                           (new)
+src/lib/mds/fhir/coverage.ts                          (new)
+src/lib/mds/schema/registration.ts                    (new; +CoverageUpdate)
+src/routes/api/clinical/v1/beneficiaries.ts           (new)
+src/routes/api/clinical/v1/beneficiaries.$id.ts       (new)
+src/routes/api/clinical/v1/beneficiaries.$id.coverage.ts  (new; +tenant-ownership guard)
+src/routes/api/clinical/v1/coverage.$id.ts            (new)
+src/routes/api/clinical/v1/beneficiaries.$id.fhir.ts  (new)
+src/lib/openapi-clinical-spec.ts                      (extend: tags + schemas + paths)
 
 ```
 
----
+Out of scope (per master prompt): payer/policy/plan/network masters and DRG tables (Phase 3), encounters/episodes/diagnoses (Phase 2), strict MDS enforcement (Phase 10), real LOV loading into `code_value` (Phase 3/10). The nullable `payer_id/policy_id/insurance_plan_id/network_id` on `coverage` are placeholders FK-bound when masters land.
 
-## Downstream phase impacts from the SBS/DRG uploads (not built in Phase 0, but plan for them)
-
-- **Phase 3 (masters):** Service Master uses a `service_code` child table mapping each service to many `{code_system, code}` pairs (SBS billing + ACHI clinical + LOINC, etc.), not fixed columns. Drug Master carries `gtin` + `mrid` (+ optional SFDA sci code). Add AR-DRG reference data via `code_value` (DRG rows with `relative_weight`, `mdc`, `adrg` in `attributes`) and a `drg_base_rate` table per payer/contract.
-- **Phase 4 (pricing):** branch on `reimbursementModel`. Outpatient → itemized SBS pricing (existing design). Inpatient → charges captured for internal costing, but the payer price = DRG base-rate × relative weight ± outlier/ICU adjustments. Lab/imaging/pharmacy generally bundle into the DRG.
-- **New phase — AR-DRG grouper integration:** assemble the grouper MDS (ICD-10-AM PDx + AdxDx, ACHI procedures, age, sex, LOS, ventilation hours, separation mode, same-day, newborn weight), call the CHI-approved grouper, persist returned DRG + version, set journey `grouped`.
-- **Phase 6 (claim):** IP claim carries the DRG and bundled price; OP claim carries SBS item lines. Both serialize to NPHIES FHIR.
-- **New phase — VBHC PROMs/PREMs:** instrument + response capture (generic PROMIS-10, disease-specific for cataract/obesity/diabetes/pregnancy), patient-app delivery, and submission as the NPHIES PRM MDS.
-
-Approve and Lovable ships the migration first for review, then the code batch. After Phase 0 verifies green, Phase 1 is Beneficiary + Coverage + FHIR Patient/Coverage.
+Approve and Lovable ships the migration first for review, then the code batch.
