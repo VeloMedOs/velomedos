@@ -955,6 +955,8 @@ export type Database = {
       }
       claim: {
         Row: {
+          adjudicated_at: string | null
+          adjudication_outcome: string | null
           billing_model: string
           claim_subtype: string
           claim_type: string
@@ -963,9 +965,14 @@ export type Database = {
           created_by: string | null
           currency: string
           drg_assignment_id: string | null
+          eligibility_checked_at: string | null
+          eligibility_response: Json | null
           encounter_id: string
           id: string
+          idempotency_key: string | null
           invoice_no: string | null
+          nphies_claim_id: string | null
+          nphies_request: Json | null
           nphies_response: Json | null
           pricing_trace: Json | null
           provider_claim_no: string
@@ -980,6 +987,8 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          adjudicated_at?: string | null
+          adjudication_outcome?: string | null
           billing_model: string
           claim_subtype: string
           claim_type: string
@@ -988,9 +997,14 @@ export type Database = {
           created_by?: string | null
           currency?: string
           drg_assignment_id?: string | null
+          eligibility_checked_at?: string | null
+          eligibility_response?: Json | null
           encounter_id: string
           id?: string
+          idempotency_key?: string | null
           invoice_no?: string | null
+          nphies_claim_id?: string | null
+          nphies_request?: Json | null
           nphies_response?: Json | null
           pricing_trace?: Json | null
           provider_claim_no: string
@@ -1005,6 +1019,8 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          adjudicated_at?: string | null
+          adjudication_outcome?: string | null
           billing_model?: string
           claim_subtype?: string
           claim_type?: string
@@ -1013,9 +1029,14 @@ export type Database = {
           created_by?: string | null
           currency?: string
           drg_assignment_id?: string | null
+          eligibility_checked_at?: string | null
+          eligibility_response?: Json | null
           encounter_id?: string
           id?: string
+          idempotency_key?: string | null
           invoice_no?: string | null
+          nphies_claim_id?: string | null
+          nphies_request?: Json | null
           nphies_response?: Json | null
           pricing_trace?: Json | null
           provider_claim_no?: string
@@ -1153,6 +1174,10 @@ export type Database = {
       }
       claim_item: {
         Row: {
+          adjudicated_net_minor: number | null
+          adjudicated_patient_share_minor: number | null
+          adjudicated_payer_share_minor: number | null
+          adjudication_reason: string | null
           body_site: string | null
           charge_item_id: string | null
           claim_id: string
@@ -1177,6 +1202,10 @@ export type Database = {
           unit_price_minor: number
         }
         Insert: {
+          adjudicated_net_minor?: number | null
+          adjudicated_patient_share_minor?: number | null
+          adjudicated_payer_share_minor?: number | null
+          adjudication_reason?: string | null
           body_site?: string | null
           charge_item_id?: string | null
           claim_id: string
@@ -1201,6 +1230,10 @@ export type Database = {
           unit_price_minor?: number
         }
         Update: {
+          adjudicated_net_minor?: number | null
+          adjudicated_patient_share_minor?: number | null
+          adjudicated_payer_share_minor?: number | null
+          adjudication_reason?: string | null
           body_site?: string | null
           charge_item_id?: string | null
           claim_id?: string
@@ -1272,6 +1305,68 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "claim_item_link_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_submission_attempt: {
+        Row: {
+          actor_id: string | null
+          attempt_no: number
+          claim_id: string
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          http_status: number | null
+          id: string
+          idempotency_key: string | null
+          outcome: string
+          request_body: Json | null
+          response_body: Json | null
+          sandbox: boolean
+          started_at: string
+          tenant_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          attempt_no: number
+          claim_id: string
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          http_status?: number | null
+          id?: string
+          idempotency_key?: string | null
+          outcome: string
+          request_body?: Json | null
+          response_body?: Json | null
+          sandbox?: boolean
+          started_at?: string
+          tenant_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          attempt_no?: number
+          claim_id?: string
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          http_status?: number | null
+          id?: string
+          idempotency_key?: string | null
+          outcome?: string
+          request_body?: Json | null
+          response_body?: Json | null
+          sandbox?: boolean
+          started_at?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_submission_attempt_claim_id_fkey"
             columns: ["claim_id"]
             isOneToOne: false
             referencedRelation: "claim"
