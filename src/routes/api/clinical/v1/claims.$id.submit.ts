@@ -67,16 +67,26 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/submit")({
           idemHeader?.trim() ||
           (await sha256Hex(`${params.id}:${owned.row.updated_at}`));
 
+        // Compute next attempt_no (advisory; the unique partial index on
+        // outcome='in_flight' is the actual single-flight guard).
+        const { data: lastAttempts } = await db
+          .from("claim_submission_attempt")
+          .select("attempt_no")
+          .eq("claim_id", params.id)
+          .order("attempt_no", { ascending: false })
+          .limit(1);
+        const nextAttemptNo = ((lastAttempts?.[0]?.attempt_no ?? 0) as number) + 1;
+
         // Single-flight insert. Unique partial index rejects an in-flight attempt.
         const { data: attempt, error: attErr } = await db
           .from("claim_submission_attempt")
           .insert({
             claim_id: params.id,
             tenant_id: auth.ctx.tenantId,
+            attempt_no: nextAttemptNo,
             idempotency_key: idempotencyKey,
-            status: "in_flight",
-            initiated_by: auth.ctx.userId,
-            note: parsed.data.note ?? null,
+            outcome: "in_flight",
+            actor_id: auth.ctx.userId,
           })
           .select("*")
           .single();
@@ -94,7 +104,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/submit")({
           bundle = await buildClaimBundle(params.id);
         } catch (e: any) {
           await db.from("claim_submission_attempt").update({
-            status: "failed", completed_at: new Date().toISOString(),
+            outcome: "error", finished_at: new Date().toISOString(),
             error: e?.message ?? "bundle_build_failed",
           }).eq("id", attempt.id);
           return envelope(e?.message ?? "Bundle build failed", "bundle_error", 500);
@@ -104,12 +114,12 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/submit")({
 
         // Persist request/response snapshots
         await db.from("claim_submission_attempt").update({
-          status: result.ok ? "succeeded" : "failed",
-          completed_at: new Date().toISOString(),
+          outcome: result.ok ? "ok" : "error",
+          finished_at: new Date().toISOString(),
           http_status: result.http_status,
           sandbox: result.sandbox,
-          request_bundle: bundle,
-          response_bundle: result.bundle,
+          request_body: bundle,
+          response_body: result.bundle,
           error: result.ok ? null : result.error ?? "gateway_error",
         }).eq("id", attempt.id);
 
@@ -123,12 +133,11 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/submit")({
         const parsedResp = parseClaimResponse(result.bundle);
         const reconciled = await reconcileClaim(db, params.id, parsedResp);
 
+        // Map adjudication outcome onto the existing claim.status enum
+        // (draft|ready|submitted|accepted|rejected). Granular outcome is
+        // captured separately on claim.adjudication_outcome.
         const newStatus =
-          parsedResp.outcome === "error"
-            ? "rejected"
-            : reconciled.outcome === "partial"
-            ? "partially_paid"
-            : "adjudicated";
+          parsedResp.outcome === "error" ? "rejected" : "accepted";
 
         const { data, error } = await db
           .from("claim")
