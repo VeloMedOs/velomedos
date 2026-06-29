@@ -6,6 +6,9 @@ import {
   serviceClient,
 } from "@/lib/api-clinical";
 import { envelope, jsonData, loadOwned } from "./_helpers";
+import { loadClaimReadinessBundle } from "@/lib/mds/claim-loader";
+import { validateClaimReadiness } from "@/lib/mds/validation";
+import { validateClaimRcmReadiness } from "@/lib/rcm/validation";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -36,6 +39,29 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/ready")({
             409,
           );
         }
+
+        // Phase 10 — strict MDS + RCM gates
+        const loaded = await loadClaimReadinessBundle(params.id, auth.ctx.tenantId);
+        if (!loaded.ok) return envelope(loaded.reason, "not_found", 404);
+        const clinical = validateClaimReadiness(loaded.bundle);
+        if (!clinical.ok) {
+          return envelope(
+            "Claim is not MDS-complete",
+            "mds_incomplete",
+            422,
+            { missing: clinical.missing, drg: clinical.drg },
+          );
+        }
+        const rcm = validateClaimRcmReadiness(loaded.bundle);
+        if (!rcm.ok) {
+          return envelope(
+            "Claim is not RCM-complete",
+            "rcm_incomplete",
+            422,
+            { missing: rcm.missing, rcm: rcm.flags },
+          );
+        }
+
         const db = serviceClient() as any;
         const { data, error } = await db
           .from("claim")
