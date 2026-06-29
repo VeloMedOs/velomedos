@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { json, preflight } from "@/lib/api-server";
-import { resetDemo } from "@/lib/demo-seed.functions";
+import { runResetDemoFromHeader } from "@/lib/demo-seed.functions";
 
 /**
  * POST /api/admin/v1/demo/reset
@@ -15,12 +15,9 @@ export const Route = createFileRoute("/api/admin/v1/demo/reset")({
       OPTIONS: () => preflight(),
       POST: async ({ request }) => {
         const body = await request.text();
-        let parsed: unknown = {};
-        if (body) { try { parsed = JSON.parse(body); } catch { /* ignore */ } }
-        const res = await resetDemo({
-          data: parsed,
-          headers: { authorization: request.headers.get("authorization") ?? "" },
-        } as never);
+        let reseed = true;
+        if (body) { try { const p = JSON.parse(body); if (typeof p?.reseed === "boolean") reseed = p.reseed; } catch { /* ignore */ } }
+        const res = await runResetDemoFromHeader(request.headers.get("authorization") ?? "", reseed);
         return json(res, res.ok ? 200 : 403);
       },
     },
