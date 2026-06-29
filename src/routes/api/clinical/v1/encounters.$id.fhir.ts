@@ -27,11 +27,13 @@ export const Route = createFileRoute("/api/clinical/v1/encounters/$id/fhir")({
         const owned = await loadOwned<EncounterRow>("encounter", params.id, auth.ctx.tenantId);
         if (!owned.ok) return owned.res;
         const db = serviceClient();
-        const [careTeam, diagnoses, vitals, supporting] = await Promise.all([
+        const [careTeam, diagnoses, vitals, supporting, hosp, emer] = await Promise.all([
           db.from("encounter_care_team").select("*").eq("encounter_id", params.id),
           db.from("encounter_diagnosis").select("*").eq("encounter_id", params.id),
           db.from("vitals_observation").select("*").eq("encounter_id", params.id),
           db.from("clinical_supporting_info").select("*").eq("encounter_id", params.id),
+          db.from("encounter_hospitalization").select("*").eq("encounter_id", params.id).maybeSingle(),
+          db.from("encounter_emergency").select("*").eq("encounter_id", params.id).maybeSingle(),
         ]);
         if (careTeam.error) return envelope(careTeam.error.message, "db_error", 500);
 
@@ -43,6 +45,8 @@ export const Route = createFileRoute("/api/clinical/v1/encounters/$id/fhir")({
           (careTeam.data ?? []) as never,
           (diagnoses.data ?? []) as never,
           patientRef,
+          (hosp.data ?? null) as never,
+          (emer.data ?? null) as never,
         );
         const conditions = (diagnoses.data ?? []).map((d) =>
           diagnosisToFhirCondition(d as never, patientRef, encounterRef),
