@@ -584,7 +584,15 @@ export const openApiClinicalSpec = {
     },
     "/claims/{id}/submit": {
       parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
-      post: { tags: ["Claims"], summary: "Submit claim (Phase-7 stub for NPHIES; Phase-9 wires the real gateway). Marks submitted + advances journey to submitted.", requestBody: { required: false, content: { "application/json": { schema: { type: "object", properties: { note: { type: "string" } } } } } }, responses: { 200: { description: "Submitted", content: { "application/json": { schema: { type: "object" } } } }, 409: { description: "bad_status", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+      post: { tags: ["Claims"], summary: "Phase-9 NPHIES submit. Single-flight via Idempotency-Key header (auto-derived if absent). Builds FHIR Bundle, posts to NPHIES $process-message (sandbox fallback when NPHIES_BASE_URL is unset), parses ClaimResponse, reconciles payer/patient shares to claim_item, transitions claim status to adjudicated | partially_paid | rejected.", parameters: [{ name: "Idempotency-Key", in: "header", required: false, schema: { type: "string" } }], requestBody: { required: false, content: { "application/json": { schema: { type: "object", properties: { note: { type: "string" } } } } } }, responses: { 200: { description: "Adjudication outcome + reconciliation deltas + attempt id", content: { "application/json": { schema: { type: "object" } } } }, 409: { description: "bad_status | submission_in_flight", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } }, 502: { description: "gateway_error", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+    },
+    "/claims/{id}/attempts": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["Claims"], summary: "Phase-9 — list NPHIES submission attempts (request/response bundles, http status, sandbox flag, errors).", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/claims/{id}/eligibility": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      post: { tags: ["Claims"], summary: "Phase-9 — fire CoverageEligibilityRequest at NPHIES for the claim's coverage. Caches outcome on claim (eligibility_response, eligibility_checked_at).", responses: { 200: { description: "Eligibility outcome (active, inforce, errors)", content: { "application/json": { schema: { type: "object" } } } }, 400: { description: "no_coverage | bundle_error", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } }, 502: { description: "gateway_error", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
     },
   },
 } as const;
