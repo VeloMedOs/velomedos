@@ -7,6 +7,8 @@
  * grouper endpoint (or returns a deterministic stub when unset).
  */
 import { serviceClient } from "@/lib/api-clinical";
+import { isDemoTenant } from "@/lib/demo-mode";
+import { logInterface } from "@/lib/interface-log";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -138,9 +140,23 @@ const STUB_RESULT: GrouperResult = {
   raw: { stub: true },
 };
 
-export async function callGrouper(mds: GrouperMds): Promise<GrouperResult> {
+export async function callGrouper(mds: GrouperMds, tenantId?: string | null): Promise<GrouperResult> {
   const endpoint = process.env.GROUPER_ENDPOINT;
   const apiKey = process.env.GROUPER_API_KEY;
+  if (tenantId && (await isDemoTenant(tenantId))) {
+    await logInterface({
+      tenantId,
+      messageType: "grouper.ar-drg",
+      subjectTable: "encounter",
+      subjectId: mds.encounter_id,
+      idempotencyKey: `grouper-${mds.encounter_id}`,
+      sandbox: true,
+      outcome: "ok",
+      requestBody: mds,
+      responseBody: STUB_RESULT,
+    });
+    return STUB_RESULT;
+  }
   if (!endpoint) return STUB_RESULT;
 
   const res = await fetch(endpoint, {
