@@ -61,3 +61,22 @@ export function jsonData(payload: unknown, status = 200): Response {
     headers: { "content-type": "application/json" },
   });
 }
+
+/**
+ * Assert that a master row referenced from another payload (e.g. coverage.payer_id)
+ * belongs to the current tenant. Returns null when fine, or a 404 envelope.
+ */
+export async function assertMasterOwnership(
+  table: string,
+  id: string | null | undefined,
+  tenantId: string,
+): Promise<Response | null> {
+  if (!id) return null;
+  const db = serviceClient();
+  const { data } = await db.from(table as never).select("id, tenant_id").eq("id", id).maybeSingle();
+  const row = data as { tenant_id?: string } | null;
+  if (!row || row.tenant_id !== tenantId) {
+    return envelope(`${table} not found`, "not_found", 404);
+  }
+  return null;
+}

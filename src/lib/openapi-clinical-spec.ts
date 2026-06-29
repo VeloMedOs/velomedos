@@ -45,6 +45,17 @@ export const openApiClinicalSpec = {
     { name: "CareTeam", description: "Practitioners assigned to an encounter." },
     { name: "Vitals", description: "Vitals observations recorded during an encounter." },
     { name: "SupportingInfo", description: "Narrative MDS categories (HPI, exam, plan, history, investigation)." },
+    { name: "Payers", description: "Phase-3 Master · payers (insurance companies)." },
+    { name: "TPAs", description: "Phase-3 Master · third-party administrators." },
+    { name: "Policies", description: "Phase-3 Master · insurance policies." },
+    { name: "InsuranceClasses", description: "Phase-3 Master · classes under a policy." },
+    { name: "InsurancePlans", description: "Phase-3 Master · plans under a class (co-pay, deductible, limits)." },
+    { name: "Networks", description: "Phase-3 Master · provider networks + facility memberships." },
+    { name: "Services", description: "Phase-3 Master · multi-coded service catalog (SBS / ACHI / LOINC)." },
+    { name: "Drugs", description: "Phase-3 Master · drug catalog (GTIN / MRID / SFDA)." },
+    { name: "PriceLists", description: "Phase-3 Master · cash and payer-network itemized price lists." },
+    { name: "DRGBaseRates", description: "Phase-3 Master · negotiated AR-DRG base rates per payer." },
+    { name: "DRGAdjustments", description: "Phase-3 Master · DRG outlier / ICU / same-day / transfer adjustments." },
   ],
   paths: {
     "/openapi": {
@@ -302,6 +313,149 @@ export const openApiClinicalSpec = {
           404: { description: "Not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
         },
       },
+    },
+    // =====================================================================
+    // Phase 3 — Master Data (insurance chain, services, drugs, price lists, DRG)
+    // =====================================================================
+    "/masters/payers": {
+      get:  { tags: ["Payers"], summary: "List payers", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Payers"], summary: "Create payer (tenant_admin)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/payers/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["Payers"], summary: "Get payer", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["Payers"], summary: "Update payer", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Payers"], summary: "Delete payer", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/tpas": {
+      get:  { tags: ["TPAs"], summary: "List TPAs", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["TPAs"], summary: "Create TPA (tenant_admin)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/tpas/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["TPAs"], summary: "Get TPA", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["TPAs"], summary: "Update TPA", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["TPAs"], summary: "Delete TPA", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/policies": {
+      get:  { tags: ["Policies"], summary: "List policies", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Policies"], summary: "Create policy (tenant_admin)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/policies/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["Policies"], summary: "Get policy", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["Policies"], summary: "Update policy", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Policies"], summary: "Delete policy", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/insurance-classes": {
+      get:  { tags: ["InsuranceClasses"], summary: "List insurance classes", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["InsuranceClasses"], summary: "Create insurance class (tenant_admin)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/insurance-classes/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["InsuranceClasses"], summary: "Get insurance class", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["InsuranceClasses"], summary: "Update insurance class", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["InsuranceClasses"], summary: "Delete insurance class", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/insurance-plans": {
+      get:  { tags: ["InsurancePlans"], summary: "List insurance plans", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["InsurancePlans"], summary: "Create insurance plan (tenant_admin)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/insurance-plans/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["InsurancePlans"], summary: "Get insurance plan", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["InsurancePlans"], summary: "Update insurance plan", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["InsurancePlans"], summary: "Delete insurance plan", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/networks": {
+      get:  { tags: ["Networks"], summary: "List networks", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Networks"], summary: "Create network (tenant_admin)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/networks/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["Networks"], summary: "Get network", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["Networks"], summary: "Update network", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Networks"], summary: "Delete network", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/networks/{id}/memberships": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:  { tags: ["Networks"], summary: "List facility memberships in a network", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Networks"], summary: "Add facility (clinics row) to a network", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/network-memberships/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      patch:  { tags: ["Networks"], summary: "Update membership (toggle in_network)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Networks"], summary: "Remove facility from network", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/services": {
+      get:  { tags: ["Services"], summary: "List services (catalog)", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Services"], summary: "Create service (tenant_admin)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/services/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["Services"], summary: "Get service", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["Services"], summary: "Update service", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Services"], summary: "Delete service", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/services/{id}/codes": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:  { tags: ["Services"], summary: "List code mappings for a service (SBS + ACHI + LOINC)", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Services"], summary: "Add a code mapping (mark one as is_primary_billing)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/service-codes/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      patch:  { tags: ["Services"], summary: "Update a service code mapping", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Services"], summary: "Remove a service code mapping", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/drugs": {
+      get:  { tags: ["Drugs"], summary: "List drugs", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Drugs"], summary: "Create drug (tenant_admin)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/drugs/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["Drugs"], summary: "Get drug", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["Drugs"], summary: "Update drug", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Drugs"], summary: "Delete drug", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/price-lists": {
+      get:  { tags: ["PriceLists"], summary: "List price lists (cash + payer_network)", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["PriceLists"], summary: "Create price list (tenant_admin)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/price-lists/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["PriceLists"], summary: "Get price list", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["PriceLists"], summary: "Update price list", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["PriceLists"], summary: "Delete price list", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/price-lists/{id}/items": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:  { tags: ["PriceLists"], summary: "List price-list items (service xor drug)", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["PriceLists"], summary: "Add price-list item (unit_price_minor in halalas)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/price-list-items/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      patch:  { tags: ["PriceLists"], summary: "Update price-list item", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["PriceLists"], summary: "Delete price-list item", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/drg-base-rates": {
+      get:  { tags: ["DRGBaseRates"], summary: "List negotiated DRG base rates", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["DRGBaseRates"], summary: "Create DRG base rate (tenant_admin)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/drg-base-rates/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["DRGBaseRates"], summary: "Get DRG base rate", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["DRGBaseRates"], summary: "Update DRG base rate", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["DRGBaseRates"], summary: "Delete DRG base rate", responses: { 204: { description: "Deleted" } } },
+    },
+    "/masters/drg-adjustments": {
+      get:  { tags: ["DRGAdjustments"], summary: "List DRG price adjustments (outlier / ICU / same-day / transfer)", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["DRGAdjustments"], summary: "Create DRG adjustment (tenant_admin)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/drg-adjustments/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["DRGAdjustments"], summary: "Get DRG adjustment", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["DRGAdjustments"], summary: "Update DRG adjustment", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["DRGAdjustments"], summary: "Delete DRG adjustment", responses: { 204: { description: "Deleted" } } },
     },
   },
 } as const;
