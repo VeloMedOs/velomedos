@@ -8,6 +8,12 @@ import {
   ENCOUNTER_CLASS_SYSTEM,
   toFhirEncounterStatus,
 } from "./encounter-status";
+import {
+  toFhirHospitalization,
+  toFhirEmergencyExtensions,
+  type HospitalizationRow,
+  type EmergencyRow,
+} from "./hospitalization";
 
 export type EncounterRow = {
   id: string;
@@ -72,12 +78,17 @@ export function encounterToFhirEncounter(
   careTeam: EncounterCareTeamRow[],
   diagnoses: EncounterDiagnosisRow[],
   patientRef: string,
+  hospitalization?: HospitalizationRow | null,
+  emergency?: EmergencyRow | null,
 ): Record<string, unknown> {
+  const hosp = hospitalization ? toFhirHospitalization(hospitalization) : undefined;
+  const erExt = emergency ? toFhirEmergencyExtensions(emergency) : [];
   return {
     resourceType: "Encounter",
     id: row.id,
     identifier: [{ value: row.encounter_number }],
     status: toFhirEncounterStatus(row.status),
+    extension: erExt.length ? erExt : undefined,
     class: {
       system: ENCOUNTER_CLASS_SYSTEM,
       code: row.class,
@@ -117,5 +128,6 @@ export function encounterToFhirEncounter(
           rank: d.rank ?? undefined,
         }))
       : undefined,
+    hospitalization: hosp,
   };
 }
