@@ -1034,6 +1034,66 @@ export type Database = {
         }
         Relationships: []
       }
+      clinical_coding: {
+        Row: {
+          coded_at: string | null
+          coder_id: string | null
+          created_at: string
+          created_by: string | null
+          encounter_id: string
+          id: string
+          notes: string | null
+          principal_diagnosis_id: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          coded_at?: string | null
+          coder_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          encounter_id: string
+          id?: string
+          notes?: string | null
+          principal_diagnosis_id?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          coded_at?: string | null
+          coder_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          encounter_id?: string
+          id?: string
+          notes?: string | null
+          principal_diagnosis_id?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_coding_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: true
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinical_coding_principal_diagnosis_id_fkey"
+            columns: ["principal_diagnosis_id"]
+            isOneToOne: false
+            referencedRelation: "encounter_diagnosis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinical_supporting_info: {
         Row: {
           beneficiary_id: string
@@ -1751,6 +1811,90 @@ export type Database = {
             columns: ["code_system_id"]
             isOneToOne: false
             referencedRelation: "code_system"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drg_assignment: {
+        Row: {
+          adrg: string | null
+          assigned_at: string
+          complexity_score: number | null
+          created_at: string
+          created_by: string | null
+          drg_code: string
+          drg_id: string | null
+          drg_version: string
+          encounter_id: string
+          grouper_name: string | null
+          grouper_request: Json | null
+          grouper_response: Json | null
+          grouper_version: string | null
+          id: string
+          mdc: string | null
+          partition: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          adrg?: string | null
+          assigned_at?: string
+          complexity_score?: number | null
+          created_at?: string
+          created_by?: string | null
+          drg_code: string
+          drg_id?: string | null
+          drg_version: string
+          encounter_id: string
+          grouper_name?: string | null
+          grouper_request?: Json | null
+          grouper_response?: Json | null
+          grouper_version?: string | null
+          id?: string
+          mdc?: string | null
+          partition?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          adrg?: string | null
+          assigned_at?: string
+          complexity_score?: number | null
+          created_at?: string
+          created_by?: string | null
+          drg_code?: string
+          drg_id?: string | null
+          drg_version?: string
+          encounter_id?: string
+          grouper_name?: string | null
+          grouper_request?: Json | null
+          grouper_response?: Json | null
+          grouper_version?: string | null
+          id?: string
+          mdc?: string | null
+          partition?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drg_assignment_drg_id_fkey"
+            columns: ["drg_id"]
+            isOneToOne: false
+            referencedRelation: "drg"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drg_assignment_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
             referencedColumns: ["id"]
           },
         ]
