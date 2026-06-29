@@ -650,6 +650,20 @@ function OverviewPane({ stats, subs, plans, tenants, reqs }: { stats: any; subs:
           {reqs.length === 0 && <div className="p-4 text-sm text-muted-foreground">No inbound leads.</div>}
         </div>
       </Card>
+      <Card title="Clinical · HIS">
+        <div className="p-4 space-y-2 text-sm">
+          <Link to="/clinical-superadmin" className="block px-3 py-2 rounded border border-hairline hover:bg-panel-elevated">
+            Cross-tenant claims (read-only)
+          </Link>
+          <Link to="/clinical" className="block px-3 py-2 rounded border border-hairline hover:bg-panel-elevated">
+            Clinical workspace
+          </Link>
+          <Link to="/clinical-masters" className="block px-3 py-2 rounded border border-hairline hover:bg-panel-elevated">
+            Tenant clinical masters
+          </Link>
+          <div className="text-xs text-muted-foreground mt-2">DRG reference catalog &amp; global pricing defaults — manage via <span className="mono">/api/admin/v1/drgs</span> (superadmin-gated).</div>
+        </div>
+      </Card>
     </div>
   );
 }
