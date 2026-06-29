@@ -26,6 +26,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as PrivacyRouteImport } from './routes/Privacy'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as PrivacyIndexRouteImport } from './routes/Privacy.index'
 import { Route as TripTokenRouteImport } from './routes/trip.$token'
 import { Route as SuperadminResetRouteImport } from './routes/superadmin.reset'
@@ -219,6 +220,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesIndexRoute = ServicesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ServicesRoute,
 } as any)
 const PrivacyIndexRoute = PrivacyIndexRouteImport.update({
   id: '/',
@@ -850,6 +856,7 @@ export interface FileRoutesByFullPath {
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
   '/Privacy/': typeof PrivacyIndexRoute
+  '/services/': typeof ServicesIndexRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -940,7 +947,6 @@ export interface FileRoutesByTo {
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
-  '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/solutions': typeof SolutionsRouteWithChildren
   '/terms': typeof TermsRoute
@@ -976,6 +982,7 @@ export interface FileRoutesByTo {
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
   '/Privacy': typeof PrivacyIndexRoute
+  '/services': typeof ServicesIndexRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -1105,6 +1112,7 @@ export interface FileRoutesById {
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
   '/Privacy/': typeof PrivacyIndexRoute
+  '/services/': typeof ServicesIndexRoute
   '/_authenticated/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -1234,6 +1242,7 @@ export interface FileRouteTypes {
     | '/superadmin/reset'
     | '/trip/$token'
     | '/Privacy/'
+    | '/services/'
     | '/patient/profile'
     | '/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1324,7 +1333,6 @@ export interface FileRouteTypes {
     | '/platform'
     | '/pricing'
     | '/resources'
-    | '/services'
     | '/sitemap.xml'
     | '/solutions'
     | '/terms'
@@ -1360,6 +1368,7 @@ export interface FileRouteTypes {
     | '/superadmin/reset'
     | '/trip/$token'
     | '/Privacy'
+    | '/services'
     | '/patient/profile'
     | '/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1488,6 +1497,7 @@ export interface FileRouteTypes {
     | '/superadmin/reset'
     | '/trip/$token'
     | '/Privacy/'
+    | '/services/'
     | '/_authenticated/patient/profile'
     | '/_authenticated/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1769,6 +1779,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/services/': {
+      id: '/services/'
+      path: '/'
+      fullPath: '/services/'
+      preLoaderRoute: typeof ServicesIndexRouteImport
+      parentRoute: typeof ServicesRoute
     }
     '/Privacy/': {
       id: '/Privacy/'
@@ -2658,10 +2675,12 @@ const ResourcesRouteWithChildren = ResourcesRoute._addFileChildren(
 
 interface ServicesRouteChildren {
   ServicesSlugRoute: typeof ServicesSlugRoute
+  ServicesIndexRoute: typeof ServicesIndexRoute
 }
 
 const ServicesRouteChildren: ServicesRouteChildren = {
   ServicesSlugRoute: ServicesSlugRoute,
+  ServicesIndexRoute: ServicesIndexRoute,
 }
 
 const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
@@ -2958,13 +2977,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
