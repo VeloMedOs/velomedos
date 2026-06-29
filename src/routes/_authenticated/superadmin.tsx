@@ -23,6 +23,7 @@ import {
   TeamRolesShortcut, LegalDocsPane,
 } from "@/components/superadmin/OpsPanes";
 import { DocsPane } from "@/components/superadmin/DocsPane";
+import { DemoControlPane } from "@/components/superadmin/DemoControlPane";
 
 export const Route = createFileRoute("/_authenticated/superadmin")({
   head: () => ({ meta: [{ title: "Superadmin · VeloMed OS" }] }),
@@ -73,7 +74,7 @@ type TabId =
   | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug"
   | "refunds" | "tickets" | "reviews" | "chat" | "push"
   | "tests" | "audit" | "smoke" | "bugs" | "releases" | "automation"
-  | "workspace" | "team" | "security" | "legal" | "docs";
+  | "workspace" | "team" | "security" | "legal" | "docs" | "demo";
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
@@ -402,6 +403,7 @@ function Superadmin() {
       {tab === "security"   && <SecurityPane />}
       {tab === "legal"      && <LegalDocsPane />}
       {tab === "docs"       && <DocsPane />}
+      {tab === "demo"       && <DemoControlPane />}
 
       {identity && <IdentityPanel identity={identity} refresh={diagnose} />}
 
