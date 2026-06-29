@@ -1789,6 +1789,74 @@ export type Database = {
           },
         ]
       }
+      contract_change_request: {
+        Row: {
+          after: Json
+          applied_at: string | null
+          approved_at: string | null
+          approved_by: string | null
+          before: Json | null
+          created_at: string
+          created_by: string | null
+          effective_date: string | null
+          id: string
+          reason: string | null
+          requested_by: string | null
+          status: string
+          target_id: string
+          target_table: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          after: Json
+          applied_at?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          before?: Json | null
+          created_at?: string
+          created_by?: string | null
+          effective_date?: string | null
+          id?: string
+          reason?: string | null
+          requested_by?: string | null
+          status?: string
+          target_id: string
+          target_table: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          after?: Json
+          applied_at?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          before?: Json | null
+          created_at?: string
+          created_by?: string | null
+          effective_date?: string | null
+          id?: string
+          reason?: string | null
+          requested_by?: string | null
+          status?: string
+          target_id?: string
+          target_table?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_change_request_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       corporate_accounts: {
         Row: {
           accent_color: string | null
@@ -2648,6 +2716,94 @@ export type Database = {
           },
         ]
       }
+      eligibility_exception: {
+        Row: {
+          birth_certificate_url: string | null
+          created_at: string
+          created_by: string | null
+          ctas_level: number | null
+          exception_type: string
+          id: string
+          mother_coverage_id: string | null
+          mother_membership_no: string | null
+          notes: string | null
+          referral_date: string | null
+          referral_letter_url: string | null
+          referral_ref_no: string | null
+          referred_provider: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          validity_from: string | null
+          validity_to: string | null
+          visit_eligibility_id: string
+        }
+        Insert: {
+          birth_certificate_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          ctas_level?: number | null
+          exception_type: string
+          id?: string
+          mother_coverage_id?: string | null
+          mother_membership_no?: string | null
+          notes?: string | null
+          referral_date?: string | null
+          referral_letter_url?: string | null
+          referral_ref_no?: string | null
+          referred_provider?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          validity_from?: string | null
+          validity_to?: string | null
+          visit_eligibility_id: string
+        }
+        Update: {
+          birth_certificate_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          ctas_level?: number | null
+          exception_type?: string
+          id?: string
+          mother_coverage_id?: string | null
+          mother_membership_no?: string | null
+          notes?: string | null
+          referral_date?: string | null
+          referral_letter_url?: string | null
+          referral_ref_no?: string | null
+          referred_provider?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          validity_from?: string | null
+          validity_to?: string | null
+          visit_eligibility_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eligibility_exception_mother_coverage_id_fkey"
+            columns: ["mother_coverage_id"]
+            isOneToOne: false
+            referencedRelation: "coverage"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "eligibility_exception_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "eligibility_exception_visit_eligibility_id_fkey"
+            columns: ["visit_eligibility_id"]
+            isOneToOne: false
+            referencedRelation: "visit_eligibility"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       encounter: {
         Row: {
           beneficiary_id: string
@@ -3318,39 +3474,61 @@ export type Database = {
       }
       insurance_class: {
         Row: {
+          approval_limit_minor: number | null
           code: string
           created_at: string
           created_by: string | null
+          deductible: Json | null
           id: string
+          maximum_limit_minor: number | null
           name: string | null
+          network_id: string | null
           policy_id: string
+          room_type: string | null
           tenant_id: string
           updated_at: string
           updated_by: string | null
         }
         Insert: {
+          approval_limit_minor?: number | null
           code: string
           created_at?: string
           created_by?: string | null
+          deductible?: Json | null
           id?: string
+          maximum_limit_minor?: number | null
           name?: string | null
+          network_id?: string | null
           policy_id: string
+          room_type?: string | null
           tenant_id: string
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
+          approval_limit_minor?: number | null
           code?: string
           created_at?: string
           created_by?: string | null
+          deductible?: Json | null
           id?: string
+          maximum_limit_minor?: number | null
           name?: string | null
+          network_id?: string | null
           policy_id?: string
+          room_type?: string | null
           tenant_id?: string
           updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "insurance_class_network_id_fkey"
+            columns: ["network_id"]
+            isOneToOne: false
+            referencedRelation: "network"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "insurance_class_policy_id_fkey"
             columns: ["policy_id"]
@@ -3710,6 +3888,70 @@ export type Database = {
         }
         Relationships: []
       }
+      maternity_protocol: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          payer_id: string | null
+          policy_id: string | null
+          rules: Json
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          payer_id?: string | null
+          policy_id?: string | null
+          rules?: Json
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          payer_id?: string | null
+          policy_id?: string | null
+          rules?: Json
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maternity_protocol_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maternity_protocol_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maternity_protocol_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medication_administrations: {
         Row: {
           administered_at: string | null
@@ -3787,14 +4029,92 @@ export type Database = {
         }
         Relationships: []
       }
-      network: {
+      need_approval_rule: {
         Row: {
           active: boolean
+          class_id: string | null
+          condition: Json
           created_at: string
           created_by: string | null
           id: string
+          payer_id: string | null
+          policy_id: string | null
+          scope: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          class_id?: string | null
+          condition?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          payer_id?: string | null
+          policy_id?: string | null
+          scope: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          class_id?: string | null
+          condition?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          payer_id?: string | null
+          policy_id?: string | null
+          scope?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "need_approval_rule_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_class"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "need_approval_rule_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "need_approval_rule_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "need_approval_rule_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      network: {
+        Row: {
+          active: boolean
+          approval_limit_minor: number | null
+          created_at: string
+          created_by: string | null
+          deductible: Json | null
+          id: string
+          maximum_limit_minor: number | null
           name: string
           payer_id: string
+          room_type: string | null
           tenant_id: string
           tier: string | null
           updated_at: string
@@ -3802,11 +4122,15 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          approval_limit_minor?: number | null
           created_at?: string
           created_by?: string | null
+          deductible?: Json | null
           id?: string
+          maximum_limit_minor?: number | null
           name: string
           payer_id: string
+          room_type?: string | null
           tenant_id: string
           tier?: string | null
           updated_at?: string
@@ -3814,11 +4138,15 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          approval_limit_minor?: number | null
           created_at?: string
           created_by?: string | null
+          deductible?: Json | null
           id?: string
+          maximum_limit_minor?: number | null
           name?: string
           payer_id?: string
+          room_type?: string | null
           tenant_id?: string
           tier?: string | null
           updated_at?: string
@@ -3899,6 +4227,80 @@ export type Database = {
           },
           {
             foreignKeyName: "network_membership_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      not_covered_rule: {
+        Row: {
+          active: boolean
+          class_id: string | null
+          condition: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          payer_id: string | null
+          policy_id: string | null
+          scope: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          class_id?: string | null
+          condition?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          payer_id?: string | null
+          policy_id?: string | null
+          scope: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          class_id?: string | null
+          condition?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          payer_id?: string | null
+          policy_id?: string | null
+          scope?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "not_covered_rule_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_class"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "not_covered_rule_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "not_covered_rule_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "not_covered_rule_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
@@ -4598,6 +5000,7 @@ export type Database = {
       payer: {
         Row: {
           active: boolean
+          cchi_number: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -4610,6 +5013,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          cchi_number?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -4622,6 +5026,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          cchi_number?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -4638,6 +5043,85 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payer_agreement: {
+        Row: {
+          active: boolean
+          agreement_no: string
+          contract_end: string | null
+          contract_start: string
+          created_at: string
+          created_by: string | null
+          id: string
+          payer_id: string
+          prompt_payment_discount_percent: number | null
+          settlement_terms_days: number
+          tenant_id: string
+          tpa_id: string | null
+          updated_at: string
+          updated_by: string | null
+          vat_treatment: string
+          volume_discount_rules: Json | null
+        }
+        Insert: {
+          active?: boolean
+          agreement_no: string
+          contract_end?: string | null
+          contract_start: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          payer_id: string
+          prompt_payment_discount_percent?: number | null
+          settlement_terms_days?: number
+          tenant_id: string
+          tpa_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vat_treatment?: string
+          volume_discount_rules?: Json | null
+        }
+        Update: {
+          active?: boolean
+          agreement_no?: string
+          contract_end?: string | null
+          contract_start?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          payer_id?: string
+          prompt_payment_discount_percent?: number | null
+          settlement_terms_days?: number
+          tenant_id?: string
+          tpa_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vat_treatment?: string
+          volume_discount_rules?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payer_agreement_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payer_agreement_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payer_agreement_tpa_id_fkey"
+            columns: ["tpa_id"]
+            isOneToOne: false
+            referencedRelation: "tpa"
             referencedColumns: ["id"]
           },
         ]
@@ -4671,8 +5155,10 @@ export type Database = {
           effective_date: string | null
           expiry_date: string | null
           id: string
+          internal_serial_number: string | null
           name: string | null
           payer_id: string
+          policy_date_expiry: string | null
           policy_number: string
           tenant_id: string
           updated_at: string
@@ -4685,8 +5171,10 @@ export type Database = {
           effective_date?: string | null
           expiry_date?: string | null
           id?: string
+          internal_serial_number?: string | null
           name?: string | null
           payer_id: string
+          policy_date_expiry?: string | null
           policy_number: string
           tenant_id: string
           updated_at?: string
@@ -4699,8 +5187,10 @@ export type Database = {
           effective_date?: string | null
           expiry_date?: string | null
           id?: string
+          internal_serial_number?: string | null
           name?: string | null
           payer_id?: string
+          policy_date_expiry?: string | null
           policy_number?: string
           tenant_id?: string
           updated_at?: string
@@ -4719,6 +5209,100 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      policy_activation_request: {
+        Row: {
+          activated_at: string | null
+          activated_by: string | null
+          assigned_to: string | null
+          class_code: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_ineligible_flag: boolean
+          membership_no: string | null
+          notes: string | null
+          notify_reception_at: string | null
+          payer_id: string | null
+          policy_no: string | null
+          requested_by: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          validity_from: string | null
+          validity_to: string | null
+          visit_eligibility_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
+          assigned_to?: string | null
+          class_code?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_ineligible_flag?: boolean
+          membership_no?: string | null
+          notes?: string | null
+          notify_reception_at?: string | null
+          payer_id?: string | null
+          policy_no?: string | null
+          requested_by?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          validity_from?: string | null
+          validity_to?: string | null
+          visit_eligibility_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          activated_by?: string | null
+          assigned_to?: string | null
+          class_code?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_ineligible_flag?: boolean
+          membership_no?: string | null
+          notes?: string | null
+          notify_reception_at?: string | null
+          payer_id?: string | null
+          policy_no?: string | null
+          requested_by?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          validity_from?: string | null
+          validity_to?: string | null
+          visit_eligibility_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_activation_request_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policy_activation_request_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "policy_activation_request_visit_eligibility_id_fkey"
+            columns: ["visit_eligibility_id"]
+            isOneToOne: false
+            referencedRelation: "visit_eligibility"
             referencedColumns: ["id"]
           },
         ]
@@ -7111,6 +7695,128 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      visit_eligibility: {
+        Row: {
+          beneficiary_id: string
+          checked_at: string | null
+          class_id: string | null
+          created_at: string
+          created_by: string | null
+          eligibility_ref_no: string | null
+          eligibility_type: string
+          encounter_id: string | null
+          financial_type: string
+          id: string
+          membership_id: string | null
+          network_id: string | null
+          override_reason: string | null
+          payer_id: string | null
+          policy_id: string | null
+          reason: string | null
+          result_payload: Json | null
+          status: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          beneficiary_id: string
+          checked_at?: string | null
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          eligibility_ref_no?: string | null
+          eligibility_type?: string
+          encounter_id?: string | null
+          financial_type?: string
+          id?: string
+          membership_id?: string | null
+          network_id?: string | null
+          override_reason?: string | null
+          payer_id?: string | null
+          policy_id?: string | null
+          reason?: string | null
+          result_payload?: Json | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          beneficiary_id?: string
+          checked_at?: string | null
+          class_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          eligibility_ref_no?: string | null
+          eligibility_type?: string
+          encounter_id?: string | null
+          financial_type?: string
+          id?: string
+          membership_id?: string | null
+          network_id?: string | null
+          override_reason?: string | null
+          payer_id?: string | null
+          policy_id?: string | null
+          reason?: string | null
+          result_payload?: Json | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visit_eligibility_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visit_eligibility_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_class"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visit_eligibility_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visit_eligibility_network_id_fkey"
+            columns: ["network_id"]
+            isOneToOne: false
+            referencedRelation: "network"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visit_eligibility_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visit_eligibility_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visit_eligibility_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vitals_observation: {
         Row: {
