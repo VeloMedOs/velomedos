@@ -231,6 +231,16 @@ async function seedBeneficiaries(tenantId: string): Promise<{ ids: Record<string
 export const seedDemo = createServerFn({ method: "POST" }).handler(async () => {
   const gate = await requireSuperadmin();
   if (!gate.ok) return { ok: false as const, error: gate.error };
+  return runSeedDemo();
+});
+
+export async function runSeedDemoFromHeader(authHeader: string) {
+  const gate = await requireSuperadminFromHeader(authHeader);
+  if (!gate.ok) return { ok: false as const, error: gate.error };
+  return runSeedDemo();
+}
+
+async function runSeedDemo() {
   const tenant = await resolveDemoTenant();
   if (!tenant.ok) return { ok: false as const, error: tenant.error };
 
@@ -253,7 +263,53 @@ export const seedDemo = createServerFn({ method: "POST" }).handler(async () => {
     note:
       "Masters (payers/policies/services/drugs/DRG) and pre-built journey encounters are seeded by the SQL fixture pack in supabase/migrations/<ts>_demo_seed_masters.sql (run separately).",
   };
-});
+}
+
+export async function runProvisionDemoUsersFromHeader(authHeader: string) {
+  const gate = await requireSuperadminFromHeader(authHeader);
+  if (!gate.ok) return { ok: false as const, error: gate.error };
+  // Re-use the server fn body by invoking the underlying logic directly.
+  // For brevity we just call provisionDemoUsers via its handler — replicate
+  // the steps inline so we don't depend on the server-fn runtime context.
+  const tenant = await resolveDemoTenant();
+  if (!tenant.ok) return { ok: false as const, error: tenant.error };
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const password = demoPassword();
+  const provisioned: Array<{ email: string; user_id: string; status: "created" | "existing" }> = [];
+  for (const acct of DEMO_ACCOUNTS) {
+    let userId = await findUserIdByEmail(acct.email);
+    let status: "created" | "existing" = "existing";
+    if (!userId) {
+      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+        email: acct.email, password, email_confirm: true,
+        user_metadata: { full_name: acct.full_name, demo: true },
+      });
+      if (error || !data.user) {
+        if (String(error?.message ?? "").toLowerCase().includes("already")) {
+          userId = await findUserIdByEmail(acct.email);
+        }
+        if (!userId) return { ok: false as const, error: `create_failed:${acct.email}` };
+      } else {
+        userId = data.user.id; status = "created";
+      }
+    } else {
+      await supabaseAdmin.auth.admin.updateUserById(userId, { password });
+    }
+    await supabaseAdmin.from("user_roles").upsert({ user_id: userId, role: acct.app_role }, { onConflict: "user_id,role" });
+    await supabaseAdmin.from("profiles").upsert({ id: userId, email: acct.email, full_name: acct.full_name, default_role: acct.app_role });
+    await (supabaseAdmin as any).from("tenant_members").upsert(
+      { tenant_id: tenant.id, user_id: userId, role: acct.app_role, clinical_role: acct.clinical_role },
+      { onConflict: "tenant_id,user_id" },
+    );
+    provisioned.push({ email: acct.email, user_id: userId, status });
+  }
+  return {
+    ok: true as const,
+    tenant_id: tenant.id,
+    password_source: process.env.DEMO_USER_PASSWORD ? "secret" : "fallback",
+    accounts: provisioned,
+  };
+}
 
 /* ============================================================== */
 /* RESET                                                            */
