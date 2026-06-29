@@ -33,6 +33,8 @@ const EXCLUDE_FILES = new Set([
   "resources.$slug.tsx",        // dynamic, sitemap lists per slug via SERVICES/RESOURCES
   "services.$slug.tsx",
   "clinics.$city.tsx",
+  "solutions.tsx",              // redirect-only → /services
+  "solutions.$slug.tsx",        // redirect-only → /services/:slug
 ]);
 
 function walk(dir) {
