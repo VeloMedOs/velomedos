@@ -70,3 +70,60 @@ export type ReimbursementModel = "drg_bundled" | "itemized_sbs";
 export function reimbursementModel(encounterClass: string | null | undefined): ReimbursementModel {
   return (encounterClass ?? "").toUpperCase() === "IMP" ? "drg_bundled" : "itemized_sbs";
 }
+
+// ----------------------------------------------------------------------------
+// Phase 2 — Encounter clinical lifecycle (FHIR-aligned)
+// ----------------------------------------------------------------------------
+// This axis is INDEPENDENT of `JourneyState` above. `status` tracks the FHIR
+// Encounter.status lifecycle and is driven by /encounters/:id/advance.
+// `journey_state` (the Phase-0 machine) tracks the MDS / claim pipeline and is
+// driven by later phases (documentation triggers, discharge, coder, grouper,
+// claim builder).
+
+export type EncounterClinicalStatus =
+  | "planned"
+  | "arrived"
+  | "triaged"
+  | "in_progress"
+  | "on_leave"
+  | "finished"
+  | "cancelled";
+
+export const ENCOUNTER_CLINICAL_TRANSITIONS: Record<EncounterClinicalStatus, EncounterClinicalStatus[]> = {
+  planned: ["arrived", "cancelled"],
+  arrived: ["triaged", "in_progress", "cancelled"],
+  triaged: ["in_progress", "cancelled"],
+  in_progress: ["on_leave", "finished"],
+  on_leave: ["in_progress", "finished"],
+  finished: [],
+  cancelled: [],
+};
+
+export function canTransitionEncounter(
+  from: EncounterClinicalStatus,
+  to: EncounterClinicalStatus,
+): boolean {
+  return (ENCOUNTER_CLINICAL_TRANSITIONS[from] ?? []).includes(to);
+}
+
+export class EncounterTransitionError extends Error {
+  readonly from: EncounterClinicalStatus;
+  readonly to: EncounterClinicalStatus;
+  constructor(from: EncounterClinicalStatus, to: EncounterClinicalStatus) {
+    super(`Illegal encounter transition: ${from} -> ${to}`);
+    this.from = from;
+    this.to = to;
+    this.name = "EncounterTransitionError";
+  }
+}
+
+export function assertEncounterTransition(
+  from: EncounterClinicalStatus,
+  to: EncounterClinicalStatus,
+): void {
+  if (!canTransitionEncounter(from, to)) {
+    throw new EncounterTransitionError(from, to);
+  }
+}
+
+export const TERMINAL_ENCOUNTER_STATUSES = new Set<EncounterClinicalStatus>(["finished", "cancelled"]);

@@ -885,6 +885,85 @@ export type Database = {
         }
         Relationships: []
       }
+      clinical_supporting_info: {
+        Row: {
+          beneficiary_id: string
+          category: string
+          code_system: string | null
+          created_at: string
+          created_by: string | null
+          encounter_id: string
+          id: string
+          recorded_at: string
+          recorded_by: string | null
+          sequence: number | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          value_attachment_url: string | null
+          value_code: string | null
+          value_text: string | null
+        }
+        Insert: {
+          beneficiary_id: string
+          category: string
+          code_system?: string | null
+          created_at?: string
+          created_by?: string | null
+          encounter_id: string
+          id?: string
+          recorded_at?: string
+          recorded_by?: string | null
+          sequence?: number | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          value_attachment_url?: string | null
+          value_code?: string | null
+          value_text?: string | null
+        }
+        Update: {
+          beneficiary_id?: string
+          category?: string
+          code_system?: string | null
+          created_at?: string
+          created_by?: string | null
+          encounter_id?: string
+          id?: string
+          recorded_at?: string
+          recorded_by?: string | null
+          sequence?: number | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          value_attachment_url?: string | null
+          value_code?: string | null
+          value_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_supporting_info_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinical_supporting_info_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinical_supporting_info_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinics: {
         Row: {
           address: string | null
@@ -1413,6 +1492,257 @@ export type Database = {
           },
         ]
       }
+      encounter: {
+        Row: {
+          beneficiary_id: string
+          cause_of_death: string | null
+          chief_complaint: string | null
+          class: string
+          coverage_id: string | null
+          created_at: string
+          created_by: string | null
+          discharge_disposition: string | null
+          encounter_number: string
+          episode_of_care_id: string | null
+          id: string
+          journey_state: string
+          location_id: string | null
+          mechanical_ventilation_hours: number | null
+          period_end: string | null
+          period_start: string
+          priority: string | null
+          reason_text: string | null
+          reimbursement_model: string
+          same_day: boolean | null
+          separation_mode: string | null
+          service_type: string | null
+          status: string
+          tenant_id: string
+          type: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          beneficiary_id: string
+          cause_of_death?: string | null
+          chief_complaint?: string | null
+          class: string
+          coverage_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          discharge_disposition?: string | null
+          encounter_number: string
+          episode_of_care_id?: string | null
+          id?: string
+          journey_state?: string
+          location_id?: string | null
+          mechanical_ventilation_hours?: number | null
+          period_end?: string | null
+          period_start?: string
+          priority?: string | null
+          reason_text?: string | null
+          reimbursement_model?: string
+          same_day?: boolean | null
+          separation_mode?: string | null
+          service_type?: string | null
+          status?: string
+          tenant_id: string
+          type?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          beneficiary_id?: string
+          cause_of_death?: string | null
+          chief_complaint?: string | null
+          class?: string
+          coverage_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          discharge_disposition?: string | null
+          encounter_number?: string
+          episode_of_care_id?: string | null
+          id?: string
+          journey_state?: string
+          location_id?: string | null
+          mechanical_ventilation_hours?: number | null
+          period_end?: string | null
+          period_start?: string
+          priority?: string | null
+          reason_text?: string | null
+          reimbursement_model?: string
+          same_day?: boolean | null
+          separation_mode?: string | null
+          service_type?: string | null
+          status?: string
+          tenant_id?: string
+          type?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encounter_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounter_coverage_id_fkey"
+            columns: ["coverage_id"]
+            isOneToOne: false
+            referencedRelation: "coverage"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounter_episode_of_care_id_fkey"
+            columns: ["episode_of_care_id"]
+            isOneToOne: false
+            referencedRelation: "episode_of_care"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounter_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      encounter_care_team: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          encounter_id: string
+          id: string
+          is_primary: boolean | null
+          period_end: string | null
+          period_start: string | null
+          practitioner_user_id: string
+          role: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id: string
+          id?: string
+          is_primary?: boolean | null
+          period_end?: string | null
+          period_start?: string | null
+          practitioner_user_id: string
+          role: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          encounter_id?: string
+          id?: string
+          is_primary?: boolean | null
+          period_end?: string | null
+          period_start?: string | null
+          practitioner_user_id?: string
+          role?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encounter_care_team_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounter_care_team_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      encounter_diagnosis: {
+        Row: {
+          code: string
+          code_system: string
+          created_at: string
+          created_by: string | null
+          display: string | null
+          encounter_id: string
+          id: string
+          is_chronic: boolean | null
+          onset_date: string | null
+          present_on_admission: string | null
+          rank: number | null
+          recorded_by: string | null
+          role: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          code_system?: string
+          created_at?: string
+          created_by?: string | null
+          display?: string | null
+          encounter_id: string
+          id?: string
+          is_chronic?: boolean | null
+          onset_date?: string | null
+          present_on_admission?: string | null
+          rank?: number | null
+          recorded_by?: string | null
+          role?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          code_system?: string
+          created_at?: string
+          created_by?: string | null
+          display?: string | null
+          encounter_id?: string
+          id?: string
+          is_chronic?: boolean | null
+          onset_date?: string | null
+          present_on_admission?: string | null
+          rank?: number | null
+          recorded_by?: string | null
+          role?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encounter_diagnosis_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounter_diagnosis_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enrollments: {
         Row: {
           completed_at: string | null
@@ -1444,6 +1774,69 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      episode_of_care: {
+        Row: {
+          beneficiary_id: string
+          care_type: string | null
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          id: string
+          notes: string | null
+          primary_practitioner_id: string | null
+          start_date: string
+          status: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          beneficiary_id: string
+          care_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          primary_practitioner_id?: string | null
+          start_date?: string
+          status?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          beneficiary_id?: string
+          care_type?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          primary_practitioner_id?: string | null
+          start_date?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "episode_of_care_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "episode_of_care_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
             referencedColumns: ["id"]
           },
         ]
@@ -3664,6 +4057,112 @@ export type Database = {
         }
         Relationships: []
       }
+      vitals_observation: {
+        Row: {
+          beneficiary_id: string
+          bmi: number | null
+          body_position: string | null
+          body_site: string | null
+          created_at: string
+          created_by: string | null
+          diastolic_mmhg: number | null
+          encounter_id: string
+          glucose_mmol_l: number | null
+          heart_rate_bpm: number | null
+          height_cm: number | null
+          id: string
+          news2_score: number | null
+          notes: string | null
+          pain_score: number | null
+          recorded_at: string
+          recorded_by: string | null
+          respiratory_rate_bpm: number | null
+          spo2_pct: number | null
+          systolic_mmhg: number | null
+          temperature_c: number | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          weight_kg: number | null
+        }
+        Insert: {
+          beneficiary_id: string
+          bmi?: number | null
+          body_position?: string | null
+          body_site?: string | null
+          created_at?: string
+          created_by?: string | null
+          diastolic_mmhg?: number | null
+          encounter_id: string
+          glucose_mmol_l?: number | null
+          heart_rate_bpm?: number | null
+          height_cm?: number | null
+          id?: string
+          news2_score?: number | null
+          notes?: string | null
+          pain_score?: number | null
+          recorded_at?: string
+          recorded_by?: string | null
+          respiratory_rate_bpm?: number | null
+          spo2_pct?: number | null
+          systolic_mmhg?: number | null
+          temperature_c?: number | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          weight_kg?: number | null
+        }
+        Update: {
+          beneficiary_id?: string
+          bmi?: number | null
+          body_position?: string | null
+          body_site?: string | null
+          created_at?: string
+          created_by?: string | null
+          diastolic_mmhg?: number | null
+          encounter_id?: string
+          glucose_mmol_l?: number | null
+          heart_rate_bpm?: number | null
+          height_cm?: number | null
+          id?: string
+          news2_score?: number | null
+          notes?: string | null
+          pain_score?: number | null
+          recorded_at?: string
+          recorded_by?: string | null
+          respiratory_rate_bpm?: number | null
+          spo2_pct?: number | null
+          systolic_mmhg?: number | null
+          temperature_c?: number | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vitals_observation_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vitals_observation_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vitals_observation_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       web_leads: {
         Row: {
           city: string | null
@@ -3954,6 +4453,10 @@ export type Database = {
       }
     }
     Functions: {
+      encounter_maybe_advance_documented: {
+        Args: { _enc_id: string }
+        Returns: undefined
+      }
       generate_member_code: { Args: never; Returns: string }
       get_user_roles: {
         Args: { _user_id: string }

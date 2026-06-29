@@ -77,6 +77,8 @@ import { Route as ApiPublicV1Business_intakeRouteImport } from './routes/api/pub
 import { Route as ApiPublicTelemetryNavClickRouteImport } from './routes/api/public/telemetry.nav-click'
 import { Route as ApiPublicLegalSlugRouteImport } from './routes/api/public/legal.$slug'
 import { Route as ApiClinicalV1OpenapiRouteImport } from './routes/api/clinical/v1/openapi'
+import { Route as ApiClinicalV1EpisodesRouteImport } from './routes/api/clinical/v1/episodes'
+import { Route as ApiClinicalV1EncountersRouteImport } from './routes/api/clinical/v1/encounters'
 import { Route as ApiClinicalV1BeneficiariesRouteImport } from './routes/api/clinical/v1/beneficiaries'
 import { Route as ApiAdminV1TicketsRouteImport } from './routes/api/admin/v1/tickets'
 import { Route as ApiAdminV1TenantSubscriptionsRouteImport } from './routes/api/admin/v1/tenant-subscriptions'
@@ -102,7 +104,13 @@ import { Route as ApiPublicV1HomecareRecipientsRouteImport } from './routes/api/
 import { Route as ApiPublicV1HomecareCarePlansRouteImport } from './routes/api/public/v1/homecare.care-plans'
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiPublicLegalSlugAcceptRouteImport } from './routes/api/public/legal.$slug.accept'
+import { Route as ApiClinicalV1VitalsIdRouteImport } from './routes/api/clinical/v1/vitals.$id'
+import { Route as ApiClinicalV1SupportingInfoIdRouteImport } from './routes/api/clinical/v1/supporting-info.$id'
+import { Route as ApiClinicalV1EpisodesIdRouteImport } from './routes/api/clinical/v1/episodes.$id'
+import { Route as ApiClinicalV1EncountersIdRouteImport } from './routes/api/clinical/v1/encounters.$id'
+import { Route as ApiClinicalV1DiagnosesIdRouteImport } from './routes/api/clinical/v1/diagnoses.$id'
 import { Route as ApiClinicalV1CoverageIdRouteImport } from './routes/api/clinical/v1/coverage.$id'
+import { Route as ApiClinicalV1CareTeamIdRouteImport } from './routes/api/clinical/v1/care-team.$id'
 import { Route as ApiClinicalV1BeneficiariesIdRouteImport } from './routes/api/clinical/v1/beneficiaries.$id'
 import { Route as ApiAdminV1UsageDailyRouteImport } from './routes/api/admin/v1/usage.daily'
 import { Route as ApiAdminV1TenantSubscriptionsIdRouteImport } from './routes/api/admin/v1/tenant-subscriptions.$id'
@@ -131,6 +139,12 @@ import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/p
 import { Route as ApiPublicV1VehiclesIdCredentialsRouteImport } from './routes/api/public/v1/vehicles.$id.credentials'
 import { Route as ApiPublicV1HomecareVisitsIdRouteImport } from './routes/api/public/v1/homecare.visits.$id'
 import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/public/v1/fleet.$id.location'
+import { Route as ApiClinicalV1EncountersIdVitalsRouteImport } from './routes/api/clinical/v1/encounters.$id.vitals'
+import { Route as ApiClinicalV1EncountersIdSupportingInfoRouteImport } from './routes/api/clinical/v1/encounters.$id.supporting-info'
+import { Route as ApiClinicalV1EncountersIdFhirRouteImport } from './routes/api/clinical/v1/encounters.$id.fhir'
+import { Route as ApiClinicalV1EncountersIdDiagnosesRouteImport } from './routes/api/clinical/v1/encounters.$id.diagnoses'
+import { Route as ApiClinicalV1EncountersIdCareTeamRouteImport } from './routes/api/clinical/v1/encounters.$id.care-team'
+import { Route as ApiClinicalV1EncountersIdAdvanceRouteImport } from './routes/api/clinical/v1/encounters.$id.advance'
 import { Route as ApiClinicalV1BeneficiariesIdFhirRouteImport } from './routes/api/clinical/v1/beneficiaries.$id.fhir'
 import { Route as ApiClinicalV1BeneficiariesIdCoverageRouteImport } from './routes/api/clinical/v1/beneficiaries.$id.coverage'
 import { Route as ApiAdminV1TicketsIdEventsRouteImport } from './routes/api/admin/v1/tickets.$id.events'
@@ -487,6 +501,16 @@ const ApiClinicalV1OpenapiRoute = ApiClinicalV1OpenapiRouteImport.update({
   path: '/api/clinical/v1/openapi',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiClinicalV1EpisodesRoute = ApiClinicalV1EpisodesRouteImport.update({
+  id: '/api/clinical/v1/episodes',
+  path: '/api/clinical/v1/episodes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiClinicalV1EncountersRoute = ApiClinicalV1EncountersRouteImport.update({
+  id: '/api/clinical/v1/encounters',
+  path: '/api/clinical/v1/encounters',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiClinicalV1BeneficiariesRoute =
   ApiClinicalV1BeneficiariesRouteImport.update({
     id: '/api/clinical/v1/beneficiaries',
@@ -620,9 +644,42 @@ const ApiPublicLegalSlugAcceptRoute =
     path: '/accept',
     getParentRoute: () => ApiPublicLegalSlugRoute,
   } as any)
+const ApiClinicalV1VitalsIdRoute = ApiClinicalV1VitalsIdRouteImport.update({
+  id: '/api/clinical/v1/vitals/$id',
+  path: '/api/clinical/v1/vitals/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiClinicalV1SupportingInfoIdRoute =
+  ApiClinicalV1SupportingInfoIdRouteImport.update({
+    id: '/api/clinical/v1/supporting-info/$id',
+    path: '/api/clinical/v1/supporting-info/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1EpisodesIdRoute = ApiClinicalV1EpisodesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiClinicalV1EpisodesRoute,
+} as any)
+const ApiClinicalV1EncountersIdRoute =
+  ApiClinicalV1EncountersIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiClinicalV1EncountersRoute,
+  } as any)
+const ApiClinicalV1DiagnosesIdRoute =
+  ApiClinicalV1DiagnosesIdRouteImport.update({
+    id: '/api/clinical/v1/diagnoses/$id',
+    path: '/api/clinical/v1/diagnoses/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1CoverageIdRoute = ApiClinicalV1CoverageIdRouteImport.update({
   id: '/api/clinical/v1/coverage/$id',
   path: '/api/clinical/v1/coverage/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiClinicalV1CareTeamIdRoute = ApiClinicalV1CareTeamIdRouteImport.update({
+  id: '/api/clinical/v1/care-team/$id',
+  path: '/api/clinical/v1/care-team/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiClinicalV1BeneficiariesIdRoute =
@@ -781,6 +838,42 @@ const ApiPublicV1FleetIdLocationRoute =
     path: '/$id/location',
     getParentRoute: () => ApiPublicV1FleetRoute,
   } as any)
+const ApiClinicalV1EncountersIdVitalsRoute =
+  ApiClinicalV1EncountersIdVitalsRouteImport.update({
+    id: '/vitals',
+    path: '/vitals',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
+const ApiClinicalV1EncountersIdSupportingInfoRoute =
+  ApiClinicalV1EncountersIdSupportingInfoRouteImport.update({
+    id: '/supporting-info',
+    path: '/supporting-info',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
+const ApiClinicalV1EncountersIdFhirRoute =
+  ApiClinicalV1EncountersIdFhirRouteImport.update({
+    id: '/fhir',
+    path: '/fhir',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
+const ApiClinicalV1EncountersIdDiagnosesRoute =
+  ApiClinicalV1EncountersIdDiagnosesRouteImport.update({
+    id: '/diagnoses',
+    path: '/diagnoses',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
+const ApiClinicalV1EncountersIdCareTeamRoute =
+  ApiClinicalV1EncountersIdCareTeamRouteImport.update({
+    id: '/care-team',
+    path: '/care-team',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
+const ApiClinicalV1EncountersIdAdvanceRoute =
+  ApiClinicalV1EncountersIdAdvanceRouteImport.update({
+    id: '/advance',
+    path: '/advance',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
 const ApiClinicalV1BeneficiariesIdFhirRoute =
   ApiClinicalV1BeneficiariesIdFhirRouteImport.update({
     id: '/fhir',
@@ -917,6 +1010,8 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
   '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRouteWithChildren
+  '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
+  '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -957,7 +1052,13 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
+  '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
+  '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
+  '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
+  '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
+  '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
+  '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
@@ -973,6 +1074,12 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
+  '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
+  '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
+  '/api/clinical/v1/encounters/$id/diagnoses': typeof ApiClinicalV1EncountersIdDiagnosesRoute
+  '/api/clinical/v1/encounters/$id/fhir': typeof ApiClinicalV1EncountersIdFhirRoute
+  '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
+  '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
@@ -1049,6 +1156,8 @@ export interface FileRoutesByTo {
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
   '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRouteWithChildren
+  '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
+  '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -1089,7 +1198,13 @@ export interface FileRoutesByTo {
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
+  '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
+  '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
+  '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
+  '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
+  '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
+  '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
@@ -1105,6 +1220,12 @@ export interface FileRoutesByTo {
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
+  '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
+  '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
+  '/api/clinical/v1/encounters/$id/diagnoses': typeof ApiClinicalV1EncountersIdDiagnosesRoute
+  '/api/clinical/v1/encounters/$id/fhir': typeof ApiClinicalV1EncountersIdFhirRoute
+  '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
+  '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
@@ -1185,6 +1306,8 @@ export interface FileRoutesById {
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
   '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRouteWithChildren
+  '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
+  '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -1225,7 +1348,13 @@ export interface FileRoutesById {
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
+  '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
+  '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
+  '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
+  '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
+  '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
+  '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
@@ -1241,6 +1370,12 @@ export interface FileRoutesById {
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
+  '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
+  '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
+  '/api/clinical/v1/encounters/$id/diagnoses': typeof ApiClinicalV1EncountersIdDiagnosesRoute
+  '/api/clinical/v1/encounters/$id/fhir': typeof ApiClinicalV1EncountersIdFhirRoute
+  '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
+  '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
@@ -1321,6 +1456,8 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
     | '/api/clinical/v1/beneficiaries'
+    | '/api/clinical/v1/encounters'
+    | '/api/clinical/v1/episodes'
     | '/api/clinical/v1/openapi'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -1361,7 +1498,13 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/clinical/v1/beneficiaries/$id'
+    | '/api/clinical/v1/care-team/$id'
     | '/api/clinical/v1/coverage/$id'
+    | '/api/clinical/v1/diagnoses/$id'
+    | '/api/clinical/v1/encounters/$id'
+    | '/api/clinical/v1/episodes/$id'
+    | '/api/clinical/v1/supporting-info/$id'
+    | '/api/clinical/v1/vitals/$id'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/homecare/care-plans'
@@ -1377,6 +1520,12 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tickets/$id/events'
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
+    | '/api/clinical/v1/encounters/$id/advance'
+    | '/api/clinical/v1/encounters/$id/care-team'
+    | '/api/clinical/v1/encounters/$id/diagnoses'
+    | '/api/clinical/v1/encounters/$id/fhir'
+    | '/api/clinical/v1/encounters/$id/supporting-info'
+    | '/api/clinical/v1/encounters/$id/vitals'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
@@ -1453,6 +1602,8 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
     | '/api/clinical/v1/beneficiaries'
+    | '/api/clinical/v1/encounters'
+    | '/api/clinical/v1/episodes'
     | '/api/clinical/v1/openapi'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -1493,7 +1644,13 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/clinical/v1/beneficiaries/$id'
+    | '/api/clinical/v1/care-team/$id'
     | '/api/clinical/v1/coverage/$id'
+    | '/api/clinical/v1/diagnoses/$id'
+    | '/api/clinical/v1/encounters/$id'
+    | '/api/clinical/v1/episodes/$id'
+    | '/api/clinical/v1/supporting-info/$id'
+    | '/api/clinical/v1/vitals/$id'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/homecare/care-plans'
@@ -1509,6 +1666,12 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tickets/$id/events'
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
+    | '/api/clinical/v1/encounters/$id/advance'
+    | '/api/clinical/v1/encounters/$id/care-team'
+    | '/api/clinical/v1/encounters/$id/diagnoses'
+    | '/api/clinical/v1/encounters/$id/fhir'
+    | '/api/clinical/v1/encounters/$id/supporting-info'
+    | '/api/clinical/v1/encounters/$id/vitals'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
@@ -1588,6 +1751,8 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
     | '/api/clinical/v1/beneficiaries'
+    | '/api/clinical/v1/encounters'
+    | '/api/clinical/v1/episodes'
     | '/api/clinical/v1/openapi'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -1628,7 +1793,13 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/clinical/v1/beneficiaries/$id'
+    | '/api/clinical/v1/care-team/$id'
     | '/api/clinical/v1/coverage/$id'
+    | '/api/clinical/v1/diagnoses/$id'
+    | '/api/clinical/v1/encounters/$id'
+    | '/api/clinical/v1/episodes/$id'
+    | '/api/clinical/v1/supporting-info/$id'
+    | '/api/clinical/v1/vitals/$id'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/homecare/care-plans'
@@ -1644,6 +1815,12 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tickets/$id/events'
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
+    | '/api/clinical/v1/encounters/$id/advance'
+    | '/api/clinical/v1/encounters/$id/care-team'
+    | '/api/clinical/v1/encounters/$id/diagnoses'
+    | '/api/clinical/v1/encounters/$id/fhir'
+    | '/api/clinical/v1/encounters/$id/supporting-info'
+    | '/api/clinical/v1/encounters/$id/vitals'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
@@ -1694,6 +1871,8 @@ export interface RootRouteChildren {
   ApiAdminV1TenantSubscriptionsRoute: typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   ApiAdminV1TicketsRoute: typeof ApiAdminV1TicketsRouteWithChildren
   ApiClinicalV1BeneficiariesRoute: typeof ApiClinicalV1BeneficiariesRouteWithChildren
+  ApiClinicalV1EncountersRoute: typeof ApiClinicalV1EncountersRouteWithChildren
+  ApiClinicalV1EpisodesRoute: typeof ApiClinicalV1EpisodesRouteWithChildren
   ApiClinicalV1OpenapiRoute: typeof ApiClinicalV1OpenapiRoute
   ApiPublicLegalSlugRoute: typeof ApiPublicLegalSlugRouteWithChildren
   ApiPublicTelemetryNavClickRoute: typeof ApiPublicTelemetryNavClickRoute
@@ -1726,7 +1905,11 @@ export interface RootRouteChildren {
   ApiAdminV1OpsTestRunsRoute: typeof ApiAdminV1OpsTestRunsRoute
   ApiAdminV1OpsWorkspaceRoute: typeof ApiAdminV1OpsWorkspaceRoute
   ApiAdminV1UsageDailyRoute: typeof ApiAdminV1UsageDailyRoute
+  ApiClinicalV1CareTeamIdRoute: typeof ApiClinicalV1CareTeamIdRoute
   ApiClinicalV1CoverageIdRoute: typeof ApiClinicalV1CoverageIdRoute
+  ApiClinicalV1DiagnosesIdRoute: typeof ApiClinicalV1DiagnosesIdRoute
+  ApiClinicalV1SupportingInfoIdRoute: typeof ApiClinicalV1SupportingInfoIdRoute
+  ApiClinicalV1VitalsIdRoute: typeof ApiClinicalV1VitalsIdRoute
   ApiPublicV1DebugEventsRoute: typeof ApiPublicV1DebugEventsRoute
   ApiPublicV1HomecareCarePlansRoute: typeof ApiPublicV1HomecareCarePlansRoute
   ApiPublicV1HomecareRecipientsRoute: typeof ApiPublicV1HomecareRecipientsRoute
@@ -2216,6 +2399,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1OpenapiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/episodes': {
+      id: '/api/clinical/v1/episodes'
+      path: '/api/clinical/v1/episodes'
+      fullPath: '/api/clinical/v1/episodes'
+      preLoaderRoute: typeof ApiClinicalV1EpisodesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/encounters': {
+      id: '/api/clinical/v1/encounters'
+      path: '/api/clinical/v1/encounters'
+      fullPath: '/api/clinical/v1/encounters'
+      preLoaderRoute: typeof ApiClinicalV1EncountersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/beneficiaries': {
       id: '/api/clinical/v1/beneficiaries'
       path: '/api/clinical/v1/beneficiaries'
@@ -2391,11 +2588,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLegalSlugAcceptRouteImport
       parentRoute: typeof ApiPublicLegalSlugRoute
     }
+    '/api/clinical/v1/vitals/$id': {
+      id: '/api/clinical/v1/vitals/$id'
+      path: '/api/clinical/v1/vitals/$id'
+      fullPath: '/api/clinical/v1/vitals/$id'
+      preLoaderRoute: typeof ApiClinicalV1VitalsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/supporting-info/$id': {
+      id: '/api/clinical/v1/supporting-info/$id'
+      path: '/api/clinical/v1/supporting-info/$id'
+      fullPath: '/api/clinical/v1/supporting-info/$id'
+      preLoaderRoute: typeof ApiClinicalV1SupportingInfoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/episodes/$id': {
+      id: '/api/clinical/v1/episodes/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/episodes/$id'
+      preLoaderRoute: typeof ApiClinicalV1EpisodesIdRouteImport
+      parentRoute: typeof ApiClinicalV1EpisodesRoute
+    }
+    '/api/clinical/v1/encounters/$id': {
+      id: '/api/clinical/v1/encounters/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/encounters/$id'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersRoute
+    }
+    '/api/clinical/v1/diagnoses/$id': {
+      id: '/api/clinical/v1/diagnoses/$id'
+      path: '/api/clinical/v1/diagnoses/$id'
+      fullPath: '/api/clinical/v1/diagnoses/$id'
+      preLoaderRoute: typeof ApiClinicalV1DiagnosesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/coverage/$id': {
       id: '/api/clinical/v1/coverage/$id'
       path: '/api/clinical/v1/coverage/$id'
       fullPath: '/api/clinical/v1/coverage/$id'
       preLoaderRoute: typeof ApiClinicalV1CoverageIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/care-team/$id': {
+      id: '/api/clinical/v1/care-team/$id'
+      path: '/api/clinical/v1/care-team/$id'
+      fullPath: '/api/clinical/v1/care-team/$id'
+      preLoaderRoute: typeof ApiClinicalV1CareTeamIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/beneficiaries/$id': {
@@ -2593,6 +2832,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/v1/fleet/$id/location'
       preLoaderRoute: typeof ApiPublicV1FleetIdLocationRouteImport
       parentRoute: typeof ApiPublicV1FleetRoute
+    }
+    '/api/clinical/v1/encounters/$id/vitals': {
+      id: '/api/clinical/v1/encounters/$id/vitals'
+      path: '/vitals'
+      fullPath: '/api/clinical/v1/encounters/$id/vitals'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdVitalsRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
+    }
+    '/api/clinical/v1/encounters/$id/supporting-info': {
+      id: '/api/clinical/v1/encounters/$id/supporting-info'
+      path: '/supporting-info'
+      fullPath: '/api/clinical/v1/encounters/$id/supporting-info'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdSupportingInfoRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
+    }
+    '/api/clinical/v1/encounters/$id/fhir': {
+      id: '/api/clinical/v1/encounters/$id/fhir'
+      path: '/fhir'
+      fullPath: '/api/clinical/v1/encounters/$id/fhir'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdFhirRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
+    }
+    '/api/clinical/v1/encounters/$id/diagnoses': {
+      id: '/api/clinical/v1/encounters/$id/diagnoses'
+      path: '/diagnoses'
+      fullPath: '/api/clinical/v1/encounters/$id/diagnoses'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdDiagnosesRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
+    }
+    '/api/clinical/v1/encounters/$id/care-team': {
+      id: '/api/clinical/v1/encounters/$id/care-team'
+      path: '/care-team'
+      fullPath: '/api/clinical/v1/encounters/$id/care-team'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdCareTeamRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
+    }
+    '/api/clinical/v1/encounters/$id/advance': {
+      id: '/api/clinical/v1/encounters/$id/advance'
+      path: '/advance'
+      fullPath: '/api/clinical/v1/encounters/$id/advance'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdAdvanceRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
     }
     '/api/clinical/v1/beneficiaries/$id/fhir': {
       id: '/api/clinical/v1/beneficiaries/$id/fhir'
@@ -2978,6 +3259,61 @@ const ApiClinicalV1BeneficiariesRouteWithChildren =
     ApiClinicalV1BeneficiariesRouteChildren,
   )
 
+interface ApiClinicalV1EncountersIdRouteChildren {
+  ApiClinicalV1EncountersIdAdvanceRoute: typeof ApiClinicalV1EncountersIdAdvanceRoute
+  ApiClinicalV1EncountersIdCareTeamRoute: typeof ApiClinicalV1EncountersIdCareTeamRoute
+  ApiClinicalV1EncountersIdDiagnosesRoute: typeof ApiClinicalV1EncountersIdDiagnosesRoute
+  ApiClinicalV1EncountersIdFhirRoute: typeof ApiClinicalV1EncountersIdFhirRoute
+  ApiClinicalV1EncountersIdSupportingInfoRoute: typeof ApiClinicalV1EncountersIdSupportingInfoRoute
+  ApiClinicalV1EncountersIdVitalsRoute: typeof ApiClinicalV1EncountersIdVitalsRoute
+}
+
+const ApiClinicalV1EncountersIdRouteChildren: ApiClinicalV1EncountersIdRouteChildren =
+  {
+    ApiClinicalV1EncountersIdAdvanceRoute:
+      ApiClinicalV1EncountersIdAdvanceRoute,
+    ApiClinicalV1EncountersIdCareTeamRoute:
+      ApiClinicalV1EncountersIdCareTeamRoute,
+    ApiClinicalV1EncountersIdDiagnosesRoute:
+      ApiClinicalV1EncountersIdDiagnosesRoute,
+    ApiClinicalV1EncountersIdFhirRoute: ApiClinicalV1EncountersIdFhirRoute,
+    ApiClinicalV1EncountersIdSupportingInfoRoute:
+      ApiClinicalV1EncountersIdSupportingInfoRoute,
+    ApiClinicalV1EncountersIdVitalsRoute: ApiClinicalV1EncountersIdVitalsRoute,
+  }
+
+const ApiClinicalV1EncountersIdRouteWithChildren =
+  ApiClinicalV1EncountersIdRoute._addFileChildren(
+    ApiClinicalV1EncountersIdRouteChildren,
+  )
+
+interface ApiClinicalV1EncountersRouteChildren {
+  ApiClinicalV1EncountersIdRoute: typeof ApiClinicalV1EncountersIdRouteWithChildren
+}
+
+const ApiClinicalV1EncountersRouteChildren: ApiClinicalV1EncountersRouteChildren =
+  {
+    ApiClinicalV1EncountersIdRoute: ApiClinicalV1EncountersIdRouteWithChildren,
+  }
+
+const ApiClinicalV1EncountersRouteWithChildren =
+  ApiClinicalV1EncountersRoute._addFileChildren(
+    ApiClinicalV1EncountersRouteChildren,
+  )
+
+interface ApiClinicalV1EpisodesRouteChildren {
+  ApiClinicalV1EpisodesIdRoute: typeof ApiClinicalV1EpisodesIdRoute
+}
+
+const ApiClinicalV1EpisodesRouteChildren: ApiClinicalV1EpisodesRouteChildren = {
+  ApiClinicalV1EpisodesIdRoute: ApiClinicalV1EpisodesIdRoute,
+}
+
+const ApiClinicalV1EpisodesRouteWithChildren =
+  ApiClinicalV1EpisodesRoute._addFileChildren(
+    ApiClinicalV1EpisodesRouteChildren,
+  )
+
 interface ApiPublicLegalSlugRouteChildren {
   ApiPublicLegalSlugAcceptRoute: typeof ApiPublicLegalSlugAcceptRoute
 }
@@ -3087,6 +3423,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiAdminV1TenantSubscriptionsRouteWithChildren,
   ApiAdminV1TicketsRoute: ApiAdminV1TicketsRouteWithChildren,
   ApiClinicalV1BeneficiariesRoute: ApiClinicalV1BeneficiariesRouteWithChildren,
+  ApiClinicalV1EncountersRoute: ApiClinicalV1EncountersRouteWithChildren,
+  ApiClinicalV1EpisodesRoute: ApiClinicalV1EpisodesRouteWithChildren,
   ApiClinicalV1OpenapiRoute: ApiClinicalV1OpenapiRoute,
   ApiPublicLegalSlugRoute: ApiPublicLegalSlugRouteWithChildren,
   ApiPublicTelemetryNavClickRoute: ApiPublicTelemetryNavClickRoute,
@@ -3119,7 +3457,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1OpsTestRunsRoute: ApiAdminV1OpsTestRunsRoute,
   ApiAdminV1OpsWorkspaceRoute: ApiAdminV1OpsWorkspaceRoute,
   ApiAdminV1UsageDailyRoute: ApiAdminV1UsageDailyRoute,
+  ApiClinicalV1CareTeamIdRoute: ApiClinicalV1CareTeamIdRoute,
   ApiClinicalV1CoverageIdRoute: ApiClinicalV1CoverageIdRoute,
+  ApiClinicalV1DiagnosesIdRoute: ApiClinicalV1DiagnosesIdRoute,
+  ApiClinicalV1SupportingInfoIdRoute: ApiClinicalV1SupportingInfoIdRoute,
+  ApiClinicalV1VitalsIdRoute: ApiClinicalV1VitalsIdRoute,
   ApiPublicV1DebugEventsRoute: ApiPublicV1DebugEventsRoute,
   ApiPublicV1HomecareCarePlansRoute: ApiPublicV1HomecareCarePlansRoute,
   ApiPublicV1HomecareRecipientsRoute: ApiPublicV1HomecareRecipientsRoute,
@@ -3134,13 +3476,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
