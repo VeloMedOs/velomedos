@@ -15,8 +15,13 @@ export const Route = createFileRoute("/_authenticated/superadmin/api-docs")({
 
 function AdminSwagger() {
   const ref = useRef<HTMLDivElement>(null);
-  const [spec, setSpec] = useState<"admin" | "public">("admin");
-  const specUrl = spec === "admin" ? "/api/admin/v1/openapi" : "/api/public/v1/openapi";
+  const [spec, setSpec] = useState<"admin" | "public" | "clinical">("admin");
+  const specUrl =
+    spec === "admin"
+      ? "/api/admin/v1/openapi"
+      : spec === "public"
+        ? "/api/public/v1/openapi"
+        : "/api/clinical/v1/openapi";
   useEffect(() => {
     if (!ref.current) return;
     const existing = document.getElementById("swagger-ui-bundle-admin") as HTMLScriptElement | null;
@@ -59,13 +64,16 @@ function AdminSwagger() {
           <span className="text-white/20">·</span>
           <div>
             <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#28D6B6]">Unified API Catalogue</div>
-            <h1 className="text-xl font-bold tracking-tight">{spec === "admin" ? "Admin API · v1" : "Public API · v1"}</h1>
+            <h1 className="text-xl font-bold tracking-tight">
+              {spec === "admin" ? "Admin API · v1" : spec === "public" ? "Public API · v1" : "Clinical API · v1"}
+            </h1>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <div className="inline-flex rounded border border-white/10 overflow-hidden">
             <button onClick={() => setSpec("admin")} className={`text-[10px] font-mono uppercase tracking-widest px-3 py-1.5 ${spec === "admin" ? "bg-[#28D6B6] text-black" : "hover:bg-white/5"}`}>Admin</button>
             <button onClick={() => setSpec("public")} className={`text-[10px] font-mono uppercase tracking-widest px-3 py-1.5 border-l border-white/10 ${spec === "public" ? "bg-[#4FB6F7] text-black" : "hover:bg-white/5"}`}>Public</button>
+            <button onClick={() => setSpec("clinical")} className={`text-[10px] font-mono uppercase tracking-widest px-3 py-1.5 border-l border-white/10 ${spec === "clinical" ? "bg-[#FF6E5B] text-black" : "hover:bg-white/5"}`}>Clinical</button>
           </div>
           <a href={specUrl} target="_blank" rel="noreferrer" className="text-[10px] font-mono uppercase tracking-widest px-3 py-1.5 rounded border border-white/10 hover:bg-white/5">openapi.json &#8599;</a>
         </div>

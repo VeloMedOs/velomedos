@@ -730,6 +730,39 @@ export type Database = {
           },
         ]
       }
+      clinical_audit: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          payload: Json | null
+          target: string | null
+          target_id: string | null
+          tenant_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          target?: string | null
+          target_id?: string | null
+          tenant_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          target?: string | null
+          target_id?: string | null
+          tenant_id?: string
+        }
+        Relationships: []
+      }
       clinics: {
         Row: {
           address: string | null
@@ -762,6 +795,98 @@ export type Database = {
           specialties?: string[] | null
         }
         Relationships: []
+      }
+      code_system: {
+        Row: {
+          created_at: string
+          edition: string | null
+          effective_from: string | null
+          effective_to: string | null
+          id: string
+          is_current: boolean
+          key: string
+          kind: Database["public"]["Enums"]["code_system_kind"]
+          name: string
+          oid: string | null
+          source_authority: string | null
+          updated_at: string
+          version: string | null
+        }
+        Insert: {
+          created_at?: string
+          edition?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          is_current?: boolean
+          key: string
+          kind: Database["public"]["Enums"]["code_system_kind"]
+          name: string
+          oid?: string | null
+          source_authority?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Update: {
+          created_at?: string
+          edition?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          is_current?: boolean
+          key?: string
+          kind?: Database["public"]["Enums"]["code_system_kind"]
+          name?: string
+          oid?: string | null
+          source_authority?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: []
+      }
+      code_value: {
+        Row: {
+          active: boolean
+          attributes: Json | null
+          code: string
+          code_system_id: string
+          created_at: string
+          display: string | null
+          id: string
+          parent_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          attributes?: Json | null
+          code: string
+          code_system_id: string
+          created_at?: string
+          display?: string | null
+          id?: string
+          parent_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          attributes?: Json | null
+          code?: string
+          code_system_id?: string
+          created_at?: string
+          display?: string | null
+          id?: string
+          parent_code?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "code_value_code_system_id_fkey"
+            columns: ["code_system_id"]
+            isOneToOne: false
+            referencedRelation: "code_system"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       corporate_accounts: {
         Row: {
@@ -3074,6 +3199,7 @@ export type Database = {
       }
       tenant_members: {
         Row: {
+          clinical_role: Database["public"]["Enums"]["clinical_role"] | null
           created_at: string
           id: string
           role: string
@@ -3081,6 +3207,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          clinical_role?: Database["public"]["Enums"]["clinical_role"] | null
           created_at?: string
           id?: string
           role?: string
@@ -3088,6 +3215,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          clinical_role?: Database["public"]["Enums"]["clinical_role"] | null
           created_at?: string
           id?: string
           role?: string
@@ -3662,6 +3790,27 @@ export type Database = {
         | "completed"
         | "missed"
         | "cancelled"
+      clinical_role:
+        | "registrar"
+        | "physician"
+        | "nurse"
+        | "lab_tech"
+        | "radiologist"
+        | "pharmacist"
+        | "coder"
+        | "case_manager"
+        | "cashier"
+        | "tenant_admin"
+        | "read_only"
+      code_system_kind:
+        | "diagnosis"
+        | "procedure"
+        | "billing"
+        | "drg"
+        | "drug"
+        | "lab"
+        | "coding_standard"
+        | "lov"
       credential_kind:
         | "paramedic_license"
         | "driver_license"
@@ -3899,6 +4048,29 @@ export const Constants = {
         "completed",
         "missed",
         "cancelled",
+      ],
+      clinical_role: [
+        "registrar",
+        "physician",
+        "nurse",
+        "lab_tech",
+        "radiologist",
+        "pharmacist",
+        "coder",
+        "case_manager",
+        "cashier",
+        "tenant_admin",
+        "read_only",
+      ],
+      code_system_kind: [
+        "diagnosis",
+        "procedure",
+        "billing",
+        "drg",
+        "drug",
+        "lab",
+        "coding_standard",
+        "lov",
       ],
       credential_kind: [
         "paramedic_license",
