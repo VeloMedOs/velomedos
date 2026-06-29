@@ -95,6 +95,7 @@ export const ServiceCodeCreate = z.object({
   code: nonEmpty("code"),
   display: z.string().trim().optional().nullable(),
   is_primary_billing: z.boolean().optional(),
+  payer_id: uuid().optional().nullable(),
 });
 export const ServiceCodeUpdate = ServiceCodeCreate.partial();
 
@@ -115,29 +116,67 @@ export const DrugMasterCreate = z.object({
 export const DrugMasterUpdate = DrugMasterCreate.partial();
 
 // ---------- Price list ----------
+export const ScopeLevel = z.enum(["cash", "payer", "tpa", "policy", "class", "network"]);
+
+const scopeRefine = (v: {
+  scope_level: z.infer<typeof ScopeLevel>;
+  payer_id?: string | null; tpa_id?: string | null; policy_id?: string | null;
+  insurance_class_id?: string | null; network_id?: string | null;
+}) => {
+  const map: Record<string, string | null | undefined> = {
+    cash: null,
+    payer: v.payer_id, tpa: v.tpa_id, policy: v.policy_id,
+    class: v.insurance_class_id, network: v.network_id,
+  };
+  const expected = v.scope_level;
+  for (const k of ["payer_id","tpa_id","policy_id","insurance_class_id","network_id"] as const) {
+    const present = Boolean((v as Record<string, string | null | undefined>)[k]);
+    const colKey = k === "insurance_class_id" ? "class" : k.replace("_id","");
+    const shouldBeSet = expected === colKey;
+    if (present !== shouldBeSet && !(expected === "cash" && !present)) {
+      // allow being unset when not the matching scope
+      if (shouldBeSet) return false;
+      if (present) return false;
+    }
+  }
+  return true;
+};
+
 export const PriceListCreate = z.object({
   name: nonEmpty("name"),
-  list_type: z.enum(["cash", "payer_network", "cost"]),
+  scope_level: ScopeLevel.default("cash"),
+  list_type: z.enum(["cash", "payer_network", "cost"]).optional(),
+  is_cost_basis: z.boolean().optional(),
   payer_id: uuid().optional().nullable(),
+  tpa_id: uuid().optional().nullable(),
+  policy_id: uuid().optional().nullable(),
+  insurance_class_id: uuid().optional().nullable(),
   network_id: uuid().optional().nullable(),
+  parent_price_list_id: uuid().optional().nullable(),
+  derive_factor: z.number().positive().optional().nullable(),
   currency: z.string().trim().optional(),
   effective_date: dateStr.optional().nullable(),
   expiry_date: dateStr.optional().nullable(),
   active: z.boolean().optional(),
-}).refine(
-  (v) => v.list_type !== "payer_network" || Boolean(v.payer_id),
-  { message: "payer_id is required for payer_network lists" },
-);
+}).refine(scopeRefine, { message: "Exactly the scope FK matching scope_level must be set" });
+
 export const PriceListUpdate = z.object({
   name: z.string().trim().min(1).optional(),
+  scope_level: ScopeLevel.optional(),
   list_type: z.enum(["cash", "payer_network", "cost"]).optional(),
+  is_cost_basis: z.boolean().optional(),
   payer_id: uuid().optional().nullable(),
+  tpa_id: uuid().optional().nullable(),
+  policy_id: uuid().optional().nullable(),
+  insurance_class_id: uuid().optional().nullable(),
   network_id: uuid().optional().nullable(),
+  parent_price_list_id: uuid().optional().nullable(),
+  derive_factor: z.number().positive().optional().nullable(),
   currency: z.string().trim().optional(),
   effective_date: dateStr.optional().nullable(),
   expiry_date: dateStr.optional().nullable(),
   active: z.boolean().optional(),
-}).partial();
+});
 
 export const PriceListItemCreate = z.object({
   service_id: uuid().optional().nullable(),
@@ -147,6 +186,8 @@ export const PriceListItemCreate = z.object({
   patient_share_percent: z.number().optional().nullable(),
   tax_percent: z.number().optional().nullable(),
   is_package: z.boolean().optional(),
+  time_band: z.enum(["am","pm"]).optional().nullable(),
+  referral_status: z.enum(["referral","non_referral"]).optional().nullable(),
 }).refine(
   (v) => Boolean(v.service_id) !== Boolean(v.drug_id),
   { message: "Exactly one of service_id or drug_id must be set" },
@@ -157,7 +198,64 @@ export const PriceListItemUpdate = z.object({
   patient_share_percent: z.number().optional().nullable(),
   tax_percent: z.number().optional().nullable(),
   is_package: z.boolean().optional(),
+  time_band: z.enum(["am","pm"]).optional().nullable(),
+  referral_status: z.enum(["referral","non_referral"]).optional().nullable(),
 }).partial();
+
+// ---------- Price list — duplicate / replicate / feed / bulk ----------
+export const PriceListDuplicateRequest = z.object({
+  name: nonEmpty("name"),
+  scope_level: ScopeLevel,
+  scope_ref_id: uuid().optional().nullable(),
+  factor: z.number().positive().default(1),
+});
+
+export const PriceListReplicateRequest = z.object({
+  copy_items: z.boolean().default(true),
+  targets: z.array(z.object({
+    name: z.string().trim().optional(),
+    scope_level: ScopeLevel,
+    scope_ref_id: uuid().optional().nullable(),
+    factor: z.number().positive().default(1),
+  })).min(1),
+});
+
+export const CatalogFeedRequest = z.object({
+  source: z.enum(["service","drug","both"]).default("both"),
+  service_type: z.string().trim().optional(),
+  category: z.string().trim().optional(),
+  code_system: z.enum(["mrid","sfda","gtin","loinc","sbs","achi","atc"]).optional(),
+  code_query: z.string().trim().optional(),
+  ids: z.array(uuid()).optional(),
+  default_unit_price_minor: z.number().int().nonnegative().optional(),
+  from_price_list_id: uuid().optional(),
+  factor: z.number().positive().default(1),
+  limit: z.number().int().positive().max(1000).default(200),
+});
+
+export const BulkUpdateRequest = z.object({
+  filter: z.object({
+    service_type: z.string().optional(),
+    category: z.string().optional(),
+    code_system: z.enum(["mrid","sfda","gtin","loinc","sbs","achi","atc"]).optional(),
+    ids: z.array(uuid()).optional(),
+  }).optional(),
+  op: z.enum(["pct","amount","set","factor"]),
+  value: z.number(),
+  effective_date: dateStr.optional().nullable(),
+  time_band: z.enum(["am","pm"]).optional().nullable(),
+  referral_status: z.enum(["referral","non_referral"]).optional().nullable(),
+  change_reason: z.string().trim().optional(),
+  dry_run: z.boolean().default(false),
+});
+
+export const BulkToggleRequest = z.object({
+  ids: z.array(uuid()).optional(),
+  filter: z.object({
+    service_type: z.string().optional(),
+    category: z.string().optional(),
+  }).optional(),
+});
 
 // ---------- DRG (reference) ----------
 export const DrgCreate = z.object({
