@@ -1,5 +1,16 @@
 # VeloMed OS — HIS Changelog
 
+## HIS Access Entry v2
+
+- New public deep link `/his` and role-aware launcher at `/launch`.
+- Hardened `?next=` validator on `/auth` (rejects `//evil`, `/\evil`, absolute URLs) plus an authorization gate — `next` is honoured only when the resolved role can actually reach it.
+- Unified HIS workspace at `/clinical` (supersedes Phase-8 "clinical tabs inside provider.tsx/admin.tsx").
+- Superadmin Documentation hub: bundled HIS / Technical / RCM / Changelog manuals served from `src/lib/his-docs.ts`, surfaced under Superadmin → Documentation and at `/superadmin/docs`. Editable overlay (`his_doc` table) deferred — `PUT /api/clinical/v1/docs/{slug}` currently returns 501.
+- New REST endpoints: `GET /api/clinical/v1/docs`, `GET /docs/{slug}`, `GET /docs/{slug}/{module}`.
+- `requireClinicalModule` rewritten to be read-permissive / write-gated; new helpers `requireClinicalRead`, `requireClinicalWrite`, `requireModule`, and sensitive-allow-lists `READ_GATED_MODULES` / `READ_GATED_CAPS` exported from `src/lib/api-clinical.ts`.
+- Marketing chrome (`SiteChrome.tsx`) adds the discreet "Staff login" link to `/his`.
+- Seeded `docs/his-rcm-user-manual.md` from the role matrix.
+
 ## Phase 6 — Clinical coding + AR-DRG grouper (IMP-only)
 
 - New tables: `clinical_coding`, `drg_assignment` (NULLABLE `drg_id`, snapshot `drg_code`+`drg_version`).
