@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Database, Plus, Trash2, ArrowLeft, Receipt, Coins, ShieldAlert } from "lucide-react";
+import { Database, Plus, Trash2, ArrowLeft, ShieldAlert } from "lucide-react";
 import { ClinicalAPI, ClinicalApiError } from "@/lib/clinical-api";
 import { useClinicalMe, canAct } from "@/lib/clinical-roles";
 
