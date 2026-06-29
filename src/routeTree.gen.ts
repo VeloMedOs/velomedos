@@ -50,6 +50,8 @@ import { Route as AuthenticatedFleetRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
 import { Route as AuthenticatedDeveloperRouteImport } from './routes/_authenticated/developer'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
+import { Route as AuthenticatedClinicalMastersRouteImport } from './routes/_authenticated/clinical-masters'
+import { Route as AuthenticatedClinicalRouteImport } from './routes/_authenticated/clinical'
 import { Route as AuthenticatedCallCenterRouteImport } from './routes/_authenticated/call-center'
 import { Route as AuthenticatedBusinessRouteImport } from './routes/_authenticated/business'
 import { Route as AuthenticatedAuditRouteImport } from './routes/_authenticated/audit'
@@ -77,6 +79,7 @@ import { Route as ApiPublicV1Business_intakeRouteImport } from './routes/api/pub
 import { Route as ApiPublicTelemetryNavClickRouteImport } from './routes/api/public/telemetry.nav-click'
 import { Route as ApiPublicLegalSlugRouteImport } from './routes/api/public/legal.$slug'
 import { Route as ApiClinicalV1OpenapiRouteImport } from './routes/api/clinical/v1/openapi'
+import { Route as ApiClinicalV1MeRouteImport } from './routes/api/clinical/v1/me'
 import { Route as ApiClinicalV1EpisodesRouteImport } from './routes/api/clinical/v1/episodes'
 import { Route as ApiClinicalV1EncountersRouteImport } from './routes/api/clinical/v1/encounters'
 import { Route as ApiClinicalV1ClaimsRouteImport } from './routes/api/clinical/v1/claims'
@@ -416,6 +419,17 @@ const AuthenticatedComplianceRoute = AuthenticatedComplianceRouteImport.update({
   path: '/compliance',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedClinicalMastersRoute =
+  AuthenticatedClinicalMastersRouteImport.update({
+    id: '/clinical-masters',
+    path: '/clinical-masters',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedClinicalRoute = AuthenticatedClinicalRouteImport.update({
+  id: '/clinical',
+  path: '/clinical',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCallCenterRoute = AuthenticatedCallCenterRouteImport.update({
   id: '/call-center',
   path: '/call-center',
@@ -554,6 +568,11 @@ const ApiPublicLegalSlugRoute = ApiPublicLegalSlugRouteImport.update({
 const ApiClinicalV1OpenapiRoute = ApiClinicalV1OpenapiRouteImport.update({
   id: '/api/clinical/v1/openapi',
   path: '/api/clinical/v1/openapi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiClinicalV1MeRoute = ApiClinicalV1MeRouteImport.update({
+  id: '/api/clinical/v1/me',
+  path: '/api/clinical/v1/me',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiClinicalV1EpisodesRoute = ApiClinicalV1EpisodesRouteImport.update({
@@ -1347,6 +1366,8 @@ export interface FileRoutesByFullPath {
   '/audit': typeof AuthenticatedAuditRoute
   '/business': typeof AuthenticatedBusinessRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
+  '/clinical': typeof AuthenticatedClinicalRoute
+  '/clinical-masters': typeof AuthenticatedClinicalMastersRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
@@ -1395,6 +1416,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/claims': typeof ApiClinicalV1ClaimsRouteWithChildren
   '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
+  '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -1548,6 +1570,8 @@ export interface FileRoutesByTo {
   '/audit': typeof AuthenticatedAuditRoute
   '/business': typeof AuthenticatedBusinessRoute
   '/call-center': typeof AuthenticatedCallCenterRoute
+  '/clinical': typeof AuthenticatedClinicalRoute
+  '/clinical-masters': typeof AuthenticatedClinicalMastersRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
@@ -1596,6 +1620,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/claims': typeof ApiClinicalV1ClaimsRouteWithChildren
   '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
+  '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -1753,6 +1778,8 @@ export interface FileRoutesById {
   '/_authenticated/audit': typeof AuthenticatedAuditRoute
   '/_authenticated/business': typeof AuthenticatedBusinessRoute
   '/_authenticated/call-center': typeof AuthenticatedCallCenterRoute
+  '/_authenticated/clinical': typeof AuthenticatedClinicalRoute
+  '/_authenticated/clinical-masters': typeof AuthenticatedClinicalMastersRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/developer': typeof AuthenticatedDeveloperRoute
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
@@ -1801,6 +1828,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/claims': typeof ApiClinicalV1ClaimsRouteWithChildren
   '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
+  '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -1958,6 +1986,8 @@ export interface FileRouteTypes {
     | '/audit'
     | '/business'
     | '/call-center'
+    | '/clinical'
+    | '/clinical-masters'
     | '/compliance'
     | '/developer'
     | '/dispatch'
@@ -2006,6 +2036,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims'
     | '/api/clinical/v1/encounters'
     | '/api/clinical/v1/episodes'
+    | '/api/clinical/v1/me'
     | '/api/clinical/v1/openapi'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -2159,6 +2190,8 @@ export interface FileRouteTypes {
     | '/audit'
     | '/business'
     | '/call-center'
+    | '/clinical'
+    | '/clinical-masters'
     | '/compliance'
     | '/developer'
     | '/dispatch'
@@ -2207,6 +2240,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims'
     | '/api/clinical/v1/encounters'
     | '/api/clinical/v1/episodes'
+    | '/api/clinical/v1/me'
     | '/api/clinical/v1/openapi'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -2363,6 +2397,8 @@ export interface FileRouteTypes {
     | '/_authenticated/audit'
     | '/_authenticated/business'
     | '/_authenticated/call-center'
+    | '/_authenticated/clinical'
+    | '/_authenticated/clinical-masters'
     | '/_authenticated/compliance'
     | '/_authenticated/developer'
     | '/_authenticated/dispatch'
@@ -2411,6 +2447,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims'
     | '/api/clinical/v1/encounters'
     | '/api/clinical/v1/episodes'
+    | '/api/clinical/v1/me'
     | '/api/clinical/v1/openapi'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -2586,6 +2623,7 @@ export interface RootRouteChildren {
   ApiClinicalV1ClaimsRoute: typeof ApiClinicalV1ClaimsRouteWithChildren
   ApiClinicalV1EncountersRoute: typeof ApiClinicalV1EncountersRouteWithChildren
   ApiClinicalV1EpisodesRoute: typeof ApiClinicalV1EpisodesRouteWithChildren
+  ApiClinicalV1MeRoute: typeof ApiClinicalV1MeRoute
   ApiClinicalV1OpenapiRoute: typeof ApiClinicalV1OpenapiRoute
   ApiPublicLegalSlugRoute: typeof ApiPublicLegalSlugRouteWithChildren
   ApiPublicTelemetryNavClickRoute: typeof ApiPublicTelemetryNavClickRoute
@@ -2943,6 +2981,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedComplianceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/clinical-masters': {
+      id: '/_authenticated/clinical-masters'
+      path: '/clinical-masters'
+      fullPath: '/clinical-masters'
+      preLoaderRoute: typeof AuthenticatedClinicalMastersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/clinical': {
+      id: '/_authenticated/clinical'
+      path: '/clinical'
+      fullPath: '/clinical'
+      preLoaderRoute: typeof AuthenticatedClinicalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/call-center': {
       id: '/_authenticated/call-center'
       path: '/call-center'
@@ -3130,6 +3182,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/openapi'
       fullPath: '/api/clinical/v1/openapi'
       preLoaderRoute: typeof ApiClinicalV1OpenapiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/me': {
+      id: '/api/clinical/v1/me'
+      path: '/api/clinical/v1/me'
+      fullPath: '/api/clinical/v1/me'
+      preLoaderRoute: typeof ApiClinicalV1MeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/episodes': {
@@ -4103,6 +4162,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAuditRoute: typeof AuthenticatedAuditRoute
   AuthenticatedBusinessRoute: typeof AuthenticatedBusinessRoute
   AuthenticatedCallCenterRoute: typeof AuthenticatedCallCenterRoute
+  AuthenticatedClinicalRoute: typeof AuthenticatedClinicalRoute
+  AuthenticatedClinicalMastersRoute: typeof AuthenticatedClinicalMastersRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedDeveloperRoute: typeof AuthenticatedDeveloperRoute
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
@@ -4122,6 +4183,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAuditRoute: AuthenticatedAuditRoute,
   AuthenticatedBusinessRoute: AuthenticatedBusinessRoute,
   AuthenticatedCallCenterRoute: AuthenticatedCallCenterRoute,
+  AuthenticatedClinicalRoute: AuthenticatedClinicalRoute,
+  AuthenticatedClinicalMastersRoute: AuthenticatedClinicalMastersRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedDeveloperRoute: AuthenticatedDeveloperRoute,
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
@@ -4840,6 +4903,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1ClaimsRoute: ApiClinicalV1ClaimsRouteWithChildren,
   ApiClinicalV1EncountersRoute: ApiClinicalV1EncountersRouteWithChildren,
   ApiClinicalV1EpisodesRoute: ApiClinicalV1EpisodesRouteWithChildren,
+  ApiClinicalV1MeRoute: ApiClinicalV1MeRoute,
   ApiClinicalV1OpenapiRoute: ApiClinicalV1OpenapiRoute,
   ApiPublicLegalSlugRoute: ApiPublicLegalSlugRouteWithChildren,
   ApiPublicTelemetryNavClickRoute: ApiPublicTelemetryNavClickRoute,
@@ -4926,13 +4990,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

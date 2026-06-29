@@ -111,6 +111,8 @@ function AdminOverview() {
           {[
             { to: "/fleet", label: "Fleet management" },
             { to: "/dispatch", label: "Dispatch console" },
+            { to: "/clinical", label: "Clinical workspace (HIS)" },
+            { to: "/clinical-masters", label: "Clinical masters & DRG rates" },
             { to: "/compliance", label: "Compliance & maintenance" },
             { to: "/screening", label: "Mobile screening" },
             { to: "/training", label: "Training & certificates" },
