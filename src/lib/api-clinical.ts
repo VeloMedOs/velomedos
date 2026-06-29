@@ -127,10 +127,19 @@ export async function requireClinicalModule(
     if (!isRead) {
       return { ok: false, res: errorResponse("Read-only role cannot write", "clinical_read_only", 403) };
     }
-    if (!canViewModule(clinicalRole, module)) {
-      return { ok: false, res: errorResponse(`No access to module: ${module}`, "clinical_module_forbidden", 403) };
-    }
+    // read_only sees every permitted module by definition.
     return result;
+  }
+
+  // Read-permissive model: any clinical tenant member may GET any module
+  // (RLS still scopes the data per-tenant). Writes require an action
+  // capability — either the specific `capId` if supplied, or ≥1 cap in
+  // the module. A small allow-list of sensitive modules / caps gates GET
+  // on the capability as well.
+  if (isRead) {
+    const moduleReadGated = READ_GATED_MODULES.has(module);
+    const capReadGated = !!options.capId && READ_GATED_CAPS.has(options.capId);
+    if (!moduleReadGated && !capReadGated) return result;
   }
 
   if (options.capId) {
@@ -141,19 +150,49 @@ export async function requireClinicalModule(
     return result;
   }
 
-  if (!canViewModule(clinicalRole, module)) {
-    return { ok: false, res: errorResponse(`No access to module: ${module}`, "clinical_module_forbidden", 403) };
-  }
-  // Non-read methods on a module with no specific capId still require the role to hold ≥1 cap in the module.
-  if (!isRead) {
-    const hasAction = CLINICAL_CAPABILITIES.some(
-      (c) => c.module === module && c.roles.includes(clinicalRole),
-    );
-    if (!hasAction) {
-      return { ok: false, res: errorResponse(`Requires action capability in: ${module}`, "clinical_module_forbidden", 403) };
-    }
+  const hasAction = CLINICAL_CAPABILITIES.some(
+    (c) => c.module === module && c.roles.includes(clinicalRole),
+  );
+  if (!hasAction) {
+    return { ok: false, res: errorResponse(`Requires action capability in: ${module}`, "clinical_module_forbidden", 403) };
   }
   return result;
+}
+
+/**
+ * Modules where even GET requires an explicit action capability — finance &
+ * cash visibility is treated as a write-grade privilege.
+ */
+export const READ_GATED_MODULES = new Set<string>(["Cash & ZATCA"]);
+
+/**
+ * Specific capability ids where GET requires the capability (e.g. posting
+ * remittances or approving a refund — sensitive even to read).
+ */
+export const READ_GATED_CAPS = new Set<string>(["claim.post", "dep.approve"]);
+
+/** Alias kept for new routes — semantics identical to requireClinicalModule. */
+export const requireModule = requireClinicalModule;
+
+/** Helper: enforces non-GET methods must use the write path explicitly. */
+export async function requireClinicalRead(
+  request: Request,
+  module: string,
+): Promise<{ ok: true; ctx: TenantContext } | { ok: false; res: Response }> {
+  const method = request.method.toUpperCase();
+  if (!(method === "GET" || method === "HEAD" || method === "OPTIONS")) {
+    throw new Error(`requireClinicalRead called with ${method} on module ${module} — use requireClinicalWrite`);
+  }
+  return requireClinicalModule(request, module);
+}
+
+/** Helper for write paths; capId optional. */
+export async function requireClinicalWrite(
+  request: Request,
+  module: string,
+  options: { capId?: string } = {},
+): Promise<{ ok: true; ctx: TenantContext } | { ok: false; res: Response }> {
+  return requireClinicalModule(request, module, options);
 }
 
 /**

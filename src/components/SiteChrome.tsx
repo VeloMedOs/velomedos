@@ -36,6 +36,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <Link to="/his" className="hidden md:inline-flex mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground px-2 py-1.5">Staff login</Link>
           <Link to="/auth" className="mono text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-md border border-hairline hover:bg-panel transition-colors">Sign in</Link>
           <Link
             to="/demo"

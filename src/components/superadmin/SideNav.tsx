@@ -13,7 +13,7 @@ export type SuperTabId =
   | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug"
   | "refunds" | "tickets" | "reviews" | "chat" | "push"
   | "tests" | "audit" | "smoke" | "bugs" | "releases" | "automation"
-  | "workspace" | "team" | "security" | "legal";
+  | "workspace" | "team" | "security" | "legal" | "docs";
 
 type Item = {
   id: SuperTabId | `soon:${string}`;
@@ -69,6 +69,7 @@ export function SuperadminSideNav({
     ]},
     { id: "developer", label: "Developer", items: [
       { id: "apidocs", label: "API docs", icon: BookOpen },
+      { id: "docs",    label: "Documentation", icon: BookOpen },
       { id: "debug",   label: "Debug",    icon: Bug },
     ]},
     { id: "support", label: "Support", items: [
