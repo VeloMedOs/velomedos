@@ -51,7 +51,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/eligibility")(
         }
 
         const idem = await sha256Hex(`elig:${params.id}:${Date.now()}`);
-        const result = await submitEligibility(bundle, idem);
+        const result = await submitEligibility(bundle, idem, auth.ctx.tenantId);
         if (!result.ok) {
           return envelope(result.error ?? "Gateway error", "gateway_error", 502, {
             sandbox: result.sandbox,

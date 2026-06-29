@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOut, Shield } from "lucide-react";
 import { BrandMark, BrandWordmark } from "@/components/BrandMark";
+import { DemoBanner } from "@/components/DemoBanner";
 
 const VELOMED_NAV = [
   { to: "/superadmin", label: "Superadmin" },
@@ -115,6 +116,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
         </div>
       </nav>
+      <DemoBanner />
       {children}
     </div>
   );

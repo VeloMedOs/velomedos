@@ -5,7 +5,7 @@ import {
   LifeBuoy, MessageSquare, Star, Bell, FileText, Search, Newspaper,
   FolderOpen, Image as ImageIcon, FlaskConical, ListChecks, ShieldCheck,
   GitBranch, Zap, Settings, Users, LineChart, PlusCircle,
-  Scale,
+  Scale, FlaskRound,
 } from "lucide-react";
 
 export type SuperTabId =
@@ -13,7 +13,7 @@ export type SuperTabId =
   | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug"
   | "refunds" | "tickets" | "reviews" | "chat" | "push"
   | "tests" | "audit" | "smoke" | "bugs" | "releases" | "automation"
-  | "workspace" | "team" | "security" | "legal" | "docs";
+  | "workspace" | "team" | "security" | "legal" | "docs" | "demo";
 
 type Item = {
   id: SuperTabId | `soon:${string}`;
@@ -98,6 +98,7 @@ export function SuperadminSideNav({
       { id: "workspace", label: "Workspace",     icon: Settings },
       { id: "team",      label: "Team & roles",  icon: Users },
       { id: "security",  label: "Security",      icon: Shield },
+      { id: "demo",      label: "Demo environment", icon: FlaskRound },
     ]},
   ];
 

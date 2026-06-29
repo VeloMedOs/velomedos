@@ -12,6 +12,9 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { isDemoTenant } from "@/lib/demo-mode";
+import { logInterface } from "@/lib/interface-log";
+
 type TokenCache = { token: string; expires_at: number } | null;
 let tokenCache: TokenCache = null;
 
@@ -64,9 +67,24 @@ async function getToken(): Promise<string | null> {
  */
 export async function sendBundle(
   bundle: any,
-  opts: { idempotencyKey: string; messageType: string; timeoutMs?: number },
+  opts: { idempotencyKey: string; messageType: string; timeoutMs?: number; tenantId?: string | null },
 ): Promise<GatewayResult> {
   const cfg = envConfig();
+  // Demo tenants are forced to sandbox even when credentials are present.
+  if (opts.tenantId && (await isDemoTenant(opts.tenantId))) {
+    const stub = stubResponse(bundle, opts.messageType);
+    await logInterface({
+      tenantId: opts.tenantId,
+      messageType: `nphies.${opts.messageType}`,
+      idempotencyKey: opts.idempotencyKey,
+      sandbox: true,
+      httpStatus: stub.http_status,
+      outcome: stub.ok ? "ok" : "error",
+      requestBody: bundle,
+      responseBody: stub.bundle,
+    });
+    return stub;
+  }
   if (!cfg.baseUrl) return stubResponse(bundle, opts.messageType);
 
   const timeout = opts.timeoutMs ?? 30_000;
@@ -119,12 +137,12 @@ export async function sendBundle(
 
 /* -------------- typed helpers -------------- */
 
-export function submitClaim(bundle: any, idempotencyKey: string): Promise<GatewayResult> {
-  return sendBundle(bundle, { idempotencyKey, messageType: "claim-request" });
+export function submitClaim(bundle: any, idempotencyKey: string, tenantId?: string | null): Promise<GatewayResult> {
+  return sendBundle(bundle, { idempotencyKey, messageType: "claim-request", tenantId });
 }
 
-export function submitEligibility(bundle: any, idempotencyKey: string): Promise<GatewayResult> {
-  return sendBundle(bundle, { idempotencyKey, messageType: "eligibility-request" });
+export function submitEligibility(bundle: any, idempotencyKey: string, tenantId?: string | null): Promise<GatewayResult> {
+  return sendBundle(bundle, { idempotencyKey, messageType: "eligibility-request", tenantId });
 }
 
 /* -------------- sandbox stub -------------- */

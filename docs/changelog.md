@@ -1,5 +1,23 @@
 # VeloMed OS — HIS Changelog
 
+## Demo Environment & Hospital Demo Kit
+
+- New `is_demo` flag on `corporate_accounts` + seeded `demo-hospital` tenant.
+- New `src/lib/demo-mode.ts` helper (`isDemoTenant`, cached, env fallback).
+- New sandbox stubs: `src/lib/zatca/gateway.ts`, `src/lib/d365/gateway.ts`,
+  `src/lib/pos/gateway.ts`. NPHIES gateway (`src/lib/mds/nphies/gateway.ts`)
+  and AR-DRG grouper (`src/lib/mds/grouper.ts`) short-circuit to sandbox for
+  demo tenants regardless of configured credentials. All stubs log to
+  `interface_log` so the R7 Interface Monitor screen is alive during demos.
+- New `DemoBanner` component mounted by `AppShell`.
+- New superadmin pane `DemoControlPane` (Settings → Demo environment) and
+  REST endpoints `POST /api/admin/v1/demo/seed` and
+  `POST /api/admin/v1/demo/reset`. Reset is scoped `DELETE … WHERE tenant_id
+  = <demo>` in FK-child-first order — **never TRUNCATE**.
+- 13 demo accounts provisioned idempotently via `listUsers + create-or-skip`
+  with a single rotatable password from secret `DEMO_USER_PASSWORD`.
+- Docs: `docs/demo-script.md`, `docs/demo-access-sheet.md`.
+
 ## HIS Access Entry v2
 
 - New public deep link `/his` and role-aware launcher at `/launch`.

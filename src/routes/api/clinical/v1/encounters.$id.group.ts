@@ -51,7 +51,7 @@ export const Route = createFileRoute("/api/clinical/v1/encounters/$id/group")({
         const mds = await buildGrouperMds(params.id);
         let result;
         try {
-          result = await callGrouper(mds);
+          result = await callGrouper(mds, auth.ctx.tenantId);
         } catch (e) {
           return envelope(e instanceof Error ? e.message : "grouper failed",
             "grouper_error", 502);

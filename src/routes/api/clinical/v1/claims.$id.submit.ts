@@ -129,7 +129,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/submit")({
           return envelope(e?.message ?? "Bundle build failed", "bundle_error", 500);
         }
 
-        const result = await submitClaim(bundle, idempotencyKey);
+        const result = await submitClaim(bundle, idempotencyKey, auth.ctx.tenantId);
 
         // Persist request/response snapshots
         await db.from("claim_submission_attempt").update({
