@@ -7,7 +7,7 @@ import {
   serviceClient,
 } from "@/lib/api-clinical";
 import { CoverageCreate } from "@/lib/mds/schema/registration";
-import { envelope, parseBody } from "./_helpers";
+import { envelope, parseBody, assertMasterOwnership } from "./_helpers";
 
 const parseCreate = parseBody((raw) => CoverageCreate.parse(raw));
 
@@ -65,6 +65,17 @@ export const Route = createFileRoute("/api/clinical/v1/beneficiaries/$id/coverag
         }
 
         const { classes, ...coverageInput } = parsed.data;
+        // Phase-3: validate master FK references belong to this tenant.
+        for (const [table, id] of [
+          ["payer", coverageInput.payer_id],
+          ["tpa", coverageInput.tpa_id],
+          ["policy", coverageInput.policy_id],
+          ["insurance_plan", coverageInput.insurance_plan_id],
+          ["network", coverageInput.network_id],
+        ] as const) {
+          const err = await assertMasterOwnership(table, id, auth.ctx.tenantId);
+          if (err) return err;
+        }
         const { data: coverage, error } = await db
           .from("coverage")
           .insert({

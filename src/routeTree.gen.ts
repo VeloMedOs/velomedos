@@ -93,6 +93,7 @@ import { Route as ApiAdminV1OpenapiRouteImport } from './routes/api/admin/v1/ope
 import { Route as ApiAdminV1LegalDocumentsRouteImport } from './routes/api/admin/v1/legal-documents'
 import { Route as ApiAdminV1InvoicesRouteImport } from './routes/api/admin/v1/invoices'
 import { Route as ApiAdminV1FinancialsRouteImport } from './routes/api/admin/v1/financials'
+import { Route as ApiAdminV1DrgsRouteImport } from './routes/api/admin/v1/drgs'
 import { Route as ApiAdminV1BusinessRequestsRouteImport } from './routes/api/admin/v1/business-requests'
 import { Route as ApiAdminV1BugsRouteImport } from './routes/api/admin/v1/bugs'
 import { Route as ApiAdminV1AuditRouteImport } from './routes/api/admin/v1/audit'
@@ -139,6 +140,7 @@ import { Route as ApiAdminV1OpsChatFiltersRouteImport } from './routes/api/admin
 import { Route as ApiAdminV1OpsAutomationsRouteImport } from './routes/api/admin/v1/ops.automations'
 import { Route as ApiAdminV1LegalDocumentsHistoryRouteImport } from './routes/api/admin/v1/legal-documents.history'
 import { Route as ApiAdminV1LegalDocumentsAcceptancesRouteImport } from './routes/api/admin/v1/legal-documents.acceptances'
+import { Route as ApiAdminV1DrgsIdRouteImport } from './routes/api/admin/v1/drgs.$id'
 import { Route as ApiAdminV1DiagnosticsSuperadminRouteImport } from './routes/api/admin/v1/diagnostics.superadmin'
 import { Route as ApiAdminV1ConfigOverridesRouteImport } from './routes/api/admin/v1/config.overrides'
 import { Route as ApiAdminV1ConfigBaseRouteImport } from './routes/api/admin/v1/config.base'
@@ -612,6 +614,11 @@ const ApiAdminV1FinancialsRoute = ApiAdminV1FinancialsRouteImport.update({
   path: '/api/admin/v1/financials',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminV1DrgsRoute = ApiAdminV1DrgsRouteImport.update({
+  id: '/api/admin/v1/drgs',
+  path: '/api/admin/v1/drgs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminV1BusinessRequestsRoute =
   ApiAdminV1BusinessRequestsRouteImport.update({
     id: '/api/admin/v1/business-requests',
@@ -869,6 +876,11 @@ const ApiAdminV1LegalDocumentsAcceptancesRoute =
     path: '/acceptances',
     getParentRoute: () => ApiAdminV1LegalDocumentsRoute,
   } as any)
+const ApiAdminV1DrgsIdRoute = ApiAdminV1DrgsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiAdminV1DrgsRoute,
+} as any)
 const ApiAdminV1DiagnosticsSuperadminRoute =
   ApiAdminV1DiagnosticsSuperadminRouteImport.update({
     id: '/api/admin/v1/diagnostics/superadmin',
@@ -1192,6 +1204,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
   '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
+  '/api/admin/v1/drgs': typeof ApiAdminV1DrgsRouteWithChildren
   '/api/admin/v1/financials': typeof ApiAdminV1FinancialsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/legal-documents': typeof ApiAdminV1LegalDocumentsRouteWithChildren
@@ -1231,6 +1244,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
+  '/api/admin/v1/drgs/$id': typeof ApiAdminV1DrgsIdRoute
   '/api/admin/v1/legal-documents/acceptances': typeof ApiAdminV1LegalDocumentsAcceptancesRoute
   '/api/admin/v1/legal-documents/history': typeof ApiAdminV1LegalDocumentsHistoryRoute
   '/api/admin/v1/ops/automations': typeof ApiAdminV1OpsAutomationsRoute
@@ -1366,6 +1380,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
   '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
+  '/api/admin/v1/drgs': typeof ApiAdminV1DrgsRouteWithChildren
   '/api/admin/v1/financials': typeof ApiAdminV1FinancialsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/legal-documents': typeof ApiAdminV1LegalDocumentsRouteWithChildren
@@ -1405,6 +1420,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
+  '/api/admin/v1/drgs/$id': typeof ApiAdminV1DrgsIdRoute
   '/api/admin/v1/legal-documents/acceptances': typeof ApiAdminV1LegalDocumentsAcceptancesRoute
   '/api/admin/v1/legal-documents/history': typeof ApiAdminV1LegalDocumentsHistoryRoute
   '/api/admin/v1/ops/automations': typeof ApiAdminV1OpsAutomationsRoute
@@ -1544,6 +1560,7 @@ export interface FileRoutesById {
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
   '/api/admin/v1/business-requests': typeof ApiAdminV1BusinessRequestsRouteWithChildren
+  '/api/admin/v1/drgs': typeof ApiAdminV1DrgsRouteWithChildren
   '/api/admin/v1/financials': typeof ApiAdminV1FinancialsRoute
   '/api/admin/v1/invoices': typeof ApiAdminV1InvoicesRoute
   '/api/admin/v1/legal-documents': typeof ApiAdminV1LegalDocumentsRouteWithChildren
@@ -1583,6 +1600,7 @@ export interface FileRoutesById {
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
+  '/api/admin/v1/drgs/$id': typeof ApiAdminV1DrgsIdRoute
   '/api/admin/v1/legal-documents/acceptances': typeof ApiAdminV1LegalDocumentsAcceptancesRoute
   '/api/admin/v1/legal-documents/history': typeof ApiAdminV1LegalDocumentsHistoryRoute
   '/api/admin/v1/ops/automations': typeof ApiAdminV1OpsAutomationsRoute
@@ -1722,6 +1740,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
     | '/api/admin/v1/business-requests'
+    | '/api/admin/v1/drgs'
     | '/api/admin/v1/financials'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/legal-documents'
@@ -1761,6 +1780,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
+    | '/api/admin/v1/drgs/$id'
     | '/api/admin/v1/legal-documents/acceptances'
     | '/api/admin/v1/legal-documents/history'
     | '/api/admin/v1/ops/automations'
@@ -1896,6 +1916,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
     | '/api/admin/v1/business-requests'
+    | '/api/admin/v1/drgs'
     | '/api/admin/v1/financials'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/legal-documents'
@@ -1935,6 +1956,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
+    | '/api/admin/v1/drgs/$id'
     | '/api/admin/v1/legal-documents/acceptances'
     | '/api/admin/v1/legal-documents/history'
     | '/api/admin/v1/ops/automations'
@@ -2073,6 +2095,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
     | '/api/admin/v1/business-requests'
+    | '/api/admin/v1/drgs'
     | '/api/admin/v1/financials'
     | '/api/admin/v1/invoices'
     | '/api/admin/v1/legal-documents'
@@ -2112,6 +2135,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/diagnostics/superadmin'
+    | '/api/admin/v1/drgs/$id'
     | '/api/admin/v1/legal-documents/acceptances'
     | '/api/admin/v1/legal-documents/history'
     | '/api/admin/v1/ops/automations'
@@ -2221,6 +2245,7 @@ export interface RootRouteChildren {
   ApiAdminV1AuditRoute: typeof ApiAdminV1AuditRoute
   ApiAdminV1BugsRoute: typeof ApiAdminV1BugsRoute
   ApiAdminV1BusinessRequestsRoute: typeof ApiAdminV1BusinessRequestsRouteWithChildren
+  ApiAdminV1DrgsRoute: typeof ApiAdminV1DrgsRouteWithChildren
   ApiAdminV1FinancialsRoute: typeof ApiAdminV1FinancialsRoute
   ApiAdminV1InvoicesRoute: typeof ApiAdminV1InvoicesRoute
   ApiAdminV1LegalDocumentsRoute: typeof ApiAdminV1LegalDocumentsRouteWithChildren
@@ -2889,6 +2914,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1FinancialsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin/v1/drgs': {
+      id: '/api/admin/v1/drgs'
+      path: '/api/admin/v1/drgs'
+      fullPath: '/api/admin/v1/drgs'
+      preLoaderRoute: typeof ApiAdminV1DrgsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/v1/business-requests': {
       id: '/api/admin/v1/business-requests'
       path: '/api/admin/v1/business-requests'
@@ -3210,6 +3242,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/v1/legal-documents/acceptances'
       preLoaderRoute: typeof ApiAdminV1LegalDocumentsAcceptancesRouteImport
       parentRoute: typeof ApiAdminV1LegalDocumentsRoute
+    }
+    '/api/admin/v1/drgs/$id': {
+      id: '/api/admin/v1/drgs/$id'
+      path: '/$id'
+      fullPath: '/api/admin/v1/drgs/$id'
+      preLoaderRoute: typeof ApiAdminV1DrgsIdRouteImport
+      parentRoute: typeof ApiAdminV1DrgsRoute
     }
     '/api/admin/v1/diagnostics/superadmin': {
       id: '/api/admin/v1/diagnostics/superadmin'
@@ -3719,6 +3758,18 @@ const ApiAdminV1BusinessRequestsRouteWithChildren =
     ApiAdminV1BusinessRequestsRouteChildren,
   )
 
+interface ApiAdminV1DrgsRouteChildren {
+  ApiAdminV1DrgsIdRoute: typeof ApiAdminV1DrgsIdRoute
+}
+
+const ApiAdminV1DrgsRouteChildren: ApiAdminV1DrgsRouteChildren = {
+  ApiAdminV1DrgsIdRoute: ApiAdminV1DrgsIdRoute,
+}
+
+const ApiAdminV1DrgsRouteWithChildren = ApiAdminV1DrgsRoute._addFileChildren(
+  ApiAdminV1DrgsRouteChildren,
+)
+
 interface ApiAdminV1LegalDocumentsRouteChildren {
   ApiAdminV1LegalDocumentsAcceptancesRoute: typeof ApiAdminV1LegalDocumentsAcceptancesRoute
   ApiAdminV1LegalDocumentsHistoryRoute: typeof ApiAdminV1LegalDocumentsHistoryRoute
@@ -4188,6 +4239,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1AuditRoute: ApiAdminV1AuditRoute,
   ApiAdminV1BugsRoute: ApiAdminV1BugsRoute,
   ApiAdminV1BusinessRequestsRoute: ApiAdminV1BusinessRequestsRouteWithChildren,
+  ApiAdminV1DrgsRoute: ApiAdminV1DrgsRouteWithChildren,
   ApiAdminV1FinancialsRoute: ApiAdminV1FinancialsRoute,
   ApiAdminV1InvoicesRoute: ApiAdminV1InvoicesRoute,
   ApiAdminV1LegalDocumentsRoute: ApiAdminV1LegalDocumentsRouteWithChildren,

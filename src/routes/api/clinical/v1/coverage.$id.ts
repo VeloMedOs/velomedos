@@ -7,7 +7,7 @@ import {
   serviceClient,
 } from "@/lib/api-clinical";
 import { CoverageUpdate } from "@/lib/mds/schema/registration";
-import { envelope, parseBody } from "./_helpers";
+import { envelope, parseBody, assertMasterOwnership } from "./_helpers";
 
 const parseUpdate = parseBody((raw) => CoverageUpdate.parse(raw));
 
@@ -50,6 +50,17 @@ export const Route = createFileRoute("/api/clinical/v1/coverage/$id")({
           .maybeSingle();
         if (!existing || existing.tenant_id !== auth.ctx.tenantId) {
           return envelope("Coverage not found", "not_found", 404);
+        }
+
+        for (const [table, id] of [
+          ["payer", parsed.data.payer_id],
+          ["tpa", parsed.data.tpa_id],
+          ["policy", parsed.data.policy_id],
+          ["insurance_plan", parsed.data.insurance_plan_id],
+          ["network", parsed.data.network_id],
+        ] as const) {
+          const err = await assertMasterOwnership(table, id, auth.ctx.tenantId);
+          if (err) return err;
         }
 
         const { data, error } = await db
