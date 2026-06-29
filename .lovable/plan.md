@@ -1,58 +1,66 @@
-# Phase 11 — VBHC PROMs / PREMs — REVISED
+# Phase 3 Addendum v2 — Price List Builder + Bulk Pricing + Insights & Comparison
 
-CHI's value-based outcomes layer: PROMs + PREMs, generic PROMIS-10 + disease-specific (cataract/ obesity/diabetes/pregnancy), captured via patient app / SMS, scored deterministically, surfaced on an outcomes dashboard, packaged for NPHIES PRM MDS submission.
+Revises Lovable's addendum plan and adds the three you asked for: **bulk pricing actions**, **enhanced copy/replicate UX**, and an **RCM insights & comparison layer**. Keeps Lovable's core (scope generalization, duplicate-with-factor, catalog feed, payer-wise SBS) — those are correct.
 
-> Lovable's plan is largely right and matches the master-doc Phase 11. Changes tagged **[AMENDED]** / **[NEW]** — mainly aligning the PRM submission to the **shared Phase-9 gateway** (which we reframed from claim-only to a message-aware transport) instead of a parallel stub.
+> Tags: **[KEEP]** Lovable's, **[FIX]** corrections, **[NEW]** the additions.
 
-## 1. Database (one migration)
+## A. Corrections to Lovable's plan [FIX]
 
-- `prom_instrument` (catalog; `tenant_id` nullable for platform-seeded): `key`, `name`, `kind` ('generic'|'disease_specific'|**'experience'**) **[AMENDED — fold PREM instruments here for consistency instead of free-text** `instrument_key`**]**, `condition` nullable, `version`, `active`, `schema jsonb`.
-- `prom_assignment`: `beneficiary_id`, `episode_of_care_id?`, `encounter_id?`, `instrument_id`, `trigger` (pre_op|post_op|baseline|followup), `due_at`, `status`, `channel` (app|sms), reminder fields, `assigned_by`.
-- `prom_response`: `assignment_id`, `answers jsonb`, `score jsonb`, `instrument_version` (stamped), `collected_at`, `source`. Trigger flips assignment `completed`.
-- `prem_response`: `encounter_id?`, `beneficiary_id`, `instrument_id fk` **[AMENDED — was free-text** `instrument_key`**]**, `answers jsonb`, `score jsonb`, `collected_at`, `source`.
-- **No** `prom_submission_attempt` **table** **[AMENDED — reuse the Phase-9** `nphies_message` **log; PRM is just another message type through the shared gateway]**.
-- Seed platform instruments (`tenant_id=null`): PROMIS-10 v1.2 (generic), Cataract PROM v1, and a generic **PREM v1** (kind='experience').
+1. `cost` **list distinguishable** — backfilling `list_type='cost'` → `scope_level='cash'` loses it. Add `is_cost_basis bool DEFAULT false` and set it for cost lists; the Phase-4 resolver uses cost lists only for `drg_bundled` cost-only pricing, never as a patient/payer cash list.
+2. `service_code` **unique** — drop the redundant `is_primary_billing` column from the key: `UNIQUE (service_id, payer_id) WHERE is_primary_billing` (one primary per service+payer; `payer_id IS NULL` = global). Functionally what Lovable meant, cleaner.
+3. Everything else in Lovable's §1–§4 ships as written.
 
-## 2. Scoring engine — `src/lib/mds/prom-scoring.ts`
+## B. Bulk pricing actions [NEW] (from the Contract-Management mind-map: add/copy/export/import,
 
-Pure deterministic per instrument: `scorePromis10` (published raw→T-score tables for Global Physical/ Mental Health), `scoreCataractProm`, PREM aggregate, dispatcher `scoreProm(key, answers)`, answer validation against `schema.items`. Snapshot: score + answers written once, `instrument_version` stamped, never recomputed.
+update-at-date, AM↔PM, referral pricing) `POST /price-lists/{id}/items:bulk-update` — body `{ filter?{service_type|category|code_system|ids}, op: 'pct'|'amount'|'set'|'factor', value, effective_date?, time_band?('am'|'pm'|null), referral_status?('referral'|'non_referral'|null), dry_run?:bool }`.
 
-## 3. API (`/api/clinical/v1/`)
+- Applies to matched lines: percentage change, absolute delta, set value, or factor.
+- **Effective-dated**: when `effective_date` is set, writes a `price_list_item_version` row (future-dated) rather than mutating now — supports "update prices at a certain date".
+- **Time band (AM/PM)** + **referral-status** pricing variants stored on the line (`time_band`, `referral_status` columns) — from the mind-map's "AM-PM" and "consultation price by referral status".
+- `dry_run` returns the would-be changes (powers the preview in §D). `POST /price-lists/{id}/items:bulk-activate` / `:bulk-deactivate` (by filter/ids). `POST /price-lists/{id}/export` (CSV/XLSX of items+codes) · `POST …/import` (upsert from CSV/XLSX, validated against catalog + payer-wise codes, returns row-level errors). Export/import the mind-map calls for. `price_list_item_version` [NEW table] — `price_list_item_id`, `unit_price_minor`, `factor`, `effective_from`, `effective_to`, `change_reason`, `changed_by` — the **price-change log** (mind-map "Update prices log") + effective-dated future prices. Resolver picks the version effective on service date.
 
-- `prom-instruments` GET (tenant + platform) / POST (superadmin).
-- `prom-assignments` GET/POST; `…/:id/remind`, `…/:id/respond` (score server-side, persist, complete), `…/:id` GET.
-- `prem-responses` POST.
-- `outcomes/summary?condition&from&to` — mean PCS/MCS + PREM by month, case-mix-adjusted (age band + principal-diagnosis chapter), vs platform benchmark.
-- `prom-assignments/:id/submit` **[AMENDED]** — build the NPHIES **PRM MDS** bundle and send via the **shared Phase-9** `gateway.sendBundle(bundle, { type:'prm' })`; log via `nphies_message`; sandbox until creds. (Verify the bundle against the NPHIES PRM/CS profile.)
+## C. Copy / replicate UX [NEW] — beyond single duplicate
 
-## 4. Patient-app delivery
+`POST /price-lists/{id}/replicate` — replicate **one source to many targets** in a single action: `{ targets:[{ scope_level, scope_ref_id, name?, factor? }], copy_items:bool }`.
 
-`/api/patient/v1/proms/pending` (signed-in beneficiary's pending assignments) + `/respond` proxy; `PromSurveyRenderer` drives items from `instrument.schema`. (Wired into the patient app's Learn surface — see the revised patient-app prompt.)
+- Creates N derived lists (each with its own `parent_price_list_id` + `derive_factor`), e.g. clone "Standard" to every Class in a policy at ×0.9, or to five payers at different factors at once.
+- Parallels Contract Management's **"Create and Copy Profile"** (benefit-profile clone) — same UX pattern for price lists. **UI** (masters price-list pane):
+- **Replicate wizard**: pick source → multi-select targets (payer/TPA/policy/class/network tree) → per-target factor (or one factor for all) → preview deltas → commit.
+- **Duplicate-with-factor** modal (Lovable's) retained for the single-target case.
+- **Bulk-edit toolbar** on the items grid: select lines → apply pct/amount/set/factor, set effective date, AM/PM, referral variant, activate/deactivate, export selection.
+- **Import** drawer with validation summary.
 
-## 5. Staff / Superadmin UI
+## D. Insights & comparison layer [NEW] — the RCM analytics you asked for
 
-`OutcomesPane` ("VBHC" tab in the clinical workspace): assignments table + assign modal + response viewer + PRM submit. `OutcomesDashboard` route: mean PCS/MCS by month per condition, PREM bars, case-mix-adjusted vs benchmark. Superadmin cross-tenant variant.
+`GET /price-lists/compare?left={id}&right={id}` — line-by-line diff of two lists (or derived vs `parent_price_list_id`): per service/drug → left price, right price, Δ, Δ%, missing-on-one-side flag. Powers "this payer vs that payer", "derived vs parent", "our list vs contractual tariff". `GET /price-lists/{id}/insights` — for one list:
 
-## 6. Wiring
+- **Catalog coverage**: % of active `service_master`/`drug_master` priced vs unpriced (gaps to fill).
+- **Payer-wise code coverage**: services missing a payer-specific SBS where the list is payer-scoped.
+- **Margin view (RCM)**: for each line, cash price vs payer price vs **cost list** (`is_cost_basis`) → margin %; for IP, surface the **DRG bundle vs cost** signal by linking `drg_base_rate × relative_weight` against the cost-list sum (the revenue-vs-cost picture R4 produces).
+- **Outliers**: lines priced far from the tenant median / from the parent (possible data errors).
+- **Effective-date timeline**: upcoming scheduled price changes from `price_list_item_version`. `GET /pricing/insights/summary` — cross-list KPIs: count of lists by scope, derived-from-parent chains, payers with no active list (coverage gap), services unpriced across all lists. **UI** — an **Insights tab** on the price-list pane: coverage donut, margin table (cash/payer/cost/ DRG), comparison view (pick two lists), upcoming-changes timeline. Read-mostly; links into bulk-edit to fix gaps.
 
-Side-nav entries; extend `ClinicalAPI`; `clinicalAudit` on state changes.
+## E. Phase 4 resolver [KEEP + small]
 
-## 7. Acceptance
+Precedence `class → policy → tpa → payer → network(tier) → cash`; prefer payer-specific `service_code`; **pick the** `price_list_item_version` **effective on the service date** (so future-dated bulk updates apply automatically).
 
-PROMIS-10 + Cataract seeded; assign Cataract PROM (post_op) to a cataract episode; respond → PCS/MCS computed + stored + assignment completed; dashboard shows the point; `…/submit` logs an `nphies_message` (sandbox) **[AMENDED — not a separate attempt table]**.
+## F. Phase 10 validation contributions (declared)
 
-## 8. Delivery & Documentation milestone (standing DoD)
+- Bulk/effective-dated changes are versioned + audited (no silent mass price mutation).
+- Import validates every row against catalog + payer-wise codes before commit.
+- Cost lists (`is_cost_basis`) never used as a patient/payer cash list.
 
-- `docs/his-technical-manual.md` — PROM/PREM data model, scoring engine + snapshot/versioning, the outcomes aggregation + case-mix method, and the PRM-over-shared-gateway submission path.
-- `docs/his-user-manual.md` — clinician/case-manager "Assign a PROM", "Read outcomes", VBHC dashboard; patient-side survey flow cross-refs the patient-app manual.
-- `docs/changelog.md` — Phase 11 entry.
+## G. Verification
 
-## Technical notes
+- Bulk pct −10% on a filter → only matched lines change; `dry_run` matches the committed result; versions written; effective-dated change not applied before its date.
+- Replicate "Standard" to 3 classes at ×0.9 → 3 derived lists, each parent-linked, items 10% lower.
+- Compare derived vs parent → all Δ = −10%; compare two payer lists → variance table.
+- Insights: coverage donut correct; an unpriced service shows as a gap; margin table shows cash/payer/ cost/DRG; payer-wise code gap flagged.
+- Export → edit → import round-trips with row-level validation.
 
-- Platform instruments (`tenant_id=null`) visible to all; tenant instruments private; RLS `tenant_id IS NULL OR is_tenant_member(...)`.
-- PROMIS T-score tables reproduced from the public PROMIS scoring manual (permitted; not a clinical grouper).
-- No changes to claim/encounter/DRG tables; PROMs link by `episode_of_care_id`/`beneficiary_id`.
+## H. Docs (DoD)
 
-```
+- `docs/his-technical-manual.md`: bulk-update/versioning model, replicate API, insights/comparison contracts, effective-dated resolution.
+- `docs/his-rcm-user-manual.md` (tenant_admin): "Bulk-update prices (by %/amount/date/AM-PM/referral)", "Replicate a list to many payers/classes", "Compare two price lists", "Read pricing insights & margin", "Export / import a price list".
 
-```
+Net-new tables: `price_list_item_version`. Net-new columns: `price_list.is_cost_basis`, `price_list_item.time_band/referral_status`. New endpoints: bulk-update/activate/export/import, replicate, compare, insights ×3.  

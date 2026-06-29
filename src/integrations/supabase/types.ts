@@ -5524,14 +5524,21 @@ export type Database = {
           created_at: string
           created_by: string | null
           currency: string
+          derive_factor: number | null
           effective_date: string | null
           expiry_date: string | null
           id: string
+          insurance_class_id: string | null
+          is_cost_basis: boolean
           list_type: string
           name: string
           network_id: string | null
+          parent_price_list_id: string | null
           payer_id: string | null
+          policy_id: string | null
+          scope_level: string
           tenant_id: string
+          tpa_id: string | null
           updated_at: string
           updated_by: string | null
         }
@@ -5540,14 +5547,21 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string
+          derive_factor?: number | null
           effective_date?: string | null
           expiry_date?: string | null
           id?: string
+          insurance_class_id?: string | null
+          is_cost_basis?: boolean
           list_type: string
           name: string
           network_id?: string | null
+          parent_price_list_id?: string | null
           payer_id?: string | null
+          policy_id?: string | null
+          scope_level?: string
           tenant_id: string
+          tpa_id?: string | null
           updated_at?: string
           updated_by?: string | null
         }
@@ -5556,23 +5570,44 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string
+          derive_factor?: number | null
           effective_date?: string | null
           expiry_date?: string | null
           id?: string
+          insurance_class_id?: string | null
+          is_cost_basis?: boolean
           list_type?: string
           name?: string
           network_id?: string | null
+          parent_price_list_id?: string | null
           payer_id?: string | null
+          policy_id?: string | null
+          scope_level?: string
           tenant_id?: string
+          tpa_id?: string | null
           updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
           {
+            foreignKeyName: "price_list_insurance_class_id_fkey"
+            columns: ["insurance_class_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_class"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "price_list_network_id_fkey"
             columns: ["network_id"]
             isOneToOne: false
             referencedRelation: "network"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_list_parent_price_list_id_fkey"
+            columns: ["parent_price_list_id"]
+            isOneToOne: false
+            referencedRelation: "price_list"
             referencedColumns: ["id"]
           },
           {
@@ -5583,10 +5618,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "price_list_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policy"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "price_list_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_list_tpa_id_fkey"
+            columns: ["tpa_id"]
+            isOneToOne: false
+            referencedRelation: "tpa"
             referencedColumns: ["id"]
           },
         ]
@@ -5601,9 +5650,11 @@ export type Database = {
           is_package: boolean
           patient_share_percent: number | null
           price_list_id: string
+          referral_status: string | null
           service_id: string | null
           tax_percent: number | null
           tenant_id: string
+          time_band: string | null
           unit_price_minor: number
           updated_at: string
           updated_by: string | null
@@ -5617,9 +5668,11 @@ export type Database = {
           is_package?: boolean
           patient_share_percent?: number | null
           price_list_id: string
+          referral_status?: string | null
           service_id?: string | null
           tax_percent?: number | null
           tenant_id: string
+          time_band?: string | null
           unit_price_minor: number
           updated_at?: string
           updated_by?: string | null
@@ -5633,9 +5686,11 @@ export type Database = {
           is_package?: boolean
           patient_share_percent?: number | null
           price_list_id?: string
+          referral_status?: string | null
           service_id?: string | null
           tax_percent?: number | null
           tenant_id?: string
+          time_band?: string | null
           unit_price_minor?: number
           updated_at?: string
           updated_by?: string | null
@@ -5667,6 +5722,62 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_list_item_version: {
+        Row: {
+          change_reason: string | null
+          changed_by: string | null
+          created_at: string
+          default_factor: number
+          effective_from: string
+          effective_to: string | null
+          id: string
+          patient_share_percent: number | null
+          price_list_item_id: string
+          tax_percent: number | null
+          tenant_id: string
+          unit_price_minor: number
+          updated_at: string
+        }
+        Insert: {
+          change_reason?: string | null
+          changed_by?: string | null
+          created_at?: string
+          default_factor?: number
+          effective_from: string
+          effective_to?: string | null
+          id?: string
+          patient_share_percent?: number | null
+          price_list_item_id: string
+          tax_percent?: number | null
+          tenant_id: string
+          unit_price_minor: number
+          updated_at?: string
+        }
+        Update: {
+          change_reason?: string | null
+          changed_by?: string | null
+          created_at?: string
+          default_factor?: number
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          patient_share_percent?: number | null
+          price_list_item_id?: string
+          tax_percent?: number | null
+          tenant_id?: string
+          unit_price_minor?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_list_item_version_price_list_item_id_fkey"
+            columns: ["price_list_item_id"]
+            isOneToOne: false
+            referencedRelation: "price_list_item"
             referencedColumns: ["id"]
           },
         ]
@@ -6325,6 +6436,7 @@ export type Database = {
           display: string | null
           id: string
           is_primary_billing: boolean
+          payer_id: string | null
           service_id: string
           tenant_id: string
           updated_at: string
@@ -6338,6 +6450,7 @@ export type Database = {
           display?: string | null
           id?: string
           is_primary_billing?: boolean
+          payer_id?: string | null
           service_id: string
           tenant_id: string
           updated_at?: string
@@ -6351,6 +6464,7 @@ export type Database = {
           display?: string | null
           id?: string
           is_primary_billing?: boolean
+          payer_id?: string | null
           service_id?: string
           tenant_id?: string
           updated_at?: string
@@ -6362,6 +6476,13 @@ export type Database = {
             columns: ["code_system_id"]
             isOneToOne: false
             referencedRelation: "code_system"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_code_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
             referencedColumns: ["id"]
           },
           {

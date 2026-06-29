@@ -61,10 +61,10 @@ export type ResolvedCharge = {
   ordered_by: string | null;
 };
 
-async function snapshotService(db: any, serviceId: string) {
+async function snapshotService(db: any, serviceId: string, payerId: string | null) {
   const { data: svc } = await db.from("service_master").select("*").eq("id", serviceId).maybeSingle();
   if (!svc) return null;
-  const { data: codes } = await db.from("service_code").select("code, code_system_id, is_primary_billing")
+  const { data: codes } = await db.from("service_code").select("code, code_system_id, is_primary_billing, payer_id")
     .eq("service_id", serviceId);
   // resolve code_system slugs
   const sysIds = Array.from(new Set((codes ?? []).map((c: any) => c.code_system_id)));
@@ -72,18 +72,21 @@ async function snapshotService(db: any, serviceId: string) {
     ? await db.from("code_system").select("id, slug").in("id", sysIds)
     : { data: [] as any[] };
   const slugById = new Map<string, string>((systems ?? []).map((s: any) => [s.id, (s.slug ?? "").toLowerCase()]));
-  let sbs: string | null = null, achi: string | null = null, loinc: string | null = null;
+  let sbsPayer: string | null = null, sbsGlobal: string | null = null;
+  let achi: string | null = null, loinc: string | null = null;
   for (const c of codes ?? []) {
     const slug = slugById.get(c.code_system_id) ?? "";
-    if (slug.includes("sbs")) sbs = sbs ?? c.code;
-    else if (slug.includes("achi")) achi = achi ?? c.code;
+    if (slug.includes("sbs")) {
+      if (payerId && c.payer_id === payerId && c.is_primary_billing) sbsPayer = sbsPayer ?? c.code;
+      else if (!c.payer_id) sbsGlobal = sbsGlobal ?? c.code;
+    } else if (slug.includes("achi")) achi = achi ?? c.code;
     else if (slug.includes("loinc")) loinc = loinc ?? c.code;
   }
   return {
     internal_code: svc.internal_code as string,
     description: (svc.description ?? svc.name) as string,
     service_type: svc.service_type as string,
-    sbs_code: sbs, achi_code: achi, loinc_code: loinc,
+    sbs_code: sbsPayer ?? sbsGlobal, achi_code: achi, loinc_code: loinc,
   };
 }
 
@@ -104,30 +107,37 @@ async function pickPriceList(db: any, args: {
   mode: "cash" | "insured" | "cost";
   payerId?: string | null;
   networkId?: string | null;
+  classId?: string | null;
+  policyId?: string | null;
+  tpaId?: string | null;
 }) {
-  const { tenantId, mode, payerId, networkId } = args;
-  const base = db.from("price_list").select("id, currency, list_type, payer_id, network_id")
+  const { tenantId, mode, payerId, networkId, classId, policyId, tpaId } = args;
+  const base = () => db.from("price_list")
+    .select("id, currency, scope_level, list_type, payer_id, network_id, tpa_id, policy_id, insurance_class_id, is_cost_basis")
     .eq("tenant_id", tenantId).eq("active", true);
   if (mode === "cash") {
-    const { data } = await base.eq("list_type", "cash").limit(1);
+    const { data } = await base().eq("scope_level", "cash").eq("is_cost_basis", false).limit(1);
     return data?.[0] ?? null;
   }
   if (mode === "cost") {
-    const { data } = await base.eq("list_type", "cost").limit(1);
+    const { data } = await base().eq("is_cost_basis", true).limit(1);
     return data?.[0] ?? null;
   }
-  // insured: payer + network -> payer-only -> cash (flag)
-  if (payerId && networkId) {
-    const { data } = await base.eq("list_type", "payer_network")
-      .eq("payer_id", payerId).eq("network_id", networkId).limit(1);
+  // insured precedence: class → policy → tpa → payer → network → cash
+  const chain: Array<[string, string | null | undefined]> = [
+    ["insurance_class_id", classId], ["policy_id", policyId], ["tpa_id", tpaId],
+    ["payer_id", payerId], ["network_id", networkId],
+  ];
+  const scopeFor: Record<string, string> = {
+    insurance_class_id: "class", policy_id: "policy", tpa_id: "tpa",
+    payer_id: "payer", network_id: "network",
+  };
+  for (const [col, val] of chain) {
+    if (!val) continue;
+    const { data } = await base().eq("scope_level", scopeFor[col]).eq(col, val).eq("is_cost_basis", false).limit(1);
     if (data?.[0]) return data[0];
   }
-  if (payerId) {
-    const { data } = await base.eq("list_type", "payer_network").eq("payer_id", payerId).limit(1);
-    if (data?.[0]) return data[0];
-  }
-  const { data: cash } = await db.from("price_list").select("id, currency, list_type, payer_id, network_id")
-    .eq("tenant_id", tenantId).eq("active", true).eq("list_type", "cash").limit(1);
+  const { data: cash } = await base().eq("scope_level", "cash").eq("is_cost_basis", false).limit(1);
   return cash?.[0] ? { ...cash[0], fallback: "cash" as const } : null;
 }
 
@@ -143,15 +153,14 @@ export async function resolvePrice(args: ResolveArgs): Promise<ResolvedCharge> {
 
   // 2. Snapshot the master row
   let snap: any = null;
-  if (args.source === "service" && args.serviceId) snap = await snapshotService(db, args.serviceId);
-  if (args.source === "drug" && args.drugId) snap = await snapshotDrug(db, args.drugId);
-  if (!snap) throw new Error("master_not_found");
-
-  // 3. Decide pricing mode
+  // 3. Decide pricing mode + resolve coverage chain
   let mode: "cash" | "insured" | "drg_bundled";
   let inNetwork: boolean | null = null;
   let payerId: string | null = null;
   let networkId: string | null = null;
+  let classId: string | null = null;
+  let policyId: string | null = null;
+  let tpaId: string | null = null;
   let planCopay: number | null = null;
   const traceMeta: Record<string, unknown> = {};
 
@@ -159,16 +168,22 @@ export async function resolvePrice(args: ResolveArgs): Promise<ResolvedCharge> {
     mode = "drg_bundled";
   } else if (enc.coverage_id) {
     const { data: cov } = await db.from("coverage")
-      .select("id, payer_id, network_id, insurance_plan_id")
+      .select("id, payer_id, network_id, tpa_id, insurance_plan_id")
       .eq("id", enc.coverage_id).maybeSingle();
     if (cov) {
       mode = "insured";
       payerId = cov.payer_id ?? null;
       networkId = cov.network_id ?? null;
+      tpaId = cov.tpa_id ?? null;
       if (cov.insurance_plan_id) {
         const { data: plan } = await db.from("insurance_plan")
-          .select("copay_percent").eq("id", cov.insurance_plan_id).maybeSingle();
+          .select("copay_percent, class_id").eq("id", cov.insurance_plan_id).maybeSingle();
         planCopay = (plan?.copay_percent as number | null) ?? null;
+        classId = (plan?.class_id as string | null) ?? null;
+        if (classId) {
+          const { data: cls } = await db.from("insurance_class").select("policy_id").eq("id", classId).maybeSingle();
+          policyId = (cls?.policy_id as string | null) ?? null;
+        }
       }
       // 2-sided network check: provider's facility in patient's network?
       if (networkId && enc.location_id) {
@@ -189,9 +204,13 @@ export async function resolvePrice(args: ResolveArgs): Promise<ResolvedCharge> {
     mode = "cash";
   }
 
+  if (args.source === "service" && args.serviceId) snap = await snapshotService(db, args.serviceId, payerId);
+  if (args.source === "drug" && args.drugId) snap = await snapshotDrug(db, args.drugId);
+  if (!snap) throw new Error("master_not_found");
+
   // 4. Pick price list
   const listMode = mode === "drg_bundled" ? "cost" : mode;
-  const list = await pickPriceList(db, { tenantId: args.tenantId, mode: listMode, payerId, networkId });
+  const list = await pickPriceList(db, { tenantId: args.tenantId, mode: listMode, payerId, networkId, classId, policyId, tpaId });
   let unitPrice: number | null = null;
   let factor = 1;
   let discount = 0;
