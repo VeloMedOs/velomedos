@@ -1,106 +1,88 @@
-# Phase 5 — Admission MDS & Discharge MDS — REVISED
+# Phase 6 — Clinical Coding + AR-DRG Grouper Integration — REVISED
 
-NPHIES `EncounterHospitalization` + emergency disposition capture, populating the grouper-input fields (LOS, separation mode, ventilation hours) Phase 6 reads. Standing rule: **API-first, fully wired — no orphan tables.**
+Coder workflow + external AR-DRG grouper for **inpatient (IMP) encounters only**. OP/ER skip this phase and go straight to itemized SBS claims in Phase 7. Standing rule: **API-first, fully wired.**
 
-> Lovable's draft was clean but lost track of columns the corrected Phase 2 already added. Changes tagged **[AMENDED]** / **[NEW]**; untagged content kept as proposed.
+> Lovable's draft was strong (supersede trigger, idempotent regroup, env-driven external grouper with no grouping logic, IMP-only guard). Changes tagged **[AMENDED]** / **[NEW]**.
 
-## Scope (additive only)
+## 1. Database migration
 
-- No changes to existing Phase 0–4 tables beyond the two reconciliations noted below.
-- Two new tables, 3 endpoints, 2 FHIR mappers, OpenAPI updates, monotonic journey advances.
+Two tenant-scoped tables, 4-step pattern + `touch_updated_at`.
 
-## Database (one migration)
+`clinical_coding` — one row per encounter (unique `encounter_id`)
 
-Both new tables tenant-scoped, RLS + GRANTs (authenticated CRUD, service_role all, no anon), `touch_updated_at`.
+- `tenant_id`, `encounter_id` (unique fk), `coder_id`, `status text (in_progress|coded|amended)` default `in_progress`, `principal_diagnosis_id fk→encounter_diagnosis NULL`, `coded_at`, `notes`, audit cols.
 
-**1.** `encounter_hospitalization` — 1:1 with `encounter`
+`drg_assignment` — historical (many per encounter, one `assigned`)
 
-- `tenant_id`, `encounter_id` UNIQUE FK
-- `admission_specialty`, `admission_source`, `origin`, `intended_length_of_stay`, `re_admission` (text LOVs, validated in Zod)
-- `discharge_specialty`, `discharge_disposition` **[AMENDED — canonical home; see reconciliation below]**
-- `admitted_at`, `discharged_at timestamptz`
-- `length_of_stay_days int GENERATED ALWAYS AS (CASE WHEN discharged_at IS NOT NULL AND admitted_at IS NOT NULL THEN GREATEST(0, (discharged_at::date - admitted_at::date)) END) STORED` **[NEW — LOS for DRG trim-point math in Phase 7]**
-- `created_by/updated_by`, timestamps + trigger
+- `tenant_id`, `encounter_id fk`, `drg_id fk→drg NULL` **[AMENDED — NULLABLE. The grouper returns a** `drg_code`**; resolve** `drg_id` **by lookup on** `(drg_code, version)`**, but** `drg` **is empty until the CHI file loads (Phase 3) and the stub returns** `F62B`**. A NOT NULL FK would fail the insert. Always snapshot the code; bind the FK when the reference exists.]**, `drg_code text NOT NULL` (snapshot), `drg_version text NOT NULL`, `mdc`, `adrg`, `partition`, `complexity_score numeric`, `grouper_name`, `grouper_version`, `grouper_request jsonb`, `grouper_response jsonb`, `assigned_at` default now(), `status text (assigned|superseded)` default `assigned`.
+- Partial unique: one `assigned` per `encounter_id`. Trigger: a new `assigned` marks prior `assigned` rows `superseded`.
 
-**2.** `encounter_emergency` — 1:1 with `encounter` where `class='EMER'`
+**Journey triggers** (existing monotonic `encounter_advance_journey`):
 
-- `tenant_id`, `encounter_id` UNIQUE FK
-- `triage_date`, `triage_category`, `emergency_arrival_code`, `emergency_service_start`, `emergency_department_disposition`
-- audit cols + trigger
+- `clinical_coding` status `coded` → advance to `coded`.
+- `drg_assignment` status `assigned` → advance to `grouped`.
 
-**3. Column reconciliation with Phase 2 (NOT re-adds)** **[AMENDED — was Lovable's step 3, which duplicated columns]**
+RLS: `is_tenant_member(auth.uid(), tenant_id)`.
 
-- `encounter.separation_mode`, `encounter.mechanical_ventilation_hours`, `encounter.same_day`, `encounter.cause_of_death` **already exist** (added in the corrected Phase 2). Phase 5 only **populates** them at discharge — do **not** ALTER TABLE ADD them again.
-- `encounter.discharge_disposition` was also added in Phase 2 but is **double-homed** with `encounter_hospitalization.discharge_disposition`. Consolidate on the hospitalization table (it groups all discharge MDS fields) and **drop it from** `encounter` (`ALTER TABLE encounter DROP COLUMN discharge_disposition`). Single source of truth.
+## 2. Zod schemas — `src/lib/mds/schema/coding.ts`
 
-**4. Triggers — monotonic journey advance** **[AMENDED]**
+- `CodingFinalize { principal_diagnosis_id: uuid, notes? }`; server sets `status='coded'`, `coded_at`, `coder_id`.
+- `GrouperRunRequest { force?: boolean }`.
 
-- Define a milestone rank (`encounter_open<clinically_documented<investigations_ordered<admitted< discharged<coded<grouped<claim_ready<submitted`). Triggers only advance to a **higher** rank, never regress.
-- On `encounter_hospitalization` insert/update with `admitted_at` set → advance `encounter.journey_state` to `admitted` from any state ≥ `encounter_open`. (For IP, admission precedes ordering; a later order must not knock the state back to `investigations_ordered` — the rank guard prevents regression.)
-- On `discharged_at` set + `separation_mode` present → advance to `discharged`.
+## 3. Grouper module — `src/lib/mds/grouper.ts`
 
-## Zod schemas (`src/lib/mds/schema/hospitalization.ts`)
+`buildGrouperMds(encounterId)` assembles inputs from the **correct existing sources** **[AMENDED]**:
 
-- `HospitalizationUpsert`, `EmergencyUpsert`.
-- `DischargePayload { discharged_at, separation_mode, mechanical_ventilation_hours?, cause_of_death?, discharge_specialty?, discharge_disposition? }` **[AMENDED — +cause_of_death, +discharge fields]**. `cause_of_death` required when `separation_mode='deceased'` (Zod refine, permissive otherwise). `same_day` is derived server-side, not client-supplied.
-- LOV enums permissive (string + length cap) per the Phase 10 strictness rule.
+- principal Dx (ICD-10-AM) from `encounter_diagnosis` where `role='principal'`.
+- additional Dx[] from remaining `encounter_diagnosis`, **each with its** `present_on_admission` **flag** **[NEW — ECC complexity input; complication vs comorbidity]**.
+- procedures (ACHI) from `charge_item` **where** `encounter_id=X AND achi_code IS NOT NULL` (the Phase-4 snapshot), distinct by `achi_code` — covers service + EP order procedures. **[AMENDED — the order-item tables don't carry** `code_system`**; the ACHI code is snapshotted on** `charge_item`**]**
+- `age` computed **at admission** (`admitted_at − beneficiary.dob`), plus `age_days` for neonates; `sex` from `beneficiary`. **[AMENDED — age at admission, not now]**
+- `los_days` from `encounter_hospitalization.length_of_stay_days`; `same_day`, `mechanical_ventilation_hours`, `separation_mode` from `encounter`.
+- `birth_weight_grams` from `beneficiary.birth_weight_grams` (the Phase-1 column). **[AMENDED — not a** `clinical_supporting_info` **category, which doesn't exist]**
 
-## FHIR mappers (`src/lib/mds/fhir/hospitalization.ts`)
+`callGrouper(mds)`: **stub** mirroring the NPHIES-gateway shape; reads `GROUPER_ENDPOINT` / `GROUPER_API_KEY` at call time; when unset returns a deterministic stub (`{ drg_code:"F62B", drg_version:"AR-DRG v9.0", mdc:"05", adrg:"F62", partition:"M", complexity_score:1.0, grouper_name:"stub", grouper_version:"0" }`). Pure assembly + HTTP; **no grouping logic (licensed/external).**
 
-- `toFhirHospitalization(row)` → `Encounter.hospitalization` (admitSource, dischargeDisposition, origin coding via `identifier-systems`; `// VERIFY against NPHIES IG`).
-- `toFhirEmergency(row)` → Encounter extensions (triage category, ED disposition) per NPHIES profile.
-- Update `encounter.ts` to splice these into the Encounter resource when present.
+## 4. Server routes (3 new under `src/routes/api/clinical/v1/`)
 
-## API routes (`src/routes/api/clinical/v1/`)
+POST routes: `requireClinicalRole(["coder","physician","case_manager"])` + class check rejecting non-IMP with `409 class_forbidden`.
 
-GET via `requireTenant`; writes `requireClinicalRole(['physician','nurse','tenant_admin'])`; `clinicalAudit` on writes; tenant-ownership guard.
+- `encounters.$id.code.ts` — GET current row; POST `CodingFinalize` → `status='coded'`. Pre-checks: **encounter is discharged (**`discharged_at` **set / journey ≥** `discharged`**), else** `409 not_discharged` **[NEW — AR-DRG codes a completed episode; LOS/separation must be final]**; principal Dx exists, else `409 missing_principal_dx`.
+- `encounters.$id.group.ts` — POST. Requires journey ≥ `coded`, else `409 not_coded`. Idempotent unless `force` (then new `assigned` + supersede prior). `buildGrouperMds` → `callGrouper` → insert `drg_assignment` (resolve `drg_id` by best-effort lookup on `(drg_code, drg_version)`; leave NULL if unmatched). Audited.
+- `encounters.$id.drg.ts` — GET current `assigned` assignment + history.
 
-- `encounters.$id.admit.ts` — POST upsert hospitalization (admission fields + `admitted_at`); advances journey to `admitted`. **Rejects 409 if** `encounter.class NOT IN ('IMP','HH')` **[NEW — mirrors the emergency guard;** `drg_bundled` **is IMP-only]**. GET returns current row.
-- `encounters.$id.discharge.ts` — POST sets `discharged_at`, `separation_mode`, `mechanical_ventilation_hours`, `cause_of_death` on `encounter`, **derives** `same_day`, and writes discharge fields on hospitalization; advances journey to `discharged`. Idempotent. **[AMENDED]**
-- `encounters.$id.emergency.ts` — GET/POST upsert `encounter_emergency` (409 if `class != 'EMER'`).
-- Extend `encounters.$id.fhir.ts` to embed the `hospitalization` block when the row exists.
+## 5. OpenAPI — `src/lib/openapi-clinical-spec.ts`
 
-## OpenAPI
+Tag **"Coding"**; paths `/encounters/{id}/code` (GET/POST), `/group` (POST), `/drg` (GET); 409 envelopes for `class_forbidden`, `not_discharged`, `missing_principal_dx`, `not_coded`.
 
-Extend `src/lib/openapi-clinical-spec.ts`: tag **Hospitalization**, schemas for both tables + discharge payload, 3 new paths (+ FHIR example with hospitalization block).
+## 6. State-machine note
 
-## Acceptance
+`coded`(6)/`grouped`(7) already in `JOURNEY_RANK`. Both advancements use the monotonic `encounter_advance_journey()` helper — re-coding/re-grouping never regresses state.
 
-- Admit then discharge an IP encounter → FHIR Encounter shows `hospitalization`; `length_of_stay_days` computed.
-- Admit a non-IMP/HH encounter → 409. **[NEW]**
-- `separation_mode`, `mechanical_ventilation_hours`, `same_day` (derived), `cause_of_death` (when deceased) captured on `encounter` for the Phase 6 grouper — and the migration adds **no** duplicate columns (Phase 2 owns them). **[AMENDED]**
-- `discharge_disposition` exists only on `encounter_hospitalization` (dropped from `encounter`). **[NEW]**
-- ER encounter records triage + ED disposition; non-EMER → 409.
-- Journey: `admitted` on admit (from any ≥ encounter_open, never regressing), `discharged` on discharge.
-- Typecheck + route generation clean.
-- **API coverage:** `encounter_hospitalization` → admit/discharge; `encounter_emergency` → emergency. No orphan tables.
+## 7. Acceptance
 
-## Delivery & Documentation milestone (standing DoD — see Phase 4 §8)
+1. Discharged IP encounter with principal Dx → `POST /code` → journey `coded`.
+2. Coding a **non-discharged** encounter → `409 not_discharged`. **[NEW]**
+3. `POST /group` → DRG (stub) + version persisted, journey `grouped`; `drg_id` NULL when reference not loaded, `drg_code` snapshot present. **[AMENDED]**
+4. Re-`group` without `force` idempotent; with `force` adds `assigned`, supersedes prior.
+5. OP/ER encounter → both POSTs `409 class_forbidden`.
+6. Encounter without principal Dx → `409 missing_principal_dx`.
+7. `buildGrouperMds` output includes POA per additional Dx, ACHI procedures from `charge_item`, birth weight from `beneficiary`, age computed at admission. **[NEW]**
+8. Typecheck clean; routes in `routeTree.gen.ts`.
 
-Phase 5 isn't done until both living docs are updated:
+- **API coverage:** `clinical_coding` → code; `drg_assignment` → group (write) + drg (read). No orphan tables.
 
-- `docs/his-technical-manual.md` — add the Admission/Discharge data model (the two tables, the generated `length_of_stay_days`, the Phase-2 column reconciliation, the monotonic journey-rank rule), the admit/discharge/emergency API reference, and the FHIR `Encounter.hospitalization` mapping. Note the grouper-input contract (which encounter columns Phase 6 reads).
-- `docs/his-user-manual.md` — role task guides: physician/nurse "Admit a patient", "Record ER triage + disposition", "Discharge a patient (incl. deceased + cause of death)"; what each field means and which are mandatory for an inpatient claim (forward-ref to Phase 10).
-- `docs/changelog.md` — Phase 5 entry referencing the migration + routes.
+## 8. Delivery & Documentation milestone (standing DoD)
+
+- `docs/his-technical-manual.md` — add the coding + grouper data model (`clinical_coding`, `drg_assignment`, supersede trigger), the **grouper MDS input contract** (exact source table/column for each field: principal/additional Dx + POA from `encounter_diagnosis`, ACHI from `charge_item.achi_code`, LOS from `encounter_hospitalization`, ventilation/separation/same_day from `encounter`, birth weight + age-at-admission from `beneficiary`), the external grouper integration (env vars, request/response shape, "no grouping logic — licensed"), and the `drg_id` best-effort binding. This contract is the thing future phases must diff against.
+- `docs/his-user-manual.md` — coder task guides: "Finalize coding (principal + additional Dx, POA)", "Run the DRG grouper", "Re-group an amended episode"; what `superseded` means; why grouping requires discharge.
+- `docs/changelog.md` — Phase 6 entry.
 
 ## Files touched
 
-```
-supabase migration (2 tables + generated LOS col; populate-not-readd encounter cols;
-                    drop encounter.discharge_disposition; monotonic journey triggers)
-src/lib/mds/schema/hospitalization.ts                         (new)
-src/lib/mds/fhir/hospitalization.ts                           (new)
-src/lib/mds/fhir/encounter.ts                                 (extend: splice hospitalization/emergency)
-src/lib/mds/state-machine.ts                                  (extend: milestone rank + monotonic advance)
-src/routes/api/clinical/v1/encounters.$id.admit.ts            (new; class guard)
-src/routes/api/clinical/v1/encounters.$id.discharge.ts        (new; +cause_of_death, derive same_day)
-src/routes/api/clinical/v1/encounters.$id.emergency.ts        (new)
-src/routes/api/clinical/v1/encounters.$id.fhir.ts             (extend: hospitalization block)
-src/lib/openapi-clinical-spec.ts                              (extend: tag + schemas + paths)
-docs/his-technical-manual.md | docs/his-user-manual.md | docs/changelog.md   (update)
+- Migration: `clinical_coding`, `drg_assignment` (+ nullable `drg_id`) + triggers/RLS/GRANTs
+- New: `src/lib/mds/schema/coding.ts`, `src/lib/mds/grouper.ts`, `src/routes/api/clinical/v1/encounters.$id.code.ts | .group.ts | .drg.ts`
+- Edited: `src/lib/openapi-clinical-spec.ts`; `docs/his-technical-manual.md | his-user-manual.md | changelog.md`
 
-```
-
-Out of scope (later): DRG grouping (Phase 6 reads the grouper inputs set here), claim assembly (Phase 7), strict NPHIES/DRG validation (Phase 10).
+Out of scope (later): DRG bundle **pricing** (Phase 7 reads `drg_assignment` + `drg_base_rate` + `drg_price_adjustment`), claim assembly (Phase 7), strict validation (Phase 10), real grouper endpoint (wire when the CHI-approved grouper contract is available).
 
 &nbsp;

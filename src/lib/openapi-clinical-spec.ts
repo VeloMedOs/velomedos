@@ -64,6 +64,7 @@ export const openApiClinicalSpec = {
     { name: "Charges", description: "Phase-4 · Per-encounter charge_item ledger and totals." },
     { name: "PricingRules", description: "Phase-4 · Tenant pricing/eligibility/share rules (global defaults read-only)." },
     { name: "Hospitalization", description: "Phase-5 · Admission MDS, Emergency MDS, Discharge MDS (NPHIES Encounter.hospitalization)." },
+    { name: "Coding", description: "Phase-6 · ICD-10-AM/ACHI coder finalize + AR-DRG grouper (IMP only)." },
   ],
   paths: {
     "/openapi": {
@@ -547,6 +548,19 @@ export const openApiClinicalSpec = {
       parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
       get:  { tags: ["Hospitalization"], summary: "Get emergency MDS", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
       post: { tags: ["Hospitalization"], summary: "Upsert ER triage + ED disposition (EMER encounter)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "Upserted", content: { "application/json": { schema: { type: "object" } } } }, 409: { description: "Encounter class not EMER", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+    },
+    "/encounters/{id}/code": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:  { tags: ["Coding"], summary: "Get clinical coding row for encounter", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Coding"], summary: "Finalize ICD-10-AM coding (IMP, discharged). Sets status='coded'/'amended', coded_at, coder_id; advances journey to 'coded'.", requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["principal_diagnosis_id"], properties: { principal_diagnosis_id: { type: "string", format: "uuid" }, notes: { type: "string" } } } } } }, responses: { 200: { description: "Coded", content: { "application/json": { schema: { type: "object" } } } }, 409: { description: "class_forbidden | not_discharged | missing_principal_dx | principal_dx_mismatch", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+    },
+    "/encounters/{id}/group": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      post: { tags: ["Coding"], summary: "Run AR-DRG grouper (IMP, coded). Idempotent unless { force: true } — second call returns existing assignment; with force inserts new 'assigned' and supersedes prior. Advances journey to 'grouped'.", requestBody: { required: false, content: { "application/json": { schema: { type: "object", properties: { force: { type: "boolean" } } } } } }, responses: { 200: { description: "Assigned (or idempotent existing)", content: { "application/json": { schema: { type: "object" } } } }, 409: { description: "class_forbidden | not_coded", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } }, 502: { description: "grouper_error | grouper_empty", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+    },
+    "/encounters/{id}/drg": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["Coding"], summary: "Current AR-DRG assignment + history (snapshot: drg_code, drg_version, mdc, adrg, complexity, grouper_request/response).", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
     },
   },
 } as const;
