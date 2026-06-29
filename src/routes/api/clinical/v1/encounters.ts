@@ -71,6 +71,7 @@ export const Route = createFileRoute("/api/clinical/v1/encounters")({
           tenant_id: auth.ctx.tenantId,
           created_by: auth.ctx.userId,
           updated_by: auth.ctx.userId,
+          encounter_number: "", // populated by encounter_set_number BEFORE INSERT trigger
         }).select("*").single();
         if (error) return envelope(error.message, "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "encounter.create", "encounter", data.id, {
