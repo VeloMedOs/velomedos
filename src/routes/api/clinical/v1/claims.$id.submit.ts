@@ -149,6 +149,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/submit")({
             nphies_claim_id: parsedResp.nphiesClaimId,
             nphies_request: bundle,
             nphies_response: result.bundle,
+            idempotency_key: idempotencyKey,
             updated_by: auth.ctx.userId,
           })
           .eq("id", params.id)
