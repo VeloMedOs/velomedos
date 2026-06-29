@@ -50,6 +50,7 @@ import { Route as AuthenticatedFleetRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
 import { Route as AuthenticatedDeveloperRouteImport } from './routes/_authenticated/developer'
 import { Route as AuthenticatedComplianceRouteImport } from './routes/_authenticated/compliance'
+import { Route as AuthenticatedClinicalSuperadminRouteImport } from './routes/_authenticated/clinical-superadmin'
 import { Route as AuthenticatedClinicalMastersRouteImport } from './routes/_authenticated/clinical-masters'
 import { Route as AuthenticatedClinicalRouteImport } from './routes/_authenticated/clinical'
 import { Route as AuthenticatedCallCenterRouteImport } from './routes/_authenticated/call-center'
@@ -419,6 +420,12 @@ const AuthenticatedComplianceRoute = AuthenticatedComplianceRouteImport.update({
   path: '/compliance',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedClinicalSuperadminRoute =
+  AuthenticatedClinicalSuperadminRouteImport.update({
+    id: '/clinical-superadmin',
+    path: '/clinical-superadmin',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedClinicalMastersRoute =
   AuthenticatedClinicalMastersRouteImport.update({
     id: '/clinical-masters',
@@ -1368,6 +1375,7 @@ export interface FileRoutesByFullPath {
   '/call-center': typeof AuthenticatedCallCenterRoute
   '/clinical': typeof AuthenticatedClinicalRoute
   '/clinical-masters': typeof AuthenticatedClinicalMastersRoute
+  '/clinical-superadmin': typeof AuthenticatedClinicalSuperadminRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
@@ -1572,6 +1580,7 @@ export interface FileRoutesByTo {
   '/call-center': typeof AuthenticatedCallCenterRoute
   '/clinical': typeof AuthenticatedClinicalRoute
   '/clinical-masters': typeof AuthenticatedClinicalMastersRoute
+  '/clinical-superadmin': typeof AuthenticatedClinicalSuperadminRoute
   '/compliance': typeof AuthenticatedComplianceRoute
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
@@ -1780,6 +1789,7 @@ export interface FileRoutesById {
   '/_authenticated/call-center': typeof AuthenticatedCallCenterRoute
   '/_authenticated/clinical': typeof AuthenticatedClinicalRoute
   '/_authenticated/clinical-masters': typeof AuthenticatedClinicalMastersRoute
+  '/_authenticated/clinical-superadmin': typeof AuthenticatedClinicalSuperadminRoute
   '/_authenticated/compliance': typeof AuthenticatedComplianceRoute
   '/_authenticated/developer': typeof AuthenticatedDeveloperRoute
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
@@ -1988,6 +1998,7 @@ export interface FileRouteTypes {
     | '/call-center'
     | '/clinical'
     | '/clinical-masters'
+    | '/clinical-superadmin'
     | '/compliance'
     | '/developer'
     | '/dispatch'
@@ -2192,6 +2203,7 @@ export interface FileRouteTypes {
     | '/call-center'
     | '/clinical'
     | '/clinical-masters'
+    | '/clinical-superadmin'
     | '/compliance'
     | '/developer'
     | '/dispatch'
@@ -2399,6 +2411,7 @@ export interface FileRouteTypes {
     | '/_authenticated/call-center'
     | '/_authenticated/clinical'
     | '/_authenticated/clinical-masters'
+    | '/_authenticated/clinical-superadmin'
     | '/_authenticated/compliance'
     | '/_authenticated/developer'
     | '/_authenticated/dispatch'
@@ -2979,6 +2992,13 @@ declare module '@tanstack/react-router' {
       path: '/compliance'
       fullPath: '/compliance'
       preLoaderRoute: typeof AuthenticatedComplianceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/clinical-superadmin': {
+      id: '/_authenticated/clinical-superadmin'
+      path: '/clinical-superadmin'
+      fullPath: '/clinical-superadmin'
+      preLoaderRoute: typeof AuthenticatedClinicalSuperadminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/clinical-masters': {
@@ -4164,6 +4184,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCallCenterRoute: typeof AuthenticatedCallCenterRoute
   AuthenticatedClinicalRoute: typeof AuthenticatedClinicalRoute
   AuthenticatedClinicalMastersRoute: typeof AuthenticatedClinicalMastersRoute
+  AuthenticatedClinicalSuperadminRoute: typeof AuthenticatedClinicalSuperadminRoute
   AuthenticatedComplianceRoute: typeof AuthenticatedComplianceRoute
   AuthenticatedDeveloperRoute: typeof AuthenticatedDeveloperRoute
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
@@ -4185,6 +4206,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCallCenterRoute: AuthenticatedCallCenterRoute,
   AuthenticatedClinicalRoute: AuthenticatedClinicalRoute,
   AuthenticatedClinicalMastersRoute: AuthenticatedClinicalMastersRoute,
+  AuthenticatedClinicalSuperadminRoute: AuthenticatedClinicalSuperadminRoute,
   AuthenticatedComplianceRoute: AuthenticatedComplianceRoute,
   AuthenticatedDeveloperRoute: AuthenticatedDeveloperRoute,
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
