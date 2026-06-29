@@ -79,6 +79,9 @@ import { Route as ApiPublicV1ClinicsRouteImport } from './routes/api/public/v1/c
 import { Route as ApiPublicV1Business_intakeRouteImport } from './routes/api/public/v1/business_intake'
 import { Route as ApiPublicTelemetryNavClickRouteImport } from './routes/api/public/telemetry.nav-click'
 import { Route as ApiPublicLegalSlugRouteImport } from './routes/api/public/legal.$slug'
+import { Route as ApiClinicalV1PromInstrumentsRouteImport } from './routes/api/clinical/v1/prom-instruments'
+import { Route as ApiClinicalV1PromAssignmentsRouteImport } from './routes/api/clinical/v1/prom-assignments'
+import { Route as ApiClinicalV1PremResponsesRouteImport } from './routes/api/clinical/v1/prem-responses'
 import { Route as ApiClinicalV1OpenapiRouteImport } from './routes/api/clinical/v1/openapi'
 import { Route as ApiClinicalV1MeRouteImport } from './routes/api/clinical/v1/me'
 import { Route as ApiClinicalV1EpisodesRouteImport } from './routes/api/clinical/v1/episodes'
@@ -110,8 +113,11 @@ import { Route as ApiPublicV1HomecareRecipientsRouteImport } from './routes/api/
 import { Route as ApiPublicV1HomecareCarePlansRouteImport } from './routes/api/public/v1/homecare.care-plans'
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiPublicLegalSlugAcceptRouteImport } from './routes/api/public/legal.$slug.accept'
+import { Route as ApiPatientV1PromsPendingRouteImport } from './routes/api/patient/v1/proms.pending'
 import { Route as ApiClinicalV1VitalsIdRouteImport } from './routes/api/clinical/v1/vitals.$id'
 import { Route as ApiClinicalV1SupportingInfoIdRouteImport } from './routes/api/clinical/v1/supporting-info.$id'
+import { Route as ApiClinicalV1PromAssignmentsIdRouteImport } from './routes/api/clinical/v1/prom-assignments.$id'
+import { Route as ApiClinicalV1OutcomesSummaryRouteImport } from './routes/api/clinical/v1/outcomes.summary'
 import { Route as ApiClinicalV1MastersTpasRouteImport } from './routes/api/clinical/v1/masters/tpas'
 import { Route as ApiClinicalV1MastersServicesRouteImport } from './routes/api/clinical/v1/masters/services'
 import { Route as ApiClinicalV1MastersPricingRulesRouteImport } from './routes/api/clinical/v1/masters/pricing-rules'
@@ -159,6 +165,9 @@ import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/p
 import { Route as ApiPublicV1VehiclesIdCredentialsRouteImport } from './routes/api/public/v1/vehicles.$id.credentials'
 import { Route as ApiPublicV1HomecareVisitsIdRouteImport } from './routes/api/public/v1/homecare.visits.$id'
 import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/public/v1/fleet.$id.location'
+import { Route as ApiClinicalV1PromAssignmentsIdSubmitRouteImport } from './routes/api/clinical/v1/prom-assignments.$id.submit'
+import { Route as ApiClinicalV1PromAssignmentsIdRespondRouteImport } from './routes/api/clinical/v1/prom-assignments.$id.respond'
+import { Route as ApiClinicalV1PromAssignmentsIdRemindRouteImport } from './routes/api/clinical/v1/prom-assignments.$id.remind'
 import { Route as ApiClinicalV1OrdersServiceItemsIdRouteImport } from './routes/api/clinical/v1/orders/service-items.$id'
 import { Route as ApiClinicalV1OrdersRadiologyItemsIdRouteImport } from './routes/api/clinical/v1/orders/radiology-items.$id'
 import { Route as ApiClinicalV1OrdersPrescriptionItemsIdRouteImport } from './routes/api/clinical/v1/orders/prescription-items.$id'
@@ -575,6 +584,24 @@ const ApiPublicLegalSlugRoute = ApiPublicLegalSlugRouteImport.update({
   path: '/api/public/legal/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiClinicalV1PromInstrumentsRoute =
+  ApiClinicalV1PromInstrumentsRouteImport.update({
+    id: '/api/clinical/v1/prom-instruments',
+    path: '/api/clinical/v1/prom-instruments',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1PromAssignmentsRoute =
+  ApiClinicalV1PromAssignmentsRouteImport.update({
+    id: '/api/clinical/v1/prom-assignments',
+    path: '/api/clinical/v1/prom-assignments',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1PremResponsesRoute =
+  ApiClinicalV1PremResponsesRouteImport.update({
+    id: '/api/clinical/v1/prem-responses',
+    path: '/api/clinical/v1/prem-responses',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1OpenapiRoute = ApiClinicalV1OpenapiRouteImport.update({
   id: '/api/clinical/v1/openapi',
   path: '/api/clinical/v1/openapi',
@@ -738,6 +765,12 @@ const ApiPublicLegalSlugAcceptRoute =
     path: '/accept',
     getParentRoute: () => ApiPublicLegalSlugRoute,
   } as any)
+const ApiPatientV1PromsPendingRoute =
+  ApiPatientV1PromsPendingRouteImport.update({
+    id: '/api/patient/v1/proms/pending',
+    path: '/api/patient/v1/proms/pending',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1VitalsIdRoute = ApiClinicalV1VitalsIdRouteImport.update({
   id: '/api/clinical/v1/vitals/$id',
   path: '/api/clinical/v1/vitals/$id',
@@ -747,6 +780,18 @@ const ApiClinicalV1SupportingInfoIdRoute =
   ApiClinicalV1SupportingInfoIdRouteImport.update({
     id: '/api/clinical/v1/supporting-info/$id',
     path: '/api/clinical/v1/supporting-info/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1PromAssignmentsIdRoute =
+  ApiClinicalV1PromAssignmentsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiClinicalV1PromAssignmentsRoute,
+  } as any)
+const ApiClinicalV1OutcomesSummaryRoute =
+  ApiClinicalV1OutcomesSummaryRouteImport.update({
+    id: '/api/clinical/v1/outcomes/summary',
+    path: '/api/clinical/v1/outcomes/summary',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1MastersTpasRoute =
@@ -1013,6 +1058,24 @@ const ApiPublicV1FleetIdLocationRoute =
     id: '/$id/location',
     path: '/$id/location',
     getParentRoute: () => ApiPublicV1FleetRoute,
+  } as any)
+const ApiClinicalV1PromAssignmentsIdSubmitRoute =
+  ApiClinicalV1PromAssignmentsIdSubmitRouteImport.update({
+    id: '/submit',
+    path: '/submit',
+    getParentRoute: () => ApiClinicalV1PromAssignmentsIdRoute,
+  } as any)
+const ApiClinicalV1PromAssignmentsIdRespondRoute =
+  ApiClinicalV1PromAssignmentsIdRespondRouteImport.update({
+    id: '/respond',
+    path: '/respond',
+    getParentRoute: () => ApiClinicalV1PromAssignmentsIdRoute,
+  } as any)
+const ApiClinicalV1PromAssignmentsIdRemindRoute =
+  ApiClinicalV1PromAssignmentsIdRemindRouteImport.update({
+    id: '/remind',
+    path: '/remind',
+    getParentRoute: () => ApiClinicalV1PromAssignmentsIdRoute,
   } as any)
 const ApiClinicalV1OrdersServiceItemsIdRoute =
   ApiClinicalV1OrdersServiceItemsIdRouteImport.update({
@@ -1447,6 +1510,9 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
   '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
+  '/api/clinical/v1/prem-responses': typeof ApiClinicalV1PremResponsesRoute
+  '/api/clinical/v1/prom-assignments': typeof ApiClinicalV1PromAssignmentsRouteWithChildren
+  '/api/clinical/v1/prom-instruments': typeof ApiClinicalV1PromInstrumentsRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
   '/api/public/v1/business_intake': typeof ApiPublicV1Business_intakeRoute
@@ -1505,8 +1571,11 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/masters/pricing-rules': typeof ApiClinicalV1MastersPricingRulesRouteWithChildren
   '/api/clinical/v1/masters/services': typeof ApiClinicalV1MastersServicesRouteWithChildren
   '/api/clinical/v1/masters/tpas': typeof ApiClinicalV1MastersTpasRouteWithChildren
+  '/api/clinical/v1/outcomes/summary': typeof ApiClinicalV1OutcomesSummaryRoute
+  '/api/clinical/v1/prom-assignments/$id': typeof ApiClinicalV1PromAssignmentsIdRouteWithChildren
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
+  '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
@@ -1563,6 +1632,9 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/orders/prescription-items/$id': typeof ApiClinicalV1OrdersPrescriptionItemsIdRoute
   '/api/clinical/v1/orders/radiology-items/$id': typeof ApiClinicalV1OrdersRadiologyItemsIdRoute
   '/api/clinical/v1/orders/service-items/$id': typeof ApiClinicalV1OrdersServiceItemsIdRoute
+  '/api/clinical/v1/prom-assignments/$id/remind': typeof ApiClinicalV1PromAssignmentsIdRemindRoute
+  '/api/clinical/v1/prom-assignments/$id/respond': typeof ApiClinicalV1PromAssignmentsIdRespondRoute
+  '/api/clinical/v1/prom-assignments/$id/submit': typeof ApiClinicalV1PromAssignmentsIdSubmitRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
@@ -1655,6 +1727,9 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
   '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
+  '/api/clinical/v1/prem-responses': typeof ApiClinicalV1PremResponsesRoute
+  '/api/clinical/v1/prom-assignments': typeof ApiClinicalV1PromAssignmentsRouteWithChildren
+  '/api/clinical/v1/prom-instruments': typeof ApiClinicalV1PromInstrumentsRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
   '/api/public/v1/business_intake': typeof ApiPublicV1Business_intakeRoute
@@ -1713,8 +1788,11 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/masters/pricing-rules': typeof ApiClinicalV1MastersPricingRulesRouteWithChildren
   '/api/clinical/v1/masters/services': typeof ApiClinicalV1MastersServicesRouteWithChildren
   '/api/clinical/v1/masters/tpas': typeof ApiClinicalV1MastersTpasRouteWithChildren
+  '/api/clinical/v1/outcomes/summary': typeof ApiClinicalV1OutcomesSummaryRoute
+  '/api/clinical/v1/prom-assignments/$id': typeof ApiClinicalV1PromAssignmentsIdRouteWithChildren
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
+  '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
@@ -1771,6 +1849,9 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/orders/prescription-items/$id': typeof ApiClinicalV1OrdersPrescriptionItemsIdRoute
   '/api/clinical/v1/orders/radiology-items/$id': typeof ApiClinicalV1OrdersRadiologyItemsIdRoute
   '/api/clinical/v1/orders/service-items/$id': typeof ApiClinicalV1OrdersServiceItemsIdRoute
+  '/api/clinical/v1/prom-assignments/$id/remind': typeof ApiClinicalV1PromAssignmentsIdRemindRoute
+  '/api/clinical/v1/prom-assignments/$id/respond': typeof ApiClinicalV1PromAssignmentsIdRespondRoute
+  '/api/clinical/v1/prom-assignments/$id/submit': typeof ApiClinicalV1PromAssignmentsIdSubmitRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
@@ -1867,6 +1948,9 @@ export interface FileRoutesById {
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
   '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
+  '/api/clinical/v1/prem-responses': typeof ApiClinicalV1PremResponsesRoute
+  '/api/clinical/v1/prom-assignments': typeof ApiClinicalV1PromAssignmentsRouteWithChildren
+  '/api/clinical/v1/prom-instruments': typeof ApiClinicalV1PromInstrumentsRoute
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
   '/api/public/v1/business_intake': typeof ApiPublicV1Business_intakeRoute
@@ -1925,8 +2009,11 @@ export interface FileRoutesById {
   '/api/clinical/v1/masters/pricing-rules': typeof ApiClinicalV1MastersPricingRulesRouteWithChildren
   '/api/clinical/v1/masters/services': typeof ApiClinicalV1MastersServicesRouteWithChildren
   '/api/clinical/v1/masters/tpas': typeof ApiClinicalV1MastersTpasRouteWithChildren
+  '/api/clinical/v1/outcomes/summary': typeof ApiClinicalV1OutcomesSummaryRoute
+  '/api/clinical/v1/prom-assignments/$id': typeof ApiClinicalV1PromAssignmentsIdRouteWithChildren
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
+  '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
@@ -1983,6 +2070,9 @@ export interface FileRoutesById {
   '/api/clinical/v1/orders/prescription-items/$id': typeof ApiClinicalV1OrdersPrescriptionItemsIdRoute
   '/api/clinical/v1/orders/radiology-items/$id': typeof ApiClinicalV1OrdersRadiologyItemsIdRoute
   '/api/clinical/v1/orders/service-items/$id': typeof ApiClinicalV1OrdersServiceItemsIdRoute
+  '/api/clinical/v1/prom-assignments/$id/remind': typeof ApiClinicalV1PromAssignmentsIdRemindRoute
+  '/api/clinical/v1/prom-assignments/$id/respond': typeof ApiClinicalV1PromAssignmentsIdRespondRoute
+  '/api/clinical/v1/prom-assignments/$id/submit': typeof ApiClinicalV1PromAssignmentsIdSubmitRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
@@ -2079,6 +2169,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/episodes'
     | '/api/clinical/v1/me'
     | '/api/clinical/v1/openapi'
+    | '/api/clinical/v1/prem-responses'
+    | '/api/clinical/v1/prom-assignments'
+    | '/api/clinical/v1/prom-instruments'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
     | '/api/public/v1/business_intake'
@@ -2137,8 +2230,11 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/pricing-rules'
     | '/api/clinical/v1/masters/services'
     | '/api/clinical/v1/masters/tpas'
+    | '/api/clinical/v1/outcomes/summary'
+    | '/api/clinical/v1/prom-assignments/$id'
     | '/api/clinical/v1/supporting-info/$id'
     | '/api/clinical/v1/vitals/$id'
+    | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/homecare/care-plans'
@@ -2195,6 +2291,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/orders/prescription-items/$id'
     | '/api/clinical/v1/orders/radiology-items/$id'
     | '/api/clinical/v1/orders/service-items/$id'
+    | '/api/clinical/v1/prom-assignments/$id/remind'
+    | '/api/clinical/v1/prom-assignments/$id/respond'
+    | '/api/clinical/v1/prom-assignments/$id/submit'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
@@ -2287,6 +2386,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/episodes'
     | '/api/clinical/v1/me'
     | '/api/clinical/v1/openapi'
+    | '/api/clinical/v1/prem-responses'
+    | '/api/clinical/v1/prom-assignments'
+    | '/api/clinical/v1/prom-instruments'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
     | '/api/public/v1/business_intake'
@@ -2345,8 +2447,11 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/pricing-rules'
     | '/api/clinical/v1/masters/services'
     | '/api/clinical/v1/masters/tpas'
+    | '/api/clinical/v1/outcomes/summary'
+    | '/api/clinical/v1/prom-assignments/$id'
     | '/api/clinical/v1/supporting-info/$id'
     | '/api/clinical/v1/vitals/$id'
+    | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/homecare/care-plans'
@@ -2403,6 +2508,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/orders/prescription-items/$id'
     | '/api/clinical/v1/orders/radiology-items/$id'
     | '/api/clinical/v1/orders/service-items/$id'
+    | '/api/clinical/v1/prom-assignments/$id/remind'
+    | '/api/clinical/v1/prom-assignments/$id/respond'
+    | '/api/clinical/v1/prom-assignments/$id/submit'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
@@ -2498,6 +2606,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/episodes'
     | '/api/clinical/v1/me'
     | '/api/clinical/v1/openapi'
+    | '/api/clinical/v1/prem-responses'
+    | '/api/clinical/v1/prom-assignments'
+    | '/api/clinical/v1/prom-instruments'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
     | '/api/public/v1/business_intake'
@@ -2556,8 +2667,11 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/pricing-rules'
     | '/api/clinical/v1/masters/services'
     | '/api/clinical/v1/masters/tpas'
+    | '/api/clinical/v1/outcomes/summary'
+    | '/api/clinical/v1/prom-assignments/$id'
     | '/api/clinical/v1/supporting-info/$id'
     | '/api/clinical/v1/vitals/$id'
+    | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/homecare/care-plans'
@@ -2614,6 +2728,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/orders/prescription-items/$id'
     | '/api/clinical/v1/orders/radiology-items/$id'
     | '/api/clinical/v1/orders/service-items/$id'
+    | '/api/clinical/v1/prom-assignments/$id/remind'
+    | '/api/clinical/v1/prom-assignments/$id/respond'
+    | '/api/clinical/v1/prom-assignments/$id/submit'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
@@ -2677,6 +2794,9 @@ export interface RootRouteChildren {
   ApiClinicalV1EpisodesRoute: typeof ApiClinicalV1EpisodesRouteWithChildren
   ApiClinicalV1MeRoute: typeof ApiClinicalV1MeRoute
   ApiClinicalV1OpenapiRoute: typeof ApiClinicalV1OpenapiRoute
+  ApiClinicalV1PremResponsesRoute: typeof ApiClinicalV1PremResponsesRoute
+  ApiClinicalV1PromAssignmentsRoute: typeof ApiClinicalV1PromAssignmentsRouteWithChildren
+  ApiClinicalV1PromInstrumentsRoute: typeof ApiClinicalV1PromInstrumentsRoute
   ApiPublicLegalSlugRoute: typeof ApiPublicLegalSlugRouteWithChildren
   ApiPublicTelemetryNavClickRoute: typeof ApiPublicTelemetryNavClickRoute
   ApiPublicV1Business_intakeRoute: typeof ApiPublicV1Business_intakeRoute
@@ -2723,8 +2843,10 @@ export interface RootRouteChildren {
   ApiClinicalV1MastersPricingRulesRoute: typeof ApiClinicalV1MastersPricingRulesRouteWithChildren
   ApiClinicalV1MastersServicesRoute: typeof ApiClinicalV1MastersServicesRouteWithChildren
   ApiClinicalV1MastersTpasRoute: typeof ApiClinicalV1MastersTpasRouteWithChildren
+  ApiClinicalV1OutcomesSummaryRoute: typeof ApiClinicalV1OutcomesSummaryRoute
   ApiClinicalV1SupportingInfoIdRoute: typeof ApiClinicalV1SupportingInfoIdRoute
   ApiClinicalV1VitalsIdRoute: typeof ApiClinicalV1VitalsIdRoute
+  ApiPatientV1PromsPendingRoute: typeof ApiPatientV1PromsPendingRoute
   ApiPublicV1DebugEventsRoute: typeof ApiPublicV1DebugEventsRoute
   ApiPublicV1HomecareCarePlansRoute: typeof ApiPublicV1HomecareCarePlansRoute
   ApiPublicV1HomecareRecipientsRoute: typeof ApiPublicV1HomecareRecipientsRoute
@@ -3236,6 +3358,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLegalSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/prom-instruments': {
+      id: '/api/clinical/v1/prom-instruments'
+      path: '/api/clinical/v1/prom-instruments'
+      fullPath: '/api/clinical/v1/prom-instruments'
+      preLoaderRoute: typeof ApiClinicalV1PromInstrumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/prom-assignments': {
+      id: '/api/clinical/v1/prom-assignments'
+      path: '/api/clinical/v1/prom-assignments'
+      fullPath: '/api/clinical/v1/prom-assignments'
+      preLoaderRoute: typeof ApiClinicalV1PromAssignmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/prem-responses': {
+      id: '/api/clinical/v1/prem-responses'
+      path: '/api/clinical/v1/prem-responses'
+      fullPath: '/api/clinical/v1/prem-responses'
+      preLoaderRoute: typeof ApiClinicalV1PremResponsesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/openapi': {
       id: '/api/clinical/v1/openapi'
       path: '/api/clinical/v1/openapi'
@@ -3453,6 +3596,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLegalSlugAcceptRouteImport
       parentRoute: typeof ApiPublicLegalSlugRoute
     }
+    '/api/patient/v1/proms/pending': {
+      id: '/api/patient/v1/proms/pending'
+      path: '/api/patient/v1/proms/pending'
+      fullPath: '/api/patient/v1/proms/pending'
+      preLoaderRoute: typeof ApiPatientV1PromsPendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/vitals/$id': {
       id: '/api/clinical/v1/vitals/$id'
       path: '/api/clinical/v1/vitals/$id'
@@ -3465,6 +3615,20 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/supporting-info/$id'
       fullPath: '/api/clinical/v1/supporting-info/$id'
       preLoaderRoute: typeof ApiClinicalV1SupportingInfoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/prom-assignments/$id': {
+      id: '/api/clinical/v1/prom-assignments/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/prom-assignments/$id'
+      preLoaderRoute: typeof ApiClinicalV1PromAssignmentsIdRouteImport
+      parentRoute: typeof ApiClinicalV1PromAssignmentsRoute
+    }
+    '/api/clinical/v1/outcomes/summary': {
+      id: '/api/clinical/v1/outcomes/summary'
+      path: '/api/clinical/v1/outcomes/summary'
+      fullPath: '/api/clinical/v1/outcomes/summary'
+      preLoaderRoute: typeof ApiClinicalV1OutcomesSummaryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/masters/tpas': {
@@ -3795,6 +3959,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/v1/fleet/$id/location'
       preLoaderRoute: typeof ApiPublicV1FleetIdLocationRouteImport
       parentRoute: typeof ApiPublicV1FleetRoute
+    }
+    '/api/clinical/v1/prom-assignments/$id/submit': {
+      id: '/api/clinical/v1/prom-assignments/$id/submit'
+      path: '/submit'
+      fullPath: '/api/clinical/v1/prom-assignments/$id/submit'
+      preLoaderRoute: typeof ApiClinicalV1PromAssignmentsIdSubmitRouteImport
+      parentRoute: typeof ApiClinicalV1PromAssignmentsIdRoute
+    }
+    '/api/clinical/v1/prom-assignments/$id/respond': {
+      id: '/api/clinical/v1/prom-assignments/$id/respond'
+      path: '/respond'
+      fullPath: '/api/clinical/v1/prom-assignments/$id/respond'
+      preLoaderRoute: typeof ApiClinicalV1PromAssignmentsIdRespondRouteImport
+      parentRoute: typeof ApiClinicalV1PromAssignmentsIdRoute
+    }
+    '/api/clinical/v1/prom-assignments/$id/remind': {
+      id: '/api/clinical/v1/prom-assignments/$id/remind'
+      path: '/remind'
+      fullPath: '/api/clinical/v1/prom-assignments/$id/remind'
+      preLoaderRoute: typeof ApiClinicalV1PromAssignmentsIdRemindRouteImport
+      parentRoute: typeof ApiClinicalV1PromAssignmentsIdRoute
     }
     '/api/clinical/v1/orders/service-items/$id': {
       id: '/api/clinical/v1/orders/service-items/$id'
@@ -4658,6 +4843,42 @@ const ApiClinicalV1EpisodesRouteWithChildren =
     ApiClinicalV1EpisodesRouteChildren,
   )
 
+interface ApiClinicalV1PromAssignmentsIdRouteChildren {
+  ApiClinicalV1PromAssignmentsIdRemindRoute: typeof ApiClinicalV1PromAssignmentsIdRemindRoute
+  ApiClinicalV1PromAssignmentsIdRespondRoute: typeof ApiClinicalV1PromAssignmentsIdRespondRoute
+  ApiClinicalV1PromAssignmentsIdSubmitRoute: typeof ApiClinicalV1PromAssignmentsIdSubmitRoute
+}
+
+const ApiClinicalV1PromAssignmentsIdRouteChildren: ApiClinicalV1PromAssignmentsIdRouteChildren =
+  {
+    ApiClinicalV1PromAssignmentsIdRemindRoute:
+      ApiClinicalV1PromAssignmentsIdRemindRoute,
+    ApiClinicalV1PromAssignmentsIdRespondRoute:
+      ApiClinicalV1PromAssignmentsIdRespondRoute,
+    ApiClinicalV1PromAssignmentsIdSubmitRoute:
+      ApiClinicalV1PromAssignmentsIdSubmitRoute,
+  }
+
+const ApiClinicalV1PromAssignmentsIdRouteWithChildren =
+  ApiClinicalV1PromAssignmentsIdRoute._addFileChildren(
+    ApiClinicalV1PromAssignmentsIdRouteChildren,
+  )
+
+interface ApiClinicalV1PromAssignmentsRouteChildren {
+  ApiClinicalV1PromAssignmentsIdRoute: typeof ApiClinicalV1PromAssignmentsIdRouteWithChildren
+}
+
+const ApiClinicalV1PromAssignmentsRouteChildren: ApiClinicalV1PromAssignmentsRouteChildren =
+  {
+    ApiClinicalV1PromAssignmentsIdRoute:
+      ApiClinicalV1PromAssignmentsIdRouteWithChildren,
+  }
+
+const ApiClinicalV1PromAssignmentsRouteWithChildren =
+  ApiClinicalV1PromAssignmentsRoute._addFileChildren(
+    ApiClinicalV1PromAssignmentsRouteChildren,
+  )
+
 interface ApiPublicLegalSlugRouteChildren {
   ApiPublicLegalSlugAcceptRoute: typeof ApiPublicLegalSlugAcceptRoute
 }
@@ -4994,6 +5215,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1EpisodesRoute: ApiClinicalV1EpisodesRouteWithChildren,
   ApiClinicalV1MeRoute: ApiClinicalV1MeRoute,
   ApiClinicalV1OpenapiRoute: ApiClinicalV1OpenapiRoute,
+  ApiClinicalV1PremResponsesRoute: ApiClinicalV1PremResponsesRoute,
+  ApiClinicalV1PromAssignmentsRoute:
+    ApiClinicalV1PromAssignmentsRouteWithChildren,
+  ApiClinicalV1PromInstrumentsRoute: ApiClinicalV1PromInstrumentsRoute,
   ApiPublicLegalSlugRoute: ApiPublicLegalSlugRouteWithChildren,
   ApiPublicTelemetryNavClickRoute: ApiPublicTelemetryNavClickRoute,
   ApiPublicV1Business_intakeRoute: ApiPublicV1Business_intakeRoute,
@@ -5049,8 +5274,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1MastersServicesRoute:
     ApiClinicalV1MastersServicesRouteWithChildren,
   ApiClinicalV1MastersTpasRoute: ApiClinicalV1MastersTpasRouteWithChildren,
+  ApiClinicalV1OutcomesSummaryRoute: ApiClinicalV1OutcomesSummaryRoute,
   ApiClinicalV1SupportingInfoIdRoute: ApiClinicalV1SupportingInfoIdRoute,
   ApiClinicalV1VitalsIdRoute: ApiClinicalV1VitalsIdRoute,
+  ApiPatientV1PromsPendingRoute: ApiPatientV1PromsPendingRoute,
   ApiPublicV1DebugEventsRoute: ApiPublicV1DebugEventsRoute,
   ApiPublicV1HomecareCarePlansRoute: ApiPublicV1HomecareCarePlansRoute,
   ApiPublicV1HomecareRecipientsRoute: ApiPublicV1HomecareRecipientsRoute,
