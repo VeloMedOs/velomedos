@@ -534,5 +534,19 @@ export const openApiClinicalSpec = {
       patch:  { tags: ["PricingRules"], summary: "Update tenant pricing rule", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
       delete: { tags: ["PricingRules"], summary: "Delete tenant pricing rule", responses: { 204: { description: "Deleted" } } },
     },
+    "/encounters/{id}/admit": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:  { tags: ["Hospitalization"], summary: "Get hospitalization (admission MDS)", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Hospitalization"], summary: "Admit IP/HH encounter — upsert hospitalization, advance journey 'admitted'", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "Upserted", content: { "application/json": { schema: { type: "object" } } } }, 409: { description: "Encounter class not IMP/HH", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+    },
+    "/encounters/{id}/discharge": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      post: { tags: ["Hospitalization"], summary: "Discharge encounter — sets separation_mode, vent hours, cause_of_death (if deceased), derives same_day, advances journey 'discharged'", requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["discharged_at", "separation_mode"], properties: { discharged_at: { type: "string", format: "date-time" }, separation_mode: { type: "string" }, mechanical_ventilation_hours: { type: "integer" }, cause_of_death: { type: "string" }, discharge_specialty: { type: "string" }, discharge_disposition: { type: "string" } } } } } }, responses: { 200: { description: "Discharged", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/encounters/{id}/emergency": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:  { tags: ["Hospitalization"], summary: "Get emergency MDS", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Hospitalization"], summary: "Upsert ER triage + ED disposition (EMER encounter)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "Upserted", content: { "application/json": { schema: { type: "object" } } } }, 409: { description: "Encounter class not EMER", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+    },
   },
 } as const;
