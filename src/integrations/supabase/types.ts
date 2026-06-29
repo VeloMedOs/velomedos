@@ -181,6 +181,128 @@ export type Database = {
         }
         Relationships: []
       }
+      beneficiary: {
+        Row: {
+          address_city: string | null
+          address_country: string | null
+          address_district: string | null
+          address_line: string | null
+          address_postal_code: string | null
+          address_state: string | null
+          address_street: string | null
+          birth_weight_grams: number | null
+          blood_group: string | null
+          contact_number: string | null
+          created_at: string
+          created_by: string | null
+          dob: string
+          document_id: string
+          document_type: string
+          ehealth_id: string | null
+          email: string | null
+          first_name: string | null
+          full_name: string
+          gender: string
+          id: string
+          journey_state: string
+          last_name: string | null
+          marital_status: string | null
+          middle_name: string | null
+          nationality: string | null
+          occupation: string | null
+          patient_file_no: string | null
+          patient_user_id: string | null
+          preferred_language: string | null
+          religion: string | null
+          residency_type: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          address_city?: string | null
+          address_country?: string | null
+          address_district?: string | null
+          address_line?: string | null
+          address_postal_code?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          birth_weight_grams?: number | null
+          blood_group?: string | null
+          contact_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          dob: string
+          document_id: string
+          document_type: string
+          ehealth_id?: string | null
+          email?: string | null
+          first_name?: string | null
+          full_name: string
+          gender: string
+          id?: string
+          journey_state?: string
+          last_name?: string | null
+          marital_status?: string | null
+          middle_name?: string | null
+          nationality?: string | null
+          occupation?: string | null
+          patient_file_no?: string | null
+          patient_user_id?: string | null
+          preferred_language?: string | null
+          religion?: string | null
+          residency_type?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          address_city?: string | null
+          address_country?: string | null
+          address_district?: string | null
+          address_line?: string | null
+          address_postal_code?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          birth_weight_grams?: number | null
+          blood_group?: string | null
+          contact_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          dob?: string
+          document_id?: string
+          document_type?: string
+          ehealth_id?: string | null
+          email?: string | null
+          first_name?: string | null
+          full_name?: string
+          gender?: string
+          id?: string
+          journey_state?: string
+          last_name?: string | null
+          marital_status?: string | null
+          middle_name?: string | null
+          nationality?: string | null
+          occupation?: string | null
+          patient_file_no?: string | null
+          patient_user_id?: string | null
+          preferred_language?: string | null
+          religion?: string | null
+          residency_type?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beneficiary_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_request_events: {
         Row: {
           actor_id: string | null
@@ -1000,6 +1122,138 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      coverage: {
+        Row: {
+          beneficiary_id: string
+          coverage_type: string
+          created_at: string
+          created_by: string | null
+          expiry_date: string | null
+          id: string
+          insurance_plan_id: string | null
+          member_id: string
+          network_id: string | null
+          payer_id: string | null
+          payer_nphies_id: string
+          policy_holder: string
+          policy_id: string | null
+          policy_number: string | null
+          relation_with_subscriber: string
+          status: string
+          tenant_id: string
+          tpa_nphies_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          beneficiary_id: string
+          coverage_type: string
+          created_at?: string
+          created_by?: string | null
+          expiry_date?: string | null
+          id?: string
+          insurance_plan_id?: string | null
+          member_id: string
+          network_id?: string | null
+          payer_id?: string | null
+          payer_nphies_id: string
+          policy_holder: string
+          policy_id?: string | null
+          policy_number?: string | null
+          relation_with_subscriber: string
+          status?: string
+          tenant_id: string
+          tpa_nphies_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          beneficiary_id?: string
+          coverage_type?: string
+          created_at?: string
+          created_by?: string | null
+          expiry_date?: string | null
+          id?: string
+          insurance_plan_id?: string | null
+          member_id?: string
+          network_id?: string | null
+          payer_id?: string | null
+          payer_nphies_id?: string
+          policy_holder?: string
+          policy_id?: string | null
+          policy_number?: string | null
+          relation_with_subscriber?: string
+          status?: string
+          tenant_id?: string
+          tpa_nphies_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coverage_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coverage_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coverage_class: {
+        Row: {
+          coverage_id: string
+          created_at: string
+          display_name: string | null
+          id: string
+          tenant_id: string
+          type: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          coverage_id: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          tenant_id: string
+          type: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          coverage_id?: string
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          tenant_id?: string
+          type?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coverage_class_coverage_id_fkey"
+            columns: ["coverage_id"]
+            isOneToOne: false
+            referencedRelation: "coverage"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coverage_class_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       credentials: {
         Row: {
@@ -3724,6 +3978,10 @@ export type Database = {
         Returns: number
       }
       is_portal_staff: { Args: { _user_id: string }; Returns: boolean }
+      is_tenant_member: {
+        Args: { _tenant: string; _user_id: string }
+        Returns: boolean
+      }
       portal_effective_config: {
         Args: { _subscriber: string }
         Returns: {
