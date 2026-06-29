@@ -56,6 +56,13 @@ export const openApiClinicalSpec = {
     { name: "PriceLists", description: "Phase-3 Master · cash and payer-network itemized price lists." },
     { name: "DRGBaseRates", description: "Phase-3 Master · negotiated AR-DRG base rates per payer." },
     { name: "DRGAdjustments", description: "Phase-3 Master · DRG outlier / ICU / same-day / transfer adjustments." },
+    { name: "Orders/Lab", description: "Phase-4 · Laboratory orders and items (LOINC)." },
+    { name: "Orders/Radiology", description: "Phase-4 · Imaging orders and items (modality / body site)." },
+    { name: "Orders/Electrophysiology", description: "Phase-4 · EEG / EMG / NCS / ECG orders." },
+    { name: "Orders/Service", description: "Phase-4 · Procedure / service orders (ACHI via Service Master)." },
+    { name: "Prescriptions", description: "Phase-4 · Drug prescriptions and dispense events." },
+    { name: "Charges", description: "Phase-4 · Per-encounter charge_item ledger and totals." },
+    { name: "PricingRules", description: "Phase-4 · Tenant pricing/eligibility/share rules (global defaults read-only)." },
   ],
   paths: {
     "/openapi": {
@@ -456,6 +463,75 @@ export const openApiClinicalSpec = {
       get:    { tags: ["DRGAdjustments"], summary: "Get DRG adjustment", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
       patch:  { tags: ["DRGAdjustments"], summary: "Update DRG adjustment", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
       delete: { tags: ["DRGAdjustments"], summary: "Delete DRG adjustment", responses: { 204: { description: "Deleted" } } },
+    },
+    "/encounters/{id}/orders/lab": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:  { tags: ["Orders/Lab"], summary: "List lab orders for an encounter", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Orders/Lab"], summary: "Create lab order + items (resolver writes charge_item snapshots)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/encounters/{id}/orders/radiology": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:  { tags: ["Orders/Radiology"], summary: "List radiology orders", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Orders/Radiology"], summary: "Create radiology order + items", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/encounters/{id}/orders/electrophysiology": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:  { tags: ["Orders/Electrophysiology"], summary: "List EP orders", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Orders/Electrophysiology"], summary: "Create EP order + items", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/encounters/{id}/orders/service": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:  { tags: ["Orders/Service"], summary: "List service / procedure orders", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Orders/Service"], summary: "Create service order + items", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/encounters/{id}/prescriptions": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:  { tags: ["Prescriptions"], summary: "List prescriptions", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Prescriptions"], summary: "Create prescription + items", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/encounters/{id}/charges": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["Charges"], summary: "Aggregated charge_item ledger + totals (gross/discount/tax/patient/payer/net)", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/orders/lab-items/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["Orders/Lab"], summary: "Get lab item", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["Orders/Lab"], summary: "Update lab item (results / status)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Orders/Lab"], summary: "Cancel lab item (also cancels charge_item)", responses: { 204: { description: "Cancelled" } } },
+    },
+    "/orders/radiology-items/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["Orders/Radiology"], summary: "Get radiology item", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["Orders/Radiology"], summary: "Update radiology item (report / status)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Orders/Radiology"], summary: "Cancel radiology item", responses: { 204: { description: "Cancelled" } } },
+    },
+    "/orders/ep-items/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["Orders/Electrophysiology"], summary: "Get EP item", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["Orders/Electrophysiology"], summary: "Update EP item (interpretation / status)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Orders/Electrophysiology"], summary: "Cancel EP item", responses: { 204: { description: "Cancelled" } } },
+    },
+    "/orders/service-items/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["Orders/Service"], summary: "Get service item", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["Orders/Service"], summary: "Update service item", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Orders/Service"], summary: "Cancel service item", responses: { 204: { description: "Cancelled" } } },
+    },
+    "/orders/prescription-items/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["Prescriptions"], summary: "Get prescription item", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["Prescriptions"], summary: "Dispense / update prescription item", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Prescriptions"], summary: "Cancel prescription item", responses: { 204: { description: "Cancelled" } } },
+    },
+    "/masters/pricing-rules": {
+      get:  { tags: ["PricingRules"], summary: "List pricing rules (tenant + global defaults)", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["PricingRules"], summary: "Create tenant pricing rule", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/masters/pricing-rules/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { tags: ["PricingRules"], summary: "Get pricing rule", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch:  { tags: ["PricingRules"], summary: "Update tenant pricing rule", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["PricingRules"], summary: "Delete tenant pricing rule", responses: { 204: { description: "Deleted" } } },
     },
   },
 } as const;

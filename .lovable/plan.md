@@ -1,129 +1,126 @@
-# Phase 3 — Master Data (Insurance Chain · Multi-Coded Services · Drugs · Price Lists · DRG) — REVISED
+# Phase 4 — Orders, Investigations, Pricing (IP/OP Branch) + Rule Engine — REVISED
 
-Reference layer all downstream phases pivot on: the NPHIES insurance chain (TPA/Policy/Class/ Plan/Network), a multi-coded Service Master (SBS + ACHI + LOINC), Drug Master (GTIN/MRID/SFDA), itemized Price Lists for outpatient billing, and the typed AR-DRG v9.0 tables for inpatient bundled pricing. Standing rule: **API-first, fully wired — no orphan tables, no stubbed handlers.**
+Clinical orders layer + the pricing/rule engine that bifurcates by encounter `reimbursement_model` (itemized SBS for OP/ER vs DRG-bundled for IP). Strictly additive. Standing rule: **API-first, fully wired — no orphan tables, no stubbed handlers.**
 
-> Lovable's draft was thorough and the hard parts were right (multi-coded `service_code` with partial-unique primary billing, drug GTIN/MRID, typed DRG tables keyed by version, coverage FK backfill, `assertMasterOwnership`). Changes are tagged **[AMENDED]** / **[NEW]**; untagged content is kept as proposed.
+> Lovable's draft was faithful. Changes tagged **[AMENDED]** / **[NEW]**; untagged content kept as proposed. Collision check passed — existing `work_orders`/`screening_orders` are the mobility domain; the clinical order tables are greenfield.
 
-## Reference vs contractual split (the conceptual spine) [AMENDED]
+## 1. Database migration
 
-Two authorization domains, never mixed:
+**Order headers + items** (tenant-scoped, RLS via `is_tenant_member`, FK `encounter_id`):
 
-- **National reference** (`drg`, plus the Phase-0 `code_system`/`code_value`) — CHI/SFDA-licensed, identical across all tenants, **platform-loaded** and gated by the existing control plane (`has_role(auth.uid(),'superadmin')` / `is_portal_staff`), NOT by tenant clinical roles, NOT by RLS. A CHI AR-DRG version bump is then a single platform load, not a per-tenant migration.
-- **Tenant contractual** (everything else, incl. `drg_base_rate`, `drg_price_adjustment`) — each tenant's negotiated deal, tenant-scoped + RLS, managed by `tenant_admin`.
+- `lab_order` / `lab_order_item` — LOINC, specimen, result_value/unit/status, result_at
+- `radiology_order` / `radiology_order_item` — modality, body_site, report_text/status, performed_at
+- `electrophysiology_order` / `ep_order_item` — study_type (EEG/EMG/NCS/ECG), interpretation, performed_at
+- `service_order` / `service_order_item` — refs `service_master` (ACHI via `service_code`)
+- `prescription` / `prescription_item` — refs `drug_master`; dose, frequency, duration, quantity_code, pharmacist substitute fields, `dispense_status text NULL`**,** `dispensed_at`**,** `dispensed_by` **[AMENDED — dispensing is per item, not on the header]**
 
-## 1. Supabase migration — 15 tables [AMENDED count: 15, not 13]
+**[NEW] Pre-authorization columns on each order header** (nullable now, NPHIES-wired in Phase 9): `preauth_required bool DEFAULT false`, `preauth_ref text NULL`, `preauth_status text NULL CHECK IN ('not_required','pending','approved','rejected')`. Insured imaging/procedures/high-cost items commonly need NPHIES authorization before the claim; the rule engine (`eligibility` scope) sets `preauth_required`.
 
-All tenant-scoped via `is_tenant_member` + GRANT → ENABLE RLS → POLICY → `touch_updated_at()`, **except** `drg` which is tenant-agnostic reference (read = authenticated, write = none at the RLS layer; loaded only by the platform — see §3).
+**Charge bridge** — `charge_item`, one per ordered line (NPHIES Item analogue):
 
-### Insurance chain (7 tables) [AMENDED — header previously said 6; it is 7]
+- **Traceability [AMENDED — make explicit]**: `tenant_id`, `encounter_id NOT NULL`, `order_item_table text NOT NULL`, `order_item_id uuid NOT NULL` (polymorphic link to the source line), so Phase 7 claim assembly can map and cancellation can propagate.
+- Snapshot columns: `sbs_code`, `achi_code`, `loinc_code`, `gtin`, `mrid`, `internal_code`, `description`, `quantity`, `unit_price_minor`, `factor`, `discount_minor`, `tax_minor`, `patient_share_minor`, `payer_share_minor`, `net_minor`, `price_list_id`, `pricing_mode enum (cash|insured|drg_bundled)`, `cost_only bool`, `in_network bool` **[NEW — records the network determination]**, `rule_trace jsonb`, `status enum`, `body_site`, `ordered_by`, `ordered_at`. Money = integer halalas; `currency` default 'SAR'.
 
-- `payer` — `tenant_id`, `nphies_payer_id text NOT NULL`, `name`, `payer_type CHECK IN ('public','private')`, `active`. `UNIQUE (tenant_id, nphies_payer_id)`.
-- `tpa` — `tenant_id`, `nphies_tpa_id text NOT NULL`, `name`, `active`. `UNIQUE (tenant_id, nphies_tpa_id)`. **[AMENDED — dropped** `payer_id`**. TPA↔payer is many-to-many in KSA (a TPA administers for many insurers); the applicable payer+TPA pairing is captured on** `coverage`**, not pinned here. Add a** `tpa_payer` **join table only if you must constrain valid pairings.]**
-- `policy` — `tenant_id`, `payer_id fk→payer`, `policy_number text NOT NULL`, `name`, `effective_date`, `expiry_date`, `active`. `UNIQUE (tenant_id, policy_number)`.
-- `insurance_class` — `tenant_id`, `policy_id fk→policy ON DELETE CASCADE`, `code NOT NULL`, `name`. `UNIQUE (policy_id, code)`.
-- `insurance_plan` — `tenant_id`, `class_id fk→insurance_class ON DELETE CASCADE`, `code NOT NULL`, `name`, `copay_percent numeric`, `deductible_minor int`, `annual_limit_minor int`. `UNIQUE (class_id, code)`.
-- `network` — `tenant_id`, `payer_id fk→payer`, `name`, `tier text`, `active`.
-- `network_membership` — `tenant_id`, `network_id fk→network ON DELETE CASCADE`, `provider_facility_id uuid NOT NULL fk→clinics` **[AMENDED — was** `provider_ref` **validated against "tenant_members or corporate_accounts" (mixed person/org grain). Network participation is facility/org-level. Bind to the facility entity that carries the NPHIES provider ID. If** `clinics` **doesn't already have an** `nphies_provider_id` **column, add it; if** `clinics` **is the wrong grain in your model, create a small** `facility` **master and point this + encounter at it.]**, `in_network bool DEFAULT true`. `UNIQUE (network_id, provider_facility_id)`.
+**Rule engine table** — `pricing_rule`: `tenant_id uuid NULL` **[AMENDED — NULLABLE: tenant_id NULL = system-default rule the engine falls back to; a tenant row overrides by priority]**, `name`, `scope enum (eligibility|share|package|substitution|drg_outlier)`, `priority int`, `condition jsonb`, `action jsonb`, `active bool`.
 
-**Backfill Phase-1** `coverage` **[AMENDED — +**`tpa_id`**]**: FK columns `payer_id`, `policy_id`, `insurance_plan_id`, `network_id` already exist; **add** `tpa_id uuid NULL` **too**, then add the actual FKs (`ALTER TABLE coverage ADD CONSTRAINT … REFERENCES … ON DELETE SET NULL`) for all five. No data migration.
+- RLS: a tenant reads its own rows **plus** the global (`tenant_id IS NULL`) defaults; only `service_role`/superadmin writes global defaults; `tenant_admin` writes its own.
 
-**Also bind the Phase-2 placeholder** **[NEW]**: `ALTER TABLE encounter ADD CONSTRAINT … location_id REFERENCES clinics(id) ON DELETE SET NULL` (and, if you keep `service_provider` as a provider ref, FK it to the same facility entity). Resolves the dangling `location_id`.
+**[NEW] IP cost basis** — for `drg_bundled` `cost_only` lines the resolver still needs a unit figure. Add `'cost'` to `price_list.list_type` (a tenant cost/standard list). The resolver prices IP cost-only lines against the active `cost` list, falling back to the cash list (flagged in `rule_trace`). Without this, `net_minor` for IP lines has no source.
 
-### Service Master (2 tables)
+**Enums**: `charge_pricing_mode`, `charge_status`, `order_status`, `pricing_rule_scope`, `preauth_status`.
 
-- `service_master` — `tenant_id`, `internal_code NOT NULL`, `name NOT NULL`, `description`, `service_type NOT NULL CHECK IN (laboratory|imaging|procedures|services|medical-devices| oral-health-ip|oral-health-op|transportation-srca)`, `modality text`, `is_package bool`, `body_site text`, `active`. `UNIQUE (tenant_id, internal_code)`. Index `(tenant_id, service_type, active)`.
-- `service_code` — `tenant_id`, `service_id fk→service_master ON DELETE CASCADE`, `code_system_id fk→code_system`, `code NOT NULL`, `display`, `is_primary_billing bool DEFAULT false`. `UNIQUE (service_id, code_system_id, code)`. Partial `UNIQUE (service_id) WHERE is_primary_billing`. **[Phase-10 note]** `is_primary_billing` **must reference a billing-kind** `code_system` **(SBS) — marking an ACHI/LOINC code as primary billing is a silent costing error. Enforce in Phase 10.**
+**Triggers**:
 
-### Drug Master (1 table)
+- `tg_orders_advance_journey` on each `*_order` insert → bumps `encounter.journey_state` to `investigations_ordered` if currently `clinically_documented` or earlier. (Permissive; Phase 10 enforces that documentation/medical-necessity precedes ordering.)
+- `touch_updated_at` on every new table.
 
-- `drug_master` — `tenant_id`, `internal_code NOT NULL`, `generic_name NOT NULL`, `trade_name`, `form`, `strength`, `route`, `gtin text`, `mrid text`, `sfda_sci_code text`, `atc_code text`, `active`. `UNIQUE (tenant_id, internal_code)`. Indexes `(tenant_id, gtin)`, `(tenant_id, mrid)`.
+**Seed [AMENDED — not "runtime"]**: insert the system-default `pricing_rule` rows (`tenant_id NULL`) in this migration: `share` copay from `plan.copay_percent`; `eligibility` non-covered → 100% patient + flag preauth where configured; `cash` → 100% patient; `out_of_network` → elevated patient share. Tenants override via their own rows.
 
-### Price Lists — outpatient itemized (2 tables)
+**GRANTs**: SELECT/INSERT/UPDATE/DELETE to `authenticated`, ALL to `service_role`; no `anon`.
 
-- `price_list` — `tenant_id`, `name NOT NULL`, `list_type CHECK IN ('cash','payer_network')`, `payer_id fk→payer NULL`, `network_id fk→network NULL`, `currency DEFAULT 'SAR'`, `effective_date`, `expiry_date`, `active`. CHECK: `list_type='cash' OR payer_id IS NOT NULL`.
-- `price_list_item` — `tenant_id`, `price_list_id fk→price_list ON DELETE CASCADE`, `service_id fk→service_master NULL`, `drug_id fk→drug_master NULL`, `unit_price_minor int NOT NULL CHECK (>=0)`, `default_factor numeric DEFAULT 1`, `patient_share_percent numeric`, `tax_percent numeric`, `is_package bool`. CHECK: `(service_id IS NOT NULL) <> (drug_id IS NOT NULL)`. Indexes `(price_list_id)`, `(tenant_id, service_id)`, `(tenant_id, drug_id)`.
+## 2. Pricing resolver — `src/lib/mds/pricing.ts`
 
-### AR-DRG pricing (3 tables)
+`resolvePrice({ tenantId, encounterId, serviceId|drugId, quantity })`:
 
-- `drg` — **tenant-agnostic reference**. `code_system_id fk→code_system` (AR-DRG v9.0), `drg_code NOT NULL`, `drg_name`, `mdc`, `adrg`, `partition CHECK IN ('medical','intervention')`, `version NOT NULL`, `relative_weight numeric NOT NULL`, `low_trim_los int`, `high_trim_los int`, `avg_los numeric`, `active`. `UNIQUE (drg_code, version)`. RLS: `SELECT TO authenticated USING (true)`; **no INSERT/UPDATE/DELETE policy at all** — writes occur only via the platform loader (§3), never through a tenant route.
-- `drg_base_rate` — `tenant_id`, `payer_id fk→payer`, `network_id fk→network NULL`, `drg_version NOT NULL`, `base_rate_minor int NOT NULL`, `currency DEFAULT 'SAR'`, `effective_from`, `effective_to`. Index `(tenant_id, payer_id, drg_version, effective_from DESC)`.
-- `drg_price_adjustment` — `tenant_id`, `payer_id fk→payer NULL`, `drg_version`, `adj_type CHECK IN ('high_outlier','low_outlier','short_stay','icu_addon','sameday','transfer')`, `trim_basis CHECK IN ('los','cost')`, `per_diem_minor int NULL`, `marginal_rate numeric NULL`, `threshold numeric NULL`, `formula jsonb`, `priority int DEFAULT 0`, `active`.
+1. Load encounter + active `coverage`. Mode:
+  - `reimbursement_model='drg_bundled'` → `{ pricing_mode:'drg_bundled', cost_only:true, net_minor = cost-list price (see IP cost basis), patient/payer share = 0 (deferred to Phase 7) }`.
+  - No active coverage → `cash`.
+  - Active coverage → `insured`. Resolve chain `coverage → insurance_plan → insurance_class → policy → payer` **and TPA via** `coverage.tpa_id` **[AMENDED — Phase 3 added tpa_id]**.
+2. **Network determination [AMENDED — two-sided]**: take the patient's `coverage.network_id`, then check `network_membership(network_id, provider_facility_id = encounter.location_id, in_network=true)`. In-network → standard share; **out-of-network → set** `in_network=false` **and apply the** `out_of_network` **rule (elevated patient share / possible non-coverage)**. Don't just "resolve a network" — the provider must be in the *patient's* network.
+3. Itemized `price_list` pick: `cash` → tenant cash list; `insured` → match payer+network, fallback payer-only, fallback cash (flagged in `rule_trace`).
+4. `price_list_item`; `net = qty*unit*factor − discount + tax`.
+5. Rule engine splits patient/payer share (global defaults + tenant overrides); set `preauth_required` if an `eligibility` rule fires. Append every step to `rule_trace`.
+6. Snapshot all codes (sbs/achi/loinc/gtin/mrid, internal_code, description) from `service_code`/`drug_master` onto the charge row, plus `in_network` and `preauth_required`.
 
-### Seed [AMENDED]
+## 3. Rule engine — `src/lib/mds/rules.ts`
 
-- **Do NOT re-seed** `code_system`**.** Phase 0 owns the ten systems incl. `ar-drg` (9.0), `sbs` (3), `achi` (10th), `loinc`, `icd-10-am`. Reference them by key. If one is missing, fix Phase 0 — re-inserting here risks a duplicate `ar-drg` row at a different version and downstream drift.
-- Leave `drg` empty; the AR-DRG v9 weights are a CHI-licensed file loaded via the platform loader. Document the loader contract in the loader docstring. Phase 10 enforces presence.
+Deterministic, priority-ordered evaluator over `pricing_rule` filtered by `(tenant_id = ctx OR tenant_id IS NULL)` + scope. `drg_outlier` rules are loaded but consumed only in Phase 7.
 
-## 2. Zod schemas — `src/lib/mds/schema/masters.ts`
+## 4. Zod schemas — `src/lib/mds/schema/orders.ts`
 
-`Payer*`, `Tpa*` **(no** `payer_id`**)**, `Policy*`, `InsuranceClass*`, `InsurancePlan*`, `Network*`, `NetworkMembershipCreate` **(**`provider_facility_id`**)**, `ServiceMaster*`, `ServiceCodeCreate` (`is_primary_billing`), `DrugMaster*`, `PriceList*`, `PriceListItem*` (refine: exactly one of `service_id|drug_id`), `Drg*`, `DrgBaseRate*`, `DrgPriceAdjustment*`. Permissive in Phase 3; strict in Phase 10.
+Create/update per order header + item (+ preauth fields), `ChargeItemRead`, `PricingRuleCreate/ Update` **[NEW]**. Item creates omit price fields (resolver fills). Role hints in handlers.
 
-## 3. Routes
+## 5. API routes — `src/routes/api/clinical/v1/`
 
-**Tenant masters** — `src/routes/api/clinical/v1/masters/`: `preflight()`, `requireTenant` reads, `requireClinicalRole('tenant_admin')` writes, `clinicalAudit`, envelope, tenant-ownership guard on `$id` writes.
+Per modality: GET (list orders+items for encounter) + POST (create header+items; resolver per item; `charge_item` written in the same transaction; journey trigger fires). `requireTenant` + `requireClinicalRole`, envelope, `clinicalAudit` on writes, `assertMasterOwnership` for `service_id|drug_id|price_list_id`. Cross-tenant → `not_found`.
 
-- Insurance chain — `payers(.$id)`, `tpas(.$id)`, `policies(.$id)`, `insurance-classes(.$id)`, `insurance-plans(.$id)`, `networks(.$id)`, `networks.$id.memberships` + `network-memberships.$id`.
-- Catalogs — `services(.$id)`, `services.$id.codes` + `service-codes.$id`, `drugs(.$id)`.
-- Price lists — `price-lists(.$id)`, `price-lists.$id.items` + `price-list-items.$id`.
-- DRG **contractual** — `drg-base-rates(.$id)`, `drg-adjustments(.$id)` (tenant_admin).
+- `encounters.$id.orders.lab.ts` — POST `lab_tech|physician|tenant_admin`
+- `encounters.$id.orders.radiology.ts` — `radiologist|physician|tenant_admin`
+- `encounters.$id.orders.electrophysiology.ts` — `physician|tenant_admin`
+- `encounters.$id.orders.service.ts` — `physician|nurse|tenant_admin`
+- `encounters.$id.prescriptions.ts` — POST `physician|tenant_admin`
+- `encounters.$id.charges.ts` — GET aggregated `charge_item` + totals (gross/discount/tax/patient/ payer/net), filter by status; read-only any tenant role.
+- Per-item PATCH/DELETE: `orders/lab-items.$id.ts`, `orders/radiology-items.$id.ts`, `orders/ep-items.$id.ts`, `orders/service-items.$id.ts`, `prescription-items.$id.ts` (PATCH results/**dispense per item**/status; DELETE = cancel → sets status, marks linked `charge_item` cancelled).
+- `masters/pricing-rules.ts` **+** `pricing-rules.$id.ts` **[NEW — closes the API-coverage gap;** `tenant_admin` **manages its own rules; global defaults are read-only to tenants]**
 
-**DRG reference loader** **[AMENDED — moved out of the tenant namespace]** — `src/routes/api/admin/v1/drgs.ts` (+ `drgs.$id.ts`): GET list (filters `version`, `mdc`, `active`) for any authenticated user; **write gated by the control plane (**`requireAdmin` **/ superadmin /** `is_portal_staff`**)** — the handler uses the service client, so RLS does NOT protect it; the explicit role check does. This mirrors how `code_value` reference data is loaded. Tenants never POST `drg`.
+## 6. OpenAPI
 
-## 4. Phase-1 coverage wiring
+Extend `src/lib/openapi-clinical-spec.ts`: tags **Orders/Lab, Orders/Radiology, Orders/Electrophysiology, Orders/Service, Prescriptions, Charges, PricingRules**; paths for every new route (incl. pricing-rules); schemas for headers, items, `ChargeItem`, `PricingRule`, preauth.
 
-`coverage.ts` POST/PATCH validate that supplied `payer_id`, `tpa_id`, `policy_id`, `insurance_plan_id`, `network_id` belong to the caller's tenant — extend `_helpers.ts` with `assertMasterOwnership(table, id, tenantId)`. No FHIR mapper changes.
+## 7. Verification
 
-## 5. OpenAPI
+- Typecheck clean; Supabase linter passes.
+- Acceptance:
+  1. OP insured + in-network lab → `pricing_mode='insured'`, `in_network=true`, split per copay, `rule_trace` populated.
+  2. OP insured + **out-of-network** facility → `in_network=false`, elevated patient share per the out_of_network rule. **[NEW]**
+  3. OP cash → `pricing_mode='cash'`, 100% patient.
+  4. IP lab → `cost_only=true`, `pricing_mode='drg_bundled'`, `net_minor` sourced from the cost list, patient/payer share = 0. **[AMENDED — assert net comes from cost basis]**
+  5. Insured imaging flagged `preauth_required=true` by an eligibility rule. **[NEW]**
+  6. Update `price_list_item.unit_price_minor` → prior `charge_item` snapshot unchanged.
+  7. Cancel an order item → linked `charge_item` flips to cancelled (traceability holds). **[NEW]**
+- **API coverage:** every order/item table via its modality + item routes; `charge_item` via order POST + `charges` GET + item cancel; `pricing_rule` via `masters/pricing-rules`. No orphan tables.
 
-Extend `src/lib/openapi-clinical-spec.ts` with tags `Payers, TPAs, Policies, InsuranceClasses, InsurancePlans, Networks, Services, Drugs, PriceLists, DRGBaseRates, DRGAdjustments`; add the DRG **reference** paths to the **admin** spec (`openapi-admin-spec.ts`), not the clinical one, since it lives under `/api/admin/v1`. Schemas for every create/update + DTO; 200/201/400/401/403/404/409/422.
+## 8. Delivery & Documentation milestone [NEW — standing, applies from Phase 0 forward]
 
-## 6. Verification
+Every phase's **Definition of Done** now includes updating two living documents (greenfield — create `docs/` this phase; backfill Phases 0–3 retroactively):
 
-- `bun run build` green; `tsgo` clean; existing Playwright suites pass.
-- Swagger smoke:
-  1. payer → tpa → policy → class → plan → network → membership end-to-end; membership references a `clinics` facility (foreign-tenant facility → 404).
-  2. Phase-1 coverage referencing new `payer_id`+`tpa_id`+`policy_id` succeeds; foreign-tenant payer → 404. **[AMENDED — +tpa_id]**
-  3. Procedure service with two `service_code` rows: `sbs` (`is_primary_billing=true`) + `achi`; marking a second primary → 409.
-  4. Drug with `gtin` + `mrid` + `sfda_sci_code`.
-  5. Cash price list + items; item with both `service_id` and `drug_id` → CHECK rejects.
-  6. **DRG reference: POST to** `/api/admin/v1/drgs` **as a non-superadmin → 403; as superadmin → 201; authenticated GET returns rows. Confirms the write-auth is the role check, not RLS.** **[AMENDED]**
-  7. `drg_base_rate` + one `high_outlier` `drg_price_adjustment` for a payer (tenant_admin).
-  8. Tenant B cannot read tenant A's payer/service/price-list (404).
-- `psql`: RLS enabled on **all 14 tenant-scoped tables** (`drg` excepted — SELECT-only policy, no write policy); grants present; partial-unique on `service_code(is_primary_billing)` fires; `price_list_item` CHECK fires; `encounter.location_id` + `coverage.tpa_id` FKs present. **[AMENDED count]**
-- **API coverage:** every tenant table reachable through its `masters/` routes; `drg` reference via `/api/admin/v1/drgs`. No orphan tables.
+- `docs/his-technical-manual.md` — for engineers/integrators. Per phase, append: the data model (tables, keys, RLS, enums, triggers — an ERD section per domain), the API reference (link to the OpenAPI spec at `/api/clinical/v1/openapi` + `/api/admin/v1/openapi`, plus the non-API context the spec can't carry), the pricing/rule-engine + DRG logic, the state machines (clinical status + MDS journey), the code-system/versioning model, and the security model (tenant guard, RLS, reference-vs-contractual split). The OpenAPI specs are the API-reference backbone; this manual is the architecture + business-logic layer around them.
+- `docs/his-user-manual.md` — for end users, role-based task guides for what each phase ships: registrar (register patient + coverage), physician (open encounter, document, diagnose, order, prescribe), nurse (vitals, orders), coder (code + group — Phase 6), pharmacist (dispense), tenant_admin (masters, price lists, DRG rates, pricing rules), patient (the patient-app surfaces).
+
+Mechanics: the phase isn't "done" until both manuals are updated for the features it shipped. Recommend Lovable generate a `docs/changelog.md` entry per phase referencing the migration + routes, and that the technical manual's API section be regenerated from the OpenAPI spec each phase so it never drifts. (Fold this DoD into the master build doc's cross-cutting reminders so it's enforced every phase, not just Phase 4.)
 
 ## Files touched
 
 ```
-supabase migration (15 tables + RLS + grants + indexes + checks;
-                    coverage FK backfill incl. tpa_id; encounter.location_id FK;
-                    NO code_system re-seed; drg has SELECT-only RLS)
-src/lib/mds/schema/masters.ts                                 (new)
-src/routes/api/clinical/v1/_helpers.ts                        (extend: assertMasterOwnership)
-src/routes/api/clinical/v1/masters/payers.ts | payers.$id.ts          (new)
-src/routes/api/clinical/v1/masters/tpas.ts | tpas.$id.ts              (new; no payer_id)
-src/routes/api/clinical/v1/masters/policies.ts | policies.$id.ts      (new)
-src/routes/api/clinical/v1/masters/insurance-classes.ts | .$id.ts     (new)
-src/routes/api/clinical/v1/masters/insurance-plans.ts | .$id.ts       (new)
-src/routes/api/clinical/v1/masters/networks.ts | networks.$id.ts      (new)
-src/routes/api/clinical/v1/masters/networks.$id.memberships.ts        (new)
-src/routes/api/clinical/v1/masters/network-memberships.$id.ts         (new)
-src/routes/api/clinical/v1/masters/services.ts | services.$id.ts      (new)
-src/routes/api/clinical/v1/masters/services.$id.codes.ts | service-codes.$id.ts (new)
-src/routes/api/clinical/v1/masters/drugs.ts | drugs.$id.ts            (new)
-src/routes/api/clinical/v1/masters/price-lists.ts | price-lists.$id.ts (new)
-src/routes/api/clinical/v1/masters/price-lists.$id.items.ts | price-list-items.$id.ts (new)
-src/routes/api/clinical/v1/masters/drg-base-rates.ts | .$id.ts        (new; tenant_admin)
-src/routes/api/clinical/v1/masters/drg-adjustments.ts | .$id.ts       (new; tenant_admin)
-src/routes/api/admin/v1/drgs.ts | drgs.$id.ts                         (new; superadmin-gated reference loader)
+supabase migration (10 order tables + charge_item + pricing_rule; preauth cols; cost list_type;
+                    enums; journey/touch triggers; system-default pricing_rule seed)
+src/lib/mds/pricing.ts                                        (new; two-sided network, IP cost basis)
+src/lib/mds/rules.ts                                          (new; global+tenant rules)
+src/lib/mds/schema/orders.ts                                  (new; +PricingRule, +preauth)
+src/routes/api/clinical/v1/encounters.$id.orders.lab.ts                       (new)
+src/routes/api/clinical/v1/encounters.$id.orders.radiology.ts                 (new)
+src/routes/api/clinical/v1/encounters.$id.orders.electrophysiology.ts         (new)
+src/routes/api/clinical/v1/encounters.$id.orders.service.ts                   (new)
+src/routes/api/clinical/v1/encounters.$id.prescriptions.ts                    (new)
+src/routes/api/clinical/v1/encounters.$id.charges.ts                          (new)
+src/routes/api/clinical/v1/orders/lab-items.$id.ts | radiology-items.$id.ts |
+   ep-items.$id.ts | service-items.$id.ts | prescription-items.$id.ts         (new)
+src/routes/api/clinical/v1/masters/pricing-rules.ts | pricing-rules.$id.ts    (new)
 src/lib/openapi-clinical-spec.ts                              (extend: tags + schemas + paths)
-src/lib/openapi-admin-spec.ts                                 (extend: DRG reference paths)
-src/routes/api/clinical/v1/coverage.$id.ts                    (extend: master-ownership incl. tpa_id)
-src/routes/api/clinical/v1/beneficiaries.$id.coverage.ts      (extend: master-ownership incl. tpa_id)
+docs/his-technical-manual.md | docs/his-user-manual.md | docs/changelog.md    (new; backfill 0–3)
 
 ```
 
-Out of scope (deferred): order/result resources (Phase 4); admission/discharge + populating grouper inputs (Phase 5); DRG grouping + pricing math (Phase 6/7); strict MDS + LOV-bound code validation (Phase 10).
+Out of scope (later): DRG grouping + bundle pricing (Phase 6–7), claim assembly (Phase 7), admission/discharge MDS (Phase 5), strict NPHIES validation (Phase 10).
 
-Essential Delivery Milestone:  
-Document all phases in the project Files under HIS User Manual , and Technical Manual 
+Approve and Lovable ships the migration first for review, then the code batch.

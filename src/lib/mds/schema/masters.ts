@@ -117,7 +117,7 @@ export const DrugMasterUpdate = DrugMasterCreate.partial();
 // ---------- Price list ----------
 export const PriceListCreate = z.object({
   name: nonEmpty("name"),
-  list_type: z.enum(["cash", "payer_network"]),
+  list_type: z.enum(["cash", "payer_network", "cost"]),
   payer_id: uuid().optional().nullable(),
   network_id: uuid().optional().nullable(),
   currency: z.string().trim().optional(),
@@ -125,12 +125,12 @@ export const PriceListCreate = z.object({
   expiry_date: dateStr.optional().nullable(),
   active: z.boolean().optional(),
 }).refine(
-  (v) => v.list_type === "cash" || Boolean(v.payer_id),
+  (v) => v.list_type !== "payer_network" || Boolean(v.payer_id),
   { message: "payer_id is required for payer_network lists" },
 );
 export const PriceListUpdate = z.object({
   name: z.string().trim().min(1).optional(),
-  list_type: z.enum(["cash", "payer_network"]).optional(),
+  list_type: z.enum(["cash", "payer_network", "cost"]).optional(),
   payer_id: uuid().optional().nullable(),
   network_id: uuid().optional().nullable(),
   currency: z.string().trim().optional(),
