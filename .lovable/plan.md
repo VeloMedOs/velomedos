@@ -1,83 +1,122 @@
-## Wave 1 — Operations Suite (Support + QA + Settings)
+# Phase 0 — Mini-HIS / NPHIES MDS Foundations (REVISED)
 
-Ship 14 modules end-to-end: schema → admin APIs → Swagger → Superadmin pane → cross-portal wiring (Business, Patient) where chosen. In-app only (toast + bell/notification center). Wave 2 (CMS) follows in a later turn.
+Guardrails only — no clinical business tables, no patient data. Revised to carry the KSA code-system reality (ICD-10-AM, ACHI, AR-DRG v9, SBS v3, LOINC, GTIN/MRID) and the inpatient-DRG vs outpatient-itemized split that the later phases depend on.
 
-### Modules in this wave
+Existing app untouched. New `/api/clinical/v1/*` namespace alongside `/api/admin/v1/*` and `/api/public/v1/*`.
 
-**Subscriptions group**
-- Refunds — issue refunds against `portal_payments`, audit-logged.
+> Changes from the first Phase 0 draft are tagged **[AMENDED]** or **[NEW]**. Everything untagged is unchanged from the version Lovable already proposed.
 
-**Support group**
-- Tickets — superadmin triage + tenant-scoped view in `/business`.
-- Reviews — patient post-trip ratings, moderation queue in superadmin.
-- Chat & filter — operator broadcast/inbox with profanity/PII filter rules.
-- Push notifications — in-app announcements fanned to patient/provider/business inboxes.
+---
 
-**Quality Control group**
-- Test runs — log Playwright/CI run summaries.
-- Audit log — already has `audit_log`; build the read pane + filters + tenant slice.
-- Smoke reports — uptime/health snapshots.
-- Bug tracker — re-use `portal_bugs`; cross-link to tenants.
-- Releases — semver tag, notes, status.
-- Automated events — cron/webhook registry with last-run state.
+## What gets built
 
-**Settings group**
-- Workspace — global platform settings (already has `platform_settings`; expose CRUD).
-- Team & roles — superadmin operator roster (already partly there); add invite/disable/last-seen.
-- Security — password policy, MFA toggle, session TTL, IP allowlists.
+### 1. Security hygiene (unchanged)
 
-### Cross-portal wiring
+- Add `.env` to `.gitignore` (currently tracked).
+- Sweep client code for any `SUPABASE_SERVICE_ROLE_KEY` reference — fail loud if found.
 
-- **Business workspace** (`/business`): tenant sees its own Tickets, Bugs, Audit slice (read + create where relevant).
-- **Patient app** (`/patient`): in-app Notification Center + Reviews (post-trip rating prompt).
-- Provider app gets a notification bell using the same feed.
+### 2. Supabase migration — clinical foundations
 
-### Notification model (in-app only)
+- **enum** `clinical_role` **[AMENDED]** — `registrar, physician, nurse, lab_tech, radiologist, pharmacist, coder, case_manager, cashier, tenant_admin, read_only`. (`coder` and `case_manager` added — clinical coding and utilization/DRG review are distinct accountable roles; AR-DRG output quality depends on the coder.)
+- `tenant_members.clinical_role` — nullable column added.
+- `code_system` **[AMENDED — versioning is now first-class]** `id, key text unique, name, kind, source_authority, oid nullable, version, edition, is_current boolean default true, effective_from date, effective_to date, created_at, updated_at`.
+  - `kind` enum: `diagnosis | procedure | billing | drg | drug | lab | coding_standard | lov`.
+  - Rationale: CHI re-versions these (ICD-10-AM 10th, AR-DRG v9.0, SBS v3). Code values and prices are pinned to a `code_system` row, so a version bump is additive (insert a new `code_system` row + its `code_value`s, flip `is_current`) and never rewrites history. The DRG implementation guidance treats version control as a core requirement.
+- `code_value` — `id, code_system_id fk, code, display, parent_code, active, attributes jsonb` **[AMENDED: +attributes jsonb]**.
+  - `parent_code` supports hierarchical systems (AR-DRG: MDC → ADRG → DRG; ICD chapters).
+  - `attributes jsonb` holds system-specific fields without schema churn (e.g. a DRG row's `relative_weight`, `mdc`, `adrg`, `partition`; a drug row's `atc`, `strength`).
+- `clinical_audit` — `id, tenant_id, actor_id, action, target, target_id, payload jsonb, created_at`. (unchanged)
 
-Single `notifications` table fans out to audiences (`superadmin`, `tenant`, `patient`, `provider`, `user:<id>`). Bell component polls every 30s via React Query, marks read on open. No external email/SMS/web push yet — those become add-ons later.
+RLS on all four:
 
-### API surface (all under `/api/admin/v1/*` + Swagger entries)
+- `code_system` / `code_value` — read to `authenticated`, write to `service_role` only.
+- `clinical_audit` — readable to tenant members (via `tenant_members`), insert via service role only.
+- Grants per the public-schema-grant rule on every new table.
 
-Each module gets `GET /list`, `POST /` (create), `GET /:id`, `PATCH /:id`, `DELETE /:id` where it makes sense, plus a few action endpoints:
-- `POST /refunds` (against payment_id), `POST /tickets/:id/events` (already exists), `POST /tickets/:id/assign`, `POST /tickets/:id/close`
-- `POST /reviews/:id/moderate` (approve/hide)
-- `POST /notifications` (broadcast), `GET /notifications/inbox` (per-user, exposed under `/api/public/v1/inbox` with bearer)
-- `POST /releases/:id/publish`
-- `POST /automations/:id/trigger`
+**Seed** `code_system` **[AMENDED — real KSA-adopted systems with versions]**:
 
-Public surfaces:
-- `POST /api/public/v1/reviews` (patient submits with trip token)
-- `GET /api/public/v1/inbox` (authenticated user fetches own notifications)
 
-Swagger (`src/lib/openapi-admin-spec.ts` + `openapi-spec.ts`) gets every new path documented with request/response schemas and `try-it-out` enabled.
+| key        | name                                 | kind            | source       | version |
+| ---------- | ------------------------------------ | --------------- | ------------ | ------- |
+| icd-10-am  | ICD-10-AM (diagnoses)                | diagnosis       | IHACPA / CHI | 10th    |
+| achi       | ACHI (interventions/procedures)      | procedure       | IHACPA / CHI | 10th    |
+| acs        | Australian Coding Standards          | coding_standard | IHACPA / CHI | 10th    |
+| ar-drg     | AR-DRG (MDC / ADRG / DRG)            | drg             | IHACPA / CHI | 9.0     |
+| sbs        | Saudi Billing System (non-admitted)  | billing         | CHI          | 3       |
+| loinc      | LOINC (lab observations)             | lab             | Regenstrief  | current |
+| gtin       | GTIN (drug trade item / barcode)     | drug            | GS1          | -       |
+| mrid       | SFDA Medication Registration ID      | drug            | SFDA         | -       |
+| sfda-sci   | SFDA scientific/drug register code   | drug            | SFDA         | -       |
+| nphies-lov | NPHIES LOV / ValueSets (placeholder) | lov             | NPHIES       | -       |
 
-### Superadmin UI panes
 
-Wired into existing `superadmin.tsx` tab switcher. Each pane follows the established pattern (filters bar, table, drawer/dialog editor, audit chips). Reuses `admin-fetch.ts` and tokens already in `brand.ts`. SideNav `soon:*` entries promoted to real tab IDs.
+`code_value` left empty (loaded Phase 3/9 from CHI-provided files). **Note for the team:** ICD-10-AM, ACHI, ACS and AR-DRG are licensed classifications; store only the KSA-adopted code values loaded from CHI-provided files — do not redistribute the source classification, and do not generate codes.
 
-### Business workspace additions
+### 3. Clinical auth helper — `src/lib/api-clinical.ts` (unchanged)
 
-New tabs in `src/components/business/SideNav.tsx`: **Support → Tickets, Bugs, Notifications, Audit**. Tenant-scoped queries — same APIs, RLS filters by `tenant_id`.
+- `requireTenant(request)` → resolves bearer → user → `tenant_members` → `{ ok, userId, tenantId, role, clinicalRole }` or 401/403 envelope.
+- `requireClinicalRole(request, roles: ClinicalRole[])` → builds on `requireTenant`.
+- `clinicalAudit(actorId, tenantId, action, target, targetId, payload)` → best-effort.
+- Re-exports `json`, `preflight`, `serviceClient`.
+- Error envelope: `{ error, code, request_id: crypto.randomUUID() }`.
 
-### Patient app additions
+### 4. Journey state machine skeleton — `src/lib/mds/state-machine.ts` **[AMENDED]**
 
-- Notification bell in patient header.
-- "Rate your trip" card on `/patient` after a completed trip; submits to `/api/public/v1/reviews`.
+Pure module, no DB. Two amendments anticipate the IP/DRG path without overbuilding:
 
-### Technical sequence
+- Type `JourneyState = 'registered' | 'encounter_open' | 'clinically_documented' | 'investigations_ordered' | 'admitted' | 'discharged' | 'coded' | 'grouped' | 'claim_ready' | 'submitted' | 'void'`.
+  - **[NEW]** `coded` (clinical coding complete) and `grouped` (AR-DRG assigned) sit between `discharged` and `claim_ready` — they apply to **inpatient** journeys only. Outpatient journeys skip straight from documented/discharged to `claim_ready`.
+- `TRANSITIONS: Record<JourneyState, JourneyState[]>`.
+- `canTransition(from, to, role)` — permissive in Phase 0 (logs a reason if it would block, but always allows). Strict gates land in Phase 9.
+- **[NEW]** Export a `reimbursementModel(encounterClass)` helper stub returning `'drg_bundled'` for inpatient (`IMP`) and `'itemized_sbs'` otherwise. Permissive/no-op now; Phase 4 pricing and Phase 6 claim assembly branch on it.
 
-1. **Migration**: tables for `tickets_extras` (assignee, sla), `reviews`, `chat_filters`, `notifications`, `notification_reads`, `test_runs`, `smoke_reports`, `releases`, `automated_events`, `security_settings`, plus needed RLS/grants. Re-use existing `portal_bugs`, `portal_tickets`, `audit_log`, `platform_settings`.
-2. **Admin APIs** under `src/routes/api/admin/v1/`.
-3. **Public APIs** (`reviews`, `inbox`).
-4. **Swagger** entries.
-5. **Superadmin panes** + SideNav promotion.
-6. **Business workspace** Tickets/Bugs/Audit/Notifications panes + nav.
-7. **Patient** NotificationBell + RateTrip components.
-8. Verify with typecheck + the route-redirects spec.
+### 5. Clinical OpenAPI surface (unchanged structure)
 
-### Out of scope this wave
+- `src/lib/openapi-clinical-spec.ts` — OpenAPI 3.1.0, `servers: [{ url: '/api/clinical/v1' }]`, bearer security scheme, empty `paths`. **[AMENDED]** `info.title = "VeloMed OS Clinical API"`, and the description notes two claim shapes will be hosted: itemized (SBS) and DRG-bundled.
+- `src/routes/api/clinical/v1/openapi.ts` — `createFileRoute` server handler returning JSON.
+- Update `src/routes/_authenticated/superadmin.api-docs.tsx` — add a third toggle **Clinical** next to Admin/Public, pointing at `/api/clinical/v1/openapi`. Existing toggles untouched.
 
-- CMS group (Pages, SEO, News, Blog cats, Media) — Wave 2.
-- Email/SMS/Web Push channels — future add-on.
-- Operator org chart / org-level RBAC editor beyond the existing matrix.
-- External integrations for QA modules (no CI webhook wiring yet — manual ingest endpoint only).
+### 6. Verification (unchanged + one addition)
+
+- TypeScript builds.
+- Existing `route-redirects` and `responsive-overflow` Playwright suites still pass.
+- New smoke check: `/api/clinical/v1/openapi` returns valid JSON with `info.title = "VeloMed OS Clinical API"`.
+- Superadmin api-docs page renders all three spec toggles.
+- **[NEW]** `code_system` seed query returns the 10 systems above with `is_current = true` and correct `version`/`edition` for icd-10-am (10th), achi (10th), ar-drg (9.0), sbs (3).
+
+---
+
+## Out of scope for Phase 0 (amended)
+
+- Any clinical business tables (beneficiary, coverage, encounter, orders, claims) — Phase 1+.
+- Loading actual `code_value` rows (ICD-10-AM, ACHI, SBS, AR-DRG weights, drug lists) — Phase 3/9.
+- **[NEW]** AR-DRG grouper integration — its own phase (see "Downstream" below). **Do NOT build or reimplement a grouper**; it is licensed CHI-approved external software, integrated like the NPHIES gateway (feed MDS → receive DRG).
+- **[NEW]** PROMs/PREMs (VBHC outcomes) capture — later phase; CHI is standardizing these as an NPHIES MDS (PROMIS-10 favored over EQ-5D in the CHI pilot).
+- UI surfaces in patient/provider/business portals — Phase 7.
+- Strict MDS enforcement — Phase 9.
+- Real NPHIES gateway calls — Phase 8.
+
+## Files created / touched
+
+```
+.gitignore                                          (append .env)
+supabase migration                                  (enum, 4 tables w/ versioned code_system, RLS, grants, seeds)
+src/lib/api-clinical.ts                             (new)
+src/lib/mds/state-machine.ts                        (new — +coded/grouped states, reimbursementModel stub)
+src/lib/openapi-clinical-spec.ts                    (new)
+src/routes/api/clinical/v1/openapi.ts               (new)
+src/routes/_authenticated/superadmin.api-docs.tsx   (add Clinical toggle)
+
+```
+
+---
+
+## Downstream phase impacts from the SBS/DRG uploads (not built in Phase 0, but plan for them)
+
+- **Phase 3 (masters):** Service Master uses a `service_code` child table mapping each service to many `{code_system, code}` pairs (SBS billing + ACHI clinical + LOINC, etc.), not fixed columns. Drug Master carries `gtin` + `mrid` (+ optional SFDA sci code). Add AR-DRG reference data via `code_value` (DRG rows with `relative_weight`, `mdc`, `adrg` in `attributes`) and a `drg_base_rate` table per payer/contract.
+- **Phase 4 (pricing):** branch on `reimbursementModel`. Outpatient → itemized SBS pricing (existing design). Inpatient → charges captured for internal costing, but the payer price = DRG base-rate × relative weight ± outlier/ICU adjustments. Lab/imaging/pharmacy generally bundle into the DRG.
+- **New phase — AR-DRG grouper integration:** assemble the grouper MDS (ICD-10-AM PDx + AdxDx, ACHI procedures, age, sex, LOS, ventilation hours, separation mode, same-day, newborn weight), call the CHI-approved grouper, persist returned DRG + version, set journey `grouped`.
+- **Phase 6 (claim):** IP claim carries the DRG and bundled price; OP claim carries SBS item lines. Both serialize to NPHIES FHIR.
+- **New phase — VBHC PROMs/PREMs:** instrument + response capture (generic PROMIS-10, disease-specific for cataract/obesity/diabetes/pregnancy), patient-app delivery, and submission as the NPHIES PRM MDS.
+
+Approve and Lovable ships the migration first for review, then the code batch. After Phase 0 verifies green, Phase 1 is Beneficiary + Coverage + FHIR Patient/Coverage.
