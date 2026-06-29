@@ -125,7 +125,7 @@ export const PriceListCreate = z.object({
   expiry_date: dateStr.optional().nullable(),
   active: z.boolean().optional(),
 }).refine(
-  (v) => v.list_type === "cash" || Boolean(v.payer_id),
+  (v) => v.list_type !== "payer_network" || Boolean(v.payer_id),
   { message: "payer_id is required for payer_network lists" },
 );
 export const PriceListUpdate = z.object({
