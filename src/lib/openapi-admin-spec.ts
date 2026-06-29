@@ -228,6 +228,17 @@ export const openApiAdminSpec = {
     },
 
     "/openapi": { get: { summary: "This spec (machine-readable)", security: [], responses: ok("OK") } },
+
+    "/drgs": {
+      get:  { summary: "List AR-DRG reference rows (CHI-licensed). Scope `clinical:reference:read`.", responses: ok("OK") },
+      post: { summary: "Create / load an AR-DRG reference row. Scope `clinical:reference:write`. Body must include `code_system_id`, `drg_code`, `version`, `relative_weight`.", responses: { 201: { description: "Created" } } },
+    },
+    "/drgs/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get:    { summary: "Get an AR-DRG row. Scope `clinical:reference:read`.", responses: ok("OK") },
+      patch:  { summary: "Update an AR-DRG row. Scope `clinical:reference:write`.", responses: ok("OK") },
+      delete: { summary: "Delete an AR-DRG row. Scope `clinical:reference:write`.", responses: { 204: { description: "Deleted" } } },
+    },
   },
 } as const;
 
