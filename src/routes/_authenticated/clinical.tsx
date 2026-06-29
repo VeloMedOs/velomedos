@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { ClinicalAPI, ClinicalApiError } from "@/lib/clinical-api";
 import { useClinicalMe, canAct, type ClinicalRole } from "@/lib/clinical-roles";
+import { ClaimCompletenessPanel } from "@/components/clinical/ClaimCompletenessPanel";
 
 export const Route = createFileRoute("/_authenticated/clinical")({
   head: () => ({ meta: [{ title: "Clinical Workspace · VeloMed OS" }] }),
@@ -514,11 +515,24 @@ function ClaimsPane() {
   }
   async function markReady(id: string) {
     try { await ClinicalAPI.markClaimReady(id); toast.success("Marked ready"); refresh(); }
-    catch (e) { if (e instanceof ClinicalApiError) toast.error(e.message); }
+    catch (e) {
+      if (e instanceof ClinicalApiError) {
+        const miss = (e.payload as any)?.missing as Array<{ message: string }> | undefined;
+        const first = miss?.slice(0, 3).map((m) => `• ${m.message}`).join("\n");
+        toast.error(first ? `${e.message}\n${first}` : e.message);
+        setSelected((s) => (s && s.id === id ? s : s));
+      }
+    }
   }
   async function submit(id: string) {
-    try { await ClinicalAPI.submitClaim(id, "Phase-7 stub submission"); toast.success("Submitted (stub)"); refresh(); }
-    catch (e) { if (e instanceof ClinicalApiError) toast.error(e.message); }
+    try { await ClinicalAPI.submitClaim(id, "Phase-9 NPHIES submission"); toast.success("Submitted"); refresh(); }
+    catch (e) {
+      if (e instanceof ClinicalApiError) {
+        const miss = (e.payload as any)?.missing as Array<{ message: string }> | undefined;
+        const first = miss?.slice(0, 3).map((m) => `• ${m.message}`).join("\n");
+        toast.error(first ? `${e.message}\n${first}` : e.message);
+      }
+    }
   }
   async function loadBundle(id: string) {
     try { const b = await ClinicalAPI.getClaimFhir(id); setBundle((b ?? null) as object | null); }
@@ -593,6 +607,14 @@ function ClaimsPane() {
           <pre className="text-[10px] mono bg-panel-elevated p-3 rounded-lg overflow-auto max-h-[400px]">{JSON.stringify(bundle, null, 2)}</pre>
         </Card>
       ) : null}
+
+      {selected && (
+        <ClaimCompletenessPanel
+          claimId={selected.id}
+          showReadyButton={selected.status === "draft"}
+          onReadyClick={() => markReady(selected.id)}
+        />
+      )}
     </section>
   );
 }
