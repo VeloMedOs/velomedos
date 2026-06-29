@@ -37,12 +37,14 @@ export const Route = createFileRoute("/api/clinical/v1/encounters/$id/advance")(
           throw e;
         }
 
-        const update: Record<string, unknown> = { status: to, updated_by: auth.ctx.userId };
-        if (TERMINAL_ENCOUNTER_STATUSES.has(to)) {
-          update.period_end = parsed.data.period_end ?? new Date().toISOString();
-        }
-
         const db = serviceClient();
+        const update = {
+          status: to,
+          updated_by: auth.ctx.userId,
+          ...(TERMINAL_ENCOUNTER_STATUSES.has(to)
+            ? { period_end: parsed.data.period_end ?? new Date().toISOString() }
+            : {}),
+        };
         const { data, error } = await db.from("encounter").update(update)
           .eq("id", params.id).select("*").single();
         if (error) return envelope(error.message, "db_error", 500);
