@@ -161,6 +161,7 @@ import { Route as ApiAdminV1LegalDocumentsHistoryRouteImport } from './routes/ap
 import { Route as ApiAdminV1LegalDocumentsAcceptancesRouteImport } from './routes/api/admin/v1/legal-documents.acceptances'
 import { Route as ApiAdminV1DrgsIdRouteImport } from './routes/api/admin/v1/drgs.$id'
 import { Route as ApiAdminV1DiagnosticsSuperadminRouteImport } from './routes/api/admin/v1/diagnostics.superadmin'
+import { Route as ApiAdminV1DemoSeedRouteImport } from './routes/api/admin/v1/demo.seed'
 import { Route as ApiAdminV1DemoResetRouteImport } from './routes/api/admin/v1/demo.reset'
 import { Route as ApiAdminV1ConfigOverridesRouteImport } from './routes/api/admin/v1/config.overrides'
 import { Route as ApiAdminV1ConfigBaseRouteImport } from './routes/api/admin/v1/config.base'
@@ -1048,6 +1049,11 @@ const ApiAdminV1DiagnosticsSuperadminRoute =
     path: '/api/admin/v1/diagnostics/superadmin',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAdminV1DemoSeedRoute = ApiAdminV1DemoSeedRouteImport.update({
+  id: '/api/admin/v1/demo/seed',
+  path: '/api/admin/v1/demo/seed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminV1DemoResetRoute = ApiAdminV1DemoResetRouteImport.update({
   id: '/api/admin/v1/demo/reset',
   path: '/api/admin/v1/demo/reset',
@@ -1632,6 +1638,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/demo/reset': typeof ApiAdminV1DemoResetRoute
+  '/api/admin/v1/demo/seed': typeof ApiAdminV1DemoSeedRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/drgs/$id': typeof ApiAdminV1DrgsIdRoute
   '/api/admin/v1/legal-documents/acceptances': typeof ApiAdminV1LegalDocumentsAcceptancesRoute
@@ -1863,6 +1870,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/demo/reset': typeof ApiAdminV1DemoResetRoute
+  '/api/admin/v1/demo/seed': typeof ApiAdminV1DemoSeedRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/drgs/$id': typeof ApiAdminV1DrgsIdRoute
   '/api/admin/v1/legal-documents/acceptances': typeof ApiAdminV1LegalDocumentsAcceptancesRoute
@@ -2098,6 +2106,7 @@ export interface FileRoutesById {
   '/api/admin/v1/config/base': typeof ApiAdminV1ConfigBaseRoute
   '/api/admin/v1/config/overrides': typeof ApiAdminV1ConfigOverridesRoute
   '/api/admin/v1/demo/reset': typeof ApiAdminV1DemoResetRoute
+  '/api/admin/v1/demo/seed': typeof ApiAdminV1DemoSeedRoute
   '/api/admin/v1/diagnostics/superadmin': typeof ApiAdminV1DiagnosticsSuperadminRoute
   '/api/admin/v1/drgs/$id': typeof ApiAdminV1DrgsIdRoute
   '/api/admin/v1/legal-documents/acceptances': typeof ApiAdminV1LegalDocumentsAcceptancesRoute
@@ -2333,6 +2342,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/demo/reset'
+    | '/api/admin/v1/demo/seed'
     | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/drgs/$id'
     | '/api/admin/v1/legal-documents/acceptances'
@@ -2564,6 +2574,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/demo/reset'
+    | '/api/admin/v1/demo/seed'
     | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/drgs/$id'
     | '/api/admin/v1/legal-documents/acceptances'
@@ -2798,6 +2809,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/base'
     | '/api/admin/v1/config/overrides'
     | '/api/admin/v1/demo/reset'
+    | '/api/admin/v1/demo/seed'
     | '/api/admin/v1/diagnostics/superadmin'
     | '/api/admin/v1/drgs/$id'
     | '/api/admin/v1/legal-documents/acceptances'
@@ -2996,6 +3008,7 @@ export interface RootRouteChildren {
   ApiAdminV1ConfigBaseRoute: typeof ApiAdminV1ConfigBaseRoute
   ApiAdminV1ConfigOverridesRoute: typeof ApiAdminV1ConfigOverridesRoute
   ApiAdminV1DemoResetRoute: typeof ApiAdminV1DemoResetRoute
+  ApiAdminV1DemoSeedRoute: typeof ApiAdminV1DemoSeedRoute
   ApiAdminV1DiagnosticsSuperadminRoute: typeof ApiAdminV1DiagnosticsSuperadminRoute
   ApiAdminV1OpsAutomationsRoute: typeof ApiAdminV1OpsAutomationsRoute
   ApiAdminV1OpsChatFiltersRoute: typeof ApiAdminV1OpsChatFiltersRoute
@@ -4111,6 +4124,13 @@ declare module '@tanstack/react-router' {
       path: '/api/admin/v1/diagnostics/superadmin'
       fullPath: '/api/admin/v1/diagnostics/superadmin'
       preLoaderRoute: typeof ApiAdminV1DiagnosticsSuperadminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/demo/seed': {
+      id: '/api/admin/v1/demo/seed'
+      path: '/api/admin/v1/demo/seed'
+      fullPath: '/api/admin/v1/demo/seed'
+      preLoaderRoute: typeof ApiAdminV1DemoSeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/v1/demo/reset': {
@@ -5578,6 +5598,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1ConfigBaseRoute: ApiAdminV1ConfigBaseRoute,
   ApiAdminV1ConfigOverridesRoute: ApiAdminV1ConfigOverridesRoute,
   ApiAdminV1DemoResetRoute: ApiAdminV1DemoResetRoute,
+  ApiAdminV1DemoSeedRoute: ApiAdminV1DemoSeedRoute,
   ApiAdminV1DiagnosticsSuperadminRoute: ApiAdminV1DiagnosticsSuperadminRoute,
   ApiAdminV1OpsAutomationsRoute: ApiAdminV1OpsAutomationsRoute,
   ApiAdminV1OpsChatFiltersRoute: ApiAdminV1OpsChatFiltersRoute,
