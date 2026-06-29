@@ -65,6 +65,7 @@ export const openApiClinicalSpec = {
     { name: "PricingRules", description: "Phase-4 · Tenant pricing/eligibility/share rules (global defaults read-only)." },
     { name: "Hospitalization", description: "Phase-5 · Admission MDS, Emergency MDS, Discharge MDS (NPHIES Encounter.hospitalization)." },
     { name: "Coding", description: "Phase-6 · ICD-10-AM/ACHI coder finalize + AR-DRG grouper (IMP only)." },
+    { name: "Claims", description: "Phase-7 · Claim assembly (itemized SBS / AR-DRG bundled), FHIR R4 bundle, ready + submit." },
   ],
   paths: {
     "/openapi": {
@@ -561,6 +562,29 @@ export const openApiClinicalSpec = {
     "/encounters/{id}/drg": {
       parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
       get: { tags: ["Coding"], summary: "Current AR-DRG assignment + history (snapshot: drg_code, drg_version, mdc, adrg, complexity, grouper_request/response).", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/encounters/{id}/claim": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      post: { tags: ["Claims"], summary: "Assemble (or return existing) claim. IP requires journey ≥ grouped; OP/ER requires discharged. Branches by reimbursement_model: itemized_sbs vs drg_bundled. Idempotent unless { force: true }.", requestBody: { required: false, content: { "application/json": { schema: { type: "object", properties: { force: { type: "boolean" }, provider_claim_no: { type: "string" }, invoice_no: { type: "string" }, claim_type: { type: "string", enum: ["professional", "institutional", "pharmacy", "oral", "vision"] } } } } } }, responses: { 200: { description: "Assembled (claim + items + diagnoses + care_team + supporting_info + links + pricing_trace)", content: { "application/json": { schema: { type: "object" } } } }, 409: { description: "not_grouped | not_discharged", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } }, 422: { description: "assemble_error (missing DRG base rate, no charges, etc.)", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+    },
+    "/claims": {
+      get: { tags: ["Claims"], summary: "List tenant claims (filters: status, encounter_id, beneficiary_id).", parameters: [{ name: "status", in: "query", schema: { type: "string", enum: ["draft", "ready", "submitted", "accepted", "rejected"] } }, { name: "encounter_id", in: "query", schema: { type: "string", format: "uuid" } }, { name: "beneficiary_id", in: "query", schema: { type: "string", format: "uuid" } }, { name: "limit", in: "query", schema: { type: "integer", maximum: 200 } }], responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/claims/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["Claims"], summary: "Get materialised claim (header + items + diagnoses + care_team + supporting_info + links + pricing_trace).", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } }, 404: { description: "Not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+    },
+    "/claims/{id}/fhir": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["Claims"], summary: "FHIR R4 transaction Bundle for the claim (Patient + Coverage + Encounter + Conditions + Practitioners + Observations + Claim).", responses: { 200: { description: "Bundle", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/claims/{id}/ready": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      post: { tags: ["Claims"], summary: "Transition draft → ready (biller QA gate). Advances encounter journey to claim_ready.", responses: { 200: { description: "Ready", content: { "application/json": { schema: { type: "object" } } } }, 409: { description: "bad_status", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+    },
+    "/claims/{id}/submit": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      post: { tags: ["Claims"], summary: "Submit claim (Phase-7 stub for NPHIES; Phase-9 wires the real gateway). Marks submitted + advances journey to submitted.", requestBody: { required: false, content: { "application/json": { schema: { type: "object", properties: { note: { type: "string" } } } } } }, responses: { 200: { description: "Submitted", content: { "application/json": { schema: { type: "object" } } } }, 409: { description: "bad_status", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
     },
   },
 } as const;
