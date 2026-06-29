@@ -29,7 +29,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/attempts")({
           .from("claim_submission_attempt")
           .select("*")
           .eq("claim_id", params.id)
-          .order("initiated_at", { ascending: false })
+          .order("attempt_no", { ascending: false })
           .limit(50);
         if (error) return envelope(error.message, "db_error", 400);
         return jsonData({ data });
