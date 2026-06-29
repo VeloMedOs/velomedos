@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Globe, Shield, RefreshCw, BookOpen } from "lucide-react";
+import { ArrowLeft, Globe, RefreshCw, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -85,7 +85,7 @@ function ClinicalSuperadminPage() {
           <h1 className="text-2xl font-bold tracking-tight">Claims across all tenants (read-only)</h1>
         </div>
         <div className="flex items-center gap-2">
-          <Link to="/superadmin" search={{ tab: "apidocs" } as any} className="px-3 h-9 rounded mono text-[10px] uppercase tracking-widest border border-hairline flex items-center gap-1.5">
+          <Link to="/superadmin/api-docs" className="px-3 h-9 rounded mono text-[10px] uppercase tracking-widest border border-hairline flex items-center gap-1.5">
             <BookOpen className="size-3.5" /> Clinical API docs
           </Link>
           <button onClick={refresh} className="px-3 h-9 rounded mono text-[10px] uppercase tracking-widest border border-hairline flex items-center gap-1.5">
