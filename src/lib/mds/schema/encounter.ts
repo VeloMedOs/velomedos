@@ -42,7 +42,6 @@ export const EncounterCreate = z.object({
   mechanical_ventilation_hours: z.number().int().nonnegative().optional().nullable(),
   separation_mode: z.string().trim().optional().nullable(),
   cause_of_death: z.string().trim().optional().nullable(),
-  discharge_disposition: z.string().trim().optional().nullable(),
 });
 export type EncounterCreateInput = z.infer<typeof EncounterCreate>;
 
@@ -60,7 +59,6 @@ export const EncounterUpdate = z.object({
   mechanical_ventilation_hours: z.number().int().nonnegative().optional().nullable(),
   separation_mode: z.string().trim().optional().nullable(),
   cause_of_death: z.string().trim().optional().nullable(),
-  discharge_disposition: z.string().trim().optional().nullable(),
 }).partial();
 
 export const EncounterAdvance = z.object({
