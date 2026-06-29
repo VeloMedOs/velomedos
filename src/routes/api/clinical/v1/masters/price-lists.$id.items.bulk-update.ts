@@ -51,7 +51,8 @@ export const Route = createFileRoute("/api/clinical/v1/masters/price-lists/$id/i
           }
         }
 
-        const changes = candidates.map((it: any) => ({
+        type Change = { id: string; service_id: string | null; drug_id: string | null; old_price: number; new_price: number };
+        const changes: Change[] = candidates.map((it: any) => ({
           id: it.id, service_id: it.service_id, drug_id: it.drug_id,
           old_price: it.unit_price_minor,
           new_price: applyOp(it.unit_price_minor, body.op, body.value),
@@ -63,7 +64,7 @@ export const Route = createFileRoute("/api/clinical/v1/masters/price-lists/$id/i
 
         const today = new Date().toISOString().slice(0, 10);
         const effective = body.effective_date ?? today;
-        const versionRows = changes.map((c) => ({
+        const versionRows = changes.map((c: Change) => ({
           tenant_id: auth.ctx.tenantId,
           price_list_item_id: c.id,
           unit_price_minor: c.new_price,

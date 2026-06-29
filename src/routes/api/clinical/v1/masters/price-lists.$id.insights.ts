@@ -39,17 +39,19 @@ export const Route = createFileRoute("/api/clinical/v1/masters/price-lists/$id/i
             .select("service_id, drug_id, unit_price_minor").eq("price_list_id", costList.data.id);
           const cmap = new Map<string, number>();
           for (const r of costItems ?? []) cmap.set(r.service_id ? `s:${r.service_id}` : `d:${r.drug_id}`, r.unit_price_minor);
-          const lines = list_items.map((i: any) => {
+          const lines = list_items.map((i: any): { id: string; price_minor: number; cost_minor: number | null; margin_pct: number | null } => {
             const k = i.service_id ? `s:${i.service_id}` : `d:${i.drug_id}`;
             const cost = cmap.get(k);
             const margin = cost != null && i.unit_price_minor ? (i.unit_price_minor - cost) / i.unit_price_minor : null;
             return { id: i.id, price_minor: i.unit_price_minor, cost_minor: cost ?? null, margin_pct: margin != null ? Math.round(margin * 10000) / 100 : null };
           });
-          const valid = lines.filter((l) => l.margin_pct != null);
+          const valid = lines.filter((l: { margin_pct: number | null }) => l.margin_pct != null);
           margin = {
             cost_list_id: costList.data.id,
             coverage_pct: list_items.length ? Math.round((valid.length / list_items.length) * 10000) / 100 : 0,
-            median_margin_pct: valid.length ? valid.map((v) => v.margin_pct!).sort((a, b) => a - b)[Math.floor(valid.length / 2)] : null,
+            median_margin_pct: valid.length
+              ? valid.map((v: { margin_pct: number | null }) => v.margin_pct!).sort((a: number, b: number) => a - b)[Math.floor(valid.length / 2)]
+              : null,
             lines: lines.slice(0, 50),
           };
         }
