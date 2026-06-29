@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
-  UserPlus, Stethoscope, FileText, Hospital, Receipt, ClipboardList,
-  ShieldAlert, Lock, RefreshCw, Send, CheckCircle2, AlertTriangle,
+  UserPlus, Stethoscope, FileText, Hospital, Receipt,
+  Lock, RefreshCw, Send, CheckCircle2,
 } from "lucide-react";
 import { ClinicalAPI, ClinicalApiError } from "@/lib/clinical-api";
 import { useClinicalMe, canAct, type ClinicalRole } from "@/lib/clinical-roles";
