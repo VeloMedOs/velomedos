@@ -3906,6 +3906,71 @@ export type Database = {
           },
         ]
       }
+      nphies_message_log: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          http_status: number | null
+          id: string
+          idempotency_key: string
+          message_type: string
+          outcome: string
+          request_body: Json | null
+          response_body: Json | null
+          sandbox: boolean
+          started_at: string
+          subject_id: string | null
+          subject_table: string | null
+          tenant_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          http_status?: number | null
+          id?: string
+          idempotency_key: string
+          message_type: string
+          outcome: string
+          request_body?: Json | null
+          response_body?: Json | null
+          sandbox?: boolean
+          started_at?: string
+          subject_id?: string | null
+          subject_table?: string | null
+          tenant_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          http_status?: number | null
+          id?: string
+          idempotency_key?: string
+          message_type?: string
+          outcome?: string
+          request_body?: Json | null
+          response_body?: Json | null
+          sandbox?: boolean
+          started_at?: string
+          subject_id?: string | null
+          subject_table?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nphies_message_log_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       oauth_events: {
         Row: {
           attempt_id: string | null
@@ -5232,6 +5297,80 @@ export type Database = {
           },
         ]
       }
+      prem_response: {
+        Row: {
+          answers: Json
+          beneficiary_id: string
+          collected_at: string
+          created_at: string
+          encounter_id: string | null
+          id: string
+          instrument_id: string
+          instrument_version: string
+          score: Json
+          source: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          answers: Json
+          beneficiary_id: string
+          collected_at?: string
+          created_at?: string
+          encounter_id?: string | null
+          id?: string
+          instrument_id: string
+          instrument_version: string
+          score?: Json
+          source?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          answers?: Json
+          beneficiary_id?: string
+          collected_at?: string
+          created_at?: string
+          encounter_id?: string | null
+          id?: string
+          instrument_id?: string
+          instrument_version?: string
+          score?: Json
+          source?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prem_response_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prem_response_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prem_response_instrument_id_fkey"
+            columns: ["instrument_id"]
+            isOneToOne: false
+            referencedRelation: "prom_instrument"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prem_response_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prescription: {
         Row: {
           created_at: string
@@ -5633,6 +5772,206 @@ export type Database = {
           verified_at?: string | null
         }
         Relationships: []
+      }
+      prom_assignment: {
+        Row: {
+          assigned_by: string | null
+          beneficiary_id: string
+          channel: string
+          created_at: string
+          due_at: string | null
+          encounter_id: string | null
+          episode_of_care_id: string | null
+          id: string
+          instrument_id: string
+          last_reminder_at: string | null
+          notes: string | null
+          reminder_count: number
+          status: string
+          tenant_id: string
+          trigger: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          beneficiary_id: string
+          channel?: string
+          created_at?: string
+          due_at?: string | null
+          encounter_id?: string | null
+          episode_of_care_id?: string | null
+          id?: string
+          instrument_id: string
+          last_reminder_at?: string | null
+          notes?: string | null
+          reminder_count?: number
+          status?: string
+          tenant_id: string
+          trigger: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_by?: string | null
+          beneficiary_id?: string
+          channel?: string
+          created_at?: string
+          due_at?: string | null
+          encounter_id?: string | null
+          episode_of_care_id?: string | null
+          id?: string
+          instrument_id?: string
+          last_reminder_at?: string | null
+          notes?: string | null
+          reminder_count?: number
+          status?: string
+          tenant_id?: string
+          trigger?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prom_assignment_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prom_assignment_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prom_assignment_episode_of_care_id_fkey"
+            columns: ["episode_of_care_id"]
+            isOneToOne: false
+            referencedRelation: "episode_of_care"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prom_assignment_instrument_id_fkey"
+            columns: ["instrument_id"]
+            isOneToOne: false
+            referencedRelation: "prom_instrument"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prom_assignment_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prom_instrument: {
+        Row: {
+          active: boolean
+          condition: string | null
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          kind: string
+          name: string
+          schema: Json
+          tenant_id: string | null
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          active?: boolean
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          kind: string
+          name: string
+          schema?: Json
+          tenant_id?: string | null
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          active?: boolean
+          condition?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          kind?: string
+          name?: string
+          schema?: Json
+          tenant_id?: string | null
+          updated_at?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prom_instrument_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prom_response: {
+        Row: {
+          answers: Json
+          assignment_id: string
+          collected_at: string
+          created_at: string
+          id: string
+          instrument_version: string
+          score: Json
+          source: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          answers: Json
+          assignment_id: string
+          collected_at?: string
+          created_at?: string
+          id?: string
+          instrument_version: string
+          score?: Json
+          source?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          answers?: Json
+          assignment_id?: string
+          collected_at?: string
+          created_at?: string
+          id?: string
+          instrument_version?: string
+          score?: Json
+          source?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prom_response_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: true
+            referencedRelation: "prom_assignment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prom_response_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       radiology_order: {
         Row: {

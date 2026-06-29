@@ -136,4 +136,57 @@ export const ClinicalAPI = {
     clinicalFetch<{ data: any }>(`/api/clinical/v1/masters/${resource}/${id}`, { method: "PATCH", body }),
   deleteMaster: (resource: string, id: string) =>
     clinicalFetch<unknown>(`/api/clinical/v1/masters/${resource}/${id}`, { method: "DELETE" }),
+
+  // Phase 11 — VBHC PROMs / PREMs
+  listPromInstruments: (params?: { kind?: string; condition?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.kind) q.set("kind", params.kind);
+    if (params?.condition) q.set("condition", params.condition);
+    const qs = q.toString();
+    return clinicalFetch<{ data: any[] }>(`/api/clinical/v1/prom-instruments${qs ? `?${qs}` : ""}`);
+  },
+  createPromInstrument: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/prom-instruments`, { method: "POST", body }),
+
+  listPromAssignments: (params?: { beneficiary_id?: string; episode_id?: string; status?: string; limit?: number; offset?: number }) => {
+    const q = new URLSearchParams();
+    Object.entries(params ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });
+    const qs = q.toString();
+    return clinicalFetch<{ data: any[]; pagination?: { limit: number; offset: number; total: number } }>(
+      `/api/clinical/v1/prom-assignments${qs ? `?${qs}` : ""}`,
+    );
+  },
+  createPromAssignment: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/prom-assignments`, { method: "POST", body }),
+  getPromAssignment: (id: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/prom-assignments/${id}`),
+  remindPromAssignment: (id: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/prom-assignments/${id}/remind`, { method: "POST", body: {} }),
+  respondPromAssignment: (id: string, body: { answers: Record<string, number>; source?: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/prom-assignments/${id}/respond`, { method: "POST", body }),
+  submitPromAssignment: (id: string) =>
+    clinicalFetch<{ ok: boolean; sandbox: boolean; http_status: number; response: any }>(
+      `/api/clinical/v1/prom-assignments/${id}/submit`, { method: "POST", body: {} },
+    ),
+
+  listPremResponses: (params?: { beneficiary_id?: string; limit?: number }) => {
+    const q = new URLSearchParams();
+    Object.entries(params ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });
+    const qs = q.toString();
+    return clinicalFetch<{ data: any[] }>(`/api/clinical/v1/prem-responses${qs ? `?${qs}` : ""}`);
+  },
+  createPremResponse: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/prem-responses`, { method: "POST", body }),
+
+  outcomesSummary: (params?: { condition?: string; from?: string; to?: string }) => {
+    const q = new URLSearchParams();
+    Object.entries(params ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });
+    const qs = q.toString();
+    return clinicalFetch<{
+      condition: string | null;
+      prom: Array<{ month: string; n: number; pcs: number | null; mcs: number | null; composite: number | null }>;
+      prem: Array<{ month: string; n: number; composite: number | null; recommend: number | null }>;
+      benchmark: { pcs: number | null; mcs: number | null };
+    }>(`/api/clinical/v1/outcomes/summary${qs ? `?${qs}` : ""}`);
+  },
 };

@@ -598,5 +598,36 @@ export const openApiClinicalSpec = {
       parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
       post: { tags: ["Claims"], summary: "Phase-9 — fire CoverageEligibilityRequest at NPHIES for the claim's coverage. Caches outcome on claim (eligibility_response, eligibility_checked_at).", responses: { 200: { description: "Eligibility outcome (active, inforce, errors)", content: { "application/json": { schema: { type: "object" } } } }, 400: { description: "no_coverage | bundle_error", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } }, 502: { description: "gateway_error", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
     },
+    "/prom-instruments": {
+      get: { tags: ["VBHC"], summary: "Phase 11 — list PROM/PREM instruments (platform-seeded + tenant-owned, filterable by kind/condition)." , responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["VBHC"], summary: "Create a tenant-owned instrument (tenant_admin).", responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/prom-assignments": {
+      get: { tags: ["VBHC"], summary: "List assignments filtered by beneficiary/episode/status.", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["VBHC"], summary: "Assign a PROM/PREM instrument to a beneficiary at a clinical trigger.", responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/prom-assignments/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["VBHC"], summary: "Get assignment with embedded instrument + captured response.", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/prom-assignments/{id}/remind": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      post: { tags: ["VBHC"], summary: "Increment reminder count + timestamp (audit-friendly nudge).", responses: { 200: { description: "OK" } } },
+    },
+    "/prom-assignments/{id}/respond": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      post: { tags: ["VBHC"], summary: "Submit answers; server validates against the instrument schema and computes the score deterministically (e.g. PROMIS-10 PCS/MCS T-scores). Returns 422 with issues[] on validation failure.", responses: { 201: { description: "Stored", content: { "application/json": { schema: { type: "object" } } } }, 422: { description: "answers_invalid", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+    },
+    "/prom-assignments/{id}/submit": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      post: { tags: ["VBHC"], summary: "Package the captured response as a NPHIES PRM message bundle and forward via the Phase-9 gateway. Sandbox-stubbed when NPHIES_BASE_URL is unset; every attempt is logged in nphies_message_log.", responses: { 200: { description: "Gateway outcome", content: { "application/json": { schema: { type: "object" } } } }, 409: { description: "no_response", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+    },
+    "/prem-responses": {
+      get: { tags: ["VBHC"], summary: "List PREM responses (experience surveys, optionally filtered by beneficiary).", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["VBHC"], summary: "Capture a PREM response (no assignment required; scored using prem_generic).", responses: { 201: { description: "Stored", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/outcomes/summary": {
+      get: { tags: ["VBHC"], summary: "Aggregated PROM/PREM monthly time-series + tenant benchmark (mean PCS / MCS).", responses: { 200: { description: "OK", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
   },
 } as const;
