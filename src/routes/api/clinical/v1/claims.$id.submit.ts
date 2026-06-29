@@ -11,6 +11,9 @@ import { buildClaimBundle } from "@/lib/mds/fhir/claim";
 import { submitClaim } from "@/lib/mds/nphies/gateway";
 import { parseClaimResponse } from "@/lib/mds/fhir/claim-response";
 import { reconcileClaim } from "@/lib/mds/claim-reconcile";
+import { loadClaimReadinessBundle } from "@/lib/mds/claim-loader";
+import { validateClaimReadiness } from "@/lib/mds/validation";
+import { validateClaimRcmReadiness } from "@/lib/rcm/validation";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -58,6 +61,22 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/submit")({
 
         const parsed = await parse(request);
         if (!parsed.ok) return parsed.res;
+
+        // Phase 10 — defensive re-validate at submission
+        const loaded = await loadClaimReadinessBundle(params.id, auth.ctx.tenantId);
+        if (!loaded.ok) return envelope(loaded.reason, "not_found", 404);
+        const mds = validateClaimReadiness(loaded.bundle);
+        if (!mds.ok) {
+          return envelope("Claim is not MDS-complete", "mds_incomplete", 422, {
+            missing: mds.missing, drg: mds.drg,
+          });
+        }
+        const rcmCheck = validateClaimRcmReadiness(loaded.bundle);
+        if (!rcmCheck.ok) {
+          return envelope("Claim is not RCM-complete", "rcm_incomplete", 422, {
+            missing: rcmCheck.missing, rcm: rcmCheck.flags,
+          });
+        }
 
         const db = serviceClient() as any;
         const now = new Date().toISOString();
