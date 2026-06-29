@@ -63,6 +63,7 @@ import { Route as PrivacyTermsOfServiceRouteImport } from './routes/Privacy.Term
 import { Route as PrivacyPatientRightsRouteImport } from './routes/Privacy.PatientRights'
 import { Route as PrivacyHomeRouteImport } from './routes/Privacy.Home'
 import { Route as PrivacyHIPAARouteImport } from './routes/Privacy.HIPAA'
+import { Route as AuthenticatedSuperadminDocsRouteImport } from './routes/_authenticated/superadmin.docs'
 import { Route as AuthenticatedSuperadminApiDocsRouteImport } from './routes/_authenticated/superadmin.api-docs'
 import { Route as AuthenticatedPatientProfileRouteImport } from './routes/_authenticated/patient.profile'
 import { Route as ApiPublicLegalIndexRouteImport } from './routes/api/public/legal.index'
@@ -511,6 +512,12 @@ const PrivacyHIPAARoute = PrivacyHIPAARouteImport.update({
   path: '/HIPAA',
   getParentRoute: () => PrivacyRoute,
 } as any)
+const AuthenticatedSuperadminDocsRoute =
+  AuthenticatedSuperadminDocsRouteImport.update({
+    id: '/docs',
+    path: '/docs',
+    getParentRoute: () => AuthenticatedSuperadminRoute,
+  } as any)
 const AuthenticatedSuperadminApiDocsRoute =
   AuthenticatedSuperadminApiDocsRouteImport.update({
     id: '/api-docs',
@@ -1568,6 +1575,7 @@ export interface FileRoutesByFullPath {
   '/services/': typeof ServicesIndexRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
+  '/superadmin/docs': typeof AuthenticatedSuperadminDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
@@ -1797,6 +1805,7 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesIndexRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
+  '/superadmin/docs': typeof AuthenticatedSuperadminDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
@@ -2030,6 +2039,7 @@ export interface FileRoutesById {
   '/services/': typeof ServicesIndexRoute
   '/_authenticated/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
+  '/_authenticated/superadmin/docs': typeof AuthenticatedSuperadminDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
   '/api/admin/v1/audit': typeof ApiAdminV1AuditRoute
   '/api/admin/v1/bugs': typeof ApiAdminV1BugsRoute
@@ -2263,6 +2273,7 @@ export interface FileRouteTypes {
     | '/services/'
     | '/patient/profile'
     | '/superadmin/api-docs'
+    | '/superadmin/docs'
     | '/api/admin/v1/addons'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
@@ -2492,6 +2503,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/patient/profile'
     | '/superadmin/api-docs'
+    | '/superadmin/docs'
     | '/api/admin/v1/addons'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
@@ -2724,6 +2736,7 @@ export interface FileRouteTypes {
     | '/services/'
     | '/_authenticated/patient/profile'
     | '/_authenticated/superadmin/api-docs'
+    | '/_authenticated/superadmin/docs'
     | '/api/admin/v1/addons'
     | '/api/admin/v1/audit'
     | '/api/admin/v1/bugs'
@@ -3400,6 +3413,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/Privacy/HIPAA'
       preLoaderRoute: typeof PrivacyHIPAARouteImport
       parentRoute: typeof PrivacyRoute
+    }
+    '/_authenticated/superadmin/docs': {
+      id: '/_authenticated/superadmin/docs'
+      path: '/docs'
+      fullPath: '/superadmin/docs'
+      preLoaderRoute: typeof AuthenticatedSuperadminDocsRouteImport
+      parentRoute: typeof AuthenticatedSuperadminRoute
     }
     '/_authenticated/superadmin/api-docs': {
       id: '/_authenticated/superadmin/api-docs'
@@ -4649,11 +4669,13 @@ const AuthenticatedPatientRouteWithChildren =
 
 interface AuthenticatedSuperadminRouteChildren {
   AuthenticatedSuperadminApiDocsRoute: typeof AuthenticatedSuperadminApiDocsRoute
+  AuthenticatedSuperadminDocsRoute: typeof AuthenticatedSuperadminDocsRoute
 }
 
 const AuthenticatedSuperadminRouteChildren: AuthenticatedSuperadminRouteChildren =
   {
     AuthenticatedSuperadminApiDocsRoute: AuthenticatedSuperadminApiDocsRoute,
+    AuthenticatedSuperadminDocsRoute: AuthenticatedSuperadminDocsRoute,
   }
 
 const AuthenticatedSuperadminRouteWithChildren =
