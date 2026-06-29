@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import { SITE } from "@/lib/site-config";
-import { getServicePage, SERVICE_PAGES, accentClasses } from "@/content/services";
+import { getServicePage, SERVICE_PAGES, accentClasses, type ServicePage } from "@/content/services";
 import { breadcrumbLd, jsonld } from "@/components/Jsonld";
 
 export const Route = createFileRoute("/services/$slug")({
@@ -59,7 +59,7 @@ export const Route = createFileRoute("/services/$slug")({
 });
 
 function ServicePage() {
-  const { service: s } = Route.useLoaderData();
+  const { service: s } = Route.useLoaderData() as { service: ServicePage };
   const a = accentClasses(s.accent);
   const Icon = s.icon;
   return (
