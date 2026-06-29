@@ -63,6 +63,7 @@ export const openApiClinicalSpec = {
     { name: "Prescriptions", description: "Phase-4 · Drug prescriptions and dispense events." },
     { name: "Charges", description: "Phase-4 · Per-encounter charge_item ledger and totals." },
     { name: "PricingRules", description: "Phase-4 · Tenant pricing/eligibility/share rules (global defaults read-only)." },
+    { name: "Hospitalization", description: "Phase-5 · Admission MDS, Emergency MDS, Discharge MDS (NPHIES Encounter.hospitalization)." },
   ],
   paths: {
     "/openapi": {
