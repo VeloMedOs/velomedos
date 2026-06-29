@@ -58,6 +58,12 @@ export const CoverageCreate = z.object({
   relation_with_subscriber: nonEmpty("relation_with_subscriber"),
   policy_holder: nonEmpty("policy_holder"),
   status: z.enum(["active", "cancelled", "suspended"]).optional(),
+  // Phase-3 master FKs (optional; validated server-side for tenant ownership).
+  payer_id: z.string().uuid().optional().nullable(),
+  tpa_id: z.string().uuid().optional().nullable(),
+  policy_id: z.string().uuid().optional().nullable(),
+  insurance_plan_id: z.string().uuid().optional().nullable(),
+  network_id: z.string().uuid().optional().nullable(),
   classes: z.array(CoverageClassCreate).optional(),
 });
 export type CoverageCreateInput = z.infer<typeof CoverageCreate>;
@@ -72,5 +78,10 @@ export const CoverageUpdate = z.object({
   relation_with_subscriber: z.string().trim().min(1).optional(),
   policy_holder: z.string().trim().min(1).optional(),
   status: z.enum(["active", "cancelled", "suspended"]).optional(),
+  payer_id: z.string().uuid().optional().nullable(),
+  tpa_id: z.string().uuid().optional().nullable(),
+  policy_id: z.string().uuid().optional().nullable(),
+  insurance_plan_id: z.string().uuid().optional().nullable(),
+  network_id: z.string().uuid().optional().nullable(),
 }).partial();
 export type CoverageUpdateInput = z.infer<typeof CoverageUpdate>;
