@@ -37,7 +37,7 @@ export const Route = createFileRoute("/api/clinical/v1/prom-assignments/$id/subm
         } as never).select("id").single();
 
         const bundle = buildPrmBundle(a, response);
-        const result = await sendBundle(bundle, { idempotencyKey: idempotency, messageType: "prm-request" });
+        const result = await sendBundle(bundle, { idempotencyKey: idempotency, messageType: "prm-request", tenantId: auth.ctx.tenantId });
 
         if (logRow) {
           await db.from("nphies_message_log").update({
