@@ -6,22 +6,15 @@
  * the standardised `{ error, code, request_id }` envelope.
  */
 import { json, preflight, serviceClient } from "./api-server";
+import {
+  CLINICAL_CAPABILITIES,
+  canViewModule,
+  isReadOnly,
+  type ClinicalRole,
+} from "./clinical-role-matrix";
 
 export { json, preflight, serviceClient };
-
-export type ClinicalRole =
-  | "registrar"
-  | "physician"
-  | "nurse"
-  | "lab_tech"
-  | "radiologist"
-  | "pharmacist"
-  | "coder"
-  | "biller"
-  | "case_manager"
-  | "cashier"
-  | "tenant_admin"
-  | "read_only";
+export type { ClinicalRole };
 
 export type TenantContext = {
   userId: string;
@@ -103,6 +96,62 @@ export async function requireClinicalRole(
         403,
       ),
     };
+  }
+  return result;
+}
+
+/**
+ * Module-scoped guard. Resolves the tenant context, then enforces:
+ *   - `read_only` may only GET (HEAD/OPTIONS pass through);
+ *   - any other role must hold ≥1 action capability in the module
+ *     (or, if `capId` is supplied, must specifically be allowed that action).
+ * `tenant_admin` is implicitly allowed.
+ */
+export async function requireClinicalModule(
+  request: Request,
+  module: string,
+  options: { capId?: string } = {},
+): Promise<{ ok: true; ctx: TenantContext } | { ok: false; res: Response }> {
+  const result = await requireTenant(request);
+  if (!result.ok) return result;
+  const { clinicalRole } = result.ctx;
+  if (!clinicalRole) {
+    return { ok: false, res: errorResponse("Clinical role not assigned", "clinical_role_missing", 403) };
+  }
+  if (clinicalRole === "tenant_admin") return result;
+
+  const method = request.method.toUpperCase();
+  const isRead = method === "GET" || method === "HEAD" || method === "OPTIONS";
+
+  if (isReadOnly(clinicalRole)) {
+    if (!isRead) {
+      return { ok: false, res: errorResponse("Read-only role cannot write", "clinical_read_only", 403) };
+    }
+    if (!canViewModule(clinicalRole, module)) {
+      return { ok: false, res: errorResponse(`No access to module: ${module}`, "clinical_module_forbidden", 403) };
+    }
+    return result;
+  }
+
+  if (options.capId) {
+    const cap = CLINICAL_CAPABILITIES.find((c) => c.id === options.capId);
+    if (!cap || !cap.roles.includes(clinicalRole)) {
+      return { ok: false, res: errorResponse(`Requires capability: ${options.capId}`, "clinical_capability_forbidden", 403) };
+    }
+    return result;
+  }
+
+  if (!canViewModule(clinicalRole, module)) {
+    return { ok: false, res: errorResponse(`No access to module: ${module}`, "clinical_module_forbidden", 403) };
+  }
+  // Non-read methods on a module with no specific capId still require the role to hold ≥1 cap in the module.
+  if (!isRead) {
+    const hasAction = CLINICAL_CAPABILITIES.some(
+      (c) => c.module === module && c.roles.includes(clinicalRole),
+    );
+    if (!hasAction) {
+      return { ok: false, res: errorResponse(`Requires action capability in: ${module}`, "clinical_module_forbidden", 403) };
+    }
   }
   return result;
 }

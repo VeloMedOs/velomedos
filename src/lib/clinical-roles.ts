@@ -6,11 +6,9 @@
  */
 import { useEffect, useState } from "react";
 import { ClinicalAPI, ClinicalApiError } from "./clinical-api";
+import type { ClinicalRole } from "./clinical-role-matrix";
 
-export type ClinicalRole =
-  | "registrar" | "physician" | "nurse" | "lab_tech" | "radiologist"
-  | "pharmacist" | "coder" | "biller" | "case_manager" | "cashier"
-  | "tenant_admin" | "read_only";
+export type { ClinicalRole };
 
 export type ClinicalMe = {
   userId: string;

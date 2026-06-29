@@ -7,6 +7,7 @@ import {
   effectiveCapabilities, type AppRole,
 } from "@/lib/role-matrix";
 import { adminEndpointCount, openApiAdminSpec } from "@/lib/openapi-admin-spec";
+import { HisPrivilegesPane } from "@/components/superadmin/HisPrivilegesPane";
 
 export const Route = createFileRoute("/_authenticated/privileges")({
   head: () => ({ meta: [
@@ -24,6 +25,7 @@ function PrivilegesPage() {
   const [roles, setRoles] = useState<RoleRow[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [q, setQ] = useState("");
+  const [tab, setTab] = useState<"platform" | "his">("platform");
 
   useEffect(() => {
     (async () => {
@@ -62,11 +64,25 @@ function PrivilegesPage() {
         <div>
           <div className="mono text-[10px] uppercase tracking-[0.22em] text-action flex items-center gap-2"><Shield className="size-3" /> VeloMed OS</div>
           <h1 className="text-2xl font-bold tracking-tight">Role privileges matrix</h1>
-          <p className="text-sm text-muted-foreground mt-1">Every capability across the 8 platform roles. Pick a user to see their effective permissions.</p>
+          <p className="text-sm text-muted-foreground mt-1">Two axes: <strong>Platform</strong> (AppRole — tenant/ops/dev) and <strong>HIS / RCM</strong> (clinical_role — module-scoped actions). Pick a user to see their effective platform permissions.</p>
         </div>
         <Link to="/superadmin" className="mono text-[10px] uppercase tracking-widest px-3 py-1.5 rounded border border-hairline hover:bg-panel-elevated">← Superadmin</Link>
       </header>
 
+      <nav className="flex items-center gap-1 border-b border-hairline">
+        {([
+          { id: "platform", label: "Platform" },
+          { id: "his",      label: "HIS / RCM" },
+        ] as const).map((t) => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`mono text-[10px] uppercase tracking-widest px-3 py-2 border-b-2 -mb-px ${tab === t.id ? "border-action text-action" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+            {t.label}
+          </button>
+        ))}
+      </nav>
+
+      {tab === "his" ? <HisPrivilegesPane /> : (
+      <>
       {/* Role cards */}
       <section className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {ROLE_ORDER.map((r) => {
@@ -173,6 +189,8 @@ function PrivilegesPage() {
           </div>
         ))}
       </section>
+      </>
+      )}
     </main>
   );
 }
