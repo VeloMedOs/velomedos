@@ -1,5 +1,14 @@
 # VeloMed Mini-HIS — User Manual
 
+## Access the HIS
+
+- **Public deep link:** `/his` — authenticated staff bounce to the launcher, unauthed users go to `/auth?next=/launch`. Marketing chrome surfaces this as the discreet "Staff login" link.
+- **Single sign-in:** all staff sign in via `/auth`. The `?next=` parameter is validated server-side (same-origin absolute path only) and honoured only when the resolved role is authorised for the target.
+- **Role-aware launcher (`/launch`):** loads platform roles + the active tenant's `clinical_role`, then routes single-destination users straight through (physician → `/clinical`, RCM officer → `/clinical` with RCM modules, superadmin → `/superadmin`). Multi-destination users see a card launcher.
+- **Multi-tenant users** see a tenant picker on first sign-in; the choice persists in `localStorage`.
+- **Module visibility:** `/clinical` filters its left rail by `modulesForRole(clinicalRole)`. `read_only` sees every module (view-only).
+- **Manuals:** Superadmin → Documentation surfaces the HIS User Manual, HIS Technical Manual, RCM User Manual, and Changelog. The same content is served by `GET /api/clinical/v1/docs/{slug}` and `GET /api/clinical/v1/docs/{slug}/{module}` for any tenant member.
+
 ## Coder workflow (Phase 6)
 
 ### 1. Finalize coding

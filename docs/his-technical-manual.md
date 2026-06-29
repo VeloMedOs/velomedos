@@ -1,5 +1,34 @@
 # VeloMed Mini-HIS — Technical Manual
 
+## Access entry architecture (v2)
+
+- **Single door:** every human signs in through `/auth`. Search-param `next` is validated by `z.string().regex(/^\/(?![\/\\])/)`, which rejects absolute URLs, protocol-relative `//evil` and backslash `/\evil` bait. `next` is *honoured only when authorised* — both `auth.tsx` and the launcher resolve the user's allow-set via `resolveDestination()` in `src/lib/launch-destination.ts` and drop unauthorised targets silently.
+- **Launcher (`/launch`):** `src/routes/_authenticated/launch.tsx`. Loads platform roles from `user_roles` and the active tenant's `clinical_role` from `tenant_members` in parallel. Single-destination → auto-redirect; multi-destination → card launcher. Multi-tenant users see a picker; choice persists in `localStorage('velomed.active_tenant')` and is mirrored to the `x-tenant-id` header for downstream clinical calls.
+- **Deep link (`/his`):** public route. Authed → `/launch`; unauthed → `/auth?next=/launch`. Surfaced from `SiteChrome` as the discreet "Staff login" link.
+- **Unified `/clinical` workspace:** supersedes the Phase-8 "clinical tabs inside provider.tsx/admin.tsx". The HIS workspace shell at `src/routes/_authenticated/clinical.tsx` filters its left rail with `modulesForRole(role)`; `read_only` gets every module (view-only badge). `provider.tsx` and `admin.tsx` keep their non-HIS surfaces and link out.
+
+## Documentation hub
+
+- **Read path:** bundled. `src/lib/his-docs.ts` is the *single* module that does the Vite `?raw` imports for `docs/*.md`. The Superadmin Docs UI and the API both read from this manifest — no deep relative `?raw` imports inside `src/routes/api/clinical/v1/docs/*`.
+- **API:** `GET /api/clinical/v1/docs` (manifest), `GET /api/clinical/v1/docs/{slug}` (full markdown), `GET /api/clinical/v1/docs/{slug}/{module}` (slice by `## <module>` heading). `PUT /api/clinical/v1/docs/{slug}` is guarded by `requireClinicalModule(req, "Documentation", { capId: "docs.write" })` and currently returns 501 — the DB-overlay write path (`his_doc` table) is on the roadmap.
+- **UI:** `src/components/superadmin/DocsPane.tsx` (embedded in Superadmin → Documentation tab, also reachable at `/superadmin/docs`). Uses `react-markdown` + `remark-gfm`, builds a sticky TOC from `##` / `###` headings, supports section filter and `.md` download.
+
+## Per-module API guards
+
+`src/lib/api-clinical.ts` is the SSOT for HIS/RCM authorization. The model is **read-permissive, write-gated**:
+
+- `requireTenant(request)` — any authenticated tenant member; `tenant_admin` is implicitly allowed everywhere downstream.
+- `requireClinicalRead(request, module)` — GETs only; throws in dev if called on a write method.
+- `requireClinicalWrite(request, module, { capId? })` — writes; requires an action capability in the module (or specifically `capId` when supplied). `read_only` is rejected.
+- `requireClinicalModule(request, module, { capId? })` (also exported as `requireModule`) — dispatches read vs write by HTTP method.
+- **Sensitive overrides:** `READ_GATED_MODULES = { "Cash & ZATCA" }` and `READ_GATED_CAPS = { "claim.post", "dep.approve" }` — these require the capability even for GET.
+
+Existing routes that use `requireClinicalRole(roles)` continue to work; new routes should prefer `requireModule(request, module)` to stay matrix-driven.
+
+## DB alignment
+
+`clinical_role` enum holds all 17 values from `ClinicalRole` (verified via `enum_range`). No migration required for this release.
+
 ## Phase 6 — Coding + AR-DRG Grouper
 
 ### Data model

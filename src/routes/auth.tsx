@@ -15,6 +15,13 @@ export const Route = createFileRoute("/auth")({
     as: z.enum(["patient", "provider", "org"]).optional(),
     err: z.string().optional(),
     attempt: z.string().optional(),
+    /**
+     * Post-auth redirect target. Must be a same-origin absolute path starting
+     * with a single `/` (rejects `//evil`, `/\evil`, full URLs, etc.). The
+     * authorization gate that confirms the role can actually reach `next`
+     * runs inside `destinationForUser` / the launcher.
+     */
+    next: z.string().regex(/^\/(?![\/\\])/).optional(),
   }),
   component: AuthPage,
 });
@@ -61,13 +68,18 @@ function AuthPage() {
       const saved = sessionStorage.getItem("velomed:post_auth");
       if (saved && saved.startsWith("/")) { sessionStorage.removeItem("velomed:post_auth"); return saved; }
     } catch { /* noop */ }
-    if ((email ?? "").toLowerCase() === "superadmin@velomedos.com") return "/superadmin";
+    // Honour a same-origin ?next= if the resolved roles are authorized for it;
+    // otherwise fall through to the role default. The launcher does the same
+    // check for users with multiple workspaces.
+    const isSuperByEmail = (email ?? "").toLowerCase() === "superadmin@velomedos.com";
     const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-    const roles = new Set((data ?? []).map((r: { role: string }) => r.role));
-    if (roles.has("superadmin")) return "/superadmin";
-    if (roles.has("admin") || roles.has("dispatcher") || roles.has("business_admin")) return "/dispatch";
-    if (roles.has("paramedic") || roles.has("driver")) return "/provider";
-    return "/patient";
+    const roleList = (data ?? []).map((r: { role: string }) => r.role);
+    const effective = isSuperByEmail && !roleList.includes("superadmin") ? [...roleList, "superadmin"] : roleList;
+    const { data: tm } = await supabase.from("tenant_members").select("clinical_role").eq("user_id", userId).limit(1);
+    const hasClinical = !!tm?.[0]?.clinical_role;
+    const next = search.next;
+    const { dest } = (await import("@/lib/launch-destination")).resolveDestination(effective, hasClinical, next ?? null);
+    return dest;
   }
 
   async function rolesFor(userId: string): Promise<string[]> {
