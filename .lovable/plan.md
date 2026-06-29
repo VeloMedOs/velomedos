@@ -1,54 +1,39 @@
-# VeloMed Demo Kit — Final amendments (last pass)
+# RCM R1–R7 plan — amendments (Chunk 1 / R1 focus)
 
-The plan now folds in the prior round. Four remaining catches — two structural — to close before build. Nothing here is optional if the demo must be reproducible and the reset must leave a truly clean state.
+The chunking strategy is right (PR-sized, sign-off-gated, standing DoD), and Chunk 1 is faithful to the R1 spec — partial-unique eligibility, financial-type lock, the 19-step SM, the governed change-request audit, and the Phase-10 hard-block are all correct. Four things to fix before shipping R1; one is a migration bug that will fail outright.
 
-## [FIX — structural] The seed can't be split SQL-migration + server-fn the way it's drawn
+## [FIX — CRITICAL, will fail] §1 enum value + RLS policy in the same migration
 
-§2 seeds reference data **and** beneficiaries in `<ts>_demo_seed.sql`, while §2b requires **users before beneficiaries** (so `beneficiary.patient_user_id` resolves). These contradict: a SQL migration can't create auth users (that needs the Admin API) and runs *before* the provisioning server fn — so beneficiaries seeded in SQL can never reference the patient user. Resolve by splitting on capability, not convenience:
+The migration adds `clinical_role + front_office` **and** creates RLS policies "gated to … front_office" in the same transaction. Postgres throws **"unsafe use of new value"** when a newly-added enum label is used in the same transaction that added it — and Supabase wraps each migration in one transaction. So a policy referencing `'front_office'::clinical_role` (or a CHECK/DEFAULT using it) in this migration fails. Fix:
 
-- **Migration (SQL)** = schema only: the `is_demo` flag + the §2c unique indexes. Optionally the pure-reference masters (no user dependency) **if** you want them in SQL — but one place only.
-- **Server fn** `seedDemo()` = the entire data pipeline in order: `(masters if not in SQL) → provisionDemoUsers() → beneficiaries (patient_user_id resolved) → journeys → validate`. Do **not** seed beneficiaries or journeys in the SQL migration. The whole user→beneficiary→journey chain lives in the server fn, which runs with the **service-role admin client** (not an interactive session); the `/demo/seed` + `/demo/reset` HTTP endpoints are what's superadmin-gated.
+- Add any missing `clinical_role` values in a **separate, earlier migration** containing only `ALTER TYPE … ADD VALUE IF NOT EXISTS` statements (one per value), nothing that uses them.
+- **First verify what already exists** — the HIS access-entry enum-expand migration was specced to add all five (`front_office`, `rcm`, `approval_officer`, `claims_officer`, `finance`). The plan assumes only `rcm`/`approval_officer` exist; if the expand already ran, `front_office` is present and this step is a no-op (the `IF NOT EXISTS` keeps it safe). Don't add values piecemeal across chunks — confirm the enum once against the live DB, then never reference a value in the same migration that introduces it.
 
-## [FIX] Three identity axes — the roster mixes them; provisioning must too
+## [FIX] §2 Don't fork a second NPHIES transport
 
-The 13 accounts are not all `tenant_members + clinical_role`. There are three distinct identity axes, and `provisionDemoUsers()` must write the right one per account:
+The plan both adds `submitEligibility(...)` to the Phase-9 gateway **and** creates `src/lib/rcm/eligibility-gateway.ts`. Pick one transport: eligibility rides the **shared, message-aware Phase-9 gateway** (the one reframed from claim-only to `$process-message` for eligibility/auth/claim/ remittance/PRM). `eligibility-gateway.ts` should be a thin **bundle builder** (assemble the CoverageEligibilityRequest, parse the response) that *calls* the shared gateway — not its own sandbox/transport. Otherwise the `is_demo` sandbox-forcing and the inbound router live in two places and drift. Confirm the gateway path matches where Phase 9 actually placed it (`src/lib/nphies/gateway.ts`), not `src/lib/mds/nphies/gateway.ts`.
 
-- **superadmin@demo** → platform `user_roles` row (`AppRole='superadmin'`). **No** `clinical_role`.
-- **admin/doctor/nurse/coder/rcm/approver/cashier/biller/claims/finance/readonly** → `tenant_members` row with the matching `clinical_role`.
-- **patient@demo** → an auth user **linked via** `beneficiary.patient_user_id` to the Insured-OP beneficiary. **Do NOT** give the patient a `tenant_members.clinical_role` row — otherwise the launcher treats them as clinical staff and they won't land on `/patient`. (A patient `AppRole` is fine if the app uses one; the clinical axis must stay empty for them.) Get this wrong and either the patient appears as staff or superadmin can't reach `/superadmin`.
+## [FIX] §3 Reconcile the matrix module — don't add an overlapping one
 
-## [FIX] Reset table inventory is incomplete — it omits the entire RCM transactional set
+The plan adds a **new** `Eligibility & Contracts` module to `clinical-role-matrix.ts` with `elig.check / elig.exception / elig.activate / contract.manage / contract.change`. But the shipped matrix already has `Registration & Eligibility` (`reg.beneficiary`, `reg.eligibility`, `reg.activation`) and `Masters & Contracts` (`mast.contracts`). Two modules covering eligibility will confuse the guard, the simulator, and the privileges UI. Instead:
 
-§5's delete list is clinical-spine-heavy and misses most of R1–R7. A reset that leaves those behind is not a clean state, and stale rows will corrupt the next demo. The delete set (FK-child-first, scoped `WHERE tenant_id=$demo`, in the one transaction) must **also** include:
+- Extend `Registration & Eligibility` with `elig.check`, `elig.exception`, `elig.activate` (or map onto the existing `reg.eligibility`/`reg.activation` caps).
+- Extend `Masters & Contracts` with `contract.manage` / `contract.change`. Keep the module set coherent — the matrix is the SSOT the route map is CI-checked against.
 
-- **R1**: `eligibility_exception` → `visit_eligibility`, `policy_activation_request`.
-- **R2**: `authorization_communication`/`authorization_attachment`/`authorization_item` → `authorization_request`.
-- **R3**: `bill_line` → `bill`; `wallet_txn` → `patient_wallet`; `credit_note`; `receipt`; `payment`.
-- **R4**: `los_extension`, `bed_transfer`, `room_board_entitlement`, `admission_request`.
-- **R5**: `remittance_line` → `remittance`; `denial_communication` → `denial_case`; `claim_batch`.
-- **R6**: `deposit_transaction`/`deposit_attachment` → `deposit`; `refund_request`.
-- **R7**: `cash_session_txn` → `cash_session`; `cash_refund`; `cash_collection`; `tax_invoice_line` → `tax_invoice`; `interface_log`. Best practice so this never drifts again: **tag each table** transactional-vs-reference (a comment convention or a small registry) and have reset delete the transactional set in dependency order, rather than a hand-maintained list that silently goes stale as phases add tables. At minimum, enumerate against the actual phase migrations and assert the demo row-count is zero post-delete (pre-reseed) for every transactional table.
+## [VERIFY] §1 `insurance_class + network_id` vs the Phase-3 class→plan→network chain
 
-## [FIX] Verify natural-key columns + table names against the real schema — don't assume
+Phase 3 modeled the chain `policy → class → plan → network` (+ `network_membership`). Adding a direct `insurance_class.network_id` FK asserts class↔network is 1:1. If a class can map to multiple networks (via plans), this FK is redundant or contradictory. Confirm the cardinality against the P3 schema before adding it; if it's many, resolve network through the existing chain rather than a direct column. Same check for the duplicated limit/deductible/room_type fields appearing on **both** `insurance_class` and `network` — define the precedence (class overrides network, or vice-versa) so the resolver isn't ambiguous.
 
-The §2c `ON CONFLICT` targets assume a `code` column on every master. Several likely differ — confirm each against the actual phase migration before writing the upsert:
+## [VERIFY] §3 `ops_notifications` exists
 
-- `price_list` has no obvious `code` (it's `name` + `scope_level` + scope FK); its natural key is more like `(tenant_id, scope_level, scope_ref_id, name)` or an explicit `code` you add. Don't assume.
-- `drg`, `payer`, `tpa`, `service_master`, `drug_master` — confirm the unique column is `code` vs `drg_code`/`service_code`/`payer_code`/`gtin`/`mrid`. The grouper/coding tables snapshot `drg_code`, so the reference table's key may be `drg_code`, not `code`. And two table-name checks in the reset/stub lists:
-- `nphies_message` is the Phase-9 log name (the plan writes `nphies_message_log`). Use the real one.
-- The dispense table from Phase 4 — confirm it's `medication_administrations` vs `dispense`/ `medication_dispense` before deleting it. A single wrong identifier here fails the seed or the reset at runtime — exactly the "podium" risk.
+The `policy-activations.$id.notify.ts` "notify originating receptionist via `ops_notifications`" assumes that table exists (mobility side). Confirm it's present and tenant-scoped; if not, create it (tenant_id + RLS) in this migration rather than referencing a table that isn't there.
 
-## [ENHANCE] Seed a staged, unposted remittance for the finance step
+## Minor
 
-The script's step 7 includes "post a remittance," but the seed only creates a denied claim. Mirror that: seed one `remittance` **+** `remittance_line` **matched to the submitted claim, status=staged** (not yet posted), so the finance user has real content to post during the demo — the same way the `denial_case` gives the resubmit worklist content.
+- Guard naming: use the `requireClinicalModule` that dispatches read-vs-write by method (read-permissive GET, write-gated) per the access-entry/privileges work — keep it consistent, don't reintroduce bare `requireClinicalRole([...])` for the new routes.
+- §1 partial-unique on `visit_eligibility`: `UNIQUE (encounter_id) WHERE status <> 'cancelled'` is the intent — make sure it's a partial **unique index**, not a constraint (Postgres can't put a WHERE on a table constraint).
+- Money in halalas everywhere — the plan says so; just confirm the new `*_minor` columns (deductible jsonb may hold amounts → document the unit inside the JSON too).
 
-## Otherwise: good to build
+## Good as written
 
-Demo isolation, sandbox-forcing with `interface_log` writes, the banner, the MDS-complete journeys with the post-seed validator re-run (excellent — that's the single most important guard), the reset transaction with `is_demo` assertion, the access sheet, and the guardrails all stand.
-
-### Updated acceptance (add)
-
-- Seeding is one ordered server-fn pipeline; no beneficiary/journey rows originate in a SQL migration.
-- superadmin reaches `/superadmin`; patient reaches `/patient`; neither has the wrong identity row.
-- After `reset`, **every** transactional table (clinical **and** R1–R7) has zero `tenant_id=$demo` rows before reseed; no other tenant is touched.
-- A finance user can post the seeded staged remittance; a claims user can resubmit the seeded denial.  
+The chunk-per-PR cadence, the 19-step `eligibility-sm.ts` as pure functions, the governed `contract_change_request` (draft→approved→applied with before/after JSONB), the Phase-10 `eligibility_lifecycle_ok` hard-block, read-only UI this phase, and "don't touch R2–R7 surfaces" are all the right calls. With the enum migration split out, the single shared gateway, and the matrix module reconciled, **R1 is good to ship** — reply "go R1" after those three are folded in.
