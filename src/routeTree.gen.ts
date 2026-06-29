@@ -190,6 +190,7 @@ import { Route as ApiClinicalV1EncountersIdChargesRouteImport } from './routes/a
 import { Route as ApiClinicalV1EncountersIdCareTeamRouteImport } from './routes/api/clinical/v1/encounters.$id.care-team'
 import { Route as ApiClinicalV1EncountersIdAdvanceRouteImport } from './routes/api/clinical/v1/encounters.$id.advance'
 import { Route as ApiClinicalV1EncountersIdAdmitRouteImport } from './routes/api/clinical/v1/encounters.$id.admit'
+import { Route as ApiClinicalV1ClaimsIdReadyRouteImport } from './routes/api/clinical/v1/claims.$id.ready'
 import { Route as ApiClinicalV1ClaimsIdFhirRouteImport } from './routes/api/clinical/v1/claims.$id.fhir'
 import { Route as ApiClinicalV1BeneficiariesIdFhirRouteImport } from './routes/api/clinical/v1/beneficiaries.$id.fhir'
 import { Route as ApiClinicalV1BeneficiariesIdCoverageRouteImport } from './routes/api/clinical/v1/beneficiaries.$id.coverage'
@@ -1193,6 +1194,12 @@ const ApiClinicalV1EncountersIdAdmitRoute =
     path: '/admit',
     getParentRoute: () => ApiClinicalV1EncountersIdRoute,
   } as any)
+const ApiClinicalV1ClaimsIdReadyRoute =
+  ApiClinicalV1ClaimsIdReadyRouteImport.update({
+    id: '/ready',
+    path: '/ready',
+    getParentRoute: () => ApiClinicalV1ClaimsIdRoute,
+  } as any)
 const ApiClinicalV1ClaimsIdFhirRoute =
   ApiClinicalV1ClaimsIdFhirRouteImport.update({
     id: '/fhir',
@@ -1458,6 +1465,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
+  '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
   '/api/clinical/v1/encounters/$id/admit': typeof ApiClinicalV1EncountersIdAdmitRoute
   '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
   '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
@@ -1657,6 +1665,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
+  '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
   '/api/clinical/v1/encounters/$id/admit': typeof ApiClinicalV1EncountersIdAdmitRoute
   '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
   '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
@@ -1860,6 +1869,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
+  '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
   '/api/clinical/v1/encounters/$id/admit': typeof ApiClinicalV1EncountersIdAdmitRoute
   '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
   '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
@@ -2063,6 +2073,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/clinical/v1/claims/$id/fhir'
+    | '/api/clinical/v1/claims/$id/ready'
     | '/api/clinical/v1/encounters/$id/admit'
     | '/api/clinical/v1/encounters/$id/advance'
     | '/api/clinical/v1/encounters/$id/care-team'
@@ -2262,6 +2273,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/clinical/v1/claims/$id/fhir'
+    | '/api/clinical/v1/claims/$id/ready'
     | '/api/clinical/v1/encounters/$id/admit'
     | '/api/clinical/v1/encounters/$id/advance'
     | '/api/clinical/v1/encounters/$id/care-team'
@@ -2464,6 +2476,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/clinical/v1/claims/$id/fhir'
+    | '/api/clinical/v1/claims/$id/ready'
     | '/api/clinical/v1/encounters/$id/admit'
     | '/api/clinical/v1/encounters/$id/advance'
     | '/api/clinical/v1/encounters/$id/care-team'
@@ -3897,6 +3910,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1EncountersIdAdmitRouteImport
       parentRoute: typeof ApiClinicalV1EncountersIdRoute
     }
+    '/api/clinical/v1/claims/$id/ready': {
+      id: '/api/clinical/v1/claims/$id/ready'
+      path: '/ready'
+      fullPath: '/api/clinical/v1/claims/$id/ready'
+      preLoaderRoute: typeof ApiClinicalV1ClaimsIdReadyRouteImport
+      parentRoute: typeof ApiClinicalV1ClaimsIdRoute
+    }
     '/api/clinical/v1/claims/$id/fhir': {
       id: '/api/clinical/v1/claims/$id/fhir'
       path: '/fhir'
@@ -4351,10 +4371,12 @@ const ApiClinicalV1BeneficiariesRouteWithChildren =
 
 interface ApiClinicalV1ClaimsIdRouteChildren {
   ApiClinicalV1ClaimsIdFhirRoute: typeof ApiClinicalV1ClaimsIdFhirRoute
+  ApiClinicalV1ClaimsIdReadyRoute: typeof ApiClinicalV1ClaimsIdReadyRoute
 }
 
 const ApiClinicalV1ClaimsIdRouteChildren: ApiClinicalV1ClaimsIdRouteChildren = {
   ApiClinicalV1ClaimsIdFhirRoute: ApiClinicalV1ClaimsIdFhirRoute,
+  ApiClinicalV1ClaimsIdReadyRoute: ApiClinicalV1ClaimsIdReadyRoute,
 }
 
 const ApiClinicalV1ClaimsIdRouteWithChildren =
