@@ -11,9 +11,9 @@
  */
 import type { AssembledClaim } from "@/lib/mds/claim-assembly";
 import { serviceClient } from "@/lib/api-clinical";
-import { buildPatient } from "./patient";
-import { buildCoverage } from "./coverage";
-import { buildEncounter } from "./encounter";
+import { beneficiaryToFhirPatient } from "./patient";
+import { coverageToFhirCoverage } from "./coverage";
+import { encounterToFhirEncounter } from "./encounter";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -64,21 +64,51 @@ export async function buildClaimBundle(claimId: string): Promise<any> {
 
   entries.push({
     fullUrl: patientUrn,
-    resource: buildPatient(beneficiary),
+    resource: beneficiaryToFhirPatient(beneficiary),
     request: { method: "PUT", url: `Patient/${beneficiary.id}` },
   });
 
   if (coverage) {
+    const { data: classes } = await db
+      .from("coverage_class")
+      .select("*")
+      .eq("coverage_id", coverage.id);
     entries.push({
       fullUrl: coverageUrn,
-      resource: buildCoverage(coverage, beneficiary, patientUrn),
+      resource: coverageToFhirCoverage(coverage, classes ?? [], patientUrn),
       request: { method: "PUT", url: `Coverage/${coverage.id}` },
     });
   }
 
+  const { data: hosp } = await db
+    .from("encounter_hospitalization")
+    .select("*")
+    .eq("encounter_id", encounter.id)
+    .maybeSingle();
+  const { data: emerg } = await db
+    .from("encounter_emergency")
+    .select("*")
+    .eq("encounter_id", encounter.id)
+    .maybeSingle();
+  const { data: encDx } = await db
+    .from("encounter_diagnosis")
+    .select("*")
+    .eq("encounter_id", encounter.id);
+  const { data: encCt } = await db
+    .from("encounter_care_team")
+    .select("*")
+    .eq("encounter_id", encounter.id);
+
   entries.push({
     fullUrl: encounterUrn,
-    resource: buildEncounter(encounter, beneficiary, patientUrn),
+    resource: encounterToFhirEncounter(
+      encounter,
+      (encCt ?? []) as any,
+      (encDx ?? []) as any,
+      patientUrn,
+      hosp,
+      emerg,
+    ),
     request: { method: "PUT", url: `Encounter/${encounter.id}` },
   });
 
