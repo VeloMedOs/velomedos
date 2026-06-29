@@ -3,7 +3,7 @@ import { Radio, ShieldCheck, Stethoscope, ClipboardCheck, GraduationCap, HeartHa
 import { SiteHeader, SiteFooter, EmergencyBanner } from "@/components/SiteChrome";
 import { breadcrumbLd, jsonld } from "@/components/Jsonld";
 
-export const Route = createFileRoute("/services")({
+export const Route = createFileRoute("/services/")({
   head: () => ({
     meta: [
       { title: "Services — VeloMed OS" },

@@ -13,7 +13,6 @@ import { Route as WebsiteRouteImport } from './routes/website'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SolutionsRouteImport } from './routes/solutions'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
@@ -26,6 +25,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as PrivacyRouteImport } from './routes/Privacy'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as PrivacyIndexRouteImport } from './routes/Privacy.index'
 import { Route as TripTokenRouteImport } from './routes/trip.$token'
 import { Route as SuperadminResetRouteImport } from './routes/superadmin.reset'
@@ -156,11 +156,6 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ServicesRoute = ServicesRouteImport.update({
-  id: '/services',
-  path: '/services',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
@@ -220,6 +215,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesIndexRoute = ServicesIndexRouteImport.update({
+  id: '/services/',
+  path: '/services/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyIndexRoute = PrivacyIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -246,9 +246,9 @@ const SolutionsSlugRoute = SolutionsSlugRouteImport.update({
   getParentRoute: () => SolutionsRoute,
 } as any)
 const ServicesSlugRoute = ServicesSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ServicesRoute,
+  id: '/services/$slug',
+  path: '/services/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ResourcesComparisonRoute = ResourcesComparisonRouteImport.update({
   id: '/comparison',
@@ -814,7 +814,6 @@ export interface FileRoutesByFullPath {
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
-  '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/solutions': typeof SolutionsRouteWithChildren
   '/terms': typeof TermsRoute
@@ -850,6 +849,7 @@ export interface FileRoutesByFullPath {
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
   '/Privacy/': typeof PrivacyIndexRoute
+  '/services/': typeof ServicesIndexRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -940,7 +940,6 @@ export interface FileRoutesByTo {
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
-  '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/solutions': typeof SolutionsRouteWithChildren
   '/terms': typeof TermsRoute
@@ -976,6 +975,7 @@ export interface FileRoutesByTo {
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
   '/Privacy': typeof PrivacyIndexRoute
+  '/services': typeof ServicesIndexRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -1069,7 +1069,6 @@ export interface FileRoutesById {
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
-  '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/solutions': typeof SolutionsRouteWithChildren
   '/terms': typeof TermsRoute
@@ -1105,6 +1104,7 @@ export interface FileRoutesById {
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
   '/Privacy/': typeof PrivacyIndexRoute
+  '/services/': typeof ServicesIndexRoute
   '/_authenticated/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/api/admin/v1/addons': typeof ApiAdminV1AddonsRouteWithChildren
@@ -1198,7 +1198,6 @@ export interface FileRouteTypes {
     | '/platform'
     | '/pricing'
     | '/resources'
-    | '/services'
     | '/sitemap.xml'
     | '/solutions'
     | '/terms'
@@ -1234,6 +1233,7 @@ export interface FileRouteTypes {
     | '/superadmin/reset'
     | '/trip/$token'
     | '/Privacy/'
+    | '/services/'
     | '/patient/profile'
     | '/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1324,7 +1324,6 @@ export interface FileRouteTypes {
     | '/platform'
     | '/pricing'
     | '/resources'
-    | '/services'
     | '/sitemap.xml'
     | '/solutions'
     | '/terms'
@@ -1360,6 +1359,7 @@ export interface FileRouteTypes {
     | '/superadmin/reset'
     | '/trip/$token'
     | '/Privacy'
+    | '/services'
     | '/patient/profile'
     | '/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1452,7 +1452,6 @@ export interface FileRouteTypes {
     | '/platform'
     | '/pricing'
     | '/resources'
-    | '/services'
     | '/sitemap.xml'
     | '/solutions'
     | '/terms'
@@ -1488,6 +1487,7 @@ export interface FileRouteTypes {
     | '/superadmin/reset'
     | '/trip/$token'
     | '/Privacy/'
+    | '/services/'
     | '/_authenticated/patient/profile'
     | '/_authenticated/superadmin/api-docs'
     | '/api/admin/v1/addons'
@@ -1581,15 +1581,16 @@ export interface RootRouteChildren {
   PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
   ResourcesRoute: typeof ResourcesRouteWithChildren
-  ServicesRoute: typeof ServicesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SolutionsRoute: typeof SolutionsRouteWithChildren
   TermsRoute: typeof TermsRoute
   WebsiteRoute: typeof WebsiteRoute
   PrivacySplatRoute: typeof PrivacySplatRoute
+  ServicesSlugRoute: typeof ServicesSlugRoute
   SuperadminLoginRoute: typeof SuperadminLoginRoute
   SuperadminResetRoute: typeof SuperadminResetRoute
   TripTokenRoute: typeof TripTokenRoute
+  ServicesIndexRoute: typeof ServicesIndexRoute
   ApiAdminV1AddonsRoute: typeof ApiAdminV1AddonsRouteWithChildren
   ApiAdminV1AuditRoute: typeof ApiAdminV1AuditRoute
   ApiAdminV1BugsRoute: typeof ApiAdminV1BugsRoute
@@ -1679,13 +1680,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/services': {
-      id: '/services'
-      path: '/services'
-      fullPath: '/services'
-      preLoaderRoute: typeof ServicesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/resources': {
       id: '/resources'
       path: '/resources'
@@ -1770,6 +1764,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services/': {
+      id: '/services/'
+      path: '/services'
+      fullPath: '/services/'
+      preLoaderRoute: typeof ServicesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/Privacy/': {
       id: '/Privacy/'
       path: '/'
@@ -1807,10 +1808,10 @@ declare module '@tanstack/react-router' {
     }
     '/services/$slug': {
       id: '/services/$slug'
-      path: '/$slug'
+      path: '/services/$slug'
       fullPath: '/services/$slug'
       preLoaderRoute: typeof ServicesSlugRouteImport
-      parentRoute: typeof ServicesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/resources/comparison': {
       id: '/resources/comparison'
@@ -2656,18 +2657,6 @@ const ResourcesRouteWithChildren = ResourcesRoute._addFileChildren(
   ResourcesRouteChildren,
 )
 
-interface ServicesRouteChildren {
-  ServicesSlugRoute: typeof ServicesSlugRoute
-}
-
-const ServicesRouteChildren: ServicesRouteChildren = {
-  ServicesSlugRoute: ServicesSlugRoute,
-}
-
-const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
-  ServicesRouteChildren,
-)
-
 interface SolutionsRouteChildren {
   SolutionsSlugRoute: typeof SolutionsSlugRoute
 }
@@ -2886,15 +2875,16 @@ const rootRouteChildren: RootRouteChildren = {
   PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
   ResourcesRoute: ResourcesRouteWithChildren,
-  ServicesRoute: ServicesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SolutionsRoute: SolutionsRouteWithChildren,
   TermsRoute: TermsRoute,
   WebsiteRoute: WebsiteRoute,
   PrivacySplatRoute: PrivacySplatRoute,
+  ServicesSlugRoute: ServicesSlugRoute,
   SuperadminLoginRoute: SuperadminLoginRoute,
   SuperadminResetRoute: SuperadminResetRoute,
   TripTokenRoute: TripTokenRoute,
+  ServicesIndexRoute: ServicesIndexRoute,
   ApiAdminV1AddonsRoute: ApiAdminV1AddonsRouteWithChildren,
   ApiAdminV1AuditRoute: ApiAdminV1AuditRoute,
   ApiAdminV1BugsRoute: ApiAdminV1BugsRoute,
@@ -2958,13 +2948,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
