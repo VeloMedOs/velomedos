@@ -17,6 +17,7 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
+import { Route as HisRouteImport } from './routes/his'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
@@ -46,6 +47,7 @@ import { Route as AuthenticatedRentalsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedProviderRouteImport } from './routes/_authenticated/provider'
 import { Route as AuthenticatedPrivilegesRouteImport } from './routes/_authenticated/privileges'
 import { Route as AuthenticatedPatientRouteImport } from './routes/_authenticated/patient'
+import { Route as AuthenticatedLaunchRouteImport } from './routes/_authenticated/launch'
 import { Route as AuthenticatedFleetRouteImport } from './routes/_authenticated/fleet'
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
 import { Route as AuthenticatedDeveloperRouteImport } from './routes/_authenticated/developer'
@@ -86,6 +88,7 @@ import { Route as ApiClinicalV1OpenapiRouteImport } from './routes/api/clinical/
 import { Route as ApiClinicalV1MeRouteImport } from './routes/api/clinical/v1/me'
 import { Route as ApiClinicalV1EpisodesRouteImport } from './routes/api/clinical/v1/episodes'
 import { Route as ApiClinicalV1EncountersRouteImport } from './routes/api/clinical/v1/encounters'
+import { Route as ApiClinicalV1DocsRouteImport } from './routes/api/clinical/v1/docs'
 import { Route as ApiClinicalV1ClaimsRouteImport } from './routes/api/clinical/v1/claims'
 import { Route as ApiClinicalV1BeneficiariesRouteImport } from './routes/api/clinical/v1/beneficiaries'
 import { Route as ApiAdminV1TicketsRouteImport } from './routes/api/admin/v1/tickets'
@@ -132,6 +135,7 @@ import { Route as ApiClinicalV1MastersDrgBaseRatesRouteImport } from './routes/a
 import { Route as ApiClinicalV1MastersDrgAdjustmentsRouteImport } from './routes/api/clinical/v1/masters/drg-adjustments'
 import { Route as ApiClinicalV1EpisodesIdRouteImport } from './routes/api/clinical/v1/episodes.$id'
 import { Route as ApiClinicalV1EncountersIdRouteImport } from './routes/api/clinical/v1/encounters.$id'
+import { Route as ApiClinicalV1DocsSlugRouteImport } from './routes/api/clinical/v1/docs.$slug'
 import { Route as ApiClinicalV1DiagnosesIdRouteImport } from './routes/api/clinical/v1/diagnoses.$id'
 import { Route as ApiClinicalV1CoverageIdRouteImport } from './routes/api/clinical/v1/coverage.$id'
 import { Route as ApiClinicalV1ClaimsIdRouteImport } from './routes/api/clinical/v1/claims.$id'
@@ -205,6 +209,7 @@ import { Route as ApiClinicalV1EncountersIdChargesRouteImport } from './routes/a
 import { Route as ApiClinicalV1EncountersIdCareTeamRouteImport } from './routes/api/clinical/v1/encounters.$id.care-team'
 import { Route as ApiClinicalV1EncountersIdAdvanceRouteImport } from './routes/api/clinical/v1/encounters.$id.advance'
 import { Route as ApiClinicalV1EncountersIdAdmitRouteImport } from './routes/api/clinical/v1/encounters.$id.admit'
+import { Route as ApiClinicalV1DocsSlugModuleRouteImport } from './routes/api/clinical/v1/docs.$slug.$module'
 import { Route as ApiClinicalV1ClaimsIdSubmitRouteImport } from './routes/api/clinical/v1/claims.$id.submit'
 import { Route as ApiClinicalV1ClaimsIdReadyRouteImport } from './routes/api/clinical/v1/claims.$id.ready'
 import { Route as ApiClinicalV1ClaimsIdFhirRouteImport } from './routes/api/clinical/v1/claims.$id.fhir'
@@ -273,6 +278,11 @@ const PricingRoute = PricingRouteImport.update({
 const PlatformRoute = PlatformRouteImport.update({
   id: '/platform',
   path: '/platform',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HisRoute = HisRouteImport.update({
+  id: '/his',
+  path: '/his',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoRoute = DemoRouteImport.update({
@@ -417,6 +427,11 @@ const AuthenticatedPrivilegesRoute = AuthenticatedPrivilegesRouteImport.update({
 const AuthenticatedPatientRoute = AuthenticatedPatientRouteImport.update({
   id: '/patient',
   path: '/patient',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLaunchRoute = AuthenticatedLaunchRouteImport.update({
+  id: '/launch',
+  path: '/launch',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFleetRoute = AuthenticatedFleetRouteImport.update({
@@ -627,6 +642,11 @@ const ApiClinicalV1EpisodesRoute = ApiClinicalV1EpisodesRouteImport.update({
 const ApiClinicalV1EncountersRoute = ApiClinicalV1EncountersRouteImport.update({
   id: '/api/clinical/v1/encounters',
   path: '/api/clinical/v1/encounters',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiClinicalV1DocsRoute = ApiClinicalV1DocsRouteImport.update({
+  id: '/api/clinical/v1/docs',
+  path: '/api/clinical/v1/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiClinicalV1ClaimsRoute = ApiClinicalV1ClaimsRouteImport.update({
@@ -884,6 +904,11 @@ const ApiClinicalV1EncountersIdRoute =
     path: '/$id',
     getParentRoute: () => ApiClinicalV1EncountersRoute,
   } as any)
+const ApiClinicalV1DocsSlugRoute = ApiClinicalV1DocsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ApiClinicalV1DocsRoute,
+} as any)
 const ApiClinicalV1DiagnosesIdRoute =
   ApiClinicalV1DiagnosesIdRouteImport.update({
     id: '/api/clinical/v1/diagnoses/$id',
@@ -1306,6 +1331,12 @@ const ApiClinicalV1EncountersIdAdmitRoute =
     path: '/admit',
     getParentRoute: () => ApiClinicalV1EncountersIdRoute,
   } as any)
+const ApiClinicalV1DocsSlugModuleRoute =
+  ApiClinicalV1DocsSlugModuleRouteImport.update({
+    id: '/$module',
+    path: '/$module',
+    getParentRoute: () => ApiClinicalV1DocsSlugRoute,
+  } as any)
 const ApiClinicalV1ClaimsIdSubmitRoute =
   ApiClinicalV1ClaimsIdSubmitRouteImport.update({
     id: '/submit',
@@ -1490,6 +1521,7 @@ export interface FileRoutesByFullPath {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
+  '/his': typeof HisRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
@@ -1513,6 +1545,7 @@ export interface FileRoutesByFullPath {
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/fleet': typeof AuthenticatedFleetRoute
+  '/launch': typeof AuthenticatedLaunchRoute
   '/patient': typeof AuthenticatedPatientRouteWithChildren
   '/privileges': typeof AuthenticatedPrivilegesRoute
   '/provider': typeof AuthenticatedProviderRoute
@@ -1555,6 +1588,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
   '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRouteWithChildren
   '/api/clinical/v1/claims': typeof ApiClinicalV1ClaimsRouteWithChildren
+  '/api/clinical/v1/docs': typeof ApiClinicalV1DocsRouteWithChildren
   '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
   '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
@@ -1607,6 +1641,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/claims/$id': typeof ApiClinicalV1ClaimsIdRouteWithChildren
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
+  '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
   '/api/clinical/v1/masters/drg-adjustments': typeof ApiClinicalV1MastersDrgAdjustmentsRouteWithChildren
@@ -1647,6 +1682,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
   '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
   '/api/clinical/v1/claims/$id/submit': typeof ApiClinicalV1ClaimsIdSubmitRoute
+  '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/encounters/$id/admit': typeof ApiClinicalV1EncountersIdAdmitRoute
   '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
   '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
@@ -1715,6 +1751,7 @@ export interface FileRoutesByTo {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
+  '/his': typeof HisRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
@@ -1737,6 +1774,7 @@ export interface FileRoutesByTo {
   '/developer': typeof AuthenticatedDeveloperRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/fleet': typeof AuthenticatedFleetRoute
+  '/launch': typeof AuthenticatedLaunchRoute
   '/patient': typeof AuthenticatedPatientRouteWithChildren
   '/privileges': typeof AuthenticatedPrivilegesRoute
   '/provider': typeof AuthenticatedProviderRoute
@@ -1779,6 +1817,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
   '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRouteWithChildren
   '/api/clinical/v1/claims': typeof ApiClinicalV1ClaimsRouteWithChildren
+  '/api/clinical/v1/docs': typeof ApiClinicalV1DocsRouteWithChildren
   '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
   '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
@@ -1831,6 +1870,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/claims/$id': typeof ApiClinicalV1ClaimsIdRouteWithChildren
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
+  '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
   '/api/clinical/v1/masters/drg-adjustments': typeof ApiClinicalV1MastersDrgAdjustmentsRouteWithChildren
@@ -1871,6 +1911,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
   '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
   '/api/clinical/v1/claims/$id/submit': typeof ApiClinicalV1ClaimsIdSubmitRoute
+  '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/encounters/$id/admit': typeof ApiClinicalV1EncountersIdAdmitRoute
   '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
   '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
@@ -1942,6 +1983,7 @@ export interface FileRoutesById {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
+  '/his': typeof HisRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
@@ -1965,6 +2007,7 @@ export interface FileRoutesById {
   '/_authenticated/developer': typeof AuthenticatedDeveloperRoute
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
   '/_authenticated/fleet': typeof AuthenticatedFleetRoute
+  '/_authenticated/launch': typeof AuthenticatedLaunchRoute
   '/_authenticated/patient': typeof AuthenticatedPatientRouteWithChildren
   '/_authenticated/privileges': typeof AuthenticatedPrivilegesRoute
   '/_authenticated/provider': typeof AuthenticatedProviderRoute
@@ -2007,6 +2050,7 @@ export interface FileRoutesById {
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
   '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRouteWithChildren
   '/api/clinical/v1/claims': typeof ApiClinicalV1ClaimsRouteWithChildren
+  '/api/clinical/v1/docs': typeof ApiClinicalV1DocsRouteWithChildren
   '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
   '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
@@ -2059,6 +2103,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/claims/$id': typeof ApiClinicalV1ClaimsIdRouteWithChildren
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
+  '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
   '/api/clinical/v1/masters/drg-adjustments': typeof ApiClinicalV1MastersDrgAdjustmentsRouteWithChildren
@@ -2099,6 +2144,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
   '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
   '/api/clinical/v1/claims/$id/submit': typeof ApiClinicalV1ClaimsIdSubmitRoute
+  '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/encounters/$id/admit': typeof ApiClinicalV1EncountersIdAdmitRoute
   '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
   '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
@@ -2170,6 +2216,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/demo'
+    | '/his'
     | '/platform'
     | '/pricing'
     | '/resources'
@@ -2193,6 +2240,7 @@ export interface FileRouteTypes {
     | '/developer'
     | '/dispatch'
     | '/fleet'
+    | '/launch'
     | '/patient'
     | '/privileges'
     | '/provider'
@@ -2235,6 +2283,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tickets'
     | '/api/clinical/v1/beneficiaries'
     | '/api/clinical/v1/claims'
+    | '/api/clinical/v1/docs'
     | '/api/clinical/v1/encounters'
     | '/api/clinical/v1/episodes'
     | '/api/clinical/v1/me'
@@ -2287,6 +2336,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/$id'
     | '/api/clinical/v1/coverage/$id'
     | '/api/clinical/v1/diagnoses/$id'
+    | '/api/clinical/v1/docs/$slug'
     | '/api/clinical/v1/encounters/$id'
     | '/api/clinical/v1/episodes/$id'
     | '/api/clinical/v1/masters/drg-adjustments'
@@ -2327,6 +2377,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/$id/fhir'
     | '/api/clinical/v1/claims/$id/ready'
     | '/api/clinical/v1/claims/$id/submit'
+    | '/api/clinical/v1/docs/$slug/$module'
     | '/api/clinical/v1/encounters/$id/admit'
     | '/api/clinical/v1/encounters/$id/advance'
     | '/api/clinical/v1/encounters/$id/care-team'
@@ -2395,6 +2446,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/demo'
+    | '/his'
     | '/platform'
     | '/pricing'
     | '/resources'
@@ -2417,6 +2469,7 @@ export interface FileRouteTypes {
     | '/developer'
     | '/dispatch'
     | '/fleet'
+    | '/launch'
     | '/patient'
     | '/privileges'
     | '/provider'
@@ -2459,6 +2512,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tickets'
     | '/api/clinical/v1/beneficiaries'
     | '/api/clinical/v1/claims'
+    | '/api/clinical/v1/docs'
     | '/api/clinical/v1/encounters'
     | '/api/clinical/v1/episodes'
     | '/api/clinical/v1/me'
@@ -2511,6 +2565,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/$id'
     | '/api/clinical/v1/coverage/$id'
     | '/api/clinical/v1/diagnoses/$id'
+    | '/api/clinical/v1/docs/$slug'
     | '/api/clinical/v1/encounters/$id'
     | '/api/clinical/v1/episodes/$id'
     | '/api/clinical/v1/masters/drg-adjustments'
@@ -2551,6 +2606,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/$id/fhir'
     | '/api/clinical/v1/claims/$id/ready'
     | '/api/clinical/v1/claims/$id/submit'
+    | '/api/clinical/v1/docs/$slug/$module'
     | '/api/clinical/v1/encounters/$id/admit'
     | '/api/clinical/v1/encounters/$id/advance'
     | '/api/clinical/v1/encounters/$id/care-team'
@@ -2621,6 +2677,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/demo'
+    | '/his'
     | '/platform'
     | '/pricing'
     | '/resources'
@@ -2644,6 +2701,7 @@ export interface FileRouteTypes {
     | '/_authenticated/developer'
     | '/_authenticated/dispatch'
     | '/_authenticated/fleet'
+    | '/_authenticated/launch'
     | '/_authenticated/patient'
     | '/_authenticated/privileges'
     | '/_authenticated/provider'
@@ -2686,6 +2744,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/tickets'
     | '/api/clinical/v1/beneficiaries'
     | '/api/clinical/v1/claims'
+    | '/api/clinical/v1/docs'
     | '/api/clinical/v1/encounters'
     | '/api/clinical/v1/episodes'
     | '/api/clinical/v1/me'
@@ -2738,6 +2797,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/$id'
     | '/api/clinical/v1/coverage/$id'
     | '/api/clinical/v1/diagnoses/$id'
+    | '/api/clinical/v1/docs/$slug'
     | '/api/clinical/v1/encounters/$id'
     | '/api/clinical/v1/episodes/$id'
     | '/api/clinical/v1/masters/drg-adjustments'
@@ -2778,6 +2838,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/$id/fhir'
     | '/api/clinical/v1/claims/$id/ready'
     | '/api/clinical/v1/claims/$id/submit'
+    | '/api/clinical/v1/docs/$slug/$module'
     | '/api/clinical/v1/encounters/$id/admit'
     | '/api/clinical/v1/encounters/$id/advance'
     | '/api/clinical/v1/encounters/$id/care-team'
@@ -2849,6 +2910,7 @@ export interface RootRouteChildren {
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
   DemoRoute: typeof DemoRoute
+  HisRoute: typeof HisRoute
   PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
   ResourcesRoute: typeof ResourcesRouteWithChildren
@@ -2881,6 +2943,7 @@ export interface RootRouteChildren {
   ApiAdminV1TicketsRoute: typeof ApiAdminV1TicketsRouteWithChildren
   ApiClinicalV1BeneficiariesRoute: typeof ApiClinicalV1BeneficiariesRouteWithChildren
   ApiClinicalV1ClaimsRoute: typeof ApiClinicalV1ClaimsRouteWithChildren
+  ApiClinicalV1DocsRoute: typeof ApiClinicalV1DocsRouteWithChildren
   ApiClinicalV1EncountersRoute: typeof ApiClinicalV1EncountersRouteWithChildren
   ApiClinicalV1EpisodesRoute: typeof ApiClinicalV1EpisodesRouteWithChildren
   ApiClinicalV1MeRoute: typeof ApiClinicalV1MeRoute
@@ -3014,6 +3077,13 @@ declare module '@tanstack/react-router' {
       path: '/platform'
       fullPath: '/platform'
       preLoaderRoute: typeof PlatformRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/his': {
+      id: '/his'
+      path: '/his'
+      fullPath: '/his'
+      preLoaderRoute: typeof HisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo': {
@@ -3217,6 +3287,13 @@ declare module '@tanstack/react-router' {
       path: '/patient'
       fullPath: '/patient'
       preLoaderRoute: typeof AuthenticatedPatientRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/launch': {
+      id: '/_authenticated/launch'
+      path: '/launch'
+      fullPath: '/launch'
+      preLoaderRoute: typeof AuthenticatedLaunchRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fleet': {
@@ -3497,6 +3574,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/encounters'
       fullPath: '/api/clinical/v1/encounters'
       preLoaderRoute: typeof ApiClinicalV1EncountersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/docs': {
+      id: '/api/clinical/v1/docs'
+      path: '/api/clinical/v1/docs'
+      fullPath: '/api/clinical/v1/docs'
+      preLoaderRoute: typeof ApiClinicalV1DocsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/claims': {
@@ -3820,6 +3904,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/clinical/v1/encounters/$id'
       preLoaderRoute: typeof ApiClinicalV1EncountersIdRouteImport
       parentRoute: typeof ApiClinicalV1EncountersRoute
+    }
+    '/api/clinical/v1/docs/$slug': {
+      id: '/api/clinical/v1/docs/$slug'
+      path: '/$slug'
+      fullPath: '/api/clinical/v1/docs/$slug'
+      preLoaderRoute: typeof ApiClinicalV1DocsSlugRouteImport
+      parentRoute: typeof ApiClinicalV1DocsRoute
     }
     '/api/clinical/v1/diagnoses/$id': {
       id: '/api/clinical/v1/diagnoses/$id'
@@ -4332,6 +4423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1EncountersIdAdmitRouteImport
       parentRoute: typeof ApiClinicalV1EncountersIdRoute
     }
+    '/api/clinical/v1/docs/$slug/$module': {
+      id: '/api/clinical/v1/docs/$slug/$module'
+      path: '/$module'
+      fullPath: '/api/clinical/v1/docs/$slug/$module'
+      preLoaderRoute: typeof ApiClinicalV1DocsSlugModuleRouteImport
+      parentRoute: typeof ApiClinicalV1DocsSlugRoute
+    }
     '/api/clinical/v1/claims/$id/submit': {
       id: '/api/clinical/v1/claims/$id/submit'
       path: '/submit'
@@ -4575,6 +4673,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDeveloperRoute: typeof AuthenticatedDeveloperRoute
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
   AuthenticatedFleetRoute: typeof AuthenticatedFleetRoute
+  AuthenticatedLaunchRoute: typeof AuthenticatedLaunchRoute
   AuthenticatedPatientRoute: typeof AuthenticatedPatientRouteWithChildren
   AuthenticatedPrivilegesRoute: typeof AuthenticatedPrivilegesRoute
   AuthenticatedProviderRoute: typeof AuthenticatedProviderRoute
@@ -4597,6 +4696,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDeveloperRoute: AuthenticatedDeveloperRoute,
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
   AuthenticatedFleetRoute: AuthenticatedFleetRoute,
+  AuthenticatedLaunchRoute: AuthenticatedLaunchRoute,
   AuthenticatedPatientRoute: AuthenticatedPatientRouteWithChildren,
   AuthenticatedPrivilegesRoute: AuthenticatedPrivilegesRoute,
   AuthenticatedProviderRoute: AuthenticatedProviderRoute,
@@ -4894,6 +4994,30 @@ const ApiClinicalV1ClaimsRouteChildren: ApiClinicalV1ClaimsRouteChildren = {
 
 const ApiClinicalV1ClaimsRouteWithChildren =
   ApiClinicalV1ClaimsRoute._addFileChildren(ApiClinicalV1ClaimsRouteChildren)
+
+interface ApiClinicalV1DocsSlugRouteChildren {
+  ApiClinicalV1DocsSlugModuleRoute: typeof ApiClinicalV1DocsSlugModuleRoute
+}
+
+const ApiClinicalV1DocsSlugRouteChildren: ApiClinicalV1DocsSlugRouteChildren = {
+  ApiClinicalV1DocsSlugModuleRoute: ApiClinicalV1DocsSlugModuleRoute,
+}
+
+const ApiClinicalV1DocsSlugRouteWithChildren =
+  ApiClinicalV1DocsSlugRoute._addFileChildren(
+    ApiClinicalV1DocsSlugRouteChildren,
+  )
+
+interface ApiClinicalV1DocsRouteChildren {
+  ApiClinicalV1DocsSlugRoute: typeof ApiClinicalV1DocsSlugRouteWithChildren
+}
+
+const ApiClinicalV1DocsRouteChildren: ApiClinicalV1DocsRouteChildren = {
+  ApiClinicalV1DocsSlugRoute: ApiClinicalV1DocsSlugRouteWithChildren,
+}
+
+const ApiClinicalV1DocsRouteWithChildren =
+  ApiClinicalV1DocsRoute._addFileChildren(ApiClinicalV1DocsRouteChildren)
 
 interface ApiClinicalV1EncountersIdRouteChildren {
   ApiClinicalV1EncountersIdAdmitRoute: typeof ApiClinicalV1EncountersIdAdmitRoute
@@ -5349,6 +5473,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
   DemoRoute: DemoRoute,
+  HisRoute: HisRoute,
   PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
   ResourcesRoute: ResourcesRouteWithChildren,
@@ -5382,6 +5507,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1TicketsRoute: ApiAdminV1TicketsRouteWithChildren,
   ApiClinicalV1BeneficiariesRoute: ApiClinicalV1BeneficiariesRouteWithChildren,
   ApiClinicalV1ClaimsRoute: ApiClinicalV1ClaimsRouteWithChildren,
+  ApiClinicalV1DocsRoute: ApiClinicalV1DocsRouteWithChildren,
   ApiClinicalV1EncountersRoute: ApiClinicalV1EncountersRouteWithChildren,
   ApiClinicalV1EpisodesRoute: ApiClinicalV1EpisodesRouteWithChildren,
   ApiClinicalV1MeRoute: ApiClinicalV1MeRoute,
