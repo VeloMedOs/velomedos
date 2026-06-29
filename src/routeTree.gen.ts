@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WebsiteRouteImport } from './routes/website'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SolutionsRouteImport } from './routes/solutions'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResourcesRouteImport } from './routes/resources'
@@ -29,6 +30,7 @@ import { Route as PrivacyIndexRouteImport } from './routes/Privacy.index'
 import { Route as TripTokenRouteImport } from './routes/trip.$token'
 import { Route as SuperadminResetRouteImport } from './routes/superadmin.reset'
 import { Route as SuperadminLoginRouteImport } from './routes/superadmin.login'
+import { Route as SolutionsSlugRouteImport } from './routes/solutions.$slug'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as ResourcesComparisonRouteImport } from './routes/resources.comparison'
 import { Route as ResourcesSlugRouteImport } from './routes/resources.$slug'
@@ -144,6 +146,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SolutionsRoute = SolutionsRouteImport.update({
+  id: '/solutions',
+  path: '/solutions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -232,6 +239,11 @@ const SuperadminLoginRoute = SuperadminLoginRouteImport.update({
   id: '/superadmin/login',
   path: '/superadmin/login',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SolutionsSlugRoute = SolutionsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => SolutionsRoute,
 } as any)
 const ServicesSlugRoute = ServicesSlugRouteImport.update({
   id: '/$slug',
@@ -804,6 +816,7 @@ export interface FileRoutesByFullPath {
   '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/solutions': typeof SolutionsRouteWithChildren
   '/terms': typeof TermsRoute
   '/website': typeof WebsiteRoute
   '/Privacy/HIPAA': typeof PrivacyHIPAARoute
@@ -832,6 +845,7 @@ export interface FileRoutesByFullPath {
   '/resources/$slug': typeof ResourcesSlugRoute
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/solutions/$slug': typeof SolutionsSlugRoute
   '/superadmin/login': typeof SuperadminLoginRoute
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
@@ -928,6 +942,7 @@ export interface FileRoutesByTo {
   '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/solutions': typeof SolutionsRouteWithChildren
   '/terms': typeof TermsRoute
   '/website': typeof WebsiteRoute
   '/Privacy/HIPAA': typeof PrivacyHIPAARoute
@@ -956,6 +971,7 @@ export interface FileRoutesByTo {
   '/resources/$slug': typeof ResourcesSlugRoute
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/solutions/$slug': typeof SolutionsSlugRoute
   '/superadmin/login': typeof SuperadminLoginRoute
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
@@ -1055,6 +1071,7 @@ export interface FileRoutesById {
   '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/solutions': typeof SolutionsRouteWithChildren
   '/terms': typeof TermsRoute
   '/website': typeof WebsiteRoute
   '/Privacy/HIPAA': typeof PrivacyHIPAARoute
@@ -1083,6 +1100,7 @@ export interface FileRoutesById {
   '/resources/$slug': typeof ResourcesSlugRoute
   '/resources/comparison': typeof ResourcesComparisonRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/solutions/$slug': typeof SolutionsSlugRoute
   '/superadmin/login': typeof SuperadminLoginRoute
   '/superadmin/reset': typeof SuperadminResetRoute
   '/trip/$token': typeof TripTokenRoute
@@ -1182,6 +1200,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/services'
     | '/sitemap.xml'
+    | '/solutions'
     | '/terms'
     | '/website'
     | '/Privacy/HIPAA'
@@ -1210,6 +1229,7 @@ export interface FileRouteTypes {
     | '/resources/$slug'
     | '/resources/comparison'
     | '/services/$slug'
+    | '/solutions/$slug'
     | '/superadmin/login'
     | '/superadmin/reset'
     | '/trip/$token'
@@ -1306,6 +1326,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/services'
     | '/sitemap.xml'
+    | '/solutions'
     | '/terms'
     | '/website'
     | '/Privacy/HIPAA'
@@ -1334,6 +1355,7 @@ export interface FileRouteTypes {
     | '/resources/$slug'
     | '/resources/comparison'
     | '/services/$slug'
+    | '/solutions/$slug'
     | '/superadmin/login'
     | '/superadmin/reset'
     | '/trip/$token'
@@ -1432,6 +1454,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/services'
     | '/sitemap.xml'
+    | '/solutions'
     | '/terms'
     | '/website'
     | '/Privacy/HIPAA'
@@ -1460,6 +1483,7 @@ export interface FileRouteTypes {
     | '/resources/$slug'
     | '/resources/comparison'
     | '/services/$slug'
+    | '/solutions/$slug'
     | '/superadmin/login'
     | '/superadmin/reset'
     | '/trip/$token'
@@ -1559,6 +1583,7 @@ export interface RootRouteChildren {
   ResourcesRoute: typeof ResourcesRouteWithChildren
   ServicesRoute: typeof ServicesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SolutionsRoute: typeof SolutionsRouteWithChildren
   TermsRoute: typeof TermsRoute
   WebsiteRoute: typeof WebsiteRoute
   PrivacySplatRoute: typeof PrivacySplatRoute
@@ -1638,6 +1663,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions': {
+      id: '/solutions'
+      path: '/solutions'
+      fullPath: '/solutions'
+      preLoaderRoute: typeof SolutionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -1765,6 +1797,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/superadmin/login'
       preLoaderRoute: typeof SuperadminLoginRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/solutions/$slug': {
+      id: '/solutions/$slug'
+      path: '/$slug'
+      fullPath: '/solutions/$slug'
+      preLoaderRoute: typeof SolutionsSlugRouteImport
+      parentRoute: typeof SolutionsRoute
     }
     '/services/$slug': {
       id: '/services/$slug'
@@ -2629,6 +2668,18 @@ const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
   ServicesRouteChildren,
 )
 
+interface SolutionsRouteChildren {
+  SolutionsSlugRoute: typeof SolutionsSlugRoute
+}
+
+const SolutionsRouteChildren: SolutionsRouteChildren = {
+  SolutionsSlugRoute: SolutionsSlugRoute,
+}
+
+const SolutionsRouteWithChildren = SolutionsRoute._addFileChildren(
+  SolutionsRouteChildren,
+)
+
 interface ApiAdminV1AddonsRouteChildren {
   ApiAdminV1AddonsIdRoute: typeof ApiAdminV1AddonsIdRoute
 }
@@ -2837,6 +2888,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesRoute: ResourcesRouteWithChildren,
   ServicesRoute: ServicesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SolutionsRoute: SolutionsRouteWithChildren,
   TermsRoute: TermsRoute,
   WebsiteRoute: WebsiteRoute,
   PrivacySplatRoute: PrivacySplatRoute,
