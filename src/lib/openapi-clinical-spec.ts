@@ -64,6 +64,7 @@ export const openApiClinicalSpec = {
     { name: "Charges", description: "Phase-4 · Per-encounter charge_item ledger and totals." },
     { name: "PricingRules", description: "Phase-4 · Tenant pricing/eligibility/share rules (global defaults read-only)." },
     { name: "Hospitalization", description: "Phase-5 · Admission MDS, Emergency MDS, Discharge MDS (NPHIES Encounter.hospitalization)." },
+    { name: "Coding", description: "Phase-6 · ICD-10-AM/ACHI coder finalize + AR-DRG grouper (IMP only)." },
   ],
   paths: {
     "/openapi": {
