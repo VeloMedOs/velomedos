@@ -197,6 +197,7 @@ import { Route as ApiClinicalV1EncountersIdAdmitRouteImport } from './routes/api
 import { Route as ApiClinicalV1ClaimsIdSubmitRouteImport } from './routes/api/clinical/v1/claims.$id.submit'
 import { Route as ApiClinicalV1ClaimsIdReadyRouteImport } from './routes/api/clinical/v1/claims.$id.ready'
 import { Route as ApiClinicalV1ClaimsIdFhirRouteImport } from './routes/api/clinical/v1/claims.$id.fhir'
+import { Route as ApiClinicalV1ClaimsIdEligibilityRouteImport } from './routes/api/clinical/v1/claims.$id.eligibility'
 import { Route as ApiClinicalV1ClaimsIdAttemptsRouteImport } from './routes/api/clinical/v1/claims.$id.attempts'
 import { Route as ApiClinicalV1BeneficiariesIdFhirRouteImport } from './routes/api/clinical/v1/beneficiaries.$id.fhir'
 import { Route as ApiClinicalV1BeneficiariesIdCoverageRouteImport } from './routes/api/clinical/v1/beneficiaries.$id.coverage'
@@ -1240,6 +1241,12 @@ const ApiClinicalV1ClaimsIdFhirRoute =
     path: '/fhir',
     getParentRoute: () => ApiClinicalV1ClaimsIdRoute,
   } as any)
+const ApiClinicalV1ClaimsIdEligibilityRoute =
+  ApiClinicalV1ClaimsIdEligibilityRouteImport.update({
+    id: '/eligibility',
+    path: '/eligibility',
+    getParentRoute: () => ApiClinicalV1ClaimsIdRoute,
+  } as any)
 const ApiClinicalV1ClaimsIdAttemptsRoute =
   ApiClinicalV1ClaimsIdAttemptsRouteImport.update({
     id: '/attempts',
@@ -1509,6 +1516,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/clinical/v1/claims/$id/attempts': typeof ApiClinicalV1ClaimsIdAttemptsRoute
+  '/api/clinical/v1/claims/$id/eligibility': typeof ApiClinicalV1ClaimsIdEligibilityRoute
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
   '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
   '/api/clinical/v1/claims/$id/submit': typeof ApiClinicalV1ClaimsIdSubmitRoute
@@ -1715,6 +1723,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/clinical/v1/claims/$id/attempts': typeof ApiClinicalV1ClaimsIdAttemptsRoute
+  '/api/clinical/v1/claims/$id/eligibility': typeof ApiClinicalV1ClaimsIdEligibilityRoute
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
   '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
   '/api/clinical/v1/claims/$id/submit': typeof ApiClinicalV1ClaimsIdSubmitRoute
@@ -1925,6 +1934,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/clinical/v1/claims/$id/attempts': typeof ApiClinicalV1ClaimsIdAttemptsRoute
+  '/api/clinical/v1/claims/$id/eligibility': typeof ApiClinicalV1ClaimsIdEligibilityRoute
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
   '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
   '/api/clinical/v1/claims/$id/submit': typeof ApiClinicalV1ClaimsIdSubmitRoute
@@ -2135,6 +2145,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/clinical/v1/claims/$id/attempts'
+    | '/api/clinical/v1/claims/$id/eligibility'
     | '/api/clinical/v1/claims/$id/fhir'
     | '/api/clinical/v1/claims/$id/ready'
     | '/api/clinical/v1/claims/$id/submit'
@@ -2341,6 +2352,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/clinical/v1/claims/$id/attempts'
+    | '/api/clinical/v1/claims/$id/eligibility'
     | '/api/clinical/v1/claims/$id/fhir'
     | '/api/clinical/v1/claims/$id/ready'
     | '/api/clinical/v1/claims/$id/submit'
@@ -2550,6 +2562,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/clinical/v1/claims/$id/attempts'
+    | '/api/clinical/v1/claims/$id/eligibility'
     | '/api/clinical/v1/claims/$id/fhir'
     | '/api/clinical/v1/claims/$id/ready'
     | '/api/clinical/v1/claims/$id/submit'
@@ -4036,6 +4049,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1ClaimsIdFhirRouteImport
       parentRoute: typeof ApiClinicalV1ClaimsIdRoute
     }
+    '/api/clinical/v1/claims/$id/eligibility': {
+      id: '/api/clinical/v1/claims/$id/eligibility'
+      path: '/eligibility'
+      fullPath: '/api/clinical/v1/claims/$id/eligibility'
+      preLoaderRoute: typeof ApiClinicalV1ClaimsIdEligibilityRouteImport
+      parentRoute: typeof ApiClinicalV1ClaimsIdRoute
+    }
     '/api/clinical/v1/claims/$id/attempts': {
       id: '/api/clinical/v1/claims/$id/attempts'
       path: '/attempts'
@@ -4496,6 +4516,7 @@ const ApiClinicalV1BeneficiariesRouteWithChildren =
 
 interface ApiClinicalV1ClaimsIdRouteChildren {
   ApiClinicalV1ClaimsIdAttemptsRoute: typeof ApiClinicalV1ClaimsIdAttemptsRoute
+  ApiClinicalV1ClaimsIdEligibilityRoute: typeof ApiClinicalV1ClaimsIdEligibilityRoute
   ApiClinicalV1ClaimsIdFhirRoute: typeof ApiClinicalV1ClaimsIdFhirRoute
   ApiClinicalV1ClaimsIdReadyRoute: typeof ApiClinicalV1ClaimsIdReadyRoute
   ApiClinicalV1ClaimsIdSubmitRoute: typeof ApiClinicalV1ClaimsIdSubmitRoute
@@ -4503,6 +4524,7 @@ interface ApiClinicalV1ClaimsIdRouteChildren {
 
 const ApiClinicalV1ClaimsIdRouteChildren: ApiClinicalV1ClaimsIdRouteChildren = {
   ApiClinicalV1ClaimsIdAttemptsRoute: ApiClinicalV1ClaimsIdAttemptsRoute,
+  ApiClinicalV1ClaimsIdEligibilityRoute: ApiClinicalV1ClaimsIdEligibilityRoute,
   ApiClinicalV1ClaimsIdFhirRoute: ApiClinicalV1ClaimsIdFhirRoute,
   ApiClinicalV1ClaimsIdReadyRoute: ApiClinicalV1ClaimsIdReadyRoute,
   ApiClinicalV1ClaimsIdSubmitRoute: ApiClinicalV1ClaimsIdSubmitRoute,
