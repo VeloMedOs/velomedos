@@ -39,6 +39,12 @@ export const openApiClinicalSpec = {
     { name: "Registration", description: "NPHIES Beneficiary registration and lookup." },
     { name: "Coverage", description: "Insurance coverage and coverage classes." },
     { name: "FHIR", description: "FHIR R4 resource projections of clinical entities." },
+    { name: "Episodes", description: "Long-running care episodes that group encounters." },
+    { name: "Encounters", description: "Per-visit clinical journey objects (FHIR Encounter aligned)." },
+    { name: "Diagnoses", description: "Coded diagnoses attached to an encounter." },
+    { name: "CareTeam", description: "Practitioners assigned to an encounter." },
+    { name: "Vitals", description: "Vitals observations recorded during an encounter." },
+    { name: "SupportingInfo", description: "Narrative MDS categories (HPI, exam, plan, history, investigation)." },
   ],
   paths: {
     "/openapi": {
@@ -153,6 +159,146 @@ export const openApiClinicalSpec = {
         summary: "FHIR R4 projection — Patient + Coverage resources",
         responses: {
           200: { description: "FHIR resources", content: { "application/json": { schema: { type: "object" } } } },
+          404: { description: "Not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+        },
+      },
+    },
+    "/episodes": {
+      get: {
+        tags: ["Episodes"],
+        summary: "List episodes (filter beneficiary_id, status)",
+        parameters: [
+          { name: "beneficiary_id", in: "query", schema: { type: "string", format: "uuid" } },
+          { name: "status", in: "query", schema: { type: "string", enum: ["active", "finished", "cancelled"] } },
+          { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 100, default: 25 } },
+          { name: "offset", in: "query", schema: { type: "integer", minimum: 0, default: 0 } },
+        ],
+        responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } },
+      },
+      post: {
+        tags: ["Episodes"],
+        summary: "Create episode (registrar | case_manager)",
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+        responses: {
+          201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } },
+          404: { description: "Beneficiary not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+        },
+      },
+    },
+    "/episodes/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["Episodes"], summary: "Get episode", responses: { 200: { description: "Episode", content: { "application/json": { schema: { type: "object" } } } }, 404: { description: "Not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+      patch: {
+        tags: ["Episodes"],
+        summary: "Update episode (case_manager | physician)",
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+        responses: { 200: { description: "Updated", content: { "application/json": { schema: { type: "object" } } } }, 404: { description: "Not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } },
+      },
+    },
+    "/encounters": {
+      get: {
+        tags: ["Encounters"],
+        summary: "List encounters (filters beneficiary_id, status, journey_state, class, from, to)",
+        parameters: [
+          { name: "beneficiary_id", in: "query", schema: { type: "string", format: "uuid" } },
+          { name: "status", in: "query", schema: { type: "string", enum: ["planned", "arrived", "triaged", "in_progress", "on_leave", "finished", "cancelled"] } },
+          { name: "journey_state", in: "query", schema: { type: "string" } },
+          { name: "class", in: "query", schema: { type: "string", enum: ["AMB", "EMER", "IMP", "HH", "VR"] } },
+          { name: "from", in: "query", schema: { type: "string", format: "date-time" } },
+          { name: "to", in: "query", schema: { type: "string", format: "date-time" } },
+          { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 100, default: 25 } },
+          { name: "offset", in: "query", schema: { type: "integer", minimum: 0, default: 0 } },
+        ],
+        responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } },
+      },
+      post: {
+        tags: ["Encounters"],
+        summary: "Create encounter (registrar | nurse | physician). Auto-generates encounter_number.",
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+        responses: {
+          201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } },
+          404: { description: "Beneficiary / episode / coverage not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+        },
+      },
+    },
+    "/encounters/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["Encounters"], summary: "Get encounter (joins care_team + diagnosis_count)", responses: { 200: { description: "Encounter", content: { "application/json": { schema: { type: "object" } } } }, 404: { description: "Not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } } },
+      patch: {
+        tags: ["Encounters"],
+        summary: "Update encounter (non-state fields)",
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+        responses: { 200: { description: "Updated", content: { "application/json": { schema: { type: "object" } } } }, 404: { description: "Not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } } },
+      },
+    },
+    "/encounters/{id}/advance": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      post: {
+        tags: ["Encounters"],
+        summary: "Advance encounter clinical status (nurse | physician | case_manager)",
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object", required: ["to"], properties: { to: { type: "string" }, reason: { type: "string" }, period_end: { type: "string", format: "date-time" } } } } } },
+        responses: {
+          200: { description: "Advanced", content: { "application/json": { schema: { type: "object" } } } },
+          409: { description: "Illegal transition", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          404: { description: "Not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+        },
+      },
+    },
+    "/encounters/{id}/diagnoses": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["Diagnoses"], summary: "List diagnoses ordered by rank", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Diagnoses"], summary: "Add diagnosis (physician | coder)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/diagnoses/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      patch: { tags: ["Diagnoses"], summary: "Update diagnosis (physician | coder)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "Updated", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["Diagnoses"], summary: "Remove diagnosis", responses: { 200: { description: "Deleted", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/encounters/{id}/care-team": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["CareTeam"], summary: "List care-team members", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: {
+        tags: ["CareTeam"],
+        summary: "Add care-team member. practitioner_user_id MUST be a tenant_members row.",
+        requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } },
+        responses: {
+          201: { description: "Added", content: { "application/json": { schema: { type: "object" } } } },
+          404: { description: "Practitioner not in tenant", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+        },
+      },
+    },
+    "/care-team/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      patch: { tags: ["CareTeam"], summary: "Update care-team member (end role, change is_primary)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "Updated", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["CareTeam"], summary: "Remove care-team member", responses: { 200: { description: "Deleted", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/encounters/{id}/vitals": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["Vitals"], summary: "Vitals timeline for an encounter", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["Vitals"], summary: "Record vitals reading (nurse | physician). BMI auto-computed.", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/vitals/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["Vitals"], summary: "Get a vitals reading", responses: { 200: { description: "Vitals", content: { "application/json": { schema: { type: "object" } } } } } },
+      patch: { tags: ["Vitals"], summary: "Correct a vitals reading", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "Updated", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/encounters/{id}/supporting-info": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: { tags: ["SupportingInfo"], summary: "List narrative MDS entries", responses: { 200: { description: "List", content: { "application/json": { schema: { type: "object" } } } } } },
+      post: { tags: ["SupportingInfo"], summary: "Add narrative MDS entry (physician | nurse | coder)", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 201: { description: "Created", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/supporting-info/{id}": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      patch: { tags: ["SupportingInfo"], summary: "Update narrative MDS entry", requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } }, responses: { 200: { description: "Updated", content: { "application/json": { schema: { type: "object" } } } } } },
+      delete: { tags: ["SupportingInfo"], summary: "Remove narrative MDS entry", responses: { 200: { description: "Deleted", content: { "application/json": { schema: { type: "object" } } } } } },
+    },
+    "/encounters/{id}/fhir": {
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+      get: {
+        tags: ["FHIR"],
+        summary: "FHIR R4 projection — Encounter + Condition[] + Observation[] + SupportingInfo",
+        responses: {
+          200: { description: "FHIR bundle parts", content: { "application/json": { schema: { type: "object" } } } },
           404: { description: "Not found", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
         },
       },
