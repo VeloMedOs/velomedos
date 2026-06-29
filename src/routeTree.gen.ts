@@ -109,6 +109,7 @@ import { Route as ApiClinicalV1VitalsIdRouteImport } from './routes/api/clinical
 import { Route as ApiClinicalV1SupportingInfoIdRouteImport } from './routes/api/clinical/v1/supporting-info.$id'
 import { Route as ApiClinicalV1MastersTpasRouteImport } from './routes/api/clinical/v1/masters/tpas'
 import { Route as ApiClinicalV1MastersServicesRouteImport } from './routes/api/clinical/v1/masters/services'
+import { Route as ApiClinicalV1MastersPricingRulesRouteImport } from './routes/api/clinical/v1/masters/pricing-rules'
 import { Route as ApiClinicalV1MastersPriceListsRouteImport } from './routes/api/clinical/v1/masters/price-lists'
 import { Route as ApiClinicalV1MastersPoliciesRouteImport } from './routes/api/clinical/v1/masters/policies'
 import { Route as ApiClinicalV1MastersPayersRouteImport } from './routes/api/clinical/v1/masters/payers'
@@ -152,9 +153,15 @@ import { Route as ApiPublicV1VehiclesIdDefectsRouteImport } from './routes/api/p
 import { Route as ApiPublicV1VehiclesIdCredentialsRouteImport } from './routes/api/public/v1/vehicles.$id.credentials'
 import { Route as ApiPublicV1HomecareVisitsIdRouteImport } from './routes/api/public/v1/homecare.visits.$id'
 import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/public/v1/fleet.$id.location'
+import { Route as ApiClinicalV1OrdersServiceItemsIdRouteImport } from './routes/api/clinical/v1/orders/service-items.$id'
+import { Route as ApiClinicalV1OrdersRadiologyItemsIdRouteImport } from './routes/api/clinical/v1/orders/radiology-items.$id'
+import { Route as ApiClinicalV1OrdersPrescriptionItemsIdRouteImport } from './routes/api/clinical/v1/orders/prescription-items.$id'
+import { Route as ApiClinicalV1OrdersLabItemsIdRouteImport } from './routes/api/clinical/v1/orders/lab-items.$id'
+import { Route as ApiClinicalV1OrdersEpItemsIdRouteImport } from './routes/api/clinical/v1/orders/ep-items.$id'
 import { Route as ApiClinicalV1MastersTpasIdRouteImport } from './routes/api/clinical/v1/masters/tpas.$id'
 import { Route as ApiClinicalV1MastersServicesIdRouteImport } from './routes/api/clinical/v1/masters/services.$id'
 import { Route as ApiClinicalV1MastersServiceCodesIdRouteImport } from './routes/api/clinical/v1/masters/service-codes.$id'
+import { Route as ApiClinicalV1MastersPricingRulesIdRouteImport } from './routes/api/clinical/v1/masters/pricing-rules.$id'
 import { Route as ApiClinicalV1MastersPriceListsIdRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id'
 import { Route as ApiClinicalV1MastersPriceListItemsIdRouteImport } from './routes/api/clinical/v1/masters/price-list-items.$id'
 import { Route as ApiClinicalV1MastersPoliciesIdRouteImport } from './routes/api/clinical/v1/masters/policies.$id'
@@ -168,8 +175,10 @@ import { Route as ApiClinicalV1MastersDrgBaseRatesIdRouteImport } from './routes
 import { Route as ApiClinicalV1MastersDrgAdjustmentsIdRouteImport } from './routes/api/clinical/v1/masters/drg-adjustments.$id'
 import { Route as ApiClinicalV1EncountersIdVitalsRouteImport } from './routes/api/clinical/v1/encounters.$id.vitals'
 import { Route as ApiClinicalV1EncountersIdSupportingInfoRouteImport } from './routes/api/clinical/v1/encounters.$id.supporting-info'
+import { Route as ApiClinicalV1EncountersIdPrescriptionsRouteImport } from './routes/api/clinical/v1/encounters.$id.prescriptions'
 import { Route as ApiClinicalV1EncountersIdFhirRouteImport } from './routes/api/clinical/v1/encounters.$id.fhir'
 import { Route as ApiClinicalV1EncountersIdDiagnosesRouteImport } from './routes/api/clinical/v1/encounters.$id.diagnoses'
+import { Route as ApiClinicalV1EncountersIdChargesRouteImport } from './routes/api/clinical/v1/encounters.$id.charges'
 import { Route as ApiClinicalV1EncountersIdCareTeamRouteImport } from './routes/api/clinical/v1/encounters.$id.care-team'
 import { Route as ApiClinicalV1EncountersIdAdvanceRouteImport } from './routes/api/clinical/v1/encounters.$id.advance'
 import { Route as ApiClinicalV1BeneficiariesIdFhirRouteImport } from './routes/api/clinical/v1/beneficiaries.$id.fhir'
@@ -186,7 +195,10 @@ import { Route as ApiPublicV1HomecareVisitsIdCheckInRouteImport } from './routes
 import { Route as ApiClinicalV1MastersServicesIdCodesRouteImport } from './routes/api/clinical/v1/masters/services.$id.codes'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items'
 import { Route as ApiClinicalV1MastersNetworksIdMembershipsRouteImport } from './routes/api/clinical/v1/masters/networks.$id.memberships'
+import { Route as ApiClinicalV1EncountersIdOrdersServiceRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.service'
+import { Route as ApiClinicalV1EncountersIdOrdersRadiologyRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.radiology'
 import { Route as ApiClinicalV1EncountersIdOrdersLabRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.lab'
+import { Route as ApiClinicalV1EncountersIdOrdersElectrophysiologyRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.electrophysiology'
 
 const WebsiteRoute = WebsiteRouteImport.update({
   id: '/website',
@@ -703,6 +715,12 @@ const ApiClinicalV1MastersServicesRoute =
     path: '/api/clinical/v1/masters/services',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1MastersPricingRulesRoute =
+  ApiClinicalV1MastersPricingRulesRouteImport.update({
+    id: '/api/clinical/v1/masters/pricing-rules',
+    path: '/api/clinical/v1/masters/pricing-rules',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1MastersPriceListsRoute =
   ApiClinicalV1MastersPriceListsRouteImport.update({
     id: '/api/clinical/v1/masters/price-lists',
@@ -945,6 +963,36 @@ const ApiPublicV1FleetIdLocationRoute =
     path: '/$id/location',
     getParentRoute: () => ApiPublicV1FleetRoute,
   } as any)
+const ApiClinicalV1OrdersServiceItemsIdRoute =
+  ApiClinicalV1OrdersServiceItemsIdRouteImport.update({
+    id: '/api/clinical/v1/orders/service-items/$id',
+    path: '/api/clinical/v1/orders/service-items/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OrdersRadiologyItemsIdRoute =
+  ApiClinicalV1OrdersRadiologyItemsIdRouteImport.update({
+    id: '/api/clinical/v1/orders/radiology-items/$id',
+    path: '/api/clinical/v1/orders/radiology-items/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OrdersPrescriptionItemsIdRoute =
+  ApiClinicalV1OrdersPrescriptionItemsIdRouteImport.update({
+    id: '/api/clinical/v1/orders/prescription-items/$id',
+    path: '/api/clinical/v1/orders/prescription-items/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OrdersLabItemsIdRoute =
+  ApiClinicalV1OrdersLabItemsIdRouteImport.update({
+    id: '/api/clinical/v1/orders/lab-items/$id',
+    path: '/api/clinical/v1/orders/lab-items/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OrdersEpItemsIdRoute =
+  ApiClinicalV1OrdersEpItemsIdRouteImport.update({
+    id: '/api/clinical/v1/orders/ep-items/$id',
+    path: '/api/clinical/v1/orders/ep-items/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1MastersTpasIdRoute =
   ApiClinicalV1MastersTpasIdRouteImport.update({
     id: '/$id',
@@ -962,6 +1010,12 @@ const ApiClinicalV1MastersServiceCodesIdRoute =
     id: '/api/clinical/v1/masters/service-codes/$id',
     path: '/api/clinical/v1/masters/service-codes/$id',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1MastersPricingRulesIdRoute =
+  ApiClinicalV1MastersPricingRulesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiClinicalV1MastersPricingRulesRoute,
   } as any)
 const ApiClinicalV1MastersPriceListsIdRoute =
   ApiClinicalV1MastersPriceListsIdRouteImport.update({
@@ -1041,6 +1095,12 @@ const ApiClinicalV1EncountersIdSupportingInfoRoute =
     path: '/supporting-info',
     getParentRoute: () => ApiClinicalV1EncountersIdRoute,
   } as any)
+const ApiClinicalV1EncountersIdPrescriptionsRoute =
+  ApiClinicalV1EncountersIdPrescriptionsRouteImport.update({
+    id: '/prescriptions',
+    path: '/prescriptions',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
 const ApiClinicalV1EncountersIdFhirRoute =
   ApiClinicalV1EncountersIdFhirRouteImport.update({
     id: '/fhir',
@@ -1051,6 +1111,12 @@ const ApiClinicalV1EncountersIdDiagnosesRoute =
   ApiClinicalV1EncountersIdDiagnosesRouteImport.update({
     id: '/diagnoses',
     path: '/diagnoses',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
+const ApiClinicalV1EncountersIdChargesRoute =
+  ApiClinicalV1EncountersIdChargesRouteImport.update({
+    id: '/charges',
+    path: '/charges',
     getParentRoute: () => ApiClinicalV1EncountersIdRoute,
   } as any)
 const ApiClinicalV1EncountersIdCareTeamRoute =
@@ -1149,10 +1215,28 @@ const ApiClinicalV1MastersNetworksIdMembershipsRoute =
     path: '/memberships',
     getParentRoute: () => ApiClinicalV1MastersNetworksIdRoute,
   } as any)
+const ApiClinicalV1EncountersIdOrdersServiceRoute =
+  ApiClinicalV1EncountersIdOrdersServiceRouteImport.update({
+    id: '/orders/service',
+    path: '/orders/service',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
+const ApiClinicalV1EncountersIdOrdersRadiologyRoute =
+  ApiClinicalV1EncountersIdOrdersRadiologyRouteImport.update({
+    id: '/orders/radiology',
+    path: '/orders/radiology',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
 const ApiClinicalV1EncountersIdOrdersLabRoute =
   ApiClinicalV1EncountersIdOrdersLabRouteImport.update({
     id: '/orders/lab',
     path: '/orders/lab',
+    getParentRoute: () => ApiClinicalV1EncountersIdRoute,
+  } as any)
+const ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute =
+  ApiClinicalV1EncountersIdOrdersElectrophysiologyRouteImport.update({
+    id: '/orders/electrophysiology',
+    path: '/orders/electrophysiology',
     getParentRoute: () => ApiClinicalV1EncountersIdRoute,
   } as any)
 
@@ -1283,6 +1367,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/masters/payers': typeof ApiClinicalV1MastersPayersRouteWithChildren
   '/api/clinical/v1/masters/policies': typeof ApiClinicalV1MastersPoliciesRouteWithChildren
   '/api/clinical/v1/masters/price-lists': typeof ApiClinicalV1MastersPriceListsRouteWithChildren
+  '/api/clinical/v1/masters/pricing-rules': typeof ApiClinicalV1MastersPricingRulesRouteWithChildren
   '/api/clinical/v1/masters/services': typeof ApiClinicalV1MastersServicesRouteWithChildren
   '/api/clinical/v1/masters/tpas': typeof ApiClinicalV1MastersTpasRouteWithChildren
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
@@ -1304,8 +1389,10 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
   '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
+  '/api/clinical/v1/encounters/$id/charges': typeof ApiClinicalV1EncountersIdChargesRoute
   '/api/clinical/v1/encounters/$id/diagnoses': typeof ApiClinicalV1EncountersIdDiagnosesRoute
   '/api/clinical/v1/encounters/$id/fhir': typeof ApiClinicalV1EncountersIdFhirRoute
+  '/api/clinical/v1/encounters/$id/prescriptions': typeof ApiClinicalV1EncountersIdPrescriptionsRoute
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/clinical/v1/masters/drg-adjustments/$id': typeof ApiClinicalV1MastersDrgAdjustmentsIdRoute
@@ -1319,15 +1406,24 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/masters/policies/$id': typeof ApiClinicalV1MastersPoliciesIdRoute
   '/api/clinical/v1/masters/price-list-items/$id': typeof ApiClinicalV1MastersPriceListItemsIdRoute
   '/api/clinical/v1/masters/price-lists/$id': typeof ApiClinicalV1MastersPriceListsIdRouteWithChildren
+  '/api/clinical/v1/masters/pricing-rules/$id': typeof ApiClinicalV1MastersPricingRulesIdRoute
   '/api/clinical/v1/masters/service-codes/$id': typeof ApiClinicalV1MastersServiceCodesIdRoute
   '/api/clinical/v1/masters/services/$id': typeof ApiClinicalV1MastersServicesIdRouteWithChildren
   '/api/clinical/v1/masters/tpas/$id': typeof ApiClinicalV1MastersTpasIdRoute
+  '/api/clinical/v1/orders/ep-items/$id': typeof ApiClinicalV1OrdersEpItemsIdRoute
+  '/api/clinical/v1/orders/lab-items/$id': typeof ApiClinicalV1OrdersLabItemsIdRoute
+  '/api/clinical/v1/orders/prescription-items/$id': typeof ApiClinicalV1OrdersPrescriptionItemsIdRoute
+  '/api/clinical/v1/orders/radiology-items/$id': typeof ApiClinicalV1OrdersRadiologyItemsIdRoute
+  '/api/clinical/v1/orders/service-items/$id': typeof ApiClinicalV1OrdersServiceItemsIdRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
+  '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
+  '/api/clinical/v1/encounters/$id/orders/service': typeof ApiClinicalV1EncountersIdOrdersServiceRoute
   '/api/clinical/v1/masters/networks/$id/memberships': typeof ApiClinicalV1MastersNetworksIdMembershipsRoute
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
@@ -1460,6 +1556,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/masters/payers': typeof ApiClinicalV1MastersPayersRouteWithChildren
   '/api/clinical/v1/masters/policies': typeof ApiClinicalV1MastersPoliciesRouteWithChildren
   '/api/clinical/v1/masters/price-lists': typeof ApiClinicalV1MastersPriceListsRouteWithChildren
+  '/api/clinical/v1/masters/pricing-rules': typeof ApiClinicalV1MastersPricingRulesRouteWithChildren
   '/api/clinical/v1/masters/services': typeof ApiClinicalV1MastersServicesRouteWithChildren
   '/api/clinical/v1/masters/tpas': typeof ApiClinicalV1MastersTpasRouteWithChildren
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
@@ -1481,8 +1578,10 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
   '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
+  '/api/clinical/v1/encounters/$id/charges': typeof ApiClinicalV1EncountersIdChargesRoute
   '/api/clinical/v1/encounters/$id/diagnoses': typeof ApiClinicalV1EncountersIdDiagnosesRoute
   '/api/clinical/v1/encounters/$id/fhir': typeof ApiClinicalV1EncountersIdFhirRoute
+  '/api/clinical/v1/encounters/$id/prescriptions': typeof ApiClinicalV1EncountersIdPrescriptionsRoute
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/clinical/v1/masters/drg-adjustments/$id': typeof ApiClinicalV1MastersDrgAdjustmentsIdRoute
@@ -1496,15 +1595,24 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/masters/policies/$id': typeof ApiClinicalV1MastersPoliciesIdRoute
   '/api/clinical/v1/masters/price-list-items/$id': typeof ApiClinicalV1MastersPriceListItemsIdRoute
   '/api/clinical/v1/masters/price-lists/$id': typeof ApiClinicalV1MastersPriceListsIdRouteWithChildren
+  '/api/clinical/v1/masters/pricing-rules/$id': typeof ApiClinicalV1MastersPricingRulesIdRoute
   '/api/clinical/v1/masters/service-codes/$id': typeof ApiClinicalV1MastersServiceCodesIdRoute
   '/api/clinical/v1/masters/services/$id': typeof ApiClinicalV1MastersServicesIdRouteWithChildren
   '/api/clinical/v1/masters/tpas/$id': typeof ApiClinicalV1MastersTpasIdRoute
+  '/api/clinical/v1/orders/ep-items/$id': typeof ApiClinicalV1OrdersEpItemsIdRoute
+  '/api/clinical/v1/orders/lab-items/$id': typeof ApiClinicalV1OrdersLabItemsIdRoute
+  '/api/clinical/v1/orders/prescription-items/$id': typeof ApiClinicalV1OrdersPrescriptionItemsIdRoute
+  '/api/clinical/v1/orders/radiology-items/$id': typeof ApiClinicalV1OrdersRadiologyItemsIdRoute
+  '/api/clinical/v1/orders/service-items/$id': typeof ApiClinicalV1OrdersServiceItemsIdRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
+  '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
+  '/api/clinical/v1/encounters/$id/orders/service': typeof ApiClinicalV1EncountersIdOrdersServiceRoute
   '/api/clinical/v1/masters/networks/$id/memberships': typeof ApiClinicalV1MastersNetworksIdMembershipsRoute
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
@@ -1641,6 +1749,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/masters/payers': typeof ApiClinicalV1MastersPayersRouteWithChildren
   '/api/clinical/v1/masters/policies': typeof ApiClinicalV1MastersPoliciesRouteWithChildren
   '/api/clinical/v1/masters/price-lists': typeof ApiClinicalV1MastersPriceListsRouteWithChildren
+  '/api/clinical/v1/masters/pricing-rules': typeof ApiClinicalV1MastersPricingRulesRouteWithChildren
   '/api/clinical/v1/masters/services': typeof ApiClinicalV1MastersServicesRouteWithChildren
   '/api/clinical/v1/masters/tpas': typeof ApiClinicalV1MastersTpasRouteWithChildren
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
@@ -1662,8 +1771,10 @@ export interface FileRoutesById {
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
   '/api/clinical/v1/encounters/$id/advance': typeof ApiClinicalV1EncountersIdAdvanceRoute
   '/api/clinical/v1/encounters/$id/care-team': typeof ApiClinicalV1EncountersIdCareTeamRoute
+  '/api/clinical/v1/encounters/$id/charges': typeof ApiClinicalV1EncountersIdChargesRoute
   '/api/clinical/v1/encounters/$id/diagnoses': typeof ApiClinicalV1EncountersIdDiagnosesRoute
   '/api/clinical/v1/encounters/$id/fhir': typeof ApiClinicalV1EncountersIdFhirRoute
+  '/api/clinical/v1/encounters/$id/prescriptions': typeof ApiClinicalV1EncountersIdPrescriptionsRoute
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/clinical/v1/masters/drg-adjustments/$id': typeof ApiClinicalV1MastersDrgAdjustmentsIdRoute
@@ -1677,15 +1788,24 @@ export interface FileRoutesById {
   '/api/clinical/v1/masters/policies/$id': typeof ApiClinicalV1MastersPoliciesIdRoute
   '/api/clinical/v1/masters/price-list-items/$id': typeof ApiClinicalV1MastersPriceListItemsIdRoute
   '/api/clinical/v1/masters/price-lists/$id': typeof ApiClinicalV1MastersPriceListsIdRouteWithChildren
+  '/api/clinical/v1/masters/pricing-rules/$id': typeof ApiClinicalV1MastersPricingRulesIdRoute
   '/api/clinical/v1/masters/service-codes/$id': typeof ApiClinicalV1MastersServiceCodesIdRoute
   '/api/clinical/v1/masters/services/$id': typeof ApiClinicalV1MastersServicesIdRouteWithChildren
   '/api/clinical/v1/masters/tpas/$id': typeof ApiClinicalV1MastersTpasIdRoute
+  '/api/clinical/v1/orders/ep-items/$id': typeof ApiClinicalV1OrdersEpItemsIdRoute
+  '/api/clinical/v1/orders/lab-items/$id': typeof ApiClinicalV1OrdersLabItemsIdRoute
+  '/api/clinical/v1/orders/prescription-items/$id': typeof ApiClinicalV1OrdersPrescriptionItemsIdRoute
+  '/api/clinical/v1/orders/radiology-items/$id': typeof ApiClinicalV1OrdersRadiologyItemsIdRoute
+  '/api/clinical/v1/orders/service-items/$id': typeof ApiClinicalV1OrdersServiceItemsIdRoute
   '/api/public/v1/fleet/$id/location': typeof ApiPublicV1FleetIdLocationRoute
   '/api/public/v1/homecare/visits/$id': typeof ApiPublicV1HomecareVisitsIdRouteWithChildren
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
+  '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
+  '/api/clinical/v1/encounters/$id/orders/service': typeof ApiClinicalV1EncountersIdOrdersServiceRoute
   '/api/clinical/v1/masters/networks/$id/memberships': typeof ApiClinicalV1MastersNetworksIdMembershipsRoute
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
@@ -1822,6 +1942,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/payers'
     | '/api/clinical/v1/masters/policies'
     | '/api/clinical/v1/masters/price-lists'
+    | '/api/clinical/v1/masters/pricing-rules'
     | '/api/clinical/v1/masters/services'
     | '/api/clinical/v1/masters/tpas'
     | '/api/clinical/v1/supporting-info/$id'
@@ -1843,8 +1964,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/clinical/v1/encounters/$id/advance'
     | '/api/clinical/v1/encounters/$id/care-team'
+    | '/api/clinical/v1/encounters/$id/charges'
     | '/api/clinical/v1/encounters/$id/diagnoses'
     | '/api/clinical/v1/encounters/$id/fhir'
+    | '/api/clinical/v1/encounters/$id/prescriptions'
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
     | '/api/clinical/v1/masters/drg-adjustments/$id'
@@ -1858,15 +1981,24 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/policies/$id'
     | '/api/clinical/v1/masters/price-list-items/$id'
     | '/api/clinical/v1/masters/price-lists/$id'
+    | '/api/clinical/v1/masters/pricing-rules/$id'
     | '/api/clinical/v1/masters/service-codes/$id'
     | '/api/clinical/v1/masters/services/$id'
     | '/api/clinical/v1/masters/tpas/$id'
+    | '/api/clinical/v1/orders/ep-items/$id'
+    | '/api/clinical/v1/orders/lab-items/$id'
+    | '/api/clinical/v1/orders/prescription-items/$id'
+    | '/api/clinical/v1/orders/radiology-items/$id'
+    | '/api/clinical/v1/orders/service-items/$id'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
     | '/api/clinical/v1/encounters/$id/orders/lab'
+    | '/api/clinical/v1/encounters/$id/orders/radiology'
+    | '/api/clinical/v1/encounters/$id/orders/service'
     | '/api/clinical/v1/masters/networks/$id/memberships'
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/services/$id/codes'
@@ -1999,6 +2131,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/payers'
     | '/api/clinical/v1/masters/policies'
     | '/api/clinical/v1/masters/price-lists'
+    | '/api/clinical/v1/masters/pricing-rules'
     | '/api/clinical/v1/masters/services'
     | '/api/clinical/v1/masters/tpas'
     | '/api/clinical/v1/supporting-info/$id'
@@ -2020,8 +2153,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/clinical/v1/encounters/$id/advance'
     | '/api/clinical/v1/encounters/$id/care-team'
+    | '/api/clinical/v1/encounters/$id/charges'
     | '/api/clinical/v1/encounters/$id/diagnoses'
     | '/api/clinical/v1/encounters/$id/fhir'
+    | '/api/clinical/v1/encounters/$id/prescriptions'
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
     | '/api/clinical/v1/masters/drg-adjustments/$id'
@@ -2035,15 +2170,24 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/policies/$id'
     | '/api/clinical/v1/masters/price-list-items/$id'
     | '/api/clinical/v1/masters/price-lists/$id'
+    | '/api/clinical/v1/masters/pricing-rules/$id'
     | '/api/clinical/v1/masters/service-codes/$id'
     | '/api/clinical/v1/masters/services/$id'
     | '/api/clinical/v1/masters/tpas/$id'
+    | '/api/clinical/v1/orders/ep-items/$id'
+    | '/api/clinical/v1/orders/lab-items/$id'
+    | '/api/clinical/v1/orders/prescription-items/$id'
+    | '/api/clinical/v1/orders/radiology-items/$id'
+    | '/api/clinical/v1/orders/service-items/$id'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
     | '/api/clinical/v1/encounters/$id/orders/lab'
+    | '/api/clinical/v1/encounters/$id/orders/radiology'
+    | '/api/clinical/v1/encounters/$id/orders/service'
     | '/api/clinical/v1/masters/networks/$id/memberships'
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/services/$id/codes'
@@ -2179,6 +2323,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/payers'
     | '/api/clinical/v1/masters/policies'
     | '/api/clinical/v1/masters/price-lists'
+    | '/api/clinical/v1/masters/pricing-rules'
     | '/api/clinical/v1/masters/services'
     | '/api/clinical/v1/masters/tpas'
     | '/api/clinical/v1/supporting-info/$id'
@@ -2200,8 +2345,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/beneficiaries/$id/fhir'
     | '/api/clinical/v1/encounters/$id/advance'
     | '/api/clinical/v1/encounters/$id/care-team'
+    | '/api/clinical/v1/encounters/$id/charges'
     | '/api/clinical/v1/encounters/$id/diagnoses'
     | '/api/clinical/v1/encounters/$id/fhir'
+    | '/api/clinical/v1/encounters/$id/prescriptions'
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
     | '/api/clinical/v1/masters/drg-adjustments/$id'
@@ -2215,15 +2362,24 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/policies/$id'
     | '/api/clinical/v1/masters/price-list-items/$id'
     | '/api/clinical/v1/masters/price-lists/$id'
+    | '/api/clinical/v1/masters/pricing-rules/$id'
     | '/api/clinical/v1/masters/service-codes/$id'
     | '/api/clinical/v1/masters/services/$id'
     | '/api/clinical/v1/masters/tpas/$id'
+    | '/api/clinical/v1/orders/ep-items/$id'
+    | '/api/clinical/v1/orders/lab-items/$id'
+    | '/api/clinical/v1/orders/prescription-items/$id'
+    | '/api/clinical/v1/orders/radiology-items/$id'
+    | '/api/clinical/v1/orders/service-items/$id'
     | '/api/public/v1/fleet/$id/location'
     | '/api/public/v1/homecare/visits/$id'
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
     | '/api/clinical/v1/encounters/$id/orders/lab'
+    | '/api/clinical/v1/encounters/$id/orders/radiology'
+    | '/api/clinical/v1/encounters/$id/orders/service'
     | '/api/clinical/v1/masters/networks/$id/memberships'
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/services/$id/codes'
@@ -2319,6 +2475,7 @@ export interface RootRouteChildren {
   ApiClinicalV1MastersPayersRoute: typeof ApiClinicalV1MastersPayersRouteWithChildren
   ApiClinicalV1MastersPoliciesRoute: typeof ApiClinicalV1MastersPoliciesRouteWithChildren
   ApiClinicalV1MastersPriceListsRoute: typeof ApiClinicalV1MastersPriceListsRouteWithChildren
+  ApiClinicalV1MastersPricingRulesRoute: typeof ApiClinicalV1MastersPricingRulesRouteWithChildren
   ApiClinicalV1MastersServicesRoute: typeof ApiClinicalV1MastersServicesRouteWithChildren
   ApiClinicalV1MastersTpasRoute: typeof ApiClinicalV1MastersTpasRouteWithChildren
   ApiClinicalV1SupportingInfoIdRoute: typeof ApiClinicalV1SupportingInfoIdRoute
@@ -2332,6 +2489,11 @@ export interface RootRouteChildren {
   ApiClinicalV1MastersNetworkMembershipsIdRoute: typeof ApiClinicalV1MastersNetworkMembershipsIdRoute
   ApiClinicalV1MastersPriceListItemsIdRoute: typeof ApiClinicalV1MastersPriceListItemsIdRoute
   ApiClinicalV1MastersServiceCodesIdRoute: typeof ApiClinicalV1MastersServiceCodesIdRoute
+  ApiClinicalV1OrdersEpItemsIdRoute: typeof ApiClinicalV1OrdersEpItemsIdRoute
+  ApiClinicalV1OrdersLabItemsIdRoute: typeof ApiClinicalV1OrdersLabItemsIdRoute
+  ApiClinicalV1OrdersPrescriptionItemsIdRoute: typeof ApiClinicalV1OrdersPrescriptionItemsIdRoute
+  ApiClinicalV1OrdersRadiologyItemsIdRoute: typeof ApiClinicalV1OrdersRadiologyItemsIdRoute
+  ApiClinicalV1OrdersServiceItemsIdRoute: typeof ApiClinicalV1OrdersServiceItemsIdRoute
   ApiPublicV1VehiclesIdCredentialsRoute: typeof ApiPublicV1VehiclesIdCredentialsRoute
   ApiPublicV1VehiclesIdDefectsRoute: typeof ApiPublicV1VehiclesIdDefectsRoute
   ApiPublicV1VehiclesIdWork_ordersRoute: typeof ApiPublicV1VehiclesIdWork_ordersRoute
@@ -3039,6 +3201,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1MastersServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/masters/pricing-rules': {
+      id: '/api/clinical/v1/masters/pricing-rules'
+      path: '/api/clinical/v1/masters/pricing-rules'
+      fullPath: '/api/clinical/v1/masters/pricing-rules'
+      preLoaderRoute: typeof ApiClinicalV1MastersPricingRulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/masters/price-lists': {
       id: '/api/clinical/v1/masters/price-lists'
       path: '/api/clinical/v1/masters/price-lists'
@@ -3340,6 +3509,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1FleetIdLocationRouteImport
       parentRoute: typeof ApiPublicV1FleetRoute
     }
+    '/api/clinical/v1/orders/service-items/$id': {
+      id: '/api/clinical/v1/orders/service-items/$id'
+      path: '/api/clinical/v1/orders/service-items/$id'
+      fullPath: '/api/clinical/v1/orders/service-items/$id'
+      preLoaderRoute: typeof ApiClinicalV1OrdersServiceItemsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/orders/radiology-items/$id': {
+      id: '/api/clinical/v1/orders/radiology-items/$id'
+      path: '/api/clinical/v1/orders/radiology-items/$id'
+      fullPath: '/api/clinical/v1/orders/radiology-items/$id'
+      preLoaderRoute: typeof ApiClinicalV1OrdersRadiologyItemsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/orders/prescription-items/$id': {
+      id: '/api/clinical/v1/orders/prescription-items/$id'
+      path: '/api/clinical/v1/orders/prescription-items/$id'
+      fullPath: '/api/clinical/v1/orders/prescription-items/$id'
+      preLoaderRoute: typeof ApiClinicalV1OrdersPrescriptionItemsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/orders/lab-items/$id': {
+      id: '/api/clinical/v1/orders/lab-items/$id'
+      path: '/api/clinical/v1/orders/lab-items/$id'
+      fullPath: '/api/clinical/v1/orders/lab-items/$id'
+      preLoaderRoute: typeof ApiClinicalV1OrdersLabItemsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/orders/ep-items/$id': {
+      id: '/api/clinical/v1/orders/ep-items/$id'
+      path: '/api/clinical/v1/orders/ep-items/$id'
+      fullPath: '/api/clinical/v1/orders/ep-items/$id'
+      preLoaderRoute: typeof ApiClinicalV1OrdersEpItemsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/masters/tpas/$id': {
       id: '/api/clinical/v1/masters/tpas/$id'
       path: '/$id'
@@ -3360,6 +3564,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/clinical/v1/masters/service-codes/$id'
       preLoaderRoute: typeof ApiClinicalV1MastersServiceCodesIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/masters/pricing-rules/$id': {
+      id: '/api/clinical/v1/masters/pricing-rules/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/masters/pricing-rules/$id'
+      preLoaderRoute: typeof ApiClinicalV1MastersPricingRulesIdRouteImport
+      parentRoute: typeof ApiClinicalV1MastersPricingRulesRoute
     }
     '/api/clinical/v1/masters/price-lists/$id': {
       id: '/api/clinical/v1/masters/price-lists/$id'
@@ -3452,6 +3663,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1EncountersIdSupportingInfoRouteImport
       parentRoute: typeof ApiClinicalV1EncountersIdRoute
     }
+    '/api/clinical/v1/encounters/$id/prescriptions': {
+      id: '/api/clinical/v1/encounters/$id/prescriptions'
+      path: '/prescriptions'
+      fullPath: '/api/clinical/v1/encounters/$id/prescriptions'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdPrescriptionsRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
+    }
     '/api/clinical/v1/encounters/$id/fhir': {
       id: '/api/clinical/v1/encounters/$id/fhir'
       path: '/fhir'
@@ -3464,6 +3682,13 @@ declare module '@tanstack/react-router' {
       path: '/diagnoses'
       fullPath: '/api/clinical/v1/encounters/$id/diagnoses'
       preLoaderRoute: typeof ApiClinicalV1EncountersIdDiagnosesRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
+    }
+    '/api/clinical/v1/encounters/$id/charges': {
+      id: '/api/clinical/v1/encounters/$id/charges'
+      path: '/charges'
+      fullPath: '/api/clinical/v1/encounters/$id/charges'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdChargesRouteImport
       parentRoute: typeof ApiClinicalV1EncountersIdRoute
     }
     '/api/clinical/v1/encounters/$id/care-team': {
@@ -3578,11 +3803,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1MastersNetworksIdMembershipsRouteImport
       parentRoute: typeof ApiClinicalV1MastersNetworksIdRoute
     }
+    '/api/clinical/v1/encounters/$id/orders/service': {
+      id: '/api/clinical/v1/encounters/$id/orders/service'
+      path: '/orders/service'
+      fullPath: '/api/clinical/v1/encounters/$id/orders/service'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdOrdersServiceRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
+    }
+    '/api/clinical/v1/encounters/$id/orders/radiology': {
+      id: '/api/clinical/v1/encounters/$id/orders/radiology'
+      path: '/orders/radiology'
+      fullPath: '/api/clinical/v1/encounters/$id/orders/radiology'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdOrdersRadiologyRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
+    }
     '/api/clinical/v1/encounters/$id/orders/lab': {
       id: '/api/clinical/v1/encounters/$id/orders/lab'
       path: '/orders/lab'
       fullPath: '/api/clinical/v1/encounters/$id/orders/lab'
       preLoaderRoute: typeof ApiClinicalV1EncountersIdOrdersLabRouteImport
+      parentRoute: typeof ApiClinicalV1EncountersIdRoute
+    }
+    '/api/clinical/v1/encounters/$id/orders/electrophysiology': {
+      id: '/api/clinical/v1/encounters/$id/orders/electrophysiology'
+      path: '/orders/electrophysiology'
+      fullPath: '/api/clinical/v1/encounters/$id/orders/electrophysiology'
+      preLoaderRoute: typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRouteImport
       parentRoute: typeof ApiClinicalV1EncountersIdRoute
     }
   }
@@ -3907,11 +4153,16 @@ const ApiClinicalV1BeneficiariesRouteWithChildren =
 interface ApiClinicalV1EncountersIdRouteChildren {
   ApiClinicalV1EncountersIdAdvanceRoute: typeof ApiClinicalV1EncountersIdAdvanceRoute
   ApiClinicalV1EncountersIdCareTeamRoute: typeof ApiClinicalV1EncountersIdCareTeamRoute
+  ApiClinicalV1EncountersIdChargesRoute: typeof ApiClinicalV1EncountersIdChargesRoute
   ApiClinicalV1EncountersIdDiagnosesRoute: typeof ApiClinicalV1EncountersIdDiagnosesRoute
   ApiClinicalV1EncountersIdFhirRoute: typeof ApiClinicalV1EncountersIdFhirRoute
+  ApiClinicalV1EncountersIdPrescriptionsRoute: typeof ApiClinicalV1EncountersIdPrescriptionsRoute
   ApiClinicalV1EncountersIdSupportingInfoRoute: typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   ApiClinicalV1EncountersIdVitalsRoute: typeof ApiClinicalV1EncountersIdVitalsRoute
+  ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute: typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
   ApiClinicalV1EncountersIdOrdersLabRoute: typeof ApiClinicalV1EncountersIdOrdersLabRoute
+  ApiClinicalV1EncountersIdOrdersRadiologyRoute: typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
+  ApiClinicalV1EncountersIdOrdersServiceRoute: typeof ApiClinicalV1EncountersIdOrdersServiceRoute
 }
 
 const ApiClinicalV1EncountersIdRouteChildren: ApiClinicalV1EncountersIdRouteChildren =
@@ -3920,14 +4171,24 @@ const ApiClinicalV1EncountersIdRouteChildren: ApiClinicalV1EncountersIdRouteChil
       ApiClinicalV1EncountersIdAdvanceRoute,
     ApiClinicalV1EncountersIdCareTeamRoute:
       ApiClinicalV1EncountersIdCareTeamRoute,
+    ApiClinicalV1EncountersIdChargesRoute:
+      ApiClinicalV1EncountersIdChargesRoute,
     ApiClinicalV1EncountersIdDiagnosesRoute:
       ApiClinicalV1EncountersIdDiagnosesRoute,
     ApiClinicalV1EncountersIdFhirRoute: ApiClinicalV1EncountersIdFhirRoute,
+    ApiClinicalV1EncountersIdPrescriptionsRoute:
+      ApiClinicalV1EncountersIdPrescriptionsRoute,
     ApiClinicalV1EncountersIdSupportingInfoRoute:
       ApiClinicalV1EncountersIdSupportingInfoRoute,
     ApiClinicalV1EncountersIdVitalsRoute: ApiClinicalV1EncountersIdVitalsRoute,
+    ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute:
+      ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute,
     ApiClinicalV1EncountersIdOrdersLabRoute:
       ApiClinicalV1EncountersIdOrdersLabRoute,
+    ApiClinicalV1EncountersIdOrdersRadiologyRoute:
+      ApiClinicalV1EncountersIdOrdersRadiologyRoute,
+    ApiClinicalV1EncountersIdOrdersServiceRoute:
+      ApiClinicalV1EncountersIdOrdersServiceRoute,
   }
 
 const ApiClinicalV1EncountersIdRouteWithChildren =
@@ -4157,6 +4418,21 @@ const ApiClinicalV1MastersPriceListsRouteWithChildren =
     ApiClinicalV1MastersPriceListsRouteChildren,
   )
 
+interface ApiClinicalV1MastersPricingRulesRouteChildren {
+  ApiClinicalV1MastersPricingRulesIdRoute: typeof ApiClinicalV1MastersPricingRulesIdRoute
+}
+
+const ApiClinicalV1MastersPricingRulesRouteChildren: ApiClinicalV1MastersPricingRulesRouteChildren =
+  {
+    ApiClinicalV1MastersPricingRulesIdRoute:
+      ApiClinicalV1MastersPricingRulesIdRoute,
+  }
+
+const ApiClinicalV1MastersPricingRulesRouteWithChildren =
+  ApiClinicalV1MastersPricingRulesRoute._addFileChildren(
+    ApiClinicalV1MastersPricingRulesRouteChildren,
+  )
+
 interface ApiClinicalV1MastersServicesIdRouteChildren {
   ApiClinicalV1MastersServicesIdCodesRoute: typeof ApiClinicalV1MastersServicesIdCodesRoute
 }
@@ -4331,6 +4607,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1MastersPoliciesRouteWithChildren,
   ApiClinicalV1MastersPriceListsRoute:
     ApiClinicalV1MastersPriceListsRouteWithChildren,
+  ApiClinicalV1MastersPricingRulesRoute:
+    ApiClinicalV1MastersPricingRulesRouteWithChildren,
   ApiClinicalV1MastersServicesRoute:
     ApiClinicalV1MastersServicesRouteWithChildren,
   ApiClinicalV1MastersTpasRoute: ApiClinicalV1MastersTpasRouteWithChildren,
@@ -4349,6 +4627,14 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1MastersPriceListItemsIdRoute,
   ApiClinicalV1MastersServiceCodesIdRoute:
     ApiClinicalV1MastersServiceCodesIdRoute,
+  ApiClinicalV1OrdersEpItemsIdRoute: ApiClinicalV1OrdersEpItemsIdRoute,
+  ApiClinicalV1OrdersLabItemsIdRoute: ApiClinicalV1OrdersLabItemsIdRoute,
+  ApiClinicalV1OrdersPrescriptionItemsIdRoute:
+    ApiClinicalV1OrdersPrescriptionItemsIdRoute,
+  ApiClinicalV1OrdersRadiologyItemsIdRoute:
+    ApiClinicalV1OrdersRadiologyItemsIdRoute,
+  ApiClinicalV1OrdersServiceItemsIdRoute:
+    ApiClinicalV1OrdersServiceItemsIdRoute,
   ApiPublicV1VehiclesIdCredentialsRoute: ApiPublicV1VehiclesIdCredentialsRoute,
   ApiPublicV1VehiclesIdDefectsRoute: ApiPublicV1VehiclesIdDefectsRoute,
   ApiPublicV1VehiclesIdWork_ordersRoute: ApiPublicV1VehiclesIdWork_ordersRoute,
