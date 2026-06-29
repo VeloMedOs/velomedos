@@ -127,3 +127,26 @@ export function assertEncounterTransition(
 }
 
 export const TERMINAL_ENCOUNTER_STATUSES = new Set<EncounterClinicalStatus>(["finished", "cancelled"]);
+
+// ----------------------------------------------------------------------------
+// Phase 5 — Monotonic journey-state ranks (mirrors DB encounter_journey_rank).
+// ----------------------------------------------------------------------------
+
+export const JOURNEY_RANK: Record<JourneyState, number> = {
+  registered: 0,
+  encounter_open: 1,
+  clinically_documented: 2,
+  investigations_ordered: 3,
+  admitted: 4,
+  discharged: 5,
+  coded: 6,
+  grouped: 7,
+  claim_ready: 8,
+  submitted: 9,
+  void: -1,
+};
+
+/** Returns true only if advancing `from -> to` increases the milestone rank. */
+export function canAdvanceJourney(from: JourneyState, to: JourneyState): boolean {
+  return JOURNEY_RANK[to] > JOURNEY_RANK[from];
+}
