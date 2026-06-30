@@ -44,13 +44,21 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [email, setEmail] = useState<string | null>(null);
   const [roles, setRoles] = useState<string[]>([]);
+  const [rolesLoaded, setRolesLoaded] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
       setEmail(data.user?.email ?? null);
-      if (!data.user) return;
-      const { data: rs } = await (supabase as any).rpc("get_user_roles", { _user_id: data.user.id });
-      setRoles((rs ?? []).map((r: any) => (typeof r === "string" ? r : r.role)));
+      if (!data.user) {
+        setRolesLoaded(true);
+        return;
+      }
+      try {
+        const { data: rs } = await (supabase as any).rpc("get_user_roles", { _user_id: data.user.id });
+        setRoles((rs ?? []).map((r: any) => (typeof r === "string" ? r : r.role)));
+      } finally {
+        setRolesLoaded(true);
+      }
     });
   }, []);
 
@@ -64,7 +72,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isSuper = roles.includes("superadmin");
   const isBiz = roles.includes("business_admin");
   const isVeloStaff = isSuper || roles.includes("admin") || roles.includes("dispatcher") || roles.includes("developer");
-  const NAV = isVeloStaff ? VELOMED_NAV.filter((n) => n.to !== "/superadmin" || isSuper) : isBiz ? BUSINESS_NAV : PATIENT_NAV;
+  const isPatient = roles.includes("patient");
+  // Never default to PATIENT_NAV before roles resolve — that flashes the
+  // "My care" ribbon on superadmin/clinical pages during the in-flight RPC.
+  const NAV: readonly { to: string; label: string }[] = !rolesLoaded
+    ? []
+    : isVeloStaff
+      ? VELOMED_NAV.filter((n) => n.to !== "/superadmin" || isSuper)
+      : isBiz
+        ? BUSINESS_NAV
+        : isPatient
+          ? PATIENT_NAV
+          : [];
 
   return (
     <div className="min-h-screen bg-background text-foreground">

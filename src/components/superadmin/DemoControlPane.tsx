@@ -36,6 +36,19 @@ type RunState = { status: RunOutcome; result: unknown; message: string | null; s
 const INITIAL: RunState = { status: "idle", result: null, message: null, startedAt: null, finishedAt: null };
 const AUTOFILL_KEY = "velomed:demo_autofill";
 
+/** Friendlier toast for the recurring "your superadmin token expired" case. */
+function isUnauthorized(value: unknown): boolean {
+  if (!value) return false;
+  if (typeof value === "string") return value.toLowerCase() === "unauthorized";
+  if (value instanceof Error) return value.message.toLowerCase() === "unauthorized";
+  return false;
+}
+function toastSuperadminExpired() {
+  toast.error("Superadmin session expired — sign in again", {
+    action: { label: "Sign in", onClick: () => { window.location.href = "/superadmin/login"; } },
+  });
+}
+
 export function DemoControlPane() {
   const [users, setUsers] = useState<RunState>(INITIAL);
   const [seed, setSeed]   = useState<RunState>(INITIAL);
@@ -162,14 +175,24 @@ function CredentialsManager() {
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [applyState, setApplyState] = useState<RunState>(INITIAL);
+  // Per-email status from the last applyAuth run, so the banner stays accurate
+  // after rows reload (DB only stamps applied_at on synced rows).
+  const [lastApply, setLastApply] = useState<Map<string, "synced" | "missing" | "error">>(new Map());
 
   async function load() {
     try {
       const r = await list();
-      if (!r.ok) { toast.error(`Load failed: ${r.error}`); return; }
+      if (!r.ok) {
+        if (isUnauthorized(r.error)) toastSuperadminExpired();
+        else toast.error(`Load failed: ${r.error}`);
+        return;
+      }
       setRows(r.accounts);
       setReveal(r.public_reveal);
-    } catch (e) { toast.error(`Load failed: ${(e as Error).message}`); }
+    } catch (e) {
+      if (isUnauthorized(e)) toastSuperadminExpired();
+      else toast.error(`Load failed: ${(e as Error).message}`);
+    }
   }
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
@@ -180,7 +203,10 @@ function CredentialsManager() {
       if (!r.ok) throw new Error(r.error);
       toast.success(`New password for ${email}`);
       await load();
-    } catch (e) { toast.error(`Rotate failed: ${(e as Error).message}`); }
+    } catch (e) {
+      if (isUnauthorized(e)) toastSuperadminExpired();
+      else toast.error(`Rotate failed: ${(e as Error).message}`);
+    }
     finally { setBusy(null); }
   }
 
@@ -192,7 +218,10 @@ function CredentialsManager() {
       if (!r.ok) throw new Error(r.error);
       toast.success(`Rotated ${r.rotated} accounts`);
       await load();
-    } catch (e) { toast.error(`Rotate all failed: ${(e as Error).message}`); }
+    } catch (e) {
+      if (isUnauthorized(e)) toastSuperadminExpired();
+      else toast.error(`Rotate all failed: ${(e as Error).message}`);
+    }
     finally { setBusy(null); }
   }
 
@@ -202,9 +231,17 @@ function CredentialsManager() {
     try {
       const r = await applyAuth();
       const ok = (r as { ok: boolean }).ok !== false;
-        const results = (r as { results?: Array<{ status: string }> }).results ?? [];
+      if (!ok && isUnauthorized((r as { error?: string }).error)) {
+        toastSuperadminExpired();
+        setApplyState({ status: "error", result: r, message: "Superadmin session expired", startedAt, finishedAt: Date.now() });
+        return;
+      }
+        const results = (r as { results?: Array<{ status: string; email: string }> }).results ?? [];
         const missing = results.filter((x) => x.status === "missing").length;
         const failed = results.filter((x) => x.status === "error").length;
+      const next = new Map<string, "synced" | "missing" | "error">();
+      for (const x of results) next.set(x.email, x.status as "synced" | "missing" | "error");
+      setLastApply(next);
       setApplyState({
           status: ok && failed === 0 ? "success" : "error",
         result: r,
@@ -215,9 +252,11 @@ function CredentialsManager() {
       });
         if (ok && failed === 0) toast.success("Passwords applied to login users");
       else toast.error("Apply failed");
+      await load();
     } catch (e) {
       setApplyState({ status: "error", result: null, message: (e as Error).message, startedAt, finishedAt: Date.now() });
-      toast.error(`Apply failed: ${(e as Error).message}`);
+      if (isUnauthorized(e)) toastSuperadminExpired();
+      else toast.error(`Apply failed: ${(e as Error).message}`);
     }
   }
 
@@ -227,16 +266,18 @@ function CredentialsManager() {
       if (!r.ok) throw new Error(r.error);
       setReveal(r.enabled);
       toast.success(`Public reveal ${r.enabled ? "ON" : "OFF"}`);
-    } catch (e) { toast.error(`Toggle failed: ${(e as Error).message}`); }
+    } catch (e) {
+      if (isUnauthorized(e)) toastSuperadminExpired();
+      else toast.error(`Toggle failed: ${(e as Error).message}`);
+    }
   }
 
   function copy(text: string, label: string) {
     navigator.clipboard.writeText(text).then(() => toast.success(`${label} copied`)).catch(() => toast.error("Clipboard blocked"));
   }
 
-  async function launchWithAutofill(row: DemoCredentialRow) {
+  function launchWithAutofill(row: DemoCredentialRow) {
     const key = row.clinical_role || row.email.split("@")[0];
-    const tab = window.open("about:blank", "_blank");
     try {
       window.localStorage.setItem(AUTOFILL_KEY, JSON.stringify({
         email: row.email,
@@ -245,22 +286,21 @@ function CredentialsManager() {
         expiresAt: Date.now() + 5 * 60_000,
       }));
     } catch { /* noop */ }
-    const startedAt = Date.now();
-    setApplyState({ status: "running", result: null, message: `Preparing ${row.role_label} login…`, startedAt, finishedAt: null });
-    try {
-      const r = await applyAuth();
-      const ok = (r as { ok: boolean }).ok !== false;
-      if (!ok) throw new Error((r as { error?: string }).error ?? "Apply failed");
-      setApplyState({ status: "success", result: r, message: `Login prepared for ${row.role_label}.`, startedAt, finishedAt: Date.now() });
-      const href = `/demo-login?role=${encodeURIComponent(key)}&autosignin=1`;
-      if (tab) tab.location.href = href;
-      else window.open(href, "_blank", "noopener,noreferrer");
-    } catch (e) {
-      if (tab) tab.close();
-      setApplyState({ status: "error", result: null, message: (e as Error).message, startedAt, finishedAt: Date.now() });
-      toast.error(`Could not prepare login: ${(e as Error).message}`);
-    }
+    // No applyAuth() here — /demo-login signs in with the stashed password
+    // directly via signInWithPassword. Re-running the bulk superadmin sync
+    // on every row click is what surfaced `unauthorized` on token rotation.
+    const href = `/demo-login?role=${encodeURIComponent(key)}&autosignin=1`;
+    window.open(href, "_blank", "noopener,noreferrer");
   }
+
+  // "Apply needed" banner: any row never synced, stale (updated since last
+  // sync), or flagged missing/error by the last applyAuth run.
+  const needsApply = !!rows && rows.some((r) => {
+    const last = lastApply.get(r.email);
+    if (last === "missing" || last === "error") return true;
+    if (!r.applied_at) return true;
+    return new Date(r.updated_at).getTime() > new Date(r.applied_at).getTime();
+  });
 
   return (
     <section className="rounded-lg border border-hairline bg-panel/40">
@@ -284,6 +324,16 @@ function CredentialsManager() {
           </Button>
         </div>
       </div>
+
+      {needsApply && (
+        <div className="px-4 py-2 text-[11.5px] border-b border-hairline bg-caution/10 text-caution flex items-center gap-2">
+          <AlertTriangle className="size-3.5" />
+          <span className="flex-1">Passwords changed since the last sync — apply them so sign-in works.</span>
+          <Button size="sm" onClick={doApplyAuth} disabled={applyState.status === "running"}>
+            {applyState.status === "running" ? <Loader2 className="size-3.5 mr-1.5 animate-spin" /> : <ShieldCheck className="size-3.5 mr-1.5" />}Apply to login users
+          </Button>
+        </div>
+      )}
 
       {applyState.message && (
         <div className={`px-4 py-2 text-[11.5px] border-b border-hairline ${

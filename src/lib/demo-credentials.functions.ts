@@ -26,6 +26,7 @@ export type DemoCredentialRow = {
   password: string;
   sort_order: number;
   updated_at: string;
+  applied_at: string | null;
 };
 
 export type DemoPublicAccount = {
@@ -103,7 +104,7 @@ export const listDemoCredentials = createServerFn({ method: "GET" }).handler(asy
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await (supabaseAdmin as any)
     .from("demo_credentials")
-    .select("email, role_label, clinical_role, lands_on, sort_order, updated_at")
+    .select("email, role_label, clinical_role, lands_on, sort_order, updated_at, applied_at")
     .order("sort_order", { ascending: true });
   if (error) return { ok: false as const, error: error.message };
   const { data: secrets } = await (supabaseAdmin as any)
@@ -196,8 +197,18 @@ export const applyCredentialsToAuth = createServerFn({ method: "POST" }).handler
     const uid = userByEmail.get(row.email.toLowerCase());
     if (!uid) { synced.push({ email: row.email, status: "missing" }); continue; }
     const { error: uerr } = await supabaseAdmin.auth.admin.updateUserById(uid, { password: row.password });
-    if (uerr) synced.push({ email: row.email, status: "error", error: uerr.message });
-    else synced.push({ email: row.email, status: "synced" });
+    if (uerr) {
+      synced.push({ email: row.email, status: "error", error: uerr.message });
+    } else {
+      synced.push({ email: row.email, status: "synced" });
+      // Stamp applied_at on success so the Superadmin panel's "Apply needed"
+      // banner clears for this row. Missing/error rows stay un-stamped so
+      // the banner keeps flagging them.
+      await (supabaseAdmin as any)
+        .from("demo_credentials")
+        .update({ applied_at: new Date().toISOString() })
+        .eq("email", row.email);
+    }
   }
   const ok_count = synced.filter((s) => s.status === "synced").length;
   return { ok: true as const, total: synced.length, synced: ok_count, results: synced };
@@ -261,7 +272,7 @@ export async function listDemoCredentialsFromHeader(authHeader: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await (supabaseAdmin as any)
     .from("demo_credentials")
-    .select("email, role_label, clinical_role, lands_on, sort_order, updated_at")
+    .select("email, role_label, clinical_role, lands_on, sort_order, updated_at, applied_at")
     .order("sort_order", { ascending: true });
   if (error) return { ok: false as const, error: error.message };
   const { data: secrets } = await (supabaseAdmin as any).from("demo_credential_secrets").select("email, password");
