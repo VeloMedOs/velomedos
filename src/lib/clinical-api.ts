@@ -70,6 +70,8 @@ export const ClinicalAPI = {
     ),
   createBeneficiary: (body: unknown) =>
     clinicalFetch<{ data: any }>("/api/clinical/v1/beneficiaries", { method: "POST", body }),
+  updateBeneficiary: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/beneficiaries/${id}`, { method: "PATCH", body }),
   listCoverage: (beneficiaryId: string) =>
     clinicalFetch<{ data: any[] }>(`/api/clinical/v1/beneficiaries/${beneficiaryId}/coverage`),
   createCoverage: (beneficiaryId: string, body: unknown) =>
