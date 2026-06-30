@@ -25,7 +25,7 @@ export function CmsPagesPane() {
   const [editing, setEditing] = useState<Record<string, string>>({});
 
   async function load() {
-    const r = await adminFetch(`/api/admin/v1/site-content?locale=${locale}`);
+    const r = (await adminFetch(`/api/admin/v1/site-content?locale=${locale}`)) as Response;
     if (!r.ok) { toast.error("Failed to load CMS rows"); return; }
     const data = await r.json();
     setRows((data.rows ?? []) as Row[]);
@@ -39,10 +39,10 @@ export function CmsPagesPane() {
     const raw = editing[key] ?? stringify(map.get(key)?.value);
     let value: unknown = raw;
     try { value = JSON.parse(raw); } catch { /* keep as string */ }
-    const r = await adminFetch("/api/admin/v1/site-content", {
+    const r = (await adminFetch("/api/admin/v1/site-content", {
       method: "PUT", headers: { "content-type": "application/json" },
       body: JSON.stringify({ key, locale, value, status }),
-    });
+    })) as Response;
     if (!r.ok) { toast.error("Save failed"); return; }
     toast.success(`${key} · ${status}`);
     setEditing((e) => { const c = { ...e }; delete c[key]; return c; });
