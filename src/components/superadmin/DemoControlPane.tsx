@@ -231,9 +231,17 @@ function CredentialsManager() {
     try {
       const r = await applyAuth();
       const ok = (r as { ok: boolean }).ok !== false;
-        const results = (r as { results?: Array<{ status: string }> }).results ?? [];
+      if (!ok && isUnauthorized((r as { error?: string }).error)) {
+        toastSuperadminExpired();
+        setApplyState({ status: "error", result: r, message: "Superadmin session expired", startedAt, finishedAt: Date.now() });
+        return;
+      }
+        const results = (r as { results?: Array<{ status: string; email: string }> }).results ?? [];
         const missing = results.filter((x) => x.status === "missing").length;
         const failed = results.filter((x) => x.status === "error").length;
+      const next = new Map<string, "synced" | "missing" | "error">();
+      for (const x of results) next.set(x.email, x.status as "synced" | "missing" | "error");
+      setLastApply(next);
       setApplyState({
           status: ok && failed === 0 ? "success" : "error",
         result: r,
@@ -244,9 +252,11 @@ function CredentialsManager() {
       });
         if (ok && failed === 0) toast.success("Passwords applied to login users");
       else toast.error("Apply failed");
+      await load();
     } catch (e) {
       setApplyState({ status: "error", result: null, message: (e as Error).message, startedAt, finishedAt: Date.now() });
-      toast.error(`Apply failed: ${(e as Error).message}`);
+      if (isUnauthorized(e)) toastSuperadminExpired();
+      else toast.error(`Apply failed: ${(e as Error).message}`);
     }
   }
 
@@ -256,7 +266,10 @@ function CredentialsManager() {
       if (!r.ok) throw new Error(r.error);
       setReveal(r.enabled);
       toast.success(`Public reveal ${r.enabled ? "ON" : "OFF"}`);
-    } catch (e) { toast.error(`Toggle failed: ${(e as Error).message}`); }
+    } catch (e) {
+      if (isUnauthorized(e)) toastSuperadminExpired();
+      else toast.error(`Toggle failed: ${(e as Error).message}`);
+    }
   }
 
   function copy(text: string, label: string) {
