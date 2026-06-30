@@ -175,14 +175,24 @@ function CredentialsManager() {
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [applyState, setApplyState] = useState<RunState>(INITIAL);
+  // Per-email status from the last applyAuth run, so the banner stays accurate
+  // after rows reload (DB only stamps applied_at on synced rows).
+  const [lastApply, setLastApply] = useState<Map<string, "synced" | "missing" | "error">>(new Map());
 
   async function load() {
     try {
       const r = await list();
-      if (!r.ok) { toast.error(`Load failed: ${r.error}`); return; }
+      if (!r.ok) {
+        if (isUnauthorized(r.error)) toastSuperadminExpired();
+        else toast.error(`Load failed: ${r.error}`);
+        return;
+      }
       setRows(r.accounts);
       setReveal(r.public_reveal);
-    } catch (e) { toast.error(`Load failed: ${(e as Error).message}`); }
+    } catch (e) {
+      if (isUnauthorized(e)) toastSuperadminExpired();
+      else toast.error(`Load failed: ${(e as Error).message}`);
+    }
   }
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
