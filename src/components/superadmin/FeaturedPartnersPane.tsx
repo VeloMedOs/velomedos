@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Globe, Eye, EyeOff } from "lucide-react";
 
 type Sub = {
-  id: string; company_name: string; status: string; country?: string | null;
+  id: string; company_name: string; stage: string; status?: string; country?: string | null;
   display_publicly?: boolean; display_consent?: boolean;
   display_name?: string | null; display_city?: string | null;
   display_type?: string | null; logo_url?: string | null; featured_order?: number | null;
@@ -19,8 +19,8 @@ export function FeaturedPartnersPane() {
     const r = (await adminFetch("/api/admin/v1/business-requests")) as Response;
     if (!r.ok) { toast.error("Failed to load subscribers"); return; }
     const data = await r.json();
-    const list = (data.rows ?? data.items ?? data ?? []) as Sub[];
-    setRows(list.filter((s) => ["lead", "subscribed", "prospect", "demo"].includes(s.status)));
+    const list = (data.requests ?? data.rows ?? data ?? []) as Sub[];
+    setRows(list.filter((s) => ["lead", "subscribed", "prospect", "demo", "negotiation"].includes(s.stage)));
   }
   useEffect(() => { load(); }, []);
 
@@ -68,7 +68,7 @@ export function FeaturedPartnersPane() {
               <tr key={s.id} className="border-t border-hairline align-middle">
                 <td className="p-2">
                   <div className="font-medium text-foreground">{s.company_name}</div>
-                  <div className="text-muted-foreground mono text-[10px]">{s.status}</div>
+                  <div className="text-muted-foreground mono text-[10px]">{s.stage}</div>
                 </td>
                 <td className="p-2"><input defaultValue={s.display_name ?? s.company_name} onBlur={(e) => e.target.value !== (s.display_name ?? "") && patch(s.id, { display_name: e.target.value })} className="bg-background border border-hairline rounded px-1.5 py-1 w-40" /></td>
                 <td className="p-2"><input defaultValue={s.display_city ?? s.country ?? ""} onBlur={(e) => patch(s.id, { display_city: e.target.value })} className="bg-background border border-hairline rounded px-1.5 py-1 w-28" /></td>
