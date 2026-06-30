@@ -372,6 +372,29 @@ export function RegistrationPane() {
                 <input className="clin-ctrl mono" value={`${form.coverage_start || "—"} → ${form.coverage_end || "—"}`} onChange={() => {}} readOnly />
               </Field>
             </div>
+            <div className="flex items-center gap-2 mt-4 flex-wrap">
+              <button
+                type="button"
+                onClick={createCoverageOnce}
+                disabled={!!coverageId || !beneficiaryId || !(form.payer_id && form.member_id)}
+                className="rounded-lg px-3 py-2 font-semibold text-[12.5px] text-white disabled:opacity-60"
+                style={{ background: coverageId ? "var(--clin-ok)" : "var(--teal)" }}
+              >
+                {coverageId ? "Coverage saved ✓" : "Save coverage"}
+              </button>
+              <button
+                type="button"
+                onClick={runEligibility}
+                disabled={!coverageId || checkingElig}
+                className="rounded-lg px-3 py-2 font-semibold text-[12.5px] disabled:opacity-60"
+                style={{ background: "var(--clin-info-tint)", color: "var(--clin-info)" }}
+              >
+                {checkingElig ? "Checking…" : "Check eligibility"}
+              </button>
+              <span className="mono text-[11px]" style={{ color: "var(--clin-faint)" }}>
+                Coverage is created once · post-creation edits are out of scope
+              </span>
+            </div>
           </DCard>
 
           {/* CONSENT ----------------------------------------------- */}
@@ -418,18 +441,26 @@ export function RegistrationPane() {
             </div>
           </RailCard>
 
-          <RailCard title="Eligibility (live)">
-            <div className="text-center py-2">
-              <div className="mono font-bold text-[18px] inline-flex items-center justify-center gap-2" style={{ color: groups.coverage ? "var(--clin-ok)" : "var(--clin-faint)" }}>
-                {groups.coverage ? <><Check className="size-4" />ELIGIBLE</> : "AWAITING PAYER"}
+          <RailCard title="Eligibility · NPHIES">
+            {eligResult ? (
+              <>
+                <div className="text-center py-2">
+                  <div className="mono font-bold text-[18px] inline-flex items-center justify-center gap-2"
+                       style={{ color: eligResult.status === "eligible" ? "var(--clin-ok)" : eligResult.status === "self_pay" ? "var(--clin-warn)" : "var(--clin-faint)" }}>
+                    {eligResult.status === "eligible" ? <><Check className="size-4" />ELIGIBLE</> : (eligResult.status ?? "PENDING").toUpperCase()}
+                  </div>
+                  <div className="text-[12px] mt-1" style={{ color: "var(--clin-muted)" }}>
+                    {eligResult.financial_type ? `Financial type · ${eligResult.financial_type}` : "Checked via NPHIES sandbox"}
+                  </div>
+                </div>
+                {eligResult.last_checked_at && <KV k="Last check" v={new Date(eligResult.last_checked_at).toLocaleString()} />}
+              </>
+            ) : (
+              <div className="text-center py-2">
+                <div className="mono font-bold text-[16px]" style={{ color: "var(--clin-faint)" }}>NOT CHECKED</div>
+                <div className="text-[12px] mt-1" style={{ color: "var(--clin-muted)" }}>Save coverage then run “Check eligibility”.</div>
               </div>
-              <div className="text-[12px] mt-1" style={{ color: "var(--clin-muted)" }}>
-                {groups.coverage ? "NPHIES check passes for this encounter" : "Fill in payer + member ID to check"}
-              </div>
-            </div>
-            <KV k="Network" v={groups.coverage ? "In-network" : "—"} tone={groups.coverage ? "ok" : undefined} />
-            <KV k="Copay" v={groups.coverage ? "0 SAR" : "—"} />
-            <KV k="Deductible" v={groups.coverage ? "Met" : "—"} tone={groups.coverage ? "ok" : undefined} />
+            )}
           </RailCard>
 
           {form.allergies_known === "yes" && form.allergies_text && (
