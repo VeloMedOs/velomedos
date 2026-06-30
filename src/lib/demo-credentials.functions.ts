@@ -37,6 +37,22 @@ export type DemoPublicAccount = {
   password?: string;
 };
 
+const FALLBACK_PUBLIC_ACCOUNTS: DemoPublicAccount[] = [
+  { email: "superadmin@demo.velomedos.com", role_label: "Demo Superadmin", clinical_role: null, lands_on: "/superadmin" },
+  { email: "admin@demo.velomedos.com", role_label: "Tenant Admin", clinical_role: "tenant_admin", lands_on: "/clinical?tab=encounters" },
+  { email: "doctor@demo.velomedos.com", role_label: "Physician", clinical_role: "physician", lands_on: "/clinical?tab=encounters" },
+  { email: "nurse@demo.velomedos.com", role_label: "Nurse", clinical_role: "nurse", lands_on: "/clinical?tab=encounters" },
+  { email: "coder@demo.velomedos.com", role_label: "Clinical Coder", clinical_role: "coder", lands_on: "/clinical?tab=coding" },
+  { email: "rcm@demo.velomedos.com", role_label: "RCM Specialist", clinical_role: "rcm", lands_on: "/clinical?tab=claims" },
+  { email: "approver@demo.velomedos.com", role_label: "Approval Officer", clinical_role: "approval_officer", lands_on: "/clinical?tab=claims" },
+  { email: "cashier@demo.velomedos.com", role_label: "Cashier", clinical_role: "cashier", lands_on: "/clinical?tab=claims" },
+  { email: "biller@demo.velomedos.com", role_label: "Biller", clinical_role: "biller", lands_on: "/clinical?tab=claims" },
+  { email: "claims@demo.velomedos.com", role_label: "Claims Officer", clinical_role: "claims_officer", lands_on: "/clinical?tab=claims" },
+  { email: "finance@demo.velomedos.com", role_label: "Finance", clinical_role: "finance", lands_on: "/clinical?tab=claims" },
+  { email: "readonly@demo.velomedos.com", role_label: "Read-Only Auditor", clinical_role: "read_only", lands_on: "/clinical?tab=encounters" },
+  { email: "patient@demo.velomedos.com", role_label: "Patient", clinical_role: null, lands_on: "/patient" },
+];
+
 async function requireSuperadminFromHeader(authHeader: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const token = (authHeader || "").toLowerCase().startsWith("bearer ") ? authHeader.slice(7) : "";
@@ -216,7 +232,8 @@ export const getDemoPublicState = createServerFn({ method: "GET" }).handler(asyn
     .from("demo_credentials")
     .select("email, role_label, clinical_role, lands_on, password, sort_order")
     .order("sort_order", { ascending: true });
-  if (error) return { ok: false as const, error: error.message };
+  if (error) return { ok: true as const, reveal: false, fallback: true, warning: error.message, accounts: FALLBACK_PUBLIC_ACCOUNTS };
+  if (!data?.length) return { ok: true as const, reveal: false, fallback: true, warning: "demo_credentials_empty", accounts: FALLBACK_PUBLIC_ACCOUNTS };
   const accounts: DemoPublicAccount[] = (data ?? []).map((r: any) => ({
     email: r.email,
     role_label: r.role_label,
@@ -251,7 +268,8 @@ export async function getDemoPublicStateRest() {
     .from("demo_credentials")
     .select("email, role_label, clinical_role, lands_on, password, sort_order")
     .order("sort_order", { ascending: true });
-  if (error) return { ok: false as const, error: error.message };
+  if (error) return { ok: true as const, reveal: false, fallback: true, warning: error.message, accounts: FALLBACK_PUBLIC_ACCOUNTS };
+  if (!data?.length) return { ok: true as const, reveal: false, fallback: true, warning: "demo_credentials_empty", accounts: FALLBACK_PUBLIC_ACCOUNTS };
   const accounts: DemoPublicAccount[] = (data ?? []).map((r: any) => ({
     email: r.email,
     role_label: r.role_label,
