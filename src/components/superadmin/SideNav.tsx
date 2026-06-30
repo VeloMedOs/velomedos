@@ -13,7 +13,8 @@ export type SuperTabId =
   | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug"
   | "refunds" | "tickets" | "reviews" | "chat" | "push"
   | "tests" | "audit" | "smoke" | "bugs" | "releases" | "automation"
-  | "workspace" | "team" | "security" | "legal" | "docs" | "demo";
+  | "workspace" | "team" | "security" | "legal" | "docs" | "demo"
+  | "cms_pages" | "cms_partners";
 
 type Item = {
   id: SuperTabId | `soon:${string}`;
@@ -80,7 +81,8 @@ export function SuperadminSideNav({
     ]},
     { id: "cms", label: "Website CMS", items: [
       { id: "legal",        label: "Legal & Privacy",  icon: Scale },
-      { id: "soon:pages",   label: "Pages & sections", icon: FileText, soon: true },
+      { id: "cms_pages",    label: "Pages & sections", icon: FileText },
+      { id: "cms_partners", label: "Featured partners", icon: Star },
       { id: "soon:seo",     label: "SEO manager",      icon: Search, soon: true },
       { id: "soon:news",    label: "News & articles",  icon: Newspaper, soon: true },
       { id: "soon:blogcat", label: "Blog categories",  icon: FolderOpen, soon: true },
