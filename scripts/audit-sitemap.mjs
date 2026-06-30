@@ -35,6 +35,7 @@ const EXCLUDE_FILES = new Set([
   "clinics.$city.tsx",
   "solutions.tsx",              // redirect-only → /services
   "solutions.$slug.tsx",        // redirect-only → /services/:slug
+  "his.tsx",                    // redirect-only → /launch or /auth
 ]);
 
 function walk(dir) {
