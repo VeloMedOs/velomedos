@@ -79,6 +79,10 @@ function AuthPage() {
     const hasClinical = !!tm?.[0]?.clinical_role;
     const next = search.next;
     const { dest } = (await import("@/lib/launch-destination")).resolveDestination(effective, hasClinical, next ?? null);
+    if (dest === "/clinical" && tm?.[0]?.clinical_role) {
+      const { clinicalDestinationFor } = await import("@/lib/clinical-role-landing");
+      return clinicalDestinationFor(tm[0].clinical_role);
+    }
     return dest;
   }
 
