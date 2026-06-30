@@ -325,6 +325,16 @@ function CredentialsManager() {
         </div>
       </div>
 
+      {needsApply && (
+        <div className="px-4 py-2 text-[11.5px] border-b border-hairline bg-caution/10 text-caution flex items-center gap-2">
+          <AlertTriangle className="size-3.5" />
+          <span className="flex-1">Passwords changed since the last sync — apply them so sign-in works.</span>
+          <Button size="sm" onClick={doApplyAuth} disabled={applyState.status === "running"}>
+            {applyState.status === "running" ? <Loader2 className="size-3.5 mr-1.5 animate-spin" /> : <ShieldCheck className="size-3.5 mr-1.5" />}Apply to login users
+          </Button>
+        </div>
+      )}
+
       {applyState.message && (
         <div className={`px-4 py-2 text-[11.5px] border-b border-hairline ${
           applyState.status === "success" ? "text-stable" :
