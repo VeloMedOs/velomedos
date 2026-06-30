@@ -1,0 +1,1 @@
+ALTER TABLE public.demo_credentials ADD COLUMN IF NOT EXISTS applied_at timestamptz;

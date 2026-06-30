@@ -2356,6 +2356,7 @@ export type Database = {
       }
       demo_credentials: {
         Row: {
+          applied_at: string | null
           clinical_role: string | null
           email: string
           lands_on: string
@@ -2365,6 +2366,7 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          applied_at?: string | null
           clinical_role?: string | null
           email: string
           lands_on?: string
@@ -2374,6 +2376,7 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          applied_at?: string | null
           clinical_role?: string | null
           email?: string
           lands_on?: string
