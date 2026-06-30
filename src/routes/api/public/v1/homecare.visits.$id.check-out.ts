@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { json, preflight, requireKey, serviceClient } from "@/lib/api-server";
+import { json, preflight, requireKey, resolveTenantScope, serviceClient } from "@/lib/api-server";
 
 /** POST body: { lat, lng, notes?, tasks?: [{id?, title, completed}],
  *               vitals?: [{type,value,unit?}], medications?: [{drug_name,dose?,route?,status?}] } */
@@ -10,12 +10,17 @@ export const Route = createFileRoute("/api/public/v1/homecare/visits/$id/check-o
       POST: async ({ request, params }) => {
         const auth = await requireKey(request, "homecare:write");
         if (!auth.ok) return auth.res;
+        const scope = await resolveTenantScope(auth.auth, request);
+        if (!scope.ok) return scope.res;
         const body = await request.json().catch(() => ({} as any));
         const lat = Number(body.lat); const lng = Number(body.lng);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           return json({ error: "lat and lng required" }, 400);
         }
         const db = serviceClient();
+        const { data: existing } = await db.from("care_visits").select("id, tenant_id").eq("id", params.id).maybeSingle();
+        if (!existing) return json({ error: "not_found" }, 404);
+        if (existing.tenant_id !== scope.tenantId) return json({ error: "tenant_forbidden" }, 403);
         const { data: visit, error } = await db
           .from("care_visits")
           .update({
@@ -26,15 +31,19 @@ export const Route = createFileRoute("/api/public/v1/homecare/visits/$id/check-o
             notes: body.notes ?? undefined,
           })
           .eq("id", params.id)
+          .eq("tenant_id", scope.tenantId)
           .select("*")
           .single();
         if (error || !visit) { console.error("homecare.check-out", error); return json({ error: error?.message ?? "failed" }, 400); }
 
-        // Persist task completions / vitals / MAR if supplied.
+        // Persist task completions / vitals / MAR if supplied — ownership-checked per row.
         if (Array.isArray(body.tasks) && body.tasks.length) {
           for (const t of body.tasks) {
             if (t.id) {
-              await db.from("care_visit_tasks").update({ completed: !!t.completed, completed_at: t.completed ? new Date().toISOString() : null }).eq("id", t.id);
+              await db.from("care_visit_tasks")
+                .update({ completed: !!t.completed, completed_at: t.completed ? new Date().toISOString() : null })
+                .eq("id", t.id)
+                .eq("care_visit_id", visit.id);
             } else if (t.title) {
               await db.from("care_visit_tasks").insert({ care_visit_id: visit.id, title: t.title, completed: !!t.completed, completed_at: t.completed ? new Date().toISOString() : null });
             }
