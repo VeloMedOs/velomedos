@@ -74,8 +74,15 @@ export function CmsPagesPane() {
     const row = map.get(key);
     const baseline = stringify(previewOf(row));
     const raw = editing[key] ?? baseline;
+    // Only attempt JSON parsing for explicit object/array payloads. Plain copy
+    // (including numeric-looking strings like "2024" or "1.0") stays a string
+    // so the marketing reader — which expects strings — renders it verbatim
+    // instead of falling back to the hardcoded default.
     let value: unknown = raw;
-    try { value = JSON.parse(raw); } catch { /* keep as string */ }
+    const trimmed = raw.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      try { value = JSON.parse(trimmed); } catch { /* keep as string */ }
+    }
     setBusy(key);
     try {
       await adminFetch("/api/admin/v1/site-content", {
