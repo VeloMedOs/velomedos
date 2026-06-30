@@ -1,87 +1,69 @@
-# VeloMed OS — Website Redesign (FINAL, fully-wired Lovable prompt)
+## Goal
 
-Frontend-led marketing-site rewrite. Reuses existing `CommandHero`, `business_intake`, `PipelineBoard`, `LegalCmsModule`, `site-config`, `ResponsiveImage`. No other portal restyle. **Every UI element below is mapped to a real endpoint in §A — no element ships without its data wired.**
+Add a **Light / Dark / Auto** theme across every surface of VeloMed OS — marketing site, Superadmin, Clinical/HIS, and auth/demo pages — without diluting the brand. Auto follows the OS setting; the manual choice persists per device (and per account when signed in).
 
-## 0. Hard rules
+## What the user will see
 
-- **Reuse the existing operations hero (**`CommandHero`**) unchanged.** Wrap it in a mode toggle; never reimplement the map/GPS/gauges.
-- Brand tokens fixed (§1). One CTA voice ("Book a demo"). Calm, operational, never patient-facing.
-- Honesty: "integration-ready / sandboxed until credentials are live" — never claim certs not held.
-- No raw `<form>` in React routes (controlled inputs + onClick). No new npm deps. `tsgo` green.
-- Touch only the marketing site + the Superadmin Pages-&-CMS surface. Clinical/dispatch/business/ patient portals untouched.
+- A small **Theme** switcher (Sun / Moon / Monitor icons) in:
+  - the marketing site header (next to the language / sandbox links)
+  - the Superadmin top bar
+  - the Clinical workspace header
+  - the `/auth`, `/demo-login`, `/demo-credentials`, `/superadmin/login` pages
+- First load picks **Auto** → matches the OS preference, then remembers any manual choice.
+- No flash of wrong theme on hard refresh (inline script applies the saved class before React mounts).
 
-## 1. Brand tokens (reuse repo's `styles.css`; do not add tokens)
+## Light theme direction
 
-`--ink:#080B11 --surface:#0E131C --panel:#0B1019 --tile:#0E141E --line:#1C2532 --line2:#243042` `--teal:#28D6B6 --teal-ink:#06281F --sky:#4FB6F7 --coral:#FF6E5B --amber:#F4B24C --violet:#7C3AED` `--hi:#EAF0F7 --txt:#A9B5C6 --mut:#8593A6 --dim:#5E6C82`. Fonts: Fraunces (display/italic) · Hanken Grotesk (body) · JetBrains Mono (data/labels/codes). Severity = state: teal clean/eligible · sky in-progress/region · coral critical/denial · amber awaiting · violet VBHC.
+Keep the brand (teal `#28D6B6`, blue `#4FB6F7`, coral `#FF6E5B`) but rebuild surfaces for clarity:
 
-## A. API / ROUTE WIRING MAP (no truncated flows) — verified against the repo
+| Token | Dark (today) | Light (new) |
+|---|---|---|
+| `--background` | near-black navy | warm white `oklch(0.99 0.005 200)` |
+| `--panel` | deep navy | soft cloud `oklch(0.975 0.008 210)` |
+| `--panel-elevated` | raised navy | crisp white `oklch(1 0 0)` with subtle shadow |
+| `--hairline` | translucent white | `oklch(0.9 0.01 220)` |
+| `--foreground` | near-white | graphite `oklch(0.18 0.02 240)` |
+| `--muted-foreground` | dim grey | slate `oklch(0.48 0.02 240)` |
+| `--teal / --blue / --coral` | unchanged | slightly deepened for AA contrast on white |
 
+Map cards (glass-on-map overlays — already in memory) stay glass; the underlying map tiles switch to a light Mapbox style when theme = light.
 
-| UI element                                                                                           | Endpoint                                                                                | Method  | Status     | Notes                                                                                                                                  |
-| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Hero stat cards (Movement/Patient/Next)                                                              | `/api/public/v1/stats`                                                                  | GET     | **exists** | resolve in route **loader** (SSR)                                                                                                      |
-| Partner marquee + count                                                                              | `/api/public/v1/partners`                                                               | GET     | **new**    | reads `public_partners` **view** (§E), `{count, items[]}`; loader-resolved                                                             |
-| Care & Revenue lens values                                                                           | —                                                                                       | —       | static     | placeholders mirroring mockup; no endpoint (or later anonymized stats)                                                                 |
-| Partner intake form submit                                                                           | `/api/public/v1/business_intake`                                                        | POST    | **exists** | already inserts `business_requests` (`source:'website', stage:'request', status:'new'`) → triggers `business_request_events` 'created' |
-| Marketing copy (hero/pillars/CTA/…)                                                                  | `/api/public/v1/site-content`                                                           | GET     | **new**    | published-only (§D); loader-resolved; `SITE` const = fallback                                                                          |
-| Staff login link                                                                                     | `/his` (existing launcher)                                                              | nav     | exists     | discreet "Staff login →"                                                                                                               |
-| CMS — edit pages                                                                                     | `/api/admin/v1/site-content`                                                            | GET/PUT | **new**    | superadmin guard; writes draft/published                                                                                               |
-| CMS — featured partners                                                                              | `/api/admin/v1/business-requests/$id/featured`                                          | PATCH   | **new**    | writes `display_*`, logs `business_request_events` 'featured_changed' + 'display_consent_changed'                                      |
-| CMS — pipeline/subscribers                                                                           | existing `PipelineBoard` + `/api/admin/v1/subscribers`, `business-requests.$id.advance` | —       | exists     | surface as a tab                                                                                                                       |
-| CMS — legal                                                                                          | existing `LegalCmsModule`                                                               | —       | exists     | tab                                                                                                                                    |
-| **Every public read is resolved in a TanStack Start route loader (server) so it is in the SSR HTML — | &nbsp;                                                                                  | &nbsp;  | &nbsp;     | &nbsp;                                                                                                                                 |
-| required for SEO + LCP<2.5s + CLS<0.1. No client-only data fetch for above-the-fold content.**       | &nbsp;                                                                                  | &nbsp;  | &nbsp;     | &nbsp;                                                                                                                                 |
+## How it's built
 
+1. **Tokens** — `src/styles.css`: keep `:root` (dark, current) and add a `.light` variant block under `@theme inline` style so every existing utility (`bg-panel`, `text-foreground`, `border-hairline`, …) just works in both themes. No component changes required for token-driven surfaces.
+2. **Theme provider** — new `src/lib/theme.tsx`:
+   - exposes `useTheme()` returning `{ theme: 'light'|'dark'|'auto', resolved: 'light'|'dark', setTheme }`
+   - writes `light`/`dark` class on `<html>`, persists to `localStorage` (`velomed.theme`), and (when signed in) mirrors to a new `profiles.theme_preference` column so the choice follows the user across devices
+   - listens to `prefers-color-scheme` for Auto
+3. **No-flash inline script** — add a tiny synchronous script in `src/routes/__root.tsx` head that reads `localStorage` + `matchMedia` and applies the class before the React shell mounts.
+4. **Switcher component** — `src/components/ThemeSwitcher.tsx`: 3-segment pill (Sun / Moon / Monitor). Drop it into `SiteHeader`, `SuperadminLayout` top bar, Clinical header, and the auth pages.
+5. **Hand-tuned spots** — a small list of components that hardcode dark-only values get token swaps (the CommandHero glow gradients, map overlay backgrounds, chart grid lines, code blocks in API docs, the Pipeline board column tint). These are listed in the technical details section.
+6. **DB migration** — one column on `profiles`: `theme_preference text check (theme_preference in ('light','dark','auto')) default 'auto'`.
 
-## 2. Hero — `HeroCommandPanel.tsx` wrapping `CommandHero`
+## Out of scope (call out for later)
 
-`OPERATIONS | CARE & REVENUE` toggle + LIVE badge. OPERATIONS → existing `CommandHero` unchanged. CARE & REVENUE → `CareRevenuePanel.tsx`: sub-tabs `eligibility | authorization | claim`; revenue meters (First-pass %, Denial %, Days-to-claim); Coding & Compliance row (PDx/ACHI/DRG/MDS + NPHIES ACCEPTED · ZATCA CLEARED); money breakdown bar (gross → contractual → DRG bundle → payer/patient/VAT); three lens panels (Clinical/Revenue/Compliance). Left column: Fraunces headline *"From your whole network down to one crew."*, eyebrow, subcopy, Book-a-demo/See-the-platform, three stat cards ← `/api/public/v1/stats`.
+- Reworking imagery (hero illustrations, OG images) for light mode — covered in a follow-up.
+- High-contrast / accessibility presets beyond AA — separate pass.
+- Email templates — they stay light as today.
 
-## 3. Section order (build all; components listed)
+## Technical details
 
-Nav (AR/EN) → Hero → **Partner marquee** (`PartnerMarquee.tsx` ← `/partners`) → **Category line** ("Others give you an HIS, *or* an RCM, *or* a dispatch system. VeloMed OS is the OS for all three.") → **Problem/by-the-numbers** (5–12% leakage · ~SAR 4k/bed · 60–270-day pay cycles vs 45-day rule) → **Platform** (`#platform`, 3 pillars Operations/Clinical/Revenue + "born unified") → **Outcomes/ROI** (illustrative, labeled) → **Who it's for** (`#roles`, chips from `clinical-role-matrix.ts`) → **One journey** (arrival→settlement) → **Integrations** (NPHIES·ZATCA·D365·LIS/PACS·Kayan HR·payers/TPAs· devices) → **Security & governance** (role matrix + privilege audit + KSA residency) → **Compliance & certifications** (`#compliance`, honest status row) → **Proof** (2–3 number-driven testimonials + partner logos) → **How it works** (sandbox-first, weeks-not-years) → **Partner capture** (`#partner`, §C) → **CTA** (repeat mid-page too) → Footer. Reference: `velomed_site_hero_mockup.html`.
+- **Token strategy**: shadcn tokens (`--background`, `--foreground`, `--primary`, `--card`, `--border`, `--ring`, etc.) are defined twice — once under `:root` (dark) and once under `.light`. Project-specific tokens (`--panel`, `--panel-elevated`, `--hairline`, `--teal`, `--blue`, `--coral`, `--mono`, gradients) follow the same pattern. `@theme inline` already maps Tailwind utilities to these vars so no component CSS changes are needed where tokens are used correctly.
+- **Hardcoded-color sweep**: ripgrep for `text-white`, `bg-black`, `bg-[#`, `text-[#`, `from-[#`, `border-white/`, `bg-white/` outside the marketing glass overlays. Replace with semantic tokens. Estimated ~25 occurrences (CommandHero, HeroCommandPanel, PartnerMarquee, CareRevenuePanel, a few Superadmin panes, Pipeline columns, NPHIES status chips).
+- **Map tiles**: `CommandHero` map currently uses a dark tile style. When `resolved === 'light'`, swap to the light style URL; glass overlay cards already work on both (memory: `bg-white/40 backdrop-blur-2xl` looks good on light too — verified visually during build).
+- **Provider wiring**: `ThemeProvider` mounted in `__root.tsx` above `<RouterProvider />`. The no-flash script runs from `head.scripts` in `__root` and is ~12 lines.
+- **Persistence**:
+  - anonymous → `localStorage` only
+  - signed-in → `localStorage` + a debounced `PUT /api/admin/v1/me/preferences` (new tiny endpoint) writing `profiles.theme_preference`. On sign-in, server value beats local once.
+- **Audit / analytics**: theme toggle fires a `nav_events` row (`kind: 'theme_change'`) so we can see adoption.
+- **Tests**: a Playwright check that loads `/`, toggles to light, hard-refreshes, asserts the `<html>` class is `light` immediately (no flash), and runs the responsive overflow suite in both themes.
+- **Build budget**: net code add ~6 KB (provider + switcher + tokens). No new runtime deps.
 
-## B. Why this beats the field (bake into copy, don't restyle)
+## Acceptance checklist
 
-KSA is crowded (OASIS Systems — unified HIS+ERP+RCM, even uses "one source of truth"; Health Cluster, Cirrus, Waseel, Cloudpital, Xocialive; Klaim owns "cash in 24h"). "NPHIES-compliant" is table stakes. Win on the wedge — **operations + clinical + revenue in one OS** ("from the ambulance to the cleared claim"), **born unified** vs bolted-together incumbents, a **live real-product hero**, and **governance-as-feature**. Rationale: `VeloMed_Competitive_Research_Website_Strategy.md`.
-
-## C. Partner / business-subscriber capture (`PartnerIntakeSection.tsx`)
-
-Controlled inputs (no raw `<form>`), ≤6 effective fields: org name, type (hospital/clinic group/EMS/ payer-TPA), contact name, work email, phone, message, consent checkbox + honeypot. Submit → `POST /api/public/v1/business_intake` (existing; persists to `business_requests`, source=website). Success inline; failure inline. Lands in the existing `PipelineBoard`.
-
-## D. Superadmin → **Pages & CMS** (extend, don't duplicate)
-
-Promote the "Website CMS" group in `SideNav.tsx` (`superadmin.tsx` routes). Tabs:
-
-- **Pages & sections** (`PagesContentPane.tsx`) — edit hero/pillars/roles/compliance/partner/CTA copy. Bundled defaults in `site-config.ts` (re-pointed to **KSA HIS+RCM** positioning — the current `SITE` is UAE/mobility and is off-brand for this redesign). DB overlay `site_content (key text pk, value jsonb, locale text, status text default 'draft', updated_at)`. **Public GET returns published only.** RLS superadmin-write; `TO anon` SELECT only on published rows. Resolver `getSiteContent(key, fallback)` in loaders; `{en, ar}` shape falls back to `en` when `ar` absent.
-- **Featured partners** (`FeaturedPartnersPane.tsx`) — list `business_requests`, toggle `display_publicly` + `display_consent`, edit `display_name/city/type/logo_url/featured_order`. Writes via the admin PATCH (§A) and logs events.
-- **Legal** — existing `LegalCmsModule`. **Subscribers/Pipeline** — existing `PipelineBoard`.
-
-## E. Migration + the public partners view (PII-safe)
-
-- Extend `business_requests`: `display_publicly bool default false`, `display_consent bool default false`, `display_consent_at timestamptz`, `display_consent_source text`, `display_name text`, `display_city text`, `display_type text`, `logo_url text`, `featured_order int`.
-- **Do NOT grant** `TO anon` **on** `business_requests` (RLS filters rows, not columns → would expose contact email/phone/message of featured rows). Instead: 
-  ```sql
-  CREATE VIEW public.public_partners AS  SELECT display_name AS name, display_city AS city, display_type AS type,         logo_url, featured_order  FROM public.business_requests  WHERE display_publicly = true AND display_consent = true;GRANT SELECT ON public.public_partners TO anon;   -- view only; base table stays private
-
-  ```
-  Public display is gated by the **explicit flags only**, decoupled from pipeline `stage`.
-- `/api/public/v1/partners.ts` selects from `public_partners` ordered by `featured_order`, returns `{ count, items:[{name, city, type, logo_url}] }`.
-- `site_content` table + GRANTs + RLS as §D. Admin/public site-content routes + featured PATCH route.
-
-## F. Bilingual + a11y
-
-AR/EN toggle in `SiteHeader` → `localStorage` + `dir="rtl"` on `<html>`; strings from site-config/overlay `{en,ar}`; scaffold switch + RTL now, full AR copy follows. One H1 (hero), semantic H2/H3 (no skipped levels), labelled inputs, focus-visible, reduced-motion on marquee/toggles, AVIF/WebP via `ResponsiveImage`. Mid-page CTA repeats; partner form ≤6 fields.
-
-## G. Docs / DoD
-
-`his-technical-manual.md` (site IA, Care&Revenue lens, intake→pipeline→portfolio→marquee, CMS content model incl. `public_partners` view + publish state); `his-user-manual.md` ("Edit the website", "Triage subscriber → Featured partners → consent"); `changelog.md` entry. OpenAPI: add `partners`, `site-content`, `featured`; verify `/superadmin/api-docs`. `tsgo` green; no new deps; no `<form>`; other portals untouched.
-
-## H. Acceptance (every flow end-to-end)
-
-1. Hero shows existing OPERATIONS unchanged + full CARE & REVENUE under the toggle; stat cards load from `/stats` in SSR.
-2. All tabs wired: OPERATIONS/CARE, network/region/team, eligibility/authorization/claim.
-3. Partner form → `business_intake` → appears in PipelineBoard → **Advance** progresses stage (events logged).
-4. Marquee shows only consented/approved partners from `public_partners`; flipping "Display publicly" in Featured partners adds/removes a logo; a raw intake **never** appears publicly; base table PII is unreachable by `anon`.
-5. Superadmin edits hero/pillar/CTA copy → saved as draft → **publish** → reflected on the SSR'd site; drafts never served publicly.
-6. AR/EN toggles RTL; reduced-motion respected; one H1; Lighthouse a11y/perf sane (LCP<2.5s, CLS<0.1).  
+- [ ] Toggle visible on marketing, Superadmin, Clinical, and auth pages.
+- [ ] Auto follows OS, manual choice overrides and persists.
+- [ ] No flash of wrong theme on hard refresh.
+- [ ] All pages legible in both themes — no white-on-white or near-invisible borders.
+- [ ] Brand teal/blue/coral remain recognisable in both themes (AA contrast verified).
+- [ ] Signed-in choice syncs across devices via `profiles.theme_preference`.
