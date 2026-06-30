@@ -2298,6 +2298,39 @@ export type Database = {
           },
         ]
       }
+      demo_credentials: {
+        Row: {
+          clinical_role: string | null
+          email: string
+          lands_on: string
+          password: string
+          role_label: string
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          clinical_role?: string | null
+          email: string
+          lands_on?: string
+          password: string
+          role_label: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          clinical_role?: string | null
+          email?: string
+          lands_on?: string
+          password?: string
+          role_label?: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       drg: {
         Row: {
           active: boolean

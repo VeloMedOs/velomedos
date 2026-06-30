@@ -19,6 +19,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as HisRouteImport } from './routes/his'
 import { Route as DemoLoginRouteImport } from './routes/demo-login'
+import { Route as DemoCredentialsRouteImport } from './routes/demo-credentials'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
@@ -118,6 +119,7 @@ import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/
 import { Route as ApiPublicV1HomecareVisitsRouteImport } from './routes/api/public/v1/homecare.visits'
 import { Route as ApiPublicV1HomecareRecipientsRouteImport } from './routes/api/public/v1/homecare.recipients'
 import { Route as ApiPublicV1HomecareCarePlansRouteImport } from './routes/api/public/v1/homecare.care-plans'
+import { Route as ApiPublicV1DemoCredentialsRouteImport } from './routes/api/public/v1/demo.credentials'
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiPublicLegalSlugAcceptRouteImport } from './routes/api/public/legal.$slug.accept'
 import { Route as ApiPatientV1PromsPendingRouteImport } from './routes/api/patient/v1/proms.pending'
@@ -312,6 +314,11 @@ const HisRoute = HisRouteImport.update({
 const DemoLoginRoute = DemoLoginRouteImport.update({
   id: '/demo-login',
   path: '/demo-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoCredentialsRoute = DemoCredentialsRouteImport.update({
+  id: '/demo-credentials',
+  path: '/demo-credentials',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoRoute = DemoRouteImport.update({
@@ -826,6 +833,12 @@ const ApiPublicV1HomecareCarePlansRoute =
   ApiPublicV1HomecareCarePlansRouteImport.update({
     id: '/api/public/v1/homecare/care-plans',
     path: '/api/public/v1/homecare/care-plans',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1DemoCredentialsRoute =
+  ApiPublicV1DemoCredentialsRouteImport.update({
+    id: '/api/public/v1/demo/credentials',
+    path: '/api/public/v1/demo/credentials',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicV1DebugEventsRoute = ApiPublicV1DebugEventsRouteImport.update({
@@ -1686,6 +1699,7 @@ export interface FileRoutesByFullPath {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
+  '/demo-credentials': typeof DemoCredentialsRoute
   '/demo-login': typeof DemoLoginRoute
   '/his': typeof HisRoute
   '/platform': typeof PlatformRoute
@@ -1842,6 +1856,7 @@ export interface FileRoutesByFullPath {
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
+  '/api/public/v1/demo/credentials': typeof ApiPublicV1DemoCredentialsRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
@@ -1940,6 +1955,7 @@ export interface FileRoutesByTo {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
+  '/demo-credentials': typeof DemoCredentialsRoute
   '/demo-login': typeof DemoLoginRoute
   '/his': typeof HisRoute
   '/platform': typeof PlatformRoute
@@ -2095,6 +2111,7 @@ export interface FileRoutesByTo {
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
+  '/api/public/v1/demo/credentials': typeof ApiPublicV1DemoCredentialsRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
@@ -2196,6 +2213,7 @@ export interface FileRoutesById {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
+  '/demo-credentials': typeof DemoCredentialsRoute
   '/demo-login': typeof DemoLoginRoute
   '/his': typeof HisRoute
   '/platform': typeof PlatformRoute
@@ -2352,6 +2370,7 @@ export interface FileRoutesById {
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
+  '/api/public/v1/demo/credentials': typeof ApiPublicV1DemoCredentialsRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
@@ -2453,6 +2472,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/demo'
+    | '/demo-credentials'
     | '/demo-login'
     | '/his'
     | '/platform'
@@ -2609,6 +2629,7 @@ export interface FileRouteTypes {
     | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
+    | '/api/public/v1/demo/credentials'
     | '/api/public/v1/homecare/care-plans'
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/homecare/visits'
@@ -2707,6 +2728,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/demo'
+    | '/demo-credentials'
     | '/demo-login'
     | '/his'
     | '/platform'
@@ -2862,6 +2884,7 @@ export interface FileRouteTypes {
     | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
+    | '/api/public/v1/demo/credentials'
     | '/api/public/v1/homecare/care-plans'
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/homecare/visits'
@@ -2962,6 +2985,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/demo'
+    | '/demo-credentials'
     | '/demo-login'
     | '/his'
     | '/platform'
@@ -3118,6 +3142,7 @@ export interface FileRouteTypes {
     | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
+    | '/api/public/v1/demo/credentials'
     | '/api/public/v1/homecare/care-plans'
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/homecare/visits'
@@ -3219,6 +3244,7 @@ export interface RootRouteChildren {
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
   DemoRoute: typeof DemoRoute
+  DemoCredentialsRoute: typeof DemoCredentialsRoute
   DemoLoginRoute: typeof DemoLoginRoute
   HisRoute: typeof HisRoute
   PlatformRoute: typeof PlatformRoute
@@ -3322,6 +3348,7 @@ export interface RootRouteChildren {
   ApiClinicalV1VitalsIdRoute: typeof ApiClinicalV1VitalsIdRoute
   ApiPatientV1PromsPendingRoute: typeof ApiPatientV1PromsPendingRoute
   ApiPublicV1DebugEventsRoute: typeof ApiPublicV1DebugEventsRoute
+  ApiPublicV1DemoCredentialsRoute: typeof ApiPublicV1DemoCredentialsRoute
   ApiPublicV1HomecareCarePlansRoute: typeof ApiPublicV1HomecareCarePlansRoute
   ApiPublicV1HomecareRecipientsRoute: typeof ApiPublicV1HomecareRecipientsRoute
   ApiPublicV1HomecareVisitsRoute: typeof ApiPublicV1HomecareVisitsRouteWithChildren
@@ -3410,6 +3437,13 @@ declare module '@tanstack/react-router' {
       path: '/demo-login'
       fullPath: '/demo-login'
       preLoaderRoute: typeof DemoLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo-credentials': {
+      id: '/demo-credentials'
+      path: '/demo-credentials'
+      fullPath: '/demo-credentials'
+      preLoaderRoute: typeof DemoCredentialsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo': {
@@ -4103,6 +4137,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/v1/homecare/care-plans'
       fullPath: '/api/public/v1/homecare/care-plans'
       preLoaderRoute: typeof ApiPublicV1HomecareCarePlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/demo/credentials': {
+      id: '/api/public/v1/demo/credentials'
+      path: '/api/public/v1/demo/credentials'
+      fullPath: '/api/public/v1/demo/credentials'
+      preLoaderRoute: typeof ApiPublicV1DemoCredentialsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/debug/events': {
@@ -6120,6 +6161,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
   DemoRoute: DemoRoute,
+  DemoCredentialsRoute: DemoCredentialsRoute,
   DemoLoginRoute: DemoLoginRoute,
   HisRoute: HisRoute,
   PlatformRoute: PlatformRoute,
@@ -6240,6 +6282,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1VitalsIdRoute: ApiClinicalV1VitalsIdRoute,
   ApiPatientV1PromsPendingRoute: ApiPatientV1PromsPendingRoute,
   ApiPublicV1DebugEventsRoute: ApiPublicV1DebugEventsRoute,
+  ApiPublicV1DemoCredentialsRoute: ApiPublicV1DemoCredentialsRoute,
   ApiPublicV1HomecareCarePlansRoute: ApiPublicV1HomecareCarePlansRoute,
   ApiPublicV1HomecareRecipientsRoute: ApiPublicV1HomecareRecipientsRoute,
   ApiPublicV1HomecareVisitsRoute: ApiPublicV1HomecareVisitsRouteWithChildren,

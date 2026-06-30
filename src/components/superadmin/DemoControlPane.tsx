@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { FlaskRound, RotateCcw, Users, Database, Copy, CheckCircle2, AlertTriangle, Loader2, ExternalLink } from "lucide-react";
+import { FlaskRound, RotateCcw, Users, Database, Copy, CheckCircle2, AlertTriangle, Loader2, ExternalLink, KeyRound, RefreshCw, Eye, EyeOff, ShieldCheck, Globe, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
+import {
+  listDemoCredentials,
+  rotateDemoCredential,
+  rotateAllDemoCredentials,
+  applyCredentialsToAuth,
+  setDemoPublicReveal,
+  type DemoCredentialRow,
+} from "@/lib/demo-credentials.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 const ACCOUNTS = [
   ["superadmin@demo.velomedos.com", "Superadmin",       "/superadmin"],
@@ -92,6 +101,8 @@ export function DemoControlPane() {
           Quick links:&nbsp;
           <Link to="/demo-login" className="text-action underline mono">/demo-login</Link>
           <span className="mx-1">·</span>
+          <Link to="/demo-credentials" className="text-action underline mono">/demo-credentials</Link>
+          <span className="mx-1">·</span>
           <a href="/clinical" className="text-action underline mono">/clinical</a>
           <span className="mx-1">·</span>
           <a href="/patient" className="text-action underline mono">/patient</a>
@@ -129,33 +140,173 @@ export function DemoControlPane() {
         />
       </section>
 
-      <section className="rounded-lg border border-hairline bg-panel/40">
-        <div className="px-4 py-3 border-b border-hairline flex items-center justify-between">
-          <div>
-            <div className="text-sm font-semibold">Demo access sheet</div>
-            <div className="text-[11px] text-muted-foreground">Shared password from secret <span className="mono">DEMO_USER_PASSWORD</span>.</div>
-          </div>
-          <Button size="sm" variant="ghost"
-            onClick={() => navigator.clipboard.writeText(ACCOUNTS.map((a) => a.join(" · ")).join("\n"))}>
-            <Copy className="size-3.5 mr-1.5" />Copy roster
+      <CredentialsManager />
+    </div>
+  );
+}
+
+/* ============================================================== */
+/* CREDENTIALS MANAGER                                              */
+/* ============================================================== */
+
+function CredentialsManager() {
+  const list        = useServerFn(listDemoCredentials);
+  const rotateOne   = useServerFn(rotateDemoCredential);
+  const rotateAll   = useServerFn(rotateAllDemoCredentials);
+  const applyAuth   = useServerFn(applyCredentialsToAuth);
+  const setRevealFn = useServerFn(setDemoPublicReveal);
+
+  const [rows, setRows] = useState<DemoCredentialRow[] | null>(null);
+  const [reveal, setReveal] = useState(false);
+  const [show, setShow] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [applyState, setApplyState] = useState<RunState>(INITIAL);
+
+  async function load() {
+    try {
+      const r = await list();
+      if (!r.ok) { toast.error(`Load failed: ${r.error}`); return; }
+      setRows(r.accounts);
+      setReveal(r.public_reveal);
+    } catch (e) { toast.error(`Load failed: ${(e as Error).message}`); }
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+
+  async function doRotateOne(email: string) {
+    setBusy(email);
+    try {
+      const r = await rotateOne({ data: { email } });
+      if (!r.ok) throw new Error(r.error);
+      toast.success(`New password for ${email}`);
+      await load();
+    } catch (e) { toast.error(`Rotate failed: ${(e as Error).message}`); }
+    finally { setBusy(null); }
+  }
+
+  async function doRotateAll() {
+    if (!confirm("Generate fresh passwords for ALL 13 demo accounts?")) return;
+    setBusy("__all__");
+    try {
+      const r = await rotateAll();
+      if (!r.ok) throw new Error(r.error);
+      toast.success(`Rotated ${r.rotated} accounts`);
+      await load();
+    } catch (e) { toast.error(`Rotate all failed: ${(e as Error).message}`); }
+    finally { setBusy(null); }
+  }
+
+  async function doApplyAuth() {
+    const startedAt = Date.now();
+    setApplyState({ status: "running", result: null, message: "Syncing to Supabase Auth…", startedAt, finishedAt: null });
+    try {
+      const r = await applyAuth();
+      const ok = (r as { ok: boolean }).ok !== false;
+      setApplyState({
+        status: ok ? "success" : "error",
+        result: r,
+        message: ok ? `Synced ${(r as { synced?: number }).synced ?? 0}/${(r as { total?: number }).total ?? 0} accounts.` : (r as { error?: string }).error ?? "Apply failed",
+        startedAt, finishedAt: Date.now(),
+      });
+      if (ok) toast.success("Passwords applied to Auth");
+      else toast.error("Apply failed");
+    } catch (e) {
+      setApplyState({ status: "error", result: null, message: (e as Error).message, startedAt, finishedAt: Date.now() });
+      toast.error(`Apply failed: ${(e as Error).message}`);
+    }
+  }
+
+  async function toggleReveal() {
+    try {
+      const r = await setRevealFn({ data: { enabled: !reveal } });
+      if (!r.ok) throw new Error(r.error);
+      setReveal(r.enabled);
+      toast.success(`Public reveal ${r.enabled ? "ON" : "OFF"}`);
+    } catch (e) { toast.error(`Toggle failed: ${(e as Error).message}`); }
+  }
+
+  function copy(text: string, label: string) {
+    navigator.clipboard.writeText(text).then(() => toast.success(`${label} copied`)).catch(() => toast.error("Clipboard blocked"));
+  }
+
+  return (
+    <section className="rounded-lg border border-hairline bg-panel/40">
+      <div className="px-4 py-3 border-b border-hairline flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <div className="text-sm font-semibold flex items-center gap-2"><KeyRound className="size-4 text-action" />Per-role credentials</div>
+          <div className="text-[11px] text-muted-foreground">Each row owns its own password. Rotate, copy, or push to Supabase Auth.</div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => setShow((s) => !s)}>
+            {show ? <EyeOff className="size-3.5 mr-1.5" /> : <Eye className="size-3.5 mr-1.5" />}{show ? "Hide" : "Reveal"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={doRotateAll} disabled={busy === "__all__"}>
+            <RefreshCw className={`size-3.5 mr-1.5 ${busy === "__all__" ? "animate-spin" : ""}`} />Generate all
+          </Button>
+          <Button size="sm" onClick={doApplyAuth} disabled={applyState.status === "running"}>
+            {applyState.status === "running" ? <Loader2 className="size-3.5 mr-1.5 animate-spin" /> : <ShieldCheck className="size-3.5 mr-1.5" />}Apply to auth users
+          </Button>
+          <Button size="sm" variant={reveal ? "default" : "outline"} onClick={toggleReveal}>
+            <Globe className="size-3.5 mr-1.5" />Public reveal: {reveal ? "ON" : "OFF"}
           </Button>
         </div>
-        <table className="w-full text-[12px]">
-          <thead className="text-[10.5px] mono uppercase tracking-[0.18em] text-muted-foreground">
-            <tr><th className="text-left px-4 py-2">Email</th><th className="text-left">Role</th><th className="text-left">Lands on</th></tr>
-          </thead>
-          <tbody>
-            {ACCOUNTS.map(([email, role, lands]) => (
-              <tr key={email} className="border-t border-hairline/60">
-                <td className="px-4 py-1.5 mono">{email}</td>
-                <td>{role}</td>
-                <td className="mono text-muted-foreground">{lands}</td>
+      </div>
+
+      {applyState.message && (
+        <div className={`px-4 py-2 text-[11.5px] border-b border-hairline ${
+          applyState.status === "success" ? "text-stable" :
+          applyState.status === "error" ? "text-emergency" : "text-muted-foreground"
+        }`}>
+          {applyState.status === "running" && <Loader2 className="size-3 inline mr-1.5 animate-spin" />}
+          {applyState.status === "success" && <CheckCircle2 className="size-3 inline mr-1.5" />}
+          {applyState.status === "error" && <AlertTriangle className="size-3 inline mr-1.5" />}
+          {applyState.message}
+        </div>
+      )}
+
+      <table className="w-full text-[12px]">
+        <thead className="text-[10.5px] mono uppercase tracking-[0.18em] text-muted-foreground">
+          <tr>
+            <th className="text-left px-4 py-2">Role</th>
+            <th className="text-left">Email</th>
+            <th className="text-left">Password</th>
+            <th className="text-left">Lands on</th>
+            <th className="text-right pr-4">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {!rows && (
+            <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground"><Loader2 className="size-3.5 inline animate-spin mr-1.5" />Loading…</td></tr>
+          )}
+          {rows?.map((r) => {
+            const key = r.clinical_role || r.email.split("@")[0];
+            return (
+              <tr key={r.email} className="border-t border-hairline/60">
+                <td className="px-4 py-1.5 font-semibold">{r.role_label}</td>
+                <td className="mono">
+                  <button onClick={() => copy(r.email, "Email")} className="hover:text-action inline-flex items-center gap-1">
+                    {r.email}<Copy className="size-3 opacity-60" />
+                  </button>
+                </td>
+                <td className="mono">
+                  <button onClick={() => copy(r.password, "Password")} className="hover:text-action inline-flex items-center gap-1">
+                    {show ? r.password : "••••••••••••"}<Copy className="size-3 opacity-60" />
+                  </button>
+                </td>
+                <td className="mono text-muted-foreground">{r.lands_on}</td>
+                <td className="pr-4 text-right whitespace-nowrap">
+                  <button onClick={() => doRotateOne(r.email)} disabled={busy === r.email} className="px-2 h-6 rounded border border-hairline mono text-[10px] uppercase tracking-widest inline-flex items-center gap-1 hover:bg-panel mr-1.5">
+                    <RefreshCw className={`size-3 ${busy === r.email ? "animate-spin" : ""}`} />Gen
+                  </button>
+                  <a target="_blank" rel="noreferrer" href={`/demo-login?role=${encodeURIComponent(key)}&autosignin=1`} className="px-2 h-6 rounded bg-action text-action-foreground mono text-[10px] uppercase tracking-widest inline-flex items-center gap-1">
+                    <LogIn className="size-3" />Sign in
+                  </a>
+                </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-    </div>
+            );
+          })}
+        </tbody>
+      </table>
+    </section>
   );
 }
 

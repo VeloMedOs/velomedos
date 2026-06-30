@@ -89,6 +89,27 @@ function demoPassword(): string {
   return process.env.DEMO_USER_PASSWORD ?? DEFAULT_PASSWORD_FALLBACK;
 }
 
+/**
+ * Load per-account passwords from `demo_credentials`. Falls back to the
+ * shared `DEMO_USER_PASSWORD` (or hard-coded default) for any row not
+ * present in the table.
+ */
+async function loadDemoPasswordMap(): Promise<Map<string, string>> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await (supabaseAdmin as any)
+    .from("demo_credentials")
+    .select("email, password");
+  const map = new Map<string, string>();
+  for (const r of (data ?? []) as Array<{ email: string; password: string }>) {
+    map.set(r.email.toLowerCase(), r.password);
+  }
+  return map;
+}
+
+function passwordFor(map: Map<string, string>, email: string): string {
+  return map.get(email.toLowerCase()) ?? demoPassword();
+}
+
 async function findUserIdByEmail(email: string): Promise<string | null> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   // Supabase admin SDK has no getUserByEmail — page through listUsers and match.
@@ -115,10 +136,11 @@ export const provisionDemoUsers = createServerFn({ method: "POST" }).handler(asy
   if (!tenant.ok) return { ok: false as const, error: tenant.error };
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const password = demoPassword();
+  const pwMap = await loadDemoPasswordMap();
   const provisioned: Array<{ email: string; user_id: string; status: "created" | "existing" }> = [];
 
   for (const acct of DEMO_ACCOUNTS) {
+    const password = passwordFor(pwMap, acct.email);
     let userId = await findUserIdByEmail(acct.email);
     let status: "created" | "existing" = "existing";
     if (!userId) {
@@ -171,7 +193,7 @@ export const provisionDemoUsers = createServerFn({ method: "POST" }).handler(asy
   return {
     ok: true as const,
     tenant_id: tenant.id,
-    password_source: process.env.DEMO_USER_PASSWORD ? "secret" : "fallback",
+    password_source: pwMap.size ? "demo_credentials" : (process.env.DEMO_USER_PASSWORD ? "secret" : "fallback"),
     accounts: provisioned,
   };
 });
@@ -274,9 +296,10 @@ export async function runProvisionDemoUsersFromHeader(authHeader: string) {
   const tenant = await resolveDemoTenant();
   if (!tenant.ok) return { ok: false as const, error: tenant.error };
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const password = demoPassword();
+  const pwMap = await loadDemoPasswordMap();
   const provisioned: Array<{ email: string; user_id: string; status: "created" | "existing" }> = [];
   for (const acct of DEMO_ACCOUNTS) {
+    const password = passwordFor(pwMap, acct.email);
     let userId = await findUserIdByEmail(acct.email);
     let status: "created" | "existing" = "existing";
     if (!userId) {
@@ -306,7 +329,7 @@ export async function runProvisionDemoUsersFromHeader(authHeader: string) {
   return {
     ok: true as const,
     tenant_id: tenant.id,
-    password_source: process.env.DEMO_USER_PASSWORD ? "secret" : "fallback",
+    password_source: pwMap.size ? "demo_credentials" : (process.env.DEMO_USER_PASSWORD ? "secret" : "fallback"),
     accounts: provisioned,
   };
 }
