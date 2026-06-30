@@ -1,8 +1,8 @@
 /**
  * Demo Environment — provisioning, seeding, and reset.
  *
- * Every server function in this module is superadmin-gated AND restricted to
- * the tenant flagged `is_demo = true` (slug `demo-hospital`). The reset path
+ * Every server function in this module is superadmin-gated AND scoped to
+ * the dedicated sandbox tenant (slug `demo-hospital`). The reset path
  * uses scoped `DELETE FROM ... WHERE tenant_id = $demo` in FK-child-first
  * order — it NEVER issues `TRUNCATE`, which would wipe sibling tenants.
  *
@@ -76,12 +76,26 @@ async function resolveDemoTenant(): Promise<{ ok: true; id: string } | { ok: fal
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await (supabaseAdmin as any)
     .from("corporate_accounts")
-    .select("id, is_demo")
+    .select("id")
     .eq("slug", DEMO_SLUG)
     .maybeSingle();
   if (error) return { ok: false, error: error.message };
-  if (!data) return { ok: false, error: "demo_tenant_missing" };
-  if (!data.is_demo) return { ok: false, error: "tenant_not_flagged_demo" };
+  if (!data) {
+    const { data: created, error: createErr } = await (supabaseAdmin as any)
+      .from("corporate_accounts")
+      .insert({
+        company_name: "VeloMed Demo Hospital",
+        slug: DEMO_SLUG,
+        contact_email: "demo@velomedos.com",
+        status: "active",
+        plan_tier: "demo",
+        country: "SA",
+      })
+      .select("id")
+      .single();
+    if (createErr) return { ok: false, error: createErr.message };
+    return { ok: true, id: created.id as string };
+  }
   return { ok: true, id: data.id as string };
 }
 
