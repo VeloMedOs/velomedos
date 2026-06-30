@@ -18,6 +18,7 @@ import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as HisRouteImport } from './routes/his'
+import { Route as DemoLoginRouteImport } from './routes/demo-login'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ClinicsRouteImport } from './routes/clinics'
@@ -306,6 +307,11 @@ const PlatformRoute = PlatformRouteImport.update({
 const HisRoute = HisRouteImport.update({
   id: '/his',
   path: '/his',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoLoginRoute = DemoLoginRouteImport.update({
+  id: '/demo-login',
+  path: '/demo-login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoRoute = DemoRouteImport.update({
@@ -1680,6 +1686,7 @@ export interface FileRoutesByFullPath {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
+  '/demo-login': typeof DemoLoginRoute
   '/his': typeof HisRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -1933,6 +1940,7 @@ export interface FileRoutesByTo {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
+  '/demo-login': typeof DemoLoginRoute
   '/his': typeof HisRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -2188,6 +2196,7 @@ export interface FileRoutesById {
   '/clinics': typeof ClinicsRouteWithChildren
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRoute
+  '/demo-login': typeof DemoLoginRoute
   '/his': typeof HisRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
@@ -2444,6 +2453,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/demo'
+    | '/demo-login'
     | '/his'
     | '/platform'
     | '/pricing'
@@ -2697,6 +2707,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/demo'
+    | '/demo-login'
     | '/his'
     | '/platform'
     | '/pricing'
@@ -2951,6 +2962,7 @@ export interface FileRouteTypes {
     | '/clinics'
     | '/contact'
     | '/demo'
+    | '/demo-login'
     | '/his'
     | '/platform'
     | '/pricing'
@@ -3207,6 +3219,7 @@ export interface RootRouteChildren {
   ClinicsRoute: typeof ClinicsRouteWithChildren
   ContactRoute: typeof ContactRoute
   DemoRoute: typeof DemoRoute
+  DemoLoginRoute: typeof DemoLoginRoute
   HisRoute: typeof HisRoute
   PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
@@ -3390,6 +3403,13 @@ declare module '@tanstack/react-router' {
       path: '/his'
       fullPath: '/his'
       preLoaderRoute: typeof HisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo-login': {
+      id: '/demo-login'
+      path: '/demo-login'
+      fullPath: '/demo-login'
+      preLoaderRoute: typeof DemoLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo': {
@@ -6100,6 +6120,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClinicsRoute: ClinicsRouteWithChildren,
   ContactRoute: ContactRoute,
   DemoRoute: DemoRoute,
+  DemoLoginRoute: DemoLoginRoute,
   HisRoute: HisRoute,
   PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
