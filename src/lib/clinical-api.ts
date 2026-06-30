@@ -90,6 +90,27 @@ export const ClinicalAPI = {
     clinicalFetch<{ data: any }>(`/api/clinical/v1/encounters/${encId}/diagnoses`, { method: "POST", body }),
   addVitals: (encId: string, body: unknown) =>
     clinicalFetch<{ data: any }>(`/api/clinical/v1/encounters/${encId}/vitals`, { method: "POST", body }),
+  updateEncounter: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/encounters/${id}`, { method: "PATCH", body }),
+  listDiagnoses: (encId: string) =>
+    clinicalFetch<{ data: any[] }>(`/api/clinical/v1/encounters/${encId}/diagnoses`),
+  updateDiagnosis: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/diagnoses/${id}`, { method: "PATCH", body }),
+  removeDiagnosis: (id: string) =>
+    clinicalFetch<unknown>(`/api/clinical/v1/diagnoses/${id}`, { method: "DELETE" }),
+  listCharges: (encId: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/encounters/${encId}/charges`),
+  getDrg: (encId: string) =>
+    clinicalFetch<{ data: { current: any | null; history: any[] } }>(`/api/clinical/v1/encounters/${encId}/drg`),
+  checkEligibility: (body: { beneficiary_id: string; coverage_id?: string | null; encounter_id?: string | null }) =>
+    clinicalFetch<{ data: any; sandbox?: boolean }>(`/api/clinical/v1/eligibility/check`, { method: "POST", body }),
+  listEligibility: (p?: { encounter_id?: string; beneficiary_id?: string }) => {
+    const u = new URLSearchParams();
+    if (p?.encounter_id) u.set("encounter_id", p.encounter_id);
+    if (p?.beneficiary_id) u.set("beneficiary_id", p.beneficiary_id);
+    const s = u.toString();
+    return clinicalFetch<{ data: any[] }>(`/api/clinical/v1/eligibility${s ? `?${s}` : ""}`);
+  },
   admit: (encId: string, body: unknown) =>
     clinicalFetch<{ data: any }>(`/api/clinical/v1/encounters/${encId}/admit`, { method: "POST", body }),
   discharge: (encId: string, body: unknown) =>
