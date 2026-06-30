@@ -10,6 +10,7 @@ import { ClinicalAPI, ClinicalApiError } from "@/lib/clinical-api";
 import { useClinicalMe, canAct, type ClinicalRole } from "@/lib/clinical-roles";
 import { ClaimCompletenessPanel } from "@/components/clinical/ClaimCompletenessPanel";
 import { OutcomesPane } from "@/components/clinical/OutcomesPane";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 export const Route = createFileRoute("/_authenticated/clinical")({
   validateSearch: z.object({
@@ -93,8 +94,11 @@ function ClinicalWorkspace() {
             <span className="mono text-action">{me.clinicalRole ?? "—"}</span>
           </div>
         </div>
-        <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          UI gating is cosmetic — server enforces
+        <div className="flex items-center gap-3">
+          <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground hidden md:block">
+            UI gating is cosmetic — server enforces
+          </div>
+          <ThemeSwitcher />
         </div>
       </header>
 

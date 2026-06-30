@@ -2,7 +2,9 @@
 @source "../src";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* Dark is the default. `.light` on <html> opts into the light theme. */
+@custom-variant dark (&:where(:not(.light) *));
+@custom-variant light (&:where(.light, .light *));
 
 /* VeloMed OS — dense dark dispatch cockpit. */
 
@@ -121,10 +123,74 @@
 }
 
 .dark {
-  /* App is single-theme dark; .dark keeps shadcn compatibility. */
+  /* shadcn compatibility: dark tokens already live on :root. */
   --background: oklch(0.16 0.02 250);
   --foreground: oklch(0.96 0.005 250);
 }
+
+/* ───────────────────────────────────────────────────────────────
+   LIGHT THEME — clinical, airy, brand-true.
+   Activated by `.light` on <html>. Keeps brand teal/sky/coral
+   recognisable while flipping surfaces, hairlines, and text for
+   AA contrast on white.
+   ─────────────────────────────────────────────────────────────── */
+.light {
+  --background: oklch(0.992 0.004 220);
+  --foreground: oklch(0.20 0.02 240);
+  --panel: oklch(0.975 0.008 220);
+  --panel-elevated: oklch(1.000 0 0);
+  --hairline: oklch(0.90 0.012 230);
+  --card: oklch(1.000 0 0);
+  --card-foreground: oklch(0.20 0.02 240);
+  --popover: oklch(1.000 0 0);
+  --popover-foreground: oklch(0.20 0.02 240);
+  --primary: oklch(0.56 0.18 230);                 /* deeper sky for white bg */
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.94 0.012 230);
+  --secondary-foreground: oklch(0.22 0.02 240);
+  --muted: oklch(0.95 0.010 230);
+  --muted-foreground: oklch(0.48 0.02 240);
+  --accent: oklch(0.94 0.012 230);
+  --accent-foreground: oklch(0.22 0.02 240);
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --emergency: oklch(0.58 0.22 27);
+  --emergency-foreground: oklch(0.99 0 0);
+  --action: oklch(0.56 0.18 230);
+  --action-foreground: oklch(0.99 0 0);
+  --stable: oklch(0.55 0.16 155);
+  --caution: oklch(0.66 0.18 75);
+  /* Brand stays — deepen one notch for AA on light. */
+  --teal: oklch(0.62 0.13 174);
+  --teal-deep: oklch(0.50 0.10 173);
+  --sky: oklch(0.62 0.13 234);
+  --sky-deep: oklch(0.50 0.18 256);
+  --coral: oklch(0.62 0.18 27);
+  --coral-deep: oklch(0.52 0.18 28);
+  --border: oklch(0.90 0.012 230);
+  --input: oklch(0.95 0.010 230);
+  --ring: oklch(0.56 0.18 230);
+  --sidebar: oklch(0.975 0.008 220);
+  --sidebar-foreground: oklch(0.20 0.02 240);
+  --sidebar-primary: oklch(0.56 0.18 230);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.94 0.012 230);
+  --sidebar-accent-foreground: oklch(0.22 0.02 240);
+  --sidebar-border: oklch(0.90 0.012 230);
+  --sidebar-ring: oklch(0.56 0.18 230);
+
+  /* Brand gradients & shadows tuned for white. */
+  --gradient-instrument: linear-gradient(180deg, oklch(1 0 0) 0%, oklch(0.97 0.008 220) 100%);
+  --shadow-instrument: 0 1px 0 0 oklch(1 0 0 / 0.8) inset, 0 12px 32px -18px oklch(0.20 0.05 240 / 0.18);
+  --shadow-glow-teal: 0 0 32px -10px oklch(0.62 0.13 174 / 0.35);
+  --shadow-glow-sky: 0 0 32px -10px oklch(0.62 0.13 234 / 0.35);
+  --shadow-glow-coral: 0 0 32px -10px oklch(0.62 0.18 27 / 0.32);
+}
+
+/* Leaflet tiles: drop the dark invert filter in light mode. */
+.light .leaflet-tile { filter: none; }
+.light .leaflet-container { background: oklch(0.96 0.008 230) !important; }
+.light .leaflet-control-attribution { background: rgba(255,255,255,0.85) !important; color: oklch(0.40 0.02 240) !important; }
 
 @layer base {
   html, body, #root { background-color: var(--color-background); }
