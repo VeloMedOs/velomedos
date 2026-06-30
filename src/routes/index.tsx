@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   ArrowRight, Radio, Wrench, BadgeCheck, GraduationCap, Stethoscope, Code2, MapPin,
-  AlertTriangle, ClipboardCheck, Activity, Receipt, ShieldCheck, Layers, CheckCircle2,
+  AlertTriangle, ClipboardCheck, Activity, Receipt, ShieldCheck, Layers,
 } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { faqLd, jsonld } from "@/components/Jsonld";
