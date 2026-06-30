@@ -7,6 +7,7 @@ import { recordOAuthOutcome } from "@/lib/oauth-diagnostics.functions";
 import { User, Stethoscope, Building2, ArrowLeft, AlertTriangle, CheckCircle2, ExternalLink, ArrowRight } from "lucide-react";
 import { BrandMark, BrandWordmark } from "@/components/BrandMark";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { AccentPicker } from "@/components/AccentPicker";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -229,6 +230,7 @@ function AuthPage() {
             <BrandWordmark />
           </Link>
           <div className="flex items-center gap-3">
+            <AccentPicker />
             <ThemeSwitcher />
             <Link to="/" className="mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground inline-flex items-center gap-1"><ArrowLeft className="size-3" /> Home</Link>
           </div>
