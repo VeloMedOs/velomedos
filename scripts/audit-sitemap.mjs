@@ -37,6 +37,7 @@ const EXCLUDE_FILES = new Set([
   "solutions.$slug.tsx",        // redirect-only → /services/:slug
   "his.tsx",                    // redirect-only → /launch or /auth
   "demo-login.tsx",             // sandbox demo entry — noindex
+  "demo-credentials.tsx",       // sandbox roster — noindex
 ]);
 
 function walk(dir) {
