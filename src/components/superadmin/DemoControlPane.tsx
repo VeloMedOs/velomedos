@@ -203,7 +203,10 @@ function CredentialsManager() {
       if (!r.ok) throw new Error(r.error);
       toast.success(`New password for ${email}`);
       await load();
-    } catch (e) { toast.error(`Rotate failed: ${(e as Error).message}`); }
+    } catch (e) {
+      if (isUnauthorized(e)) toastSuperadminExpired();
+      else toast.error(`Rotate failed: ${(e as Error).message}`);
+    }
     finally { setBusy(null); }
   }
 
@@ -215,7 +218,10 @@ function CredentialsManager() {
       if (!r.ok) throw new Error(r.error);
       toast.success(`Rotated ${r.rotated} accounts`);
       await load();
-    } catch (e) { toast.error(`Rotate all failed: ${(e as Error).message}`); }
+    } catch (e) {
+      if (isUnauthorized(e)) toastSuperadminExpired();
+      else toast.error(`Rotate all failed: ${(e as Error).message}`);
+    }
     finally { setBusy(null); }
   }
 
