@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { toast } from "sonner";
 import {
   UserPlus, Stethoscope, FileText, Hospital, Receipt,
@@ -11,6 +12,9 @@ import { ClaimCompletenessPanel } from "@/components/clinical/ClaimCompletenessP
 import { OutcomesPane } from "@/components/clinical/OutcomesPane";
 
 export const Route = createFileRoute("/_authenticated/clinical")({
+  validateSearch: z.object({
+    tab: z.enum(["registration", "encounters", "coding", "claims", "vbhc"]).optional(),
+  }),
   head: () => ({ meta: [{ title: "Clinical Workspace · VeloMed OS" }] }),
   component: ClinicalWorkspace,
 });
@@ -46,7 +50,9 @@ function fmtMinor(n: number, cur = "SAR") {
 
 function ClinicalWorkspace() {
   const { me, loading, error } = useClinicalMe();
-  const [tab, setTab] = useState<TabId>("registration");
+  const search = useSearch({ from: "/_authenticated/clinical" });
+  const [tab, setTab] = useState<TabId>(search.tab ?? "registration");
+  useEffect(() => { if (search.tab) setTab(search.tab); }, [search.tab]);
 
   if (loading) return <div className="p-10 mono text-xs text-muted-foreground">Loading clinical identity…</div>;
   if (error || !me) {
