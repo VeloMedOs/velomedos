@@ -34,6 +34,7 @@ type RunOutcome = "idle" | "running" | "success" | "error";
 type RunState = { status: RunOutcome; result: unknown; message: string | null; startedAt: number | null; finishedAt: number | null };
 
 const INITIAL: RunState = { status: "idle", result: null, message: null, startedAt: null, finishedAt: null };
+const AUTOFILL_KEY = "velomed:demo_autofill";
 
 export function DemoControlPane() {
   const [users, setUsers] = useState<RunState>(INITIAL);
@@ -116,7 +117,7 @@ export function DemoControlPane() {
         <ControlCard
           icon={<Users className="size-4" />}
           title="Provision users"
-          desc="Create or refresh the 13 demo accounts and reset passwords to the shared DEMO_USER_PASSWORD."
+          desc="Create or refresh the 13 demo accounts and reset passwords from the per-role credential table."
           actionLabel="Provision"
           state={users}
           onClick={provision}
@@ -197,17 +198,22 @@ function CredentialsManager() {
 
   async function doApplyAuth() {
     const startedAt = Date.now();
-    setApplyState({ status: "running", result: null, message: "Syncing to Supabase Auth…", startedAt, finishedAt: null });
+      setApplyState({ status: "running", result: null, message: "Applying passwords to login users…", startedAt, finishedAt: null });
     try {
       const r = await applyAuth();
       const ok = (r as { ok: boolean }).ok !== false;
+        const results = (r as { results?: Array<{ status: string }> }).results ?? [];
+        const missing = results.filter((x) => x.status === "missing").length;
+        const failed = results.filter((x) => x.status === "error").length;
       setApplyState({
-        status: ok ? "success" : "error",
+          status: ok && failed === 0 ? "success" : "error",
         result: r,
-        message: ok ? `Synced ${(r as { synced?: number }).synced ?? 0}/${(r as { total?: number }).total ?? 0} accounts.` : (r as { error?: string }).error ?? "Apply failed",
+          message: ok
+            ? `Applied ${(r as { synced?: number }).synced ?? 0}/${(r as { total?: number }).total ?? 0} accounts${missing ? ` · ${missing} missing users — click Provision users first` : ""}${failed ? ` · ${failed} failed` : ""}.`
+            : (r as { error?: string }).error ?? "Apply failed",
         startedAt, finishedAt: Date.now(),
       });
-      if (ok) toast.success("Passwords applied to Auth");
+        if (ok && failed === 0) toast.success("Passwords applied to login users");
       else toast.error("Apply failed");
     } catch (e) {
       setApplyState({ status: "error", result: null, message: (e as Error).message, startedAt, finishedAt: Date.now() });
@@ -228,12 +234,25 @@ function CredentialsManager() {
     navigator.clipboard.writeText(text).then(() => toast.success(`${label} copied`)).catch(() => toast.error("Clipboard blocked"));
   }
 
+  function launchWithAutofill(row: DemoCredentialRow) {
+    const key = row.clinical_role || row.email.split("@")[0];
+    try {
+      window.localStorage.setItem(AUTOFILL_KEY, JSON.stringify({
+        email: row.email,
+        role: key,
+        password: row.password,
+        expiresAt: Date.now() + 5 * 60_000,
+      }));
+    } catch { /* noop */ }
+    window.open(`/demo-login?role=${encodeURIComponent(key)}&autosignin=1`, "_blank", "noopener,noreferrer");
+  }
+
   return (
     <section className="rounded-lg border border-hairline bg-panel/40">
       <div className="px-4 py-3 border-b border-hairline flex items-center justify-between gap-3 flex-wrap">
         <div>
           <div className="text-sm font-semibold flex items-center gap-2"><KeyRound className="size-4 text-action" />Per-role credentials</div>
-          <div className="text-[11px] text-muted-foreground">Each row owns its own password. Rotate, copy, or push to Supabase Auth.</div>
+          <div className="text-[11px] text-muted-foreground">Flow: generate or type password → apply to login users → enable Public reveal if you want public auto-fill → open sandbox.</div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button size="sm" variant="outline" onClick={() => setShow((s) => !s)}>
@@ -243,7 +262,7 @@ function CredentialsManager() {
             <RefreshCw className={`size-3.5 mr-1.5 ${busy === "__all__" ? "animate-spin" : ""}`} />Generate all
           </Button>
           <Button size="sm" onClick={doApplyAuth} disabled={applyState.status === "running"}>
-            {applyState.status === "running" ? <Loader2 className="size-3.5 mr-1.5 animate-spin" /> : <ShieldCheck className="size-3.5 mr-1.5" />}Apply to auth users
+            {applyState.status === "running" ? <Loader2 className="size-3.5 mr-1.5 animate-spin" /> : <ShieldCheck className="size-3.5 mr-1.5" />}Apply to login users
           </Button>
           <Button size="sm" variant={reveal ? "default" : "outline"} onClick={toggleReveal}>
             <Globe className="size-3.5 mr-1.5" />Public reveal: {reveal ? "ON" : "OFF"}
@@ -297,9 +316,9 @@ function CredentialsManager() {
                   <button onClick={() => doRotateOne(r.email)} disabled={busy === r.email} className="px-2 h-6 rounded border border-hairline mono text-[10px] uppercase tracking-widest inline-flex items-center gap-1 hover:bg-panel mr-1.5">
                     <RefreshCw className={`size-3 ${busy === r.email ? "animate-spin" : ""}`} />Gen
                   </button>
-                  <a target="_blank" rel="noreferrer" href={`/demo-login?role=${encodeURIComponent(key)}&autosignin=1`} className="px-2 h-6 rounded bg-action text-action-foreground mono text-[10px] uppercase tracking-widest inline-flex items-center gap-1">
+                  <button type="button" onClick={() => launchWithAutofill(r)} className="px-2 h-6 rounded bg-action text-action-foreground mono text-[10px] uppercase tracking-widest inline-flex items-center gap-1">
                     <LogIn className="size-3" />Sign in
-                  </a>
+                  </button>
                 </td>
               </tr>
             );
