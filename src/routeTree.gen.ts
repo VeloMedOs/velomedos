@@ -72,6 +72,7 @@ import { Route as ApiPublicLegalIndexRouteImport } from './routes/api/public/leg
 import { Route as ApiPublicV1Work_ordersRouteImport } from './routes/api/public/v1/work_orders'
 import { Route as ApiPublicV1Web_intakeRouteImport } from './routes/api/public/v1/web_intake'
 import { Route as ApiPublicV1StatsRouteImport } from './routes/api/public/v1/stats'
+import { Route as ApiPublicV1SiteContentRouteImport } from './routes/api/public/v1/site-content'
 import { Route as ApiPublicV1Screening_ordersRouteImport } from './routes/api/public/v1/screening_orders'
 import { Route as ApiPublicV1PricingRouteImport } from './routes/api/public/v1/pricing'
 import { Route as ApiPublicV1PartnersRouteImport } from './routes/api/public/v1/partners'
@@ -584,6 +585,11 @@ const ApiPublicV1Web_intakeRoute = ApiPublicV1Web_intakeRouteImport.update({
 const ApiPublicV1StatsRoute = ApiPublicV1StatsRouteImport.update({
   id: '/api/public/v1/stats',
   path: '/api/public/v1/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1SiteContentRoute = ApiPublicV1SiteContentRouteImport.update({
+  id: '/api/public/v1/site-content',
+  path: '/api/public/v1/site-content',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicV1Screening_ordersRoute =
@@ -1798,6 +1804,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/partners': typeof ApiPublicV1PartnersRoute
   '/api/public/v1/pricing': typeof ApiPublicV1PricingRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
+  '/api/public/v1/site-content': typeof ApiPublicV1SiteContentRoute
   '/api/public/v1/stats': typeof ApiPublicV1StatsRoute
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
@@ -2054,6 +2061,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/partners': typeof ApiPublicV1PartnersRoute
   '/api/public/v1/pricing': typeof ApiPublicV1PricingRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
+  '/api/public/v1/site-content': typeof ApiPublicV1SiteContentRoute
   '/api/public/v1/stats': typeof ApiPublicV1StatsRoute
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
@@ -2314,6 +2322,7 @@ export interface FileRoutesById {
   '/api/public/v1/partners': typeof ApiPublicV1PartnersRoute
   '/api/public/v1/pricing': typeof ApiPublicV1PricingRoute
   '/api/public/v1/screening_orders': typeof ApiPublicV1Screening_ordersRoute
+  '/api/public/v1/site-content': typeof ApiPublicV1SiteContentRoute
   '/api/public/v1/stats': typeof ApiPublicV1StatsRoute
   '/api/public/v1/web_intake': typeof ApiPublicV1Web_intakeRoute
   '/api/public/v1/work_orders': typeof ApiPublicV1Work_ordersRoute
@@ -2574,6 +2583,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/partners'
     | '/api/public/v1/pricing'
     | '/api/public/v1/screening_orders'
+    | '/api/public/v1/site-content'
     | '/api/public/v1/stats'
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
@@ -2830,6 +2840,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/partners'
     | '/api/public/v1/pricing'
     | '/api/public/v1/screening_orders'
+    | '/api/public/v1/site-content'
     | '/api/public/v1/stats'
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
@@ -3089,6 +3100,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/partners'
     | '/api/public/v1/pricing'
     | '/api/public/v1/screening_orders'
+    | '/api/public/v1/site-content'
     | '/api/public/v1/stats'
     | '/api/public/v1/web_intake'
     | '/api/public/v1/work_orders'
@@ -3314,6 +3326,7 @@ export interface RootRouteChildren {
   ApiPublicV1PartnersRoute: typeof ApiPublicV1PartnersRoute
   ApiPublicV1PricingRoute: typeof ApiPublicV1PricingRoute
   ApiPublicV1Screening_ordersRoute: typeof ApiPublicV1Screening_ordersRoute
+  ApiPublicV1SiteContentRoute: typeof ApiPublicV1SiteContentRoute
   ApiPublicV1StatsRoute: typeof ApiPublicV1StatsRoute
   ApiPublicV1Web_intakeRoute: typeof ApiPublicV1Web_intakeRoute
   ApiPublicV1Work_ordersRoute: typeof ApiPublicV1Work_ordersRoute
@@ -3821,6 +3834,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/v1/stats'
       fullPath: '/api/public/v1/stats'
       preLoaderRoute: typeof ApiPublicV1StatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/site-content': {
+      id: '/api/public/v1/site-content'
+      path: '/api/public/v1/site-content'
+      fullPath: '/api/public/v1/site-content'
+      preLoaderRoute: typeof ApiPublicV1SiteContentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/screening_orders': {
@@ -6242,6 +6262,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1PartnersRoute: ApiPublicV1PartnersRoute,
   ApiPublicV1PricingRoute: ApiPublicV1PricingRoute,
   ApiPublicV1Screening_ordersRoute: ApiPublicV1Screening_ordersRoute,
+  ApiPublicV1SiteContentRoute: ApiPublicV1SiteContentRoute,
   ApiPublicV1StatsRoute: ApiPublicV1StatsRoute,
   ApiPublicV1Web_intakeRoute: ApiPublicV1Web_intakeRoute,
   ApiPublicV1Work_ordersRoute: ApiPublicV1Work_ordersRoute,
