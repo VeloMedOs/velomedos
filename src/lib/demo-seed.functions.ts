@@ -111,7 +111,7 @@ function demoPassword(): string {
 async function loadDemoPasswordMap(): Promise<Map<string, string>> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await (supabaseAdmin as any)
-    .from("demo_credentials")
+    .from("demo_credential_secrets")
     .select("email, password");
   const map = new Map<string, string>();
   for (const r of (data ?? []) as Array<{ email: string; password: string }>) {

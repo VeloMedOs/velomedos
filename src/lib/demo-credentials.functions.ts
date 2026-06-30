@@ -103,11 +103,16 @@ export const listDemoCredentials = createServerFn({ method: "GET" }).handler(asy
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await (supabaseAdmin as any)
     .from("demo_credentials")
-    .select("email, role_label, clinical_role, lands_on, password, sort_order, updated_at")
+    .select("email, role_label, clinical_role, lands_on, sort_order, updated_at")
     .order("sort_order", { ascending: true });
   if (error) return { ok: false as const, error: error.message };
+  const { data: secrets } = await (supabaseAdmin as any)
+    .from("demo_credential_secrets")
+    .select("email, password");
+  const pwBy = new Map<string, string>((secrets ?? []).map((s: any) => [s.email, s.password as string]));
+  const merged = (data ?? []).map((r: any) => ({ ...r, password: pwBy.get(r.email) ?? "" }));
   const reveal = await loadPublicReveal();
-  return { ok: true as const, accounts: (data ?? []) as DemoCredentialRow[], public_reveal: reveal };
+  return { ok: true as const, accounts: merged as DemoCredentialRow[], public_reveal: reveal };
 });
 
 const RotateOneInput = z.object({ email: z.string().email() });
@@ -120,9 +125,8 @@ export const rotateDemoCredential = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const password = generatePassword();
     const { error } = await (supabaseAdmin as any)
-      .from("demo_credentials")
-      .update({ password, updated_by: gate.userId })
-      .eq("email", data.email);
+      .from("demo_credential_secrets")
+      .upsert({ email: data.email, password, updated_by: gate.userId, updated_at: new Date().toISOString() });
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const, email: data.email, password };
   });
@@ -139,9 +143,8 @@ export const rotateAllDemoCredentials = createServerFn({ method: "POST" }).handl
   for (const row of rows ?? []) {
     const password = generatePassword();
     const { error } = await (supabaseAdmin as any)
-      .from("demo_credentials")
-      .update({ password, updated_by: gate.userId })
-      .eq("email", row.email);
+      .from("demo_credential_secrets")
+      .upsert({ email: row.email, password, updated_by: gate.userId, updated_at: new Date().toISOString() });
     if (error) return { ok: false as const, error: `update_failed:${row.email}:${error.message}` };
     updated.push({ email: row.email, password });
   }
@@ -160,9 +163,8 @@ export const setDemoCredentialPassword = createServerFn({ method: "POST" })
     if (!gate.ok) return { ok: false as const, error: gate.error };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await (supabaseAdmin as any)
-      .from("demo_credentials")
-      .update({ password: data.password, updated_by: gate.userId })
-      .eq("email", data.email);
+      .from("demo_credential_secrets")
+      .upsert({ email: data.email, password: data.password, updated_by: gate.userId, updated_at: new Date().toISOString() });
     if (error) return { ok: false as const, error: error.message };
     return { ok: true as const, email: data.email };
   });
@@ -173,7 +175,7 @@ export const applyCredentialsToAuth = createServerFn({ method: "POST" }).handler
   if (!gate.ok) return { ok: false as const, error: gate.error };
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: rows, error } = await (supabaseAdmin as any)
-    .from("demo_credentials")
+    .from("demo_credential_secrets")
     .select("email, password");
   if (error) return { ok: false as const, error: error.message };
 
@@ -230,16 +232,21 @@ export const getDemoPublicState = createServerFn({ method: "GET" }).handler(asyn
   const reveal = await loadPublicReveal();
   const { data, error } = await (supabaseAdmin as any)
     .from("demo_credentials")
-    .select("email, role_label, clinical_role, lands_on, password, sort_order")
+    .select("email, role_label, clinical_role, lands_on, sort_order")
     .order("sort_order", { ascending: true });
   if (error) return { ok: true as const, reveal: false, fallback: true, warning: error.message, accounts: FALLBACK_PUBLIC_ACCOUNTS };
   if (!data?.length) return { ok: true as const, reveal: false, fallback: true, warning: "demo_credentials_empty", accounts: FALLBACK_PUBLIC_ACCOUNTS };
+  let pwBy = new Map<string, string>();
+  if (reveal) {
+    const { data: secrets } = await (supabaseAdmin as any).from("demo_credential_secrets").select("email, password");
+    pwBy = new Map((secrets ?? []).map((s: any) => [s.email as string, s.password as string]));
+  }
   const accounts: DemoPublicAccount[] = (data ?? []).map((r: any) => ({
     email: r.email,
     role_label: r.role_label,
     clinical_role: r.clinical_role,
     lands_on: r.lands_on,
-    ...(reveal ? { password: r.password as string } : {}),
+    ...(reveal && pwBy.has(r.email) ? { password: pwBy.get(r.email) as string } : {}),
   }));
   return { ok: true as const, reveal, accounts };
 });
@@ -254,11 +261,14 @@ export async function listDemoCredentialsFromHeader(authHeader: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await (supabaseAdmin as any)
     .from("demo_credentials")
-    .select("email, role_label, clinical_role, lands_on, password, sort_order, updated_at")
+    .select("email, role_label, clinical_role, lands_on, sort_order, updated_at")
     .order("sort_order", { ascending: true });
   if (error) return { ok: false as const, error: error.message };
+  const { data: secrets } = await (supabaseAdmin as any).from("demo_credential_secrets").select("email, password");
+  const pwBy = new Map<string, string>((secrets ?? []).map((s: any) => [s.email, s.password as string]));
+  const merged = (data ?? []).map((r: any) => ({ ...r, password: pwBy.get(r.email) ?? "" }));
   const reveal = await loadPublicReveal();
-  return { ok: true as const, accounts: (data ?? []) as DemoCredentialRow[], public_reveal: reveal };
+  return { ok: true as const, accounts: merged as DemoCredentialRow[], public_reveal: reveal };
 }
 
 export async function getDemoPublicStateRest() {
@@ -266,16 +276,21 @@ export async function getDemoPublicStateRest() {
   const reveal = await loadPublicReveal();
   const { data, error } = await (supabaseAdmin as any)
     .from("demo_credentials")
-    .select("email, role_label, clinical_role, lands_on, password, sort_order")
+    .select("email, role_label, clinical_role, lands_on, sort_order")
     .order("sort_order", { ascending: true });
   if (error) return { ok: true as const, reveal: false, fallback: true, warning: error.message, accounts: FALLBACK_PUBLIC_ACCOUNTS };
   if (!data?.length) return { ok: true as const, reveal: false, fallback: true, warning: "demo_credentials_empty", accounts: FALLBACK_PUBLIC_ACCOUNTS };
+  let pwBy = new Map<string, string>();
+  if (reveal) {
+    const { data: secrets } = await (supabaseAdmin as any).from("demo_credential_secrets").select("email, password");
+    pwBy = new Map((secrets ?? []).map((s: any) => [s.email as string, s.password as string]));
+  }
   const accounts: DemoPublicAccount[] = (data ?? []).map((r: any) => ({
     email: r.email,
     role_label: r.role_label,
     clinical_role: r.clinical_role,
     lands_on: r.lands_on,
-    ...(reveal ? { password: r.password as string } : {}),
+    ...(reveal && pwBy.has(r.email) ? { password: pwBy.get(r.email) as string } : {}),
   }));
   return { ok: true as const, reveal, accounts };
 }
