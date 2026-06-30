@@ -14,6 +14,7 @@ import { ROLE_META, ROLE_ORDER, CAPABILITIES, effectiveCapabilities, type AppRol
 import { PipelineBoard } from "@/components/superadmin/PipelineBoard";
 import { adminFetch } from "@/lib/admin-fetch";
 import { SuperadminSideNav } from "@/components/superadmin/SideNav";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useServerFn } from "@tanstack/react-start";
 import { createOperator } from "@/lib/superadmin.functions";
 import {
@@ -328,8 +329,11 @@ function Superadmin() {
           <h1 className="text-2xl font-bold tracking-tight">Platform control plane</h1>
           <div className="text-xs text-muted-foreground mt-1">Tenants · subscriptions · roles · pipeline</div>
         </div>
-        <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-          <span className="size-1.5 rounded-full bg-teal animate-pulse" /> Global · all tenants
+        <div className="flex items-center gap-3">
+          <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+            <span className="size-1.5 rounded-full bg-teal animate-pulse" /> Global · all tenants
+          </div>
+          <ThemeSwitcher />
         </div>
       </header>
 
