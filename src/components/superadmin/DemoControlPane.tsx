@@ -36,6 +36,19 @@ type RunState = { status: RunOutcome; result: unknown; message: string | null; s
 const INITIAL: RunState = { status: "idle", result: null, message: null, startedAt: null, finishedAt: null };
 const AUTOFILL_KEY = "velomed:demo_autofill";
 
+/** Friendlier toast for the recurring "your superadmin token expired" case. */
+function isUnauthorized(value: unknown): boolean {
+  if (!value) return false;
+  if (typeof value === "string") return value.toLowerCase() === "unauthorized";
+  if (value instanceof Error) return value.message.toLowerCase() === "unauthorized";
+  return false;
+}
+function toastSuperadminExpired() {
+  toast.error("Superadmin session expired — sign in again", {
+    action: { label: "Sign in", onClick: () => { window.location.href = "/superadmin/login"; } },
+  });
+}
+
 export function DemoControlPane() {
   const [users, setUsers] = useState<RunState>(INITIAL);
   const [seed, setSeed]   = useState<RunState>(INITIAL);
