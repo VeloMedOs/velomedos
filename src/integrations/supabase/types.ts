@@ -7332,8 +7332,12 @@ export type Database = {
       site_content: {
         Row: {
           created_at: string
+          draft_value: Json | null
           key: string
           locale: string
+          published_at: string | null
+          published_by: string | null
+          published_value: Json | null
           status: string
           updated_at: string
           updated_by: string | null
@@ -7341,8 +7345,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          draft_value?: Json | null
           key: string
           locale?: string
+          published_at?: string | null
+          published_by?: string | null
+          published_value?: Json | null
           status?: string
           updated_at?: string
           updated_by?: string | null
@@ -7350,12 +7358,37 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          draft_value?: Json | null
           key?: string
           locale?: string
+          published_at?: string | null
+          published_by?: string | null
+          published_value?: Json | null
           status?: string
           updated_at?: string
           updated_by?: string | null
           value?: Json
+        }
+        Relationships: []
+      }
+      site_content_version: {
+        Row: {
+          bumped_at: string
+          bumped_by: string | null
+          id: number
+          version: number
+        }
+        Insert: {
+          bumped_at?: string
+          bumped_by?: string | null
+          id?: number
+          version?: number
+        }
+        Update: {
+          bumped_at?: string
+          bumped_by?: string | null
+          id?: number
+          version?: number
         }
         Relationships: []
       }
@@ -8328,6 +8361,7 @@ export type Database = {
       }
     }
     Functions: {
+      bump_site_content_version: { Args: { _actor?: string }; Returns: number }
       encounter_advance_journey: {
         Args: { _enc_id: string; _to: string }
         Returns: undefined
