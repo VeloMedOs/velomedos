@@ -372,11 +372,20 @@ export type Database = {
           created_at: string
           created_by: string | null
           currency: string
+          display_city: string | null
+          display_consent: boolean
+          display_consent_at: string | null
+          display_consent_source: string | null
+          display_name: string | null
+          display_publicly: boolean
+          display_type: string | null
           estimated_value_cents: number | null
           expected_seats: number | null
+          featured_order: number | null
           fleet_size: number | null
           id: string
           legal_name: string | null
+          logo_url: string | null
           nick_name: string | null
           notes: string | null
           postal_code: string | null
@@ -406,11 +415,20 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string
+          display_city?: string | null
+          display_consent?: boolean
+          display_consent_at?: string | null
+          display_consent_source?: string | null
+          display_name?: string | null
+          display_publicly?: boolean
+          display_type?: string | null
           estimated_value_cents?: number | null
           expected_seats?: number | null
+          featured_order?: number | null
           fleet_size?: number | null
           id?: string
           legal_name?: string | null
+          logo_url?: string | null
           nick_name?: string | null
           notes?: string | null
           postal_code?: string | null
@@ -440,11 +458,20 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string
+          display_city?: string | null
+          display_consent?: boolean
+          display_consent_at?: string | null
+          display_consent_source?: string | null
+          display_name?: string | null
+          display_publicly?: boolean
+          display_type?: string | null
           estimated_value_cents?: number | null
           expected_seats?: number | null
+          featured_order?: number | null
           fleet_size?: number | null
           id?: string
           legal_name?: string | null
+          logo_url?: string | null
           nick_name?: string | null
           notes?: string | null
           postal_code?: string | null
@@ -7302,6 +7329,36 @@ export type Database = {
           },
         ]
       }
+      site_content: {
+        Row: {
+          created_at: string
+          key: string
+          locale: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          locale?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          locale?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       subscription_addons: {
         Row: {
           code: string
@@ -8242,6 +8299,30 @@ export type Database = {
           last_ping_at?: string | null
           status?: Database["public"]["Enums"]["ambulance_status"] | null
           type?: Database["public"]["Enums"]["ambulance_type"] | null
+        }
+        Relationships: []
+      }
+      public_partners: {
+        Row: {
+          city: string | null
+          featured_order: number | null
+          logo_url: string | null
+          name: string | null
+          type: string | null
+        }
+        Insert: {
+          city?: string | null
+          featured_order?: never
+          logo_url?: string | null
+          name?: never
+          type?: string | null
+        }
+        Update: {
+          city?: string | null
+          featured_order?: never
+          logo_url?: string | null
+          name?: never
+          type?: string | null
         }
         Relationships: []
       }
