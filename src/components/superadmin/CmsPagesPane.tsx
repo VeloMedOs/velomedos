@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { adminFetch } from "@/lib/admin-fetch";
 import { toast } from "sonner";
-import { Save, FileText, Plus } from "lucide-react";
+import { Save, FileText, Plus, ExternalLink, EyeOff, Undo2 } from "lucide-react";
 
 type Row = { key: string; locale: string; value: unknown; status: "draft" | "published"; updated_at?: string };
 
@@ -9,20 +9,28 @@ const DEFAULT_KEYS = [
   { key: "hero.eyebrow", hint: "Top mono eyebrow on home hero" },
   { key: "hero.headline", hint: "Hero headline (use *italic* markers)" },
   { key: "hero.subcopy", hint: "Hero subcopy paragraph" },
-  { key: "hero.cta_primary", hint: "Primary CTA label" },
-  { key: "hero.cta_secondary", hint: "Secondary CTA label" },
+  { key: "hero.note", hint: "Hero compliance note (under subcopy)" },
+  { key: "wedge.copy", hint: "Category line between hero and pillars (newlines allowed)" },
+  { key: "pillars.eyebrow", hint: "Pillars section eyebrow" },
+  { key: "pillars.headline", hint: "Pillars section headline" },
+  { key: "pillars.subcopy", hint: "Pillars section subcopy" },
+  { key: "pillars.operations.title", hint: "Operations pillar title" },
   { key: "pillars.operations", hint: "Operations pillar copy" },
+  { key: "pillars.clinical.title", hint: "Clinical pillar title" },
   { key: "pillars.clinical", hint: "Clinical · HIS pillar copy" },
+  { key: "pillars.revenue.title", hint: "Revenue pillar title" },
   { key: "pillars.revenue", hint: "Revenue · RCM pillar copy" },
   { key: "compliance.note", hint: "Compliance strip caption" },
-  { key: "partner.headline", hint: "Partner section headline" },
-  { key: "cta.final", hint: "Closing CTA headline" },
+  { key: "cta.eyebrow", hint: "Closing CTA eyebrow" },
+  { key: "cta.final", hint: "Closing CTA headline (newlines allowed)" },
+  { key: "cta.subcopy", hint: "Closing CTA subcopy" },
 ];
 
 export function CmsPagesPane() {
   const [rows, setRows] = useState<Row[]>([]);
   const [locale, setLocale] = useState("en");
   const [editing, setEditing] = useState<Record<string, string>>({});
+  const [filter, setFilter] = useState<"all" | "draft" | "published">("all");
 
   async function load() {
     try {
@@ -50,21 +58,56 @@ export function CmsPagesPane() {
     } catch (e) { toast.error((e as Error).message || "Save failed"); }
   }
 
+  async function unpublish(key: string) {
+    try {
+      await adminFetch("/api/admin/v1/site-content", {
+        method: "PUT", body: { key, locale, value: map.get(key)?.value ?? "", status: "draft" },
+      });
+      toast.success(`${key} · reverted to draft`);
+      load();
+    } catch (e) { toast.error((e as Error).message || "Unpublish failed"); }
+  }
+
   return (
     <section className="rounded-xl border border-hairline bg-panel p-4 lg:p-5 space-y-4">
       <header className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <div className="mono text-[10px] uppercase tracking-widest text-teal">Pages &amp; CMS</div>
           <div className="text-base font-semibold flex items-center gap-2"><FileText className="size-4" /> Marketing site content overlay</div>
-          <div className="text-xs text-muted-foreground mt-1">Defaults live in <code className="mono">src/lib/site-config.ts</code>; published rows here override them at runtime via <code className="mono">/api/public/v1/site-content</code>.</div>
+          <div className="text-xs text-muted-foreground mt-1 max-w-[68ch]">
+            Defaults are baked into the marketing pages. <b>Drafts</b> are visible only in <em>Preview</em>; <b>Published</b> rows go live on the website immediately.
+            Workflow: <span className="mono">edit → Save draft → Preview → Publish</span>.
+          </div>
         </div>
-        <select value={locale} onChange={(e) => setLocale(e.target.value)} className="bg-background border border-hairline rounded px-2 py-1 text-xs">
-          <option value="en">en</option><option value="ar">ar</option>
-        </select>
+        <div className="flex items-center gap-2 flex-wrap">
+          <select value={locale} onChange={(e) => setLocale(e.target.value)} className="bg-background border border-hairline rounded px-2 py-1 text-xs">
+            <option value="en">en</option><option value="ar">ar</option>
+          </select>
+          <select value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)} className="bg-background border border-hairline rounded px-2 py-1 text-xs">
+            <option value="all">All keys</option>
+            <option value="draft">Drafts only</option>
+            <option value="published">Published only</option>
+          </select>
+          <a
+            href="/?cms=preview"
+            target="_blank"
+            rel="noreferrer"
+            className="mono text-[10px] uppercase tracking-widest px-2.5 py-1.5 rounded bg-teal/15 text-teal hover:bg-teal/25 inline-flex items-center gap-1.5"
+          >
+            <ExternalLink className="size-3" /> Preview homepage
+          </a>
+        </div>
       </header>
 
       <div className="space-y-3">
-        {allKeys.map((key) => {
+        {allKeys
+          .filter((key) => {
+            if (filter === "all") return true;
+            const r = map.get(key);
+            if (filter === "draft") return r?.status === "draft";
+            return r?.status === "published";
+          })
+          .map((key) => {
           const row = map.get(key);
           const hint = DEFAULT_KEYS.find((k) => k.key === key)?.hint;
           const draft = editing[key] ?? stringify(row?.value);
@@ -86,9 +129,13 @@ export function CmsPagesPane() {
                 className="w-full bg-background border border-hairline rounded p-2 text-xs mono"
                 placeholder="Plain text or JSON…"
               />
-              <div className="mt-2 flex gap-2">
+              <div className="mt-2 flex gap-2 flex-wrap">
                 <button onClick={() => save(key, "draft")} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated inline-flex items-center gap-1"><Save className="size-3" /> Save draft</button>
                 <button onClick={() => save(key, "published")} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded bg-teal/15 text-teal hover:bg-teal/25 inline-flex items-center gap-1"><Plus className="size-3" /> Publish</button>
+                {row?.status === "published" && (
+                  <button onClick={() => unpublish(key)} className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated inline-flex items-center gap-1 text-amber-300"><Undo2 className="size-3" /> Unpublish</button>
+                )}
+                <a href={`/?cms=preview#${encodeURIComponent(key)}`} target="_blank" rel="noreferrer" className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated inline-flex items-center gap-1 ml-auto"><ExternalLink className="size-3" /> Preview</a>
               </div>
             </div>
           );

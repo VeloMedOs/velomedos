@@ -35,6 +35,8 @@ export function PartnerIntakeSection() {
       expected_seats: Number.isFinite(seats) && seats > 0 ? seats : null,
       use_case: form.message.trim() || null,
       source_detail: `partner_section:${form.org_type}`,
+      display_type: form.org_type as "hospital" | "clinic_group" | "ems" | "payer_tpa",
+      display_consent: form.consent,
     };
     try {
       const r = await fetch("/api/public/v1/business_intake", {
@@ -81,10 +83,15 @@ export function PartnerIntakeSection() {
           {status === "ok" ? (
             <div className="text-center py-10">
               <CheckCircle2 className="size-9 text-teal mx-auto mb-3" />
-              <div className="font-semibold text-lg">Request received.</div>
-              <p className="text-sm text-muted-foreground mt-2 max-w-[36ch] mx-auto">
-                A VeloMed lead will reach out within one business day with a sandbox link tailored to your network.
+              <div className="font-semibold text-lg">Request received — you're in the pipeline.</div>
+              <p className="text-sm text-muted-foreground mt-3 max-w-[44ch] mx-auto leading-relaxed">
+                We've created a featured-partner candidacy under your organization's name.
+                A VeloMed lead will reach out within one business day with a sandbox link, and — once your team accepts —
+                your logo can appear in the partner network marquee on this site.
               </p>
+              <div className="mt-4 mono text-[10px] uppercase tracking-widest text-teal">
+                tracked in superadmin · pipeline → featured partners
+              </div>
             </div>
           ) : (
             <div className="space-y-3">

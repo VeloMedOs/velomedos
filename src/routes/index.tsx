@@ -9,6 +9,7 @@ import { faqLd, jsonld } from "@/components/Jsonld";
 import { HeroCommandPanel } from "@/components/marketing/HeroCommandPanel";
 import { PartnerMarquee } from "@/components/marketing/PartnerMarquee";
 import { PartnerIntakeSection } from "@/components/marketing/PartnerIntakeSection";
+import { useSiteContent } from "@/lib/use-site-content";
 
 const HOME_FAQS = [
   { q: "Who is VeloMed OS built for?", a: "Multi-branch care operators: ambulance services running many branches, mobile-clinic companies, home/remote care providers, and site/occupational health teams in mining, construction, camps and clubs." },
@@ -37,6 +38,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [stats, setStats] = useState<{ branches_live: number; active_cases: number; teams_live: number; credentials_expiring_7d: number } | null>(null);
+  const { get, preview } = useSiteContent("en");
   useEffect(() => {
     let cancel = false;
     fetch("/api/public/v1/stats").then((r) => r.ok ? r.json() : null).then((d) => { if (!cancel && d) setStats(d); }).catch(() => {});
@@ -51,6 +53,11 @@ function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
+      {preview && (
+        <div className="bg-amber-500/15 border-b border-amber-500/40 text-amber-200 mono text-[11px] uppercase tracking-widest px-4 py-2 text-center">
+          CMS preview — you are seeing draft + published copy. <a className="underline" href="/">Exit preview</a>
+        </div>
+      )}
       <main id="main">
       <HeroCommandPanel />
       <PartnerMarquee />
@@ -58,11 +65,11 @@ function Index() {
       {/* CATEGORY LINE — the wedge */}
       <section className="border-b border-hairline">
         <div className="max-w-[1100px] mx-auto px-4 lg:px-8 py-6 text-center">
-          <p className="font-serif text-lg lg:text-xl text-foreground/80">
-            Others give you an HIS, <span className="italic text-muted-foreground">or</span> an RCM,
-            <span className="italic text-muted-foreground"> or</span> a dispatch system.
-            <br className="hidden sm:block" />
-            <span className="text-foreground"> VeloMed is the operating system for <span className="italic text-teal">all three.</span></span>
+          <p className="font-serif text-lg lg:text-xl text-foreground/80 whitespace-pre-line">
+            {get(
+              "wedge.copy",
+              "Others give you an HIS, or an RCM, or a dispatch system.\nVeloMed is the operating system for all three.",
+            )}
           </p>
         </div>
       </section>
@@ -83,16 +90,16 @@ function Index() {
       <section id="platform" className="max-w-[1400px] mx-auto px-4 lg:px-8 py-20">
         <div className="grid lg:grid-cols-12 gap-10 items-end mb-10">
           <div className="lg:col-span-7">
-            <div className="mono text-[10px] uppercase tracking-[0.22em] text-teal mb-2">Platform</div>
-            <h2 className="font-serif text-4xl lg:text-5xl tracking-tight">Three pillars, <span className="italic text-teal">one operating system.</span></h2>
+            <div className="mono text-[10px] uppercase tracking-[0.22em] text-teal mb-2">{get("pillars.eyebrow", "Platform")}</div>
+            <h2 className="font-serif text-4xl lg:text-5xl tracking-tight">{get("pillars.headline", "Three pillars, one operating system.")}</h2>
           </div>
-          <p className="lg:col-span-5 text-muted-foreground">Operations, clinical and revenue share the same data, the same identities and the same audit trail — born unified, not bolted together.</p>
+          <p className="lg:col-span-5 text-muted-foreground">{get("pillars.subcopy", "Operations, clinical and revenue share the same data, the same identities and the same audit trail — born unified, not bolted together.")}</p>
         </div>
         <div className="grid md:grid-cols-3 gap-px bg-hairline rounded-xl overflow-hidden border border-hairline">
           {[
-            { icon: Activity, title: "Operations & Mobility", line: "Branch-aware dispatch, fleet, licensing and live geo-tracking from network down to one crew.", chips: ["Cases & dispatch", "Fleet & maintenance", "Geo-tracking", "Credentials"] },
-            { icon: Stethoscope, title: "Clinical · HIS", line: "Patient master, encounters, orders, MAR and PROMs — built to NPHIES, CHI MDS and SBS v3.", chips: ["EMR · encounters", "Orders · MAR", "PROMs · VBHC", "FHIR · NPHIES"] },
-            { icon: Receipt, title: "Revenue · RCM", line: "Eligibility → authorization → AR-DRG coding → claim → remittance → ZATCA-cleared settlement.", chips: ["Eligibility", "Authorization", "AR-DRG coding", "ZATCA · VAT 15%"] },
+            { icon: Activity, title: get("pillars.operations.title", "Operations & Mobility"), line: get("pillars.operations", "Branch-aware dispatch, fleet, licensing and live geo-tracking from network down to one crew."), chips: ["Cases & dispatch", "Fleet & maintenance", "Geo-tracking", "Credentials"] },
+            { icon: Stethoscope, title: get("pillars.clinical.title", "Clinical · HIS"), line: get("pillars.clinical", "Patient master, encounters, orders, MAR and PROMs — built to NPHIES, CHI MDS and SBS v3."), chips: ["EMR · encounters", "Orders · MAR", "PROMs · VBHC", "FHIR · NPHIES"] },
+            { icon: Receipt, title: get("pillars.revenue.title", "Revenue · RCM"), line: get("pillars.revenue", "Eligibility → authorization → AR-DRG coding → claim → remittance → ZATCA-cleared settlement."), chips: ["Eligibility", "Authorization", "AR-DRG coding", "ZATCA · VAT 15%"] },
           ].map((p) => (
             <div key={p.title} className="bg-panel p-6">
               <p.icon className="size-5 text-teal mb-3" />
@@ -235,7 +242,7 @@ function Index() {
           ))}
         </div>
         <div className="mt-6 mono text-[10px] uppercase tracking-widest text-muted-foreground inline-flex items-center gap-2">
-          <Layers className="size-3 text-teal" /> Integration-ready · sandboxed until credentials live
+          <Layers className="size-3 text-teal" /> {get("compliance.note", "Integration-ready · sandboxed until credentials live")}
         </div>
       </section>
 
@@ -259,9 +266,9 @@ function Index() {
       {/* CLOSING CTA */}
       <section className="border-t border-hairline">
         <div className="max-w-[1100px] mx-auto px-4 lg:px-8 py-24 text-center">
-          <div className="mono text-[10px] uppercase tracking-[0.22em] text-teal mb-3">Final word</div>
-          <h2 className="font-serif text-4xl lg:text-6xl tracking-tight leading-[1.02]">See your whole network<br/><span className="italic text-teal">on the map in 30 minutes.</span></h2>
-          <p className="text-muted-foreground mt-5 max-w-xl mx-auto">We'll bring the sample data — branches, regions, crews and live cases — preloaded with your operating cities.</p>
+          <div className="mono text-[10px] uppercase tracking-[0.22em] text-teal mb-3">{get("cta.eyebrow", "Final word")}</div>
+          <h2 className="font-serif text-4xl lg:text-6xl tracking-tight leading-[1.02] whitespace-pre-line">{get("cta.final", "See your whole network\non the map in 30 minutes.")}</h2>
+          <p className="text-muted-foreground mt-5 max-w-xl mx-auto">{get("cta.subcopy", "We'll bring the sample data — branches, regions, crews and live cases — preloaded with your operating cities.")}</p>
           <div className="mt-7 flex flex-wrap gap-3 justify-center">
             <Link to="/demo" className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-teal text-background mono text-xs uppercase tracking-widest font-bold shadow-[0_0_28px_oklch(0.74_0.13_195/0.35)]">Book a demo <ArrowRight className="size-3.5" /></Link>
             <Link to="/contact" className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-hairline mono text-xs uppercase tracking-widest hover:bg-panel">Talk to us <ArrowRight className="size-3.5" /></Link>
