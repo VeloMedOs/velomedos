@@ -150,11 +150,11 @@ export function DemoControlPane() {
 /* ============================================================== */
 
 function CredentialsManager() {
-  const list      = useServerFn(listDemoCredentials);
-  const rotateOne = useServerFn(rotateDemoCredential);
-  const rotateAll = useServerFn(rotateAllDemoCredentials);
-  const applyAuth = useServerFn(applyCredentialsToAuth);
-  const setReveal = useServerFn(setDemoPublicReveal);
+  const list        = useServerFn(listDemoCredentials);
+  const rotateOne   = useServerFn(rotateDemoCredential);
+  const rotateAll   = useServerFn(rotateAllDemoCredentials);
+  const applyAuth   = useServerFn(applyCredentialsToAuth);
+  const setRevealFn = useServerFn(setDemoPublicReveal);
 
   const [rows, setRows] = useState<DemoCredentialRow[] | null>(null);
   const [reveal, setReveal] = useState(false);
@@ -217,7 +217,7 @@ function CredentialsManager() {
 
   async function toggleReveal() {
     try {
-      const r = await setReveal({ data: { enabled: !reveal } });
+      const r = await setRevealFn({ data: { enabled: !reveal } });
       if (!r.ok) throw new Error(r.error);
       setReveal(r.enabled);
       toast.success(`Public reveal ${r.enabled ? "ON" : "OFF"}`);
