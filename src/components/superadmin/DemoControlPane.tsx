@@ -234,8 +234,9 @@ function CredentialsManager() {
     navigator.clipboard.writeText(text).then(() => toast.success(`${label} copied`)).catch(() => toast.error("Clipboard blocked"));
   }
 
-  function launchWithAutofill(row: DemoCredentialRow) {
+  async function launchWithAutofill(row: DemoCredentialRow) {
     const key = row.clinical_role || row.email.split("@")[0];
+    const tab = window.open("about:blank", "_blank");
     try {
       window.localStorage.setItem(AUTOFILL_KEY, JSON.stringify({
         email: row.email,
@@ -244,7 +245,21 @@ function CredentialsManager() {
         expiresAt: Date.now() + 5 * 60_000,
       }));
     } catch { /* noop */ }
-    window.open(`/demo-login?role=${encodeURIComponent(key)}&autosignin=1`, "_blank", "noopener,noreferrer");
+    const startedAt = Date.now();
+    setApplyState({ status: "running", result: null, message: `Preparing ${row.role_label} login…`, startedAt, finishedAt: null });
+    try {
+      const r = await applyAuth();
+      const ok = (r as { ok: boolean }).ok !== false;
+      if (!ok) throw new Error((r as { error?: string }).error ?? "Apply failed");
+      setApplyState({ status: "success", result: r, message: `Login prepared for ${row.role_label}.`, startedAt, finishedAt: Date.now() });
+      const href = `/demo-login?role=${encodeURIComponent(key)}&autosignin=1`;
+      if (tab) tab.location.href = href;
+      else window.open(href, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      if (tab) tab.close();
+      setApplyState({ status: "error", result: null, message: (e as Error).message, startedAt, finishedAt: Date.now() });
+      toast.error(`Could not prepare login: ${(e as Error).message}`);
+    }
   }
 
   return (
