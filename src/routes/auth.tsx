@@ -227,7 +227,10 @@ function AuthPage() {
             <BrandMark className="size-7" />
             <BrandWordmark />
           </Link>
-          <Link to="/" className="mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground inline-flex items-center gap-1"><ArrowLeft className="size-3" /> Home</Link>
+          <div className="flex items-center gap-3">
+            <ThemeSwitcher />
+            <Link to="/" className="mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground inline-flex items-center gap-1"><ArrowLeft className="size-3" /> Home</Link>
+          </div>
         </header>
         <main id="main" className="flex-1 grid place-items-center relative z-10">
           <div className="max-w-3xl w-full text-center space-y-8 pt-10">
