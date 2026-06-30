@@ -2325,12 +2325,40 @@ export type Database = {
           },
         ]
       }
+      demo_credential_secrets: {
+        Row: {
+          email: string
+          password: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          email: string
+          password: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          email?: string
+          password?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_credential_secrets_email_fkey"
+            columns: ["email"]
+            isOneToOne: true
+            referencedRelation: "demo_credentials"
+            referencedColumns: ["email"]
+          },
+        ]
+      }
       demo_credentials: {
         Row: {
           clinical_role: string | null
           email: string
           lands_on: string
-          password: string
           role_label: string
           sort_order: number
           updated_at: string
@@ -2340,7 +2368,6 @@ export type Database = {
           clinical_role?: string | null
           email: string
           lands_on?: string
-          password: string
           role_label: string
           sort_order?: number
           updated_at?: string
@@ -2350,7 +2377,6 @@ export type Database = {
           clinical_role?: string | null
           email?: string
           lands_on?: string
-          password?: string
           role_label?: string
           sort_order?: number
           updated_at?: string
@@ -8150,27 +8176,30 @@ export type Database = {
           active: boolean
           created_at: string
           events: string[]
+          hashed_secret: string | null
           id: string
           owner_id: string
-          secret: string
+          secret_prefix: string | null
           url: string
         }
         Insert: {
           active?: boolean
           created_at?: string
           events?: string[]
+          hashed_secret?: string | null
           id?: string
           owner_id: string
-          secret: string
+          secret_prefix?: string | null
           url: string
         }
         Update: {
           active?: boolean
           created_at?: string
           events?: string[]
+          hashed_secret?: string | null
           id?: string
           owner_id?: string
-          secret?: string
+          secret_prefix?: string | null
           url?: string
         }
         Relationships: []
