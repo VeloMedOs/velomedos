@@ -4,6 +4,7 @@ import { SITE } from "@/lib/site-config";
 import { BrandMark, BrandWordmark } from "@/components/BrandMark";
 import { trackNavClick } from "@/lib/track-nav";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { AccentPicker } from "@/components/AccentPicker";
 
 export function SiteHeader() {
   return (
@@ -37,6 +38,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <AccentPicker className="hidden sm:inline-flex" />
           <ThemeSwitcher className="hidden sm:inline-flex" />
           <Link to="/his" className="hidden md:inline-flex mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground px-2 py-1.5">Staff login</Link>
           <Link to="/demo-login" className="hidden md:inline-flex mono text-[10px] uppercase tracking-widest px-2.5 py-1.5 rounded-md border border-teal/40 text-teal hover:bg-teal/10 transition-colors">Try the sandbox</Link>

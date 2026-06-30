@@ -11,6 +11,7 @@ import { useClinicalMe, canAct, type ClinicalRole } from "@/lib/clinical-roles";
 import { ClaimCompletenessPanel } from "@/components/clinical/ClaimCompletenessPanel";
 import { OutcomesPane } from "@/components/clinical/OutcomesPane";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { AccentPicker } from "@/components/AccentPicker";
 
 export const Route = createFileRoute("/_authenticated/clinical")({
   validateSearch: z.object({
@@ -98,6 +99,7 @@ function ClinicalWorkspace() {
           <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground hidden md:block">
             UI gating is cosmetic — server enforces
           </div>
+          <AccentPicker />
           <ThemeSwitcher />
         </div>
       </header>

@@ -6473,6 +6473,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accent_preference: string
           blood_type: string | null
           created_at: string
           default_role: Database["public"]["Enums"]["app_role"]
@@ -6492,6 +6493,7 @@ export type Database = {
           verified_at: string | null
         }
         Insert: {
+          accent_preference?: string
           blood_type?: string | null
           created_at?: string
           default_role?: Database["public"]["Enums"]["app_role"]
@@ -6511,6 +6513,7 @@ export type Database = {
           verified_at?: string | null
         }
         Update: {
+          accent_preference?: string
           blood_type?: string | null
           created_at?: string
           default_role?: Database["public"]["Enums"]["app_role"]

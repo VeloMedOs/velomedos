@@ -70,62 +70,63 @@
 }
 
 :root {
-  /* Dense dark cockpit — slate-950 canvas + emergency red + action cyan. */
+  /* Dense dark cockpit — refined for readability. Canvas lifted off pure
+     slate-950 so panels/text separate cleanly without feeling washed out. */
   --radius: 0.5rem;
-  --background: oklch(0.16 0.02 250);            /* slate-950 */
-  --foreground: oklch(0.96 0.005 250);
-  --panel: oklch(0.20 0.02 250);                  /* slate-900 */
-  --panel-elevated: oklch(0.24 0.022 250);        /* slate-800 */
-  --hairline: oklch(0.32 0.018 250);
-  --card: oklch(0.20 0.02 250);
-  --card-foreground: oklch(0.96 0.005 250);
-  --popover: oklch(0.22 0.02 250);
-  --popover-foreground: oklch(0.96 0.005 250);
-  --primary: oklch(0.72 0.16 230);                /* action cyan */
-  --primary-foreground: oklch(0.14 0.02 250);
-  --secondary: oklch(0.28 0.02 250);
-  --secondary-foreground: oklch(0.96 0.005 250);
-  --muted: oklch(0.26 0.018 250);
-  --muted-foreground: oklch(0.66 0.015 250);
-  --accent: oklch(0.30 0.025 250);
-  --accent-foreground: oklch(0.96 0.005 250);
+  --background: oklch(0.185 0.018 250);           /* slate-950 + 2 stops */
+  --foreground: oklch(0.975 0.005 250);           /* near-white, AA on bg */
+  --panel: oklch(0.225 0.020 250);                /* slate-900 lifted */
+  --panel-elevated: oklch(0.265 0.022 250);       /* slate-800 lifted */
+  --hairline: oklch(0.345 0.020 250);             /* visible separators */
+  --card: oklch(0.225 0.020 250);
+  --card-foreground: oklch(0.975 0.005 250);
+  --popover: oklch(0.245 0.020 250);
+  --popover-foreground: oklch(0.975 0.005 250);
+  --primary: oklch(0.78 0.150 230);               /* brighter action cyan */
+  --primary-foreground: oklch(0.15 0.02 250);
+  --secondary: oklch(0.305 0.020 250);
+  --secondary-foreground: oklch(0.975 0.005 250);
+  --muted: oklch(0.285 0.018 250);
+  --muted-foreground: oklch(0.745 0.015 250);     /* +0.08 L for legibility */
+  --accent: oklch(0.325 0.025 250);
+  --accent-foreground: oklch(0.975 0.005 250);
   --destructive: oklch(0.62 0.22 27);
   --destructive-foreground: oklch(0.98 0 0);
-  --emergency: oklch(0.62 0.22 27);               /* #ef4444 vibe */
+  --emergency: oklch(0.65 0.22 27);
   --emergency-foreground: oklch(0.98 0 0);
-  --action: oklch(0.72 0.16 230);                 /* #38bdf8 vibe */
-  --action-foreground: oklch(0.14 0.02 250);
-  --stable: oklch(0.70 0.16 155);                 /* emerald */
-  --caution: oklch(0.78 0.16 75);                 /* amber */
-  /* Brand palette — matches src/lib/brand.ts (Teal #28D6B6 · Blue #4FB6F7 · Coral #FF6E5B). */
-  --teal: oklch(0.789 0.131 174);     /* #28D6B6 */
-  --teal-deep: oklch(0.566 0.108 173); /* #0F8F77 */
-  --sky: oklch(0.766 0.123 234);       /* #4FB6F7 */
-  --sky-deep: oklch(0.561 0.180 256);  /* #1F6FEB */
-  --coral: oklch(0.725 0.181 27);      /* #FF6E5B */
-  --coral-deep: oklch(0.610 0.193 28); /* #D94A38 */
-  --border: oklch(0.32 0.018 250);
-  --input: oklch(0.26 0.018 250);
-  --ring: oklch(0.72 0.16 230);
+  --action: oklch(0.78 0.150 230);
+  --action-foreground: oklch(0.15 0.02 250);
+  --stable: oklch(0.74 0.16 155);                 /* emerald, brighter */
+  --caution: oklch(0.82 0.16 75);                 /* amber, brighter */
+  /* Brand palette — accent-picker overrides --teal / --teal-deep below. */
+  --teal: oklch(0.815 0.135 174);     /* lifted #28D6B6 */
+  --teal-deep: oklch(0.620 0.115 173);
+  --sky: oklch(0.790 0.130 234);
+  --sky-deep: oklch(0.620 0.180 256);
+  --coral: oklch(0.755 0.180 27);
+  --coral-deep: oklch(0.640 0.193 28);
+  --border: oklch(0.345 0.020 250);
+  --input: oklch(0.285 0.018 250);
+  --ring: oklch(0.78 0.150 230);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.20 0.02 250);
-  --sidebar-foreground: oklch(0.96 0.005 250);
-  --sidebar-primary: oklch(0.72 0.16 230);
-  --sidebar-primary-foreground: oklch(0.14 0.02 250);
-  --sidebar-accent: oklch(0.28 0.02 250);
-  --sidebar-accent-foreground: oklch(0.96 0.005 250);
-  --sidebar-border: oklch(0.32 0.018 250);
-  --sidebar-ring: oklch(0.72 0.16 230);
+  --sidebar: oklch(0.225 0.020 250);
+  --sidebar-foreground: oklch(0.975 0.005 250);
+  --sidebar-primary: oklch(0.78 0.150 230);
+  --sidebar-primary-foreground: oklch(0.15 0.02 250);
+  --sidebar-accent: oklch(0.305 0.020 250);
+  --sidebar-accent-foreground: oklch(0.975 0.005 250);
+  --sidebar-border: oklch(0.345 0.020 250);
+  --sidebar-ring: oklch(0.78 0.150 230);
 }
 
 .dark {
   /* shadcn compatibility: dark tokens already live on :root. */
-  --background: oklch(0.16 0.02 250);
-  --foreground: oklch(0.96 0.005 250);
+  --background: oklch(0.185 0.018 250);
+  --foreground: oklch(0.975 0.005 250);
 }
 
 /* ───────────────────────────────────────────────────────────────
@@ -337,3 +338,56 @@
     radial-gradient(ellipse 80% 50% at 20% 0%, oklch(0.789 0.131 174 / 0.08), transparent 60%),
     radial-gradient(ellipse 60% 40% at 90% 100%, oklch(0.766 0.123 234 / 0.06), transparent 60%);
 }
+
+/* ───────────────────────────────────────────────────────────────
+   ACCENT PICKER — overrides the brand "teal" tokens project-wide.
+   The default accent (`teal`) leaves the brand palette untouched.
+   Other accents remap `--teal` / `--teal-deep`, plus `--primary`
+   and `--ring`, so every component that paints with the brand
+   accent (CTAs, badges, focus rings, marketing glow) follows.
+   Works under both `.dark` (default) and `.light`.
+   ─────────────────────────────────────────────────────────────── */
+[data-accent="sky"] {
+  --teal: oklch(0.790 0.130 234);
+  --teal-deep: oklch(0.620 0.180 256);
+  --primary: oklch(0.790 0.130 234);
+  --ring: oklch(0.790 0.130 234);
+}
+[data-accent="coral"] {
+  --teal: oklch(0.755 0.180 27);
+  --teal-deep: oklch(0.640 0.193 28);
+  --primary: oklch(0.755 0.180 27);
+  --ring: oklch(0.755 0.180 27);
+}
+[data-accent="violet"] {
+  --teal: oklch(0.755 0.180 295);
+  --teal-deep: oklch(0.615 0.210 295);
+  --primary: oklch(0.755 0.180 295);
+  --ring: oklch(0.755 0.180 295);
+}
+[data-accent="amber"] {
+  --teal: oklch(0.820 0.165 80);
+  --teal-deep: oklch(0.690 0.170 65);
+  --primary: oklch(0.820 0.165 80);
+  --ring: oklch(0.820 0.165 80);
+}
+[data-accent="emerald"] {
+  --teal: oklch(0.780 0.165 155);
+  --teal-deep: oklch(0.620 0.155 158);
+  --primary: oklch(0.780 0.165 155);
+  --ring: oklch(0.780 0.165 155);
+}
+[data-accent="rose"] {
+  --teal: oklch(0.760 0.175 12);
+  --teal-deep: oklch(0.620 0.190 15);
+  --primary: oklch(0.760 0.175 12);
+  --ring: oklch(0.760 0.175 12);
+}
+
+/* Light theme: deepen accents one notch for AA contrast on white. */
+.light[data-accent="sky"]    { --teal: oklch(0.580 0.155 234); --teal-deep: oklch(0.480 0.170 256); --primary: oklch(0.580 0.155 234); --ring: oklch(0.580 0.155 234); }
+.light[data-accent="coral"]  { --teal: oklch(0.595 0.190 27);  --teal-deep: oklch(0.505 0.193 28);  --primary: oklch(0.595 0.190 27);  --ring: oklch(0.595 0.190 27); }
+.light[data-accent="violet"] { --teal: oklch(0.585 0.200 295); --teal-deep: oklch(0.485 0.210 295); --primary: oklch(0.585 0.200 295); --ring: oklch(0.585 0.200 295); }
+.light[data-accent="amber"]  { --teal: oklch(0.680 0.165 70);  --teal-deep: oklch(0.560 0.170 60);  --primary: oklch(0.680 0.165 70);  --ring: oklch(0.680 0.165 70); }
+.light[data-accent="emerald"]{ --teal: oklch(0.575 0.150 155); --teal-deep: oklch(0.475 0.140 158); --primary: oklch(0.575 0.150 155); --ring: oklch(0.575 0.150 155); }
+.light[data-accent="rose"]   { --teal: oklch(0.585 0.190 12);  --teal-deep: oklch(0.490 0.195 15);  --primary: oklch(0.585 0.190 12);  --ring: oklch(0.585 0.190 12); }
