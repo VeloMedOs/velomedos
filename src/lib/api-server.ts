@@ -48,6 +48,31 @@ function checkRate(keyId: string, limit: number): { ok: true; remaining: number 
 
 export type KeyAuth = { ownerId: string; keyId: string; scopes: string[]; rateLimit: number; tenantId: string | null; via: "key" | "session" };
 
+/**
+ * Resolve the tenant the caller is allowed to operate on. API keys are
+ * already tenant-scoped at issuance. Session callers (admin/dispatcher UIs)
+ * must pass `x-tenant-id` and be a member of that tenant.
+ */
+export async function resolveTenantScope(
+  auth: KeyAuth,
+  request: Request,
+): Promise<{ ok: true; tenantId: string } | { ok: false; res: Response }> {
+  if (auth.tenantId) return { ok: true, tenantId: auth.tenantId };
+  const header = request.headers.get("x-tenant-id");
+  if (!header) {
+    return { ok: false, res: json({ error: "tenant_scope_required", hint: "Pass x-tenant-id or use a tenant-scoped API key" }, 400) };
+  }
+  const db = serviceClient();
+  const { data, error } = await db
+    .from("tenant_members")
+    .select("tenant_id")
+    .eq("tenant_id", header)
+    .eq("user_id", auth.ownerId)
+    .maybeSingle();
+  if (error || !data) return { ok: false, res: json({ error: "tenant_forbidden" }, 403) };
+  return { ok: true, tenantId: data.tenant_id };
+}
+
 export async function requireKey(
   request: Request,
   requiredScope?: string,

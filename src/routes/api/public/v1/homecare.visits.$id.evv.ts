@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { json, preflight, requireKey, serviceClient } from "@/lib/api-server";
+import { json, preflight, requireKey, resolveTenantScope, serviceClient } from "@/lib/api-server";
 
 export const Route = createFileRoute("/api/public/v1/homecare/visits/$id/evv")({
   server: {
@@ -8,11 +8,14 @@ export const Route = createFileRoute("/api/public/v1/homecare/visits/$id/evv")({
       GET: async ({ request, params }) => {
         const auth = await requireKey(request, "homecare:read");
         if (!auth.ok) return auth.res;
+        const scope = await resolveTenantScope(auth.auth, request);
+        if (!scope.ok) return scope.res;
         const db = serviceClient();
         const { data: v } = await db
           .from("care_visits")
           .select("id, tenant_id, care_plan_id, recipient_id, caregiver_id, scheduled_start, scheduled_end, status, check_in_at, check_in_lat, check_in_lng, check_in_distance_m, check_out_at, check_out_lat, check_out_lng, evv_verified, evv_exception")
           .eq("id", params.id)
+          .eq("tenant_id", scope.tenantId)
           .maybeSingle();
         if (!v) return json({ error: "not_found" }, 404);
         const { data: r } = await db
