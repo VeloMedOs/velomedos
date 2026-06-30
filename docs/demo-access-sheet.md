@@ -4,6 +4,13 @@
 **Shared password:** value of the project secret `DEMO_USER_PASSWORD`
 (rotate via Superadmin → Demo environment → re-provision).
 
+## One-click sign-in
+
+The public demo login lives at **[`/demo-login`](/demo-login)** — paste the
+shared password once, then click **Sign in** on any role card to land
+directly on that role's HIS section. The page is `noindex,nofollow` and
+only accepts the 13 accounts listed below.
+
 All sandbox gateways are forced ON for this tenant: NPHIES, ZATCA, D365 and
 the AR-DRG grouper return deterministic stub responses and write a row to
 `interface_log` so the R7 Interface Monitor screen lights up live.
