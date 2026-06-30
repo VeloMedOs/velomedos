@@ -51,6 +51,13 @@ export function PartnerMarquee() {
           )}
         </div>
       </div>
+      <style>{`
+        .marquee-fade { -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+        .marquee-track { width: max-content; animation: marquee 42s linear infinite; }
+        .marquee-fade:hover .marquee-track { animation-play-state: paused; }
+        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; width: auto; flex-wrap: wrap; } }
+      `}</style>
     </section>
   );
 }
