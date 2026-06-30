@@ -50,7 +50,7 @@ export function EncounterPane() {
     try {
       const [encRes, vitalsRes, dxRes, chgRes, drgRes, eligRes] = await Promise.all([
         ClinicalAPI.getEncounter(id),
-        ClinicalAPI.clinicalFetchVitals?.(id) ?? fetchVitalsViaApi(id),
+        fetchVitalsViaApi(id),
         ClinicalAPI.listDiagnoses(id).catch(() => ({ data: [] as DxRow[] })),
         ClinicalAPI.listCharges(id).catch(() => ({ data: { charges: [], totals: {}, currency: "SAR" } as any })),
         ClinicalAPI.getDrg(id).catch(() => ({ data: { current: null, history: [] } })),
