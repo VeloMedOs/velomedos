@@ -5,7 +5,6 @@ import { BrandMark, BrandWordmark } from "@/components/BrandMark";
 import { trackNavClick } from "@/lib/track-nav";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { AccentPicker } from "@/components/AccentPicker";
-import { HeroModeSegmented } from "@/components/HeroModeSegmented";
 
 export function SiteHeader() {
   return (
@@ -19,8 +18,8 @@ export function SiteHeader() {
           <BrandWordmark />
         </Link>
         <nav className="hidden md:flex items-center gap-1 mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          <HeroModeSegmented className="mr-2" />
           {[
+            ["Platform","/platform"],
             ["Solutions","/services"],
             ["Pricing","/pricing"],
             ["About","/about"],
