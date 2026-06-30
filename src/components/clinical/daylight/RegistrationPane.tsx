@@ -1,9 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { User, Phone, HeartPulse, ShieldCheck, ScrollText, Search, Check, AlertCircle } from "lucide-react";
+import { User, Phone, HeartPulse, ShieldCheck, ScrollText, Search, Check, AlertCircle, RotateCcw, Trash2 } from "lucide-react";
 import { ClinicalAPI, ClinicalApiError } from "@/lib/clinical-api";
 import { DCard, RailCard, KV, Field, Seg2, CTA } from "./Primitives";
 import { MdsMeter } from "./MdsMeter";
+import { draftStore, useDebouncedEffect } from "@/lib/clinical/use-autosave";
+
+const DRAFT_KEY = "velomed.his.reg.draft.v1";
 
 type RegForm = {
   id_type: string; id_number: string;
@@ -36,6 +39,13 @@ export function RegistrationPane() {
   const [verified, setVerified] = useState(false);
   const [saving, setSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [beneficiaryId, setBeneficiaryId] = useState<string | null>(null);
+  const [coverageId, setCoverageId] = useState<string | null>(null);
+  const [coverageRow, setCoverageRow] = useState<any | null>(null);
+  const [hasDraft, setHasDraft] = useState<RegForm | null>(null);
+  const [checkingElig, setCheckingElig] = useState(false);
+  const [eligResult, setEligResult] = useState<any | null>(null);
+  const coverageInFlight = useRef(false);
 
   useEffect(() => {
     Promise.all([
@@ -44,16 +54,50 @@ export function RegistrationPane() {
     ]).then(([p, pl]) => { setPayers(p.data ?? []); setPlans(pl.data ?? []); });
   }, []);
 
+  // Restore-draft prompt on mount.
+  useEffect(() => {
+    const d = draftStore.read<RegForm>(DRAFT_KEY);
+    if (d && (d.id_number || d.name_en || d.mobile)) setHasDraft(d);
+  }, []);
+
+  // Local autosave — debounce 700ms.
+  useDebouncedEffect(form, 700, (f) => {
+    if (f === EMPTY) return;
+    draftStore.write(DRAFT_KEY, f);
+  });
+
+  // Identity / contact server autosave (PATCH) — only after beneficiary exists.
+  useDebouncedEffect(form, 900, async (f) => {
+    if (!beneficiaryId) return;
+    try {
+      await ClinicalAPI.updateBeneficiary(beneficiaryId, {
+        full_name: f.name_en || undefined,
+        document_id: f.id_number || undefined,
+        date_of_birth: f.dob || null,
+        sex: f.sex,
+        nationality: f.nationality || undefined,
+      });
+      setLastSavedAt(new Date());
+    } catch (e) {
+      if (e instanceof ClinicalApiError) toast.error(`Autosave: ${e.message}`);
+    }
+  });
+
   const set = <K extends keyof RegForm>(k: K, v: RegForm[K]) => setForm((f) => ({ ...f, [k]: v }));
 
   // MDS computation — mirrors §6 minimum data set.
+  // MDS — identity/contact/clinical from in-form values; coverage from the
+  // real coverage row when present, else from in-form values. Allergy signal
+  // is the in-form flag (no server lookup).
   const groups = useMemo(() => ({
     identity:  !!(form.id_number && form.name_en && form.name_ar && form.dob && form.sex !== "unknown" && form.nationality),
     contact:   !!(form.mobile && form.city && form.language),
     clinical:  !!(form.allergies_known && (form.allergies_known === "no" || form.allergies_text.trim().length > 0)),
-    coverage:  !!(form.payer_id && form.member_id && form.plan_id && form.relation),
+    coverage:  coverageRow
+      ? !!(coverageRow.payer_id && coverageRow.member_id)
+      : !!(form.payer_id && form.member_id && form.plan_id && form.relation),
     consent:   form.consent,
-  }), [form]);
+  }), [form, coverageRow]);
 
   const steps = [
     { id: "identity",  label: "Identity",          done: groups.identity },
@@ -64,10 +108,23 @@ export function RegistrationPane() {
   ];
   const allDone = steps.every((s) => s.done);
 
+  function restoreDraft() {
+    if (!hasDraft) return;
+    setForm(hasDraft);
+    setHasDraft(null);
+    toast.success("Draft restored");
+  }
+  function discardDraft() {
+    draftStore.clear(DRAFT_KEY);
+    setHasDraft(null);
+    toast.message("Draft discarded");
+  }
+
   function verifyYakeen() {
     if (!form.id_number) return toast.error("Enter the ID number first");
-    // Sandbox stub — real Yakeen lookup is wired in production.
-    setVerified(true);
+    // Sandbox stub — real Yakeen lookup is wired in production. We only flip
+    // `verified` once the prefilled identity actually satisfies the MDS so
+    // the chip stays honest if the user clears a field after lookup.
     setForm((f) => ({
       ...f,
       name_en: f.name_en || "Aisha Al-Otaibi",
@@ -76,7 +133,48 @@ export function RegistrationPane() {
       sex: f.sex === "unknown" ? "female" : f.sex,
       nationality: f.nationality || "Saudi",
     }));
+    setVerified(true);
     toast.success("Verified with Yakeen · identity & coverage pre-filled");
+  }
+
+  // Re-evaluate verified flag whenever identity becomes incomplete.
+  useEffect(() => { if (verified && !groups.identity) setVerified(false); }, [groups.identity, verified]);
+
+  async function createCoverageOnce() {
+    if (!beneficiaryId) return toast.error("Save patient identity first");
+    if (coverageId) return toast.message("Coverage already on file for this patient");
+    if (coverageInFlight.current) return;
+    if (!(form.payer_id && form.member_id)) return toast.error("Payer and member ID are required");
+    coverageInFlight.current = true;
+    try {
+      const r = await ClinicalAPI.createCoverage(beneficiaryId, {
+        payer_id: form.payer_id,
+        insurance_plan_id: form.plan_id || null,
+        member_id: form.member_id,
+      });
+      const row: any = (r as any).data;
+      setCoverageId(row?.id ?? null);
+      setCoverageRow(row ?? null);
+      toast.success("Coverage created");
+    } catch (e) {
+      if (e instanceof ClinicalApiError) toast.error(e.message);
+    } finally { coverageInFlight.current = false; }
+  }
+
+  async function runEligibility() {
+    if (!beneficiaryId) return toast.error("Save patient identity first");
+    if (!coverageId) return toast.error("Create coverage first");
+    setCheckingElig(true);
+    try {
+      const r = await ClinicalAPI.checkEligibility({
+        beneficiary_id: beneficiaryId,
+        coverage_id: coverageId,
+      });
+      setEligResult((r as any).data);
+      toast.success("Eligibility checked");
+    } catch (e) {
+      if (e instanceof ClinicalApiError) toast.error(e.message);
+    } finally { setCheckingElig(false); }
   }
 
   async function register() {
@@ -85,24 +183,36 @@ export function RegistrationPane() {
     if (!form.consent)     return toast.error("Patient consent is required");
     setSaving(true);
     try {
-      const b = await ClinicalAPI.createBeneficiary({
-        full_name: form.name_en,
-        document_id: form.id_number,
-        date_of_birth: form.dob || null,
-        sex: form.sex,
-        nationality: form.nationality,
-      });
-      const bid = (b.data as any)?.id as string;
-      if (bid && form.payer_id && form.member_id) {
-        await ClinicalAPI.createCoverage(bid, {
-          payer_id: form.payer_id,
-          insurance_plan_id: form.plan_id || null,
-          member_id: form.member_id,
-        }).catch(() => null);
+      let bid = beneficiaryId;
+      if (!bid) {
+        const b = await ClinicalAPI.createBeneficiary({
+          full_name: form.name_en,
+          document_id: form.id_number,
+          date_of_birth: form.dob || null,
+          sex: form.sex,
+          nationality: form.nationality,
+        });
+        bid = ((b.data as any)?.id as string) ?? null;
+        if (bid) setBeneficiaryId(bid);
+      }
+      // Coverage is created once, guarded. Re-use existing row if already created.
+      if (bid && !coverageId && form.payer_id && form.member_id && !coverageInFlight.current) {
+        coverageInFlight.current = true;
+        try {
+          const c = await ClinicalAPI.createCoverage(bid, {
+            payer_id: form.payer_id,
+            insurance_plan_id: form.plan_id || null,
+            member_id: form.member_id,
+          });
+          const row: any = (c as any).data;
+          setCoverageId(row?.id ?? null);
+          setCoverageRow(row ?? null);
+        } finally { coverageInFlight.current = false; }
       }
       setLastSavedAt(new Date());
+      draftStore.clear(DRAFT_KEY);
       toast.success("Patient registered · MDS complete");
-      setForm(EMPTY); setVerified(false);
+      setForm(EMPTY); setVerified(false); setBeneficiaryId(null); setCoverageId(null); setCoverageRow(null); setEligResult(null);
     } catch (e) {
       if (e instanceof ClinicalApiError) toast.error(e.message);
     } finally { setSaving(false); }
@@ -118,6 +228,19 @@ export function RegistrationPane() {
       </p>
 
       <MdsMeter steps={steps} />
+
+      {hasDraft && (
+        <div className="clin-card mb-5 p-3.5 flex items-center gap-3" style={{ background: "var(--clin-info-tint)" }}>
+          <RotateCcw className="size-4" style={{ color: "var(--clin-info)" }} />
+          <div className="flex-1 text-[13px]" style={{ color: "var(--clin-ink)" }}>
+            We found an unsaved registration draft on this device.
+          </div>
+          <button onClick={restoreDraft} className="rounded-lg px-3 py-1.5 font-semibold text-[12.5px] text-white" style={{ background: "var(--clin-info)" }}>Restore</button>
+          <button onClick={discardDraft} className="rounded-lg px-3 py-1.5 text-[12.5px] inline-flex items-center gap-1.5" style={{ border: "1px solid var(--hairline)", color: "var(--clin-muted)" }}>
+            <Trash2 className="size-3.5" />Discard
+          </button>
+        </div>
+      )}
 
       <div className="grid gap-5" style={{ gridTemplateColumns: "minmax(0,1fr) 320px", alignItems: "start" }}>
         <div>
