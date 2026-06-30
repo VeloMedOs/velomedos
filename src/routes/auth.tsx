@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { recordOAuthOutcome } from "@/lib/oauth-diagnostics.functions";
 import { User, Stethoscope, Building2, ArrowLeft, AlertTriangle, CheckCircle2, ExternalLink, ArrowRight } from "lucide-react";
 import { BrandMark, BrandWordmark } from "@/components/BrandMark";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { toast } from "sonner";
 import { z } from "zod";
 
