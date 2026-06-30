@@ -6487,6 +6487,7 @@ export type Database = {
           nationality: string | null
           passport_number: string | null
           phone: string | null
+          theme_preference: string
           updated_at: string
           verified_at: string | null
         }
@@ -6505,6 +6506,7 @@ export type Database = {
           nationality?: string | null
           passport_number?: string | null
           phone?: string | null
+          theme_preference?: string
           updated_at?: string
           verified_at?: string | null
         }
@@ -6523,6 +6525,7 @@ export type Database = {
           nationality?: string | null
           passport_number?: string | null
           phone?: string | null
+          theme_preference?: string
           updated_at?: string
           verified_at?: string | null
         }
