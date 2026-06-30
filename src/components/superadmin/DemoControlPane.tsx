@@ -297,7 +297,6 @@ function CredentialsManager() {
             <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground"><Loader2 className="size-3.5 inline animate-spin mr-1.5" />Loading…</td></tr>
           )}
           {rows?.map((r) => {
-            const key = r.clinical_role || r.email.split("@")[0];
             return (
               <tr key={r.email} className="border-t border-hairline/60">
                 <td className="px-4 py-1.5 font-semibold">{r.role_label}</td>
