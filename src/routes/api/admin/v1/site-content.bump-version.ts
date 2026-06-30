@@ -13,7 +13,12 @@ export const Route = createFileRoute("/api/admin/v1/site-content/bump-version")(
         const actor = auth.via === "session" ? auth.userId : null;
         const { data, error } = await db.rpc("bump_site_content_version", { _actor: actor });
         if (error) return json({ error: error.message, code: "rpc/failed", request_id: crypto.randomUUID() }, 400);
-        await adminAudit(auth.userId, "site_content.bump_version", "site_content_version", "1", { version: data });
+        await adminAudit(auth.userId, "site_content.bump_version", "site_content_version", "1", {
+          staff_user_id: auth.userId,
+          via: auth.via,
+          version_after: data,
+          reason: "manual_cache_bust",
+        });
         return json({ ok: true, version: data });
       },
     },
