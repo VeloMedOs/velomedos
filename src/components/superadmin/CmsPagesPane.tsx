@@ -25,10 +25,10 @@ export function CmsPagesPane() {
   const [editing, setEditing] = useState<Record<string, string>>({});
 
   async function load() {
-    const r = (await adminFetch(`/api/admin/v1/site-content?locale=${locale}`)) as Response;
-    if (!r.ok) { toast.error("Failed to load CMS rows"); return; }
-    const data = await r.json();
-    setRows((data.rows ?? []) as Row[]);
+    try {
+      const data = await adminFetch<{ rows?: Row[] }>(`/api/admin/v1/site-content?locale=${locale}`);
+      setRows(data.rows ?? []);
+    } catch (e) { toast.error((e as Error).message || "Failed to load CMS rows"); }
   }
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [locale]);
 
@@ -39,14 +39,15 @@ export function CmsPagesPane() {
     const raw = editing[key] ?? stringify(map.get(key)?.value);
     let value: unknown = raw;
     try { value = JSON.parse(raw); } catch { /* keep as string */ }
-    const r = (await adminFetch("/api/admin/v1/site-content", {
-      method: "PUT", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ key, locale, value, status }),
-    })) as Response;
-    if (!r.ok) { toast.error("Save failed"); return; }
-    toast.success(`${key} · ${status}`);
-    setEditing((e) => { const c = { ...e }; delete c[key]; return c; });
-    load();
+    try {
+      await adminFetch("/api/admin/v1/site-content", {
+        method: "PUT",
+        body: { key, locale, value, status },
+      });
+      toast.success(`${key} · ${status}`);
+      setEditing((e) => { const c = { ...e }; delete c[key]; return c; });
+      load();
+    } catch (e) { toast.error((e as Error).message || "Save failed"); }
   }
 
   return (
