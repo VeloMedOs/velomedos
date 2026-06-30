@@ -24,6 +24,39 @@ type Acct = {
 
 type DemoState = { reveal: boolean; accounts: Acct[] };
 
+const AUTOFILL_KEY = "velomed:demo_autofill";
+
+const FALLBACK_ACCOUNTS: Acct[] = [
+  { email: "superadmin@demo.velomedos.com", role_label: "Demo Superadmin", clinical_role: null, lands_on: "/superadmin" },
+  { email: "admin@demo.velomedos.com", role_label: "Tenant Admin", clinical_role: "tenant_admin", lands_on: "/clinical?tab=encounters" },
+  { email: "doctor@demo.velomedos.com", role_label: "Physician", clinical_role: "physician", lands_on: "/clinical?tab=encounters" },
+  { email: "nurse@demo.velomedos.com", role_label: "Nurse", clinical_role: "nurse", lands_on: "/clinical?tab=encounters" },
+  { email: "coder@demo.velomedos.com", role_label: "Clinical Coder", clinical_role: "coder", lands_on: "/clinical?tab=coding" },
+  { email: "rcm@demo.velomedos.com", role_label: "RCM Specialist", clinical_role: "rcm", lands_on: "/clinical?tab=claims" },
+  { email: "approver@demo.velomedos.com", role_label: "Approval Officer", clinical_role: "approval_officer", lands_on: "/clinical?tab=claims" },
+  { email: "cashier@demo.velomedos.com", role_label: "Cashier", clinical_role: "cashier", lands_on: "/clinical?tab=claims" },
+  { email: "biller@demo.velomedos.com", role_label: "Biller", clinical_role: "biller", lands_on: "/clinical?tab=claims" },
+  { email: "claims@demo.velomedos.com", role_label: "Claims Officer", clinical_role: "claims_officer", lands_on: "/clinical?tab=claims" },
+  { email: "finance@demo.velomedos.com", role_label: "Finance", clinical_role: "finance", lands_on: "/clinical?tab=claims" },
+  { email: "readonly@demo.velomedos.com", role_label: "Read-Only Auditor", clinical_role: "read_only", lands_on: "/clinical?tab=encounters" },
+  { email: "patient@demo.velomedos.com", role_label: "Patient", clinical_role: null, lands_on: "/patient" },
+];
+
+function readStoredAutofill(): { email: string; role: string; password: string; expiresAt: number } | null {
+  try {
+    const raw = window.localStorage.getItem(AUTOFILL_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { email?: string; role?: string; password?: string; expiresAt?: number };
+    if (!parsed.email || !parsed.role || !parsed.password || !parsed.expiresAt || parsed.expiresAt < Date.now()) {
+      window.localStorage.removeItem(AUTOFILL_KEY);
+      return null;
+    }
+    return { email: parsed.email, role: parsed.role, password: parsed.password, expiresAt: parsed.expiresAt };
+  } catch {
+    return null;
+  }
+}
+
 export const Route = createFileRoute("/demo-login")({
   ssr: false,
   head: () => ({
@@ -56,9 +89,12 @@ function DemoLogin() {
         const r = await fetch("/api/public/v1/demo/credentials", { credentials: "omit" });
         const j = (await r.json()) as { ok: boolean; reveal?: boolean; accounts?: Acct[]; error?: string };
         if (!j.ok) throw new Error(j.error ?? `HTTP ${r.status}`);
-        setState({ reveal: Boolean(j.reveal), accounts: j.accounts ?? [] });
+        const accounts = j.accounts?.length ? j.accounts : FALLBACK_ACCOUNTS;
+        setState({ reveal: Boolean(j.reveal), accounts });
+        if (!j.accounts?.length) setLoadError("Live roster returned empty; using built-in demo roles.");
       } catch (e) {
-        setLoadError((e as Error).message);
+        setState({ reveal: false, accounts: FALLBACK_ACCOUNTS });
+        setLoadError(`${(e as Error).message}. Showing built-in demo roles; passwords must be typed manually or launched from Superadmin.`);
       }
     })();
   }, []);
@@ -67,15 +103,18 @@ function DemoLogin() {
   useEffect(() => {
     if (!state) return;
     const url = new URL(window.location.href);
-    const want = url.searchParams.get("role");
+    const stored = readStoredAutofill();
+    const want = url.searchParams.get("role") || stored?.role || null;
     if (want) {
       const match =
         state.accounts.find((a) => roleKey(a) === want) ||
         state.accounts.find((a) => a.email.split("@")[0] === want);
       if (match) chooseRole(roleKey(match), state);
-      if (url.searchParams.get("autosignin") === "1" && match?.password) {
+      const storedPassword = stored && match && stored.email.toLowerCase() === match.email.toLowerCase() ? stored.password : undefined;
+      const pw = match?.password ?? storedPassword;
+      if (url.searchParams.get("autosignin") === "1" && match && pw) {
         // give state a tick to settle
-        setTimeout(() => signIn(match.email, match.password!, match), 50);
+        setTimeout(() => signIn(match.email, pw, match), 50);
       }
     } else if (state.accounts.length) {
       const physician = state.accounts.find((a) => a.clinical_role === "physician") ?? state.accounts[0];
@@ -88,9 +127,11 @@ function DemoLogin() {
     if (!src) return;
     const acct = src.accounts.find((a) => roleKey(a) === key);
     if (!acct) return;
+    const stored = readStoredAutofill();
+    const storedPassword = stored && stored.email.toLowerCase() === acct.email.toLowerCase() ? stored.password : undefined;
     setSelected(key);
     setEmail(acct.email);
-    setPassword(acct.password ?? "");
+    setPassword(acct.password ?? storedPassword ?? "");
   }
 
   async function signIn(eml: string, pw: string, acct?: Acct) {
@@ -102,6 +143,7 @@ function DemoLogin() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: eml, password: pw });
       if (error) throw error;
+      try { window.localStorage.removeItem(AUTOFILL_KEY); } catch { /* noop */ }
       const target = acct ?? state?.accounts.find((a) => a.email === eml);
       let dest = target?.lands_on ?? "/clinical";
       if (dest === "/clinical" || dest.startsWith("/clinical?")) {
@@ -135,8 +177,8 @@ function DemoLogin() {
       <header className="border-b border-hairline">
         <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5"><BrandMark className="size-7" /><BrandWordmark /></Link>
-          <Link to="/auth" className="mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5">
-            Real sign-in <ExternalLink className="size-3" />
+          <Link to="/superadmin/login" className="mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5">
+            Real Superadmin portal <ExternalLink className="size-3" />
           </Link>
         </div>
       </header>
@@ -150,6 +192,7 @@ function DemoLogin() {
 
         <form
           onSubmit={(e) => { e.preventDefault(); signIn(email, password, selectedAcct); }}
+          autoComplete="off"
           className="rounded-2xl border border-hairline bg-panel p-6 space-y-5"
         >
           {/* Role */}
@@ -176,7 +219,8 @@ function DemoLogin() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="role@demo.velomedos.com"
                 className="flex-1 h-11 px-3 rounded-md bg-input border border-hairline mono text-[13px]"
-                autoComplete="username"
+                name="velomed-demo-username"
+                autoComplete="off"
               />
               <button type="button" onClick={() => email && copy(email, "Email")} className="px-3 h-11 rounded-md border border-hairline inline-flex items-center gap-1.5 mono text-[10px] uppercase tracking-widest">
                 <Copy className="size-3.5" />
@@ -193,7 +237,8 @@ function DemoLogin() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={state?.reveal ? "Auto-filled from sandbox" : "Type the demo password"}
                 className="flex-1 h-11 px-3 rounded-md bg-input border border-hairline mono text-[13px]"
-                autoComplete="current-password"
+                name="velomed-demo-password"
+                autoComplete="off"
               />
               <button type="button" onClick={() => setShowPw((s) => !s)} className="px-3 h-11 rounded-md border border-hairline inline-flex items-center" aria-label={showPw ? "Hide" : "Show"}>
                 {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -220,9 +265,15 @@ function DemoLogin() {
           )}
         </form>
 
+        {state && !state.reveal && (
+          <div className="rounded-md border border-caution/40 bg-caution/5 px-4 py-3 text-[12px] text-caution">
+            Password auto-fill is OFF. Type the password manually, or launch a row from <span className="mono">/superadmin → Demo Environment</span> after clicking <span className="mono">Apply to auth users</span>. The real Superadmin account is <span className="mono">superadmin@velomedos.com</span> and only belongs on <span className="mono">/superadmin/login</span>.
+          </div>
+        )}
+
         {loadError && (
-          <div className="rounded-md border border-emergency/40 bg-emergency/5 px-4 py-3 text-[12px] text-emergency">
-            Couldn't load sandbox accounts: {loadError}
+          <div className="rounded-md border border-hairline bg-panel/50 px-4 py-3 text-[12px] text-muted-foreground">
+            Credential API note: {loadError}
           </div>
         )}
 
