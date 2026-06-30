@@ -1,13 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { json, preflight, serviceClient } from "@/lib/api-server";
+import { preflight, serviceClient } from "@/lib/api-server";
 
 /**
  * Public marketing-site content overlay.
- *  - Default: returns PUBLISHED rows only.
- *  - `?preview=1` + Authorization bearer of a portal-staff session: also
- *    merges DRAFT rows so Superadmin editors can preview changes before
- *    publishing. Draft rows shadow published rows when both exist.
- * Shape: { content: { [key]: { [locale]: value } } }
+ *
+ *  - Default: returns PUBLISHED values only (published_value).
+ *  - `?preview=1` + Authorization bearer of a portal-staff session: returns
+ *    draft_value ?? published_value so editors can preview staged drafts
+ *    before publishing. Drafts NEVER leak to anonymous visitors.
+ *
+ * Cache-busting: every response carries `ETag: "v<version>"` derived from
+ * `site_content_version`. The version auto-bumps whenever any published row
+ * changes, so the marketing site sees fresh content on the next request and
+ * any `If-None-Match` revalidation returns 304 until the next publish.
+ *
+ * A lightweight row is appended to `debug_events` per request so stale-content
+ * reports can be traced (version served, preview flag, referer).
+ *
+ * Shape: { content: { [key]: { [locale]: value } }, version, preview, generated_at }
  */
 export const Route = createFileRoute("/api/public/v1/site-content")({
   server: {
@@ -17,9 +27,13 @@ export const Route = createFileRoute("/api/public/v1/site-content")({
         const url = new URL(request.url);
         const key = url.searchParams.get("key");
         const wantPreview = url.searchParams.get("preview") === "1";
-        const db = serviceClient();
+        // Loose-typed client: new tables/columns (site_content_version,
+        // draft_value, published_value) aren't in the regenerated typegen yet.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const db = serviceClient() as unknown as any;
 
         let isStaff = false;
+        let staffUserId: string | null = null;
         if (wantPreview) {
           const authHeader = request.headers.get("authorization") ?? "";
           const bearer = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7) : "";
@@ -27,36 +41,76 @@ export const Route = createFileRoute("/api/public/v1/site-content")({
             const { data: u } = await db.auth.getUser(bearer);
             if (u?.user) {
               const { data: staff } = await db.rpc("is_portal_staff", { _user_id: u.user.id });
-              if (staff) isStaff = true;
+              if (staff) { isStaff = true; staffUserId = u.user.id; }
             }
           }
         }
-
         const allowDraft = wantPreview && isStaff;
-        let q = db.from("site_content").select("key, locale, value, status");
-        if (!allowDraft) q = q.eq("status", "published");
+
+        const { data: verRow } = await db
+          .from("site_content_version")
+          .select("version")
+          .eq("id", 1)
+          .maybeSingle();
+        const version = ((verRow as { version?: number } | null)?.version) ?? 1;
+        // Tag preview separately so cached public responses never leak drafts.
+        const etag = `"v${version}${allowDraft ? "-preview" : ""}"`;
+
+        const ifNoneMatch = request.headers.get("if-none-match");
+        if (ifNoneMatch && ifNoneMatch === etag) {
+          return new Response(null, { status: 304, headers: baseHeaders(etag, version, allowDraft) });
+        }
+
+        let q = db.from("site_content").select("key, locale, draft_value, published_value");
         if (key) q = q.eq("key", key);
         const { data, error } = await q;
-        if (error) return json({ content: {} });
 
-        // When previewing, drafts shadow published rows for the same (key,locale).
         const content: Record<string, Record<string, unknown>> = {};
-        const seenDraft = new Set<string>();
-        for (const row of (data ?? []) as Array<{ key: string; locale: string; value: unknown; status: string }>) {
-          const tag = `${row.key}::${row.locale}`;
-          if (row.status === "draft") {
-            (content[row.key] ||= {})[row.locale] = row.value;
-            seenDraft.add(tag);
-          } else if (!seenDraft.has(tag)) {
-            (content[row.key] ||= {})[row.locale] = row.value;
+        if (!error) {
+          for (const row of (data ?? []) as Array<{
+            key: string; locale: string; draft_value: unknown; published_value: unknown;
+          }>) {
+            const v = allowDraft ? (row.draft_value ?? row.published_value) : row.published_value;
+            if (v === null || v === undefined) continue;
+            (content[row.key] ||= {})[row.locale] = v;
           }
         }
-        return json({
-          content,
-          preview: allowDraft,
-          generated_at: new Date().toISOString(),
+
+        // Fire-and-forget request log for stale-content diagnosis.
+        db.from("debug_events").insert({
+          source: "api.site_content",
+          kind: allowDraft ? "preview_fetch" : "public_fetch",
+          severity: "info",
+          route: "/api/public/v1/site-content",
+          message: `served v${version} · ${Object.keys(content).length} keys`,
+          payload: {
+            version,
+            key,
+            preview: allowDraft,
+            staff_user_id: staffUserId,
+            ua: request.headers.get("user-agent")?.slice(0, 180) ?? null,
+            referer: request.headers.get("referer")?.slice(0, 240) ?? null,
+            rows: (data ?? []).length,
+            keys: Object.keys(content).length,
+          },
+        }).then(() => {});
+
+        const body = { content, version, preview: allowDraft, generated_at: new Date().toISOString() };
+        return new Response(JSON.stringify(body), {
+          status: 200,
+          headers: { "content-type": "application/json", ...baseHeaders(etag, version, allowDraft) },
         });
       },
     },
   },
 });
+
+function baseHeaders(etag: string, version: number, isPreview: boolean): Record<string, string> {
+  return {
+    etag,
+    "cache-control": isPreview ? "no-store" : "public, max-age=0, must-revalidate",
+    "x-velomed-cms-version": String(version),
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "etag, x-velomed-cms-version",
+  };
+}

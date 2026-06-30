@@ -162,6 +162,9 @@ import { Route as ApiClinicalV1BeneficiariesIdRouteImport } from './routes/api/c
 import { Route as ApiAdminV1UsageDailyRouteImport } from './routes/api/admin/v1/usage.daily'
 import { Route as ApiAdminV1TenantSubscriptionsIdRouteImport } from './routes/api/admin/v1/tenant-subscriptions.$id'
 import { Route as ApiAdminV1SubscribersIdRouteImport } from './routes/api/admin/v1/subscribers.$id'
+import { Route as ApiAdminV1SiteContentUnpublishRouteImport } from './routes/api/admin/v1/site-content.unpublish'
+import { Route as ApiAdminV1SiteContentPublishRouteImport } from './routes/api/admin/v1/site-content.publish'
+import { Route as ApiAdminV1SiteContentBumpVersionRouteImport } from './routes/api/admin/v1/site-content.bump-version'
 import { Route as ApiAdminV1PlansIdRouteImport } from './routes/api/admin/v1/plans.$id'
 import { Route as ApiAdminV1OpsWorkspaceRouteImport } from './routes/api/admin/v1/ops.workspace'
 import { Route as ApiAdminV1OpsTestRunsRouteImport } from './routes/api/admin/v1/ops.test-runs'
@@ -1085,6 +1088,24 @@ const ApiAdminV1SubscribersIdRoute = ApiAdminV1SubscribersIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => ApiAdminV1SubscribersRoute,
 } as any)
+const ApiAdminV1SiteContentUnpublishRoute =
+  ApiAdminV1SiteContentUnpublishRouteImport.update({
+    id: '/unpublish',
+    path: '/unpublish',
+    getParentRoute: () => ApiAdminV1SiteContentRoute,
+  } as any)
+const ApiAdminV1SiteContentPublishRoute =
+  ApiAdminV1SiteContentPublishRouteImport.update({
+    id: '/publish',
+    path: '/publish',
+    getParentRoute: () => ApiAdminV1SiteContentRoute,
+  } as any)
+const ApiAdminV1SiteContentBumpVersionRoute =
+  ApiAdminV1SiteContentBumpVersionRouteImport.update({
+    id: '/bump-version',
+    path: '/bump-version',
+    getParentRoute: () => ApiAdminV1SiteContentRoute,
+  } as any)
 const ApiAdminV1PlansIdRoute = ApiAdminV1PlansIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -1788,7 +1809,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/privileges': typeof ApiAdminV1PrivilegesRoute
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
-  '/api/admin/v1/site-content': typeof ApiAdminV1SiteContentRoute
+  '/api/admin/v1/site-content': typeof ApiAdminV1SiteContentRouteWithChildren
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
@@ -1845,6 +1866,9 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/ops/test-runs': typeof ApiAdminV1OpsTestRunsRoute
   '/api/admin/v1/ops/workspace': typeof ApiAdminV1OpsWorkspaceRoute
   '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
+  '/api/admin/v1/site-content/bump-version': typeof ApiAdminV1SiteContentBumpVersionRoute
+  '/api/admin/v1/site-content/publish': typeof ApiAdminV1SiteContentPublishRoute
+  '/api/admin/v1/site-content/unpublish': typeof ApiAdminV1SiteContentUnpublishRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
@@ -2047,7 +2071,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/privileges': typeof ApiAdminV1PrivilegesRoute
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
-  '/api/admin/v1/site-content': typeof ApiAdminV1SiteContentRoute
+  '/api/admin/v1/site-content': typeof ApiAdminV1SiteContentRouteWithChildren
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
@@ -2104,6 +2128,9 @@ export interface FileRoutesByTo {
   '/api/admin/v1/ops/test-runs': typeof ApiAdminV1OpsTestRunsRoute
   '/api/admin/v1/ops/workspace': typeof ApiAdminV1OpsWorkspaceRoute
   '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
+  '/api/admin/v1/site-content/bump-version': typeof ApiAdminV1SiteContentBumpVersionRoute
+  '/api/admin/v1/site-content/publish': typeof ApiAdminV1SiteContentPublishRoute
+  '/api/admin/v1/site-content/unpublish': typeof ApiAdminV1SiteContentUnpublishRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
@@ -2310,7 +2337,7 @@ export interface FileRoutesById {
   '/api/admin/v1/privileges': typeof ApiAdminV1PrivilegesRoute
   '/api/admin/v1/promotions': typeof ApiAdminV1PromotionsRoute
   '/api/admin/v1/roles': typeof ApiAdminV1RolesRoute
-  '/api/admin/v1/site-content': typeof ApiAdminV1SiteContentRoute
+  '/api/admin/v1/site-content': typeof ApiAdminV1SiteContentRouteWithChildren
   '/api/admin/v1/subscribers': typeof ApiAdminV1SubscribersRouteWithChildren
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
@@ -2367,6 +2394,9 @@ export interface FileRoutesById {
   '/api/admin/v1/ops/test-runs': typeof ApiAdminV1OpsTestRunsRoute
   '/api/admin/v1/ops/workspace': typeof ApiAdminV1OpsWorkspaceRoute
   '/api/admin/v1/plans/$id': typeof ApiAdminV1PlansIdRoute
+  '/api/admin/v1/site-content/bump-version': typeof ApiAdminV1SiteContentBumpVersionRoute
+  '/api/admin/v1/site-content/publish': typeof ApiAdminV1SiteContentPublishRoute
+  '/api/admin/v1/site-content/unpublish': typeof ApiAdminV1SiteContentUnpublishRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
@@ -2630,6 +2660,9 @@ export interface FileRouteTypes {
     | '/api/admin/v1/ops/test-runs'
     | '/api/admin/v1/ops/workspace'
     | '/api/admin/v1/plans/$id'
+    | '/api/admin/v1/site-content/bump-version'
+    | '/api/admin/v1/site-content/publish'
+    | '/api/admin/v1/site-content/unpublish'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
@@ -2889,6 +2922,9 @@ export interface FileRouteTypes {
     | '/api/admin/v1/ops/test-runs'
     | '/api/admin/v1/ops/workspace'
     | '/api/admin/v1/plans/$id'
+    | '/api/admin/v1/site-content/bump-version'
+    | '/api/admin/v1/site-content/publish'
+    | '/api/admin/v1/site-content/unpublish'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
@@ -3151,6 +3187,9 @@ export interface FileRouteTypes {
     | '/api/admin/v1/ops/test-runs'
     | '/api/admin/v1/ops/workspace'
     | '/api/admin/v1/plans/$id'
+    | '/api/admin/v1/site-content/bump-version'
+    | '/api/admin/v1/site-content/publish'
+    | '/api/admin/v1/site-content/unpublish'
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
@@ -3322,7 +3361,7 @@ export interface RootRouteChildren {
   ApiAdminV1PrivilegesRoute: typeof ApiAdminV1PrivilegesRoute
   ApiAdminV1PromotionsRoute: typeof ApiAdminV1PromotionsRoute
   ApiAdminV1RolesRoute: typeof ApiAdminV1RolesRoute
-  ApiAdminV1SiteContentRoute: typeof ApiAdminV1SiteContentRoute
+  ApiAdminV1SiteContentRoute: typeof ApiAdminV1SiteContentRouteWithChildren
   ApiAdminV1SubscribersRoute: typeof ApiAdminV1SubscribersRouteWithChildren
   ApiAdminV1SubscriptionsRoute: typeof ApiAdminV1SubscriptionsRoute
   ApiAdminV1TenantSubscriptionsRoute: typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
@@ -4492,6 +4531,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1SubscribersIdRouteImport
       parentRoute: typeof ApiAdminV1SubscribersRoute
     }
+    '/api/admin/v1/site-content/unpublish': {
+      id: '/api/admin/v1/site-content/unpublish'
+      path: '/unpublish'
+      fullPath: '/api/admin/v1/site-content/unpublish'
+      preLoaderRoute: typeof ApiAdminV1SiteContentUnpublishRouteImport
+      parentRoute: typeof ApiAdminV1SiteContentRoute
+    }
+    '/api/admin/v1/site-content/publish': {
+      id: '/api/admin/v1/site-content/publish'
+      path: '/publish'
+      fullPath: '/api/admin/v1/site-content/publish'
+      preLoaderRoute: typeof ApiAdminV1SiteContentPublishRouteImport
+      parentRoute: typeof ApiAdminV1SiteContentRoute
+    }
+    '/api/admin/v1/site-content/bump-version': {
+      id: '/api/admin/v1/site-content/bump-version'
+      path: '/bump-version'
+      fullPath: '/api/admin/v1/site-content/bump-version'
+      preLoaderRoute: typeof ApiAdminV1SiteContentBumpVersionRouteImport
+      parentRoute: typeof ApiAdminV1SiteContentRoute
+    }
     '/api/admin/v1/plans/$id': {
       id: '/api/admin/v1/plans/$id'
       path: '/$id'
@@ -5502,6 +5562,23 @@ const ApiAdminV1PlansRouteWithChildren = ApiAdminV1PlansRoute._addFileChildren(
   ApiAdminV1PlansRouteChildren,
 )
 
+interface ApiAdminV1SiteContentRouteChildren {
+  ApiAdminV1SiteContentBumpVersionRoute: typeof ApiAdminV1SiteContentBumpVersionRoute
+  ApiAdminV1SiteContentPublishRoute: typeof ApiAdminV1SiteContentPublishRoute
+  ApiAdminV1SiteContentUnpublishRoute: typeof ApiAdminV1SiteContentUnpublishRoute
+}
+
+const ApiAdminV1SiteContentRouteChildren: ApiAdminV1SiteContentRouteChildren = {
+  ApiAdminV1SiteContentBumpVersionRoute: ApiAdminV1SiteContentBumpVersionRoute,
+  ApiAdminV1SiteContentPublishRoute: ApiAdminV1SiteContentPublishRoute,
+  ApiAdminV1SiteContentUnpublishRoute: ApiAdminV1SiteContentUnpublishRoute,
+}
+
+const ApiAdminV1SiteContentRouteWithChildren =
+  ApiAdminV1SiteContentRoute._addFileChildren(
+    ApiAdminV1SiteContentRouteChildren,
+  )
+
 interface ApiAdminV1SubscribersRouteChildren {
   ApiAdminV1SubscribersIdRoute: typeof ApiAdminV1SubscribersIdRoute
 }
@@ -6273,7 +6350,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1PrivilegesRoute: ApiAdminV1PrivilegesRoute,
   ApiAdminV1PromotionsRoute: ApiAdminV1PromotionsRoute,
   ApiAdminV1RolesRoute: ApiAdminV1RolesRoute,
-  ApiAdminV1SiteContentRoute: ApiAdminV1SiteContentRoute,
+  ApiAdminV1SiteContentRoute: ApiAdminV1SiteContentRouteWithChildren,
   ApiAdminV1SubscribersRoute: ApiAdminV1SubscribersRouteWithChildren,
   ApiAdminV1SubscriptionsRoute: ApiAdminV1SubscriptionsRoute,
   ApiAdminV1TenantSubscriptionsRoute:
@@ -6396,3 +6473,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
