@@ -24,6 +24,8 @@ import {
 } from "@/components/superadmin/OpsPanes";
 import { DocsPane } from "@/components/superadmin/DocsPane";
 import { DemoControlPane } from "@/components/superadmin/DemoControlPane";
+import { CmsPagesPane } from "@/components/superadmin/CmsPagesPane";
+import { FeaturedPartnersPane } from "@/components/superadmin/FeaturedPartnersPane";
 
 export const Route = createFileRoute("/_authenticated/superadmin")({
   head: () => ({ meta: [{ title: "Superadmin · VeloMed OS" }] }),
@@ -74,7 +76,8 @@ type TabId =
   | "roles" | "apikeys" | "privileges" | "apidocs" | "requests" | "debug"
   | "refunds" | "tickets" | "reviews" | "chat" | "push"
   | "tests" | "audit" | "smoke" | "bugs" | "releases" | "automation"
-  | "workspace" | "team" | "security" | "legal" | "docs" | "demo";
+  | "workspace" | "team" | "security" | "legal" | "docs" | "demo"
+  | "cms_pages" | "cms_partners";
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
@@ -404,6 +407,8 @@ function Superadmin() {
       {tab === "legal"      && <LegalDocsPane />}
       {tab === "docs"       && <DocsPane />}
       {tab === "demo"       && <DemoControlPane />}
+      {tab === "cms_pages"    && <CmsPagesPane />}
+      {tab === "cms_partners" && <FeaturedPartnersPane />}
 
       {identity && <IdentityPanel identity={identity} refresh={diagnose} />}
 
