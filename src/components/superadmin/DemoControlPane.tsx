@@ -276,9 +276,8 @@ function CredentialsManager() {
     navigator.clipboard.writeText(text).then(() => toast.success(`${label} copied`)).catch(() => toast.error("Clipboard blocked"));
   }
 
-  async function launchWithAutofill(row: DemoCredentialRow) {
+  function launchWithAutofill(row: DemoCredentialRow) {
     const key = row.clinical_role || row.email.split("@")[0];
-    const tab = window.open("about:blank", "_blank");
     try {
       window.localStorage.setItem(AUTOFILL_KEY, JSON.stringify({
         email: row.email,
@@ -287,22 +286,21 @@ function CredentialsManager() {
         expiresAt: Date.now() + 5 * 60_000,
       }));
     } catch { /* noop */ }
-    const startedAt = Date.now();
-    setApplyState({ status: "running", result: null, message: `Preparing ${row.role_label} login…`, startedAt, finishedAt: null });
-    try {
-      const r = await applyAuth();
-      const ok = (r as { ok: boolean }).ok !== false;
-      if (!ok) throw new Error((r as { error?: string }).error ?? "Apply failed");
-      setApplyState({ status: "success", result: r, message: `Login prepared for ${row.role_label}.`, startedAt, finishedAt: Date.now() });
-      const href = `/demo-login?role=${encodeURIComponent(key)}&autosignin=1`;
-      if (tab) tab.location.href = href;
-      else window.open(href, "_blank", "noopener,noreferrer");
-    } catch (e) {
-      if (tab) tab.close();
-      setApplyState({ status: "error", result: null, message: (e as Error).message, startedAt, finishedAt: Date.now() });
-      toast.error(`Could not prepare login: ${(e as Error).message}`);
-    }
+    // No applyAuth() here — /demo-login signs in with the stashed password
+    // directly via signInWithPassword. Re-running the bulk superadmin sync
+    // on every row click is what surfaced `unauthorized` on token rotation.
+    const href = `/demo-login?role=${encodeURIComponent(key)}&autosignin=1`;
+    window.open(href, "_blank", "noopener,noreferrer");
   }
+
+  // "Apply needed" banner: any row never synced, stale (updated since last
+  // sync), or flagged missing/error by the last applyAuth run.
+  const needsApply = !!rows && rows.some((r) => {
+    const last = lastApply.get(r.email);
+    if (last === "missing" || last === "error") return true;
+    if (!r.applied_at) return true;
+    return new Date(r.updated_at).getTime() > new Date(r.applied_at).getTime();
+  });
 
   return (
     <section className="rounded-lg border border-hairline bg-panel/40">
