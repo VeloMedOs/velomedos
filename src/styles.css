@@ -338,3 +338,56 @@
     radial-gradient(ellipse 80% 50% at 20% 0%, oklch(0.789 0.131 174 / 0.08), transparent 60%),
     radial-gradient(ellipse 60% 40% at 90% 100%, oklch(0.766 0.123 234 / 0.06), transparent 60%);
 }
+
+/* ───────────────────────────────────────────────────────────────
+   ACCENT PICKER — overrides the brand "teal" tokens project-wide.
+   The default accent (`teal`) leaves the brand palette untouched.
+   Other accents remap `--teal` / `--teal-deep`, plus `--primary`
+   and `--ring`, so every component that paints with the brand
+   accent (CTAs, badges, focus rings, marketing glow) follows.
+   Works under both `.dark` (default) and `.light`.
+   ─────────────────────────────────────────────────────────────── */
+[data-accent="sky"] {
+  --teal: oklch(0.790 0.130 234);
+  --teal-deep: oklch(0.620 0.180 256);
+  --primary: oklch(0.790 0.130 234);
+  --ring: oklch(0.790 0.130 234);
+}
+[data-accent="coral"] {
+  --teal: oklch(0.755 0.180 27);
+  --teal-deep: oklch(0.640 0.193 28);
+  --primary: oklch(0.755 0.180 27);
+  --ring: oklch(0.755 0.180 27);
+}
+[data-accent="violet"] {
+  --teal: oklch(0.755 0.180 295);
+  --teal-deep: oklch(0.615 0.210 295);
+  --primary: oklch(0.755 0.180 295);
+  --ring: oklch(0.755 0.180 295);
+}
+[data-accent="amber"] {
+  --teal: oklch(0.820 0.165 80);
+  --teal-deep: oklch(0.690 0.170 65);
+  --primary: oklch(0.820 0.165 80);
+  --ring: oklch(0.820 0.165 80);
+}
+[data-accent="emerald"] {
+  --teal: oklch(0.780 0.165 155);
+  --teal-deep: oklch(0.620 0.155 158);
+  --primary: oklch(0.780 0.165 155);
+  --ring: oklch(0.780 0.165 155);
+}
+[data-accent="rose"] {
+  --teal: oklch(0.760 0.175 12);
+  --teal-deep: oklch(0.620 0.190 15);
+  --primary: oklch(0.760 0.175 12);
+  --ring: oklch(0.760 0.175 12);
+}
+
+/* Light theme: deepen accents one notch for AA contrast on white. */
+.light[data-accent="sky"]    { --teal: oklch(0.580 0.155 234); --teal-deep: oklch(0.480 0.170 256); --primary: oklch(0.580 0.155 234); --ring: oklch(0.580 0.155 234); }
+.light[data-accent="coral"]  { --teal: oklch(0.595 0.190 27);  --teal-deep: oklch(0.505 0.193 28);  --primary: oklch(0.595 0.190 27);  --ring: oklch(0.595 0.190 27); }
+.light[data-accent="violet"] { --teal: oklch(0.585 0.200 295); --teal-deep: oklch(0.485 0.210 295); --primary: oklch(0.585 0.200 295); --ring: oklch(0.585 0.200 295); }
+.light[data-accent="amber"]  { --teal: oklch(0.680 0.165 70);  --teal-deep: oklch(0.560 0.170 60);  --primary: oklch(0.680 0.165 70);  --ring: oklch(0.680 0.165 70); }
+.light[data-accent="emerald"]{ --teal: oklch(0.575 0.150 155); --teal-deep: oklch(0.475 0.140 158); --primary: oklch(0.575 0.150 155); --ring: oklch(0.575 0.150 155); }
+.light[data-accent="rose"]   { --teal: oklch(0.585 0.190 12);  --teal-deep: oklch(0.490 0.195 15);  --primary: oklch(0.585 0.190 12);  --ring: oklch(0.585 0.190 12); }
