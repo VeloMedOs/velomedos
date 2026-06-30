@@ -10,6 +10,7 @@ import { ClinicalAPI, ClinicalApiError } from "@/lib/clinical-api";
 import { useClinicalMe, canAct, type ClinicalRole } from "@/lib/clinical-roles";
 import { ClaimCompletenessPanel } from "@/components/clinical/ClaimCompletenessPanel";
 import { OutcomesPane } from "@/components/clinical/OutcomesPane";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 export const Route = createFileRoute("/_authenticated/clinical")({
   validateSearch: z.object({
