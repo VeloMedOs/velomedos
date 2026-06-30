@@ -24,8 +24,16 @@ export const Route = createFileRoute("/api/admin/v1/site-content/unpublish")({
           updated_by: actor,
         }).eq("key", body.key).eq("locale", body.locale);
         if (error) return json({ error: error.message, code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
-        await adminAudit(auth.userId, "site_content.unpublish", "site_content", `${body.key}:${body.locale}`, null);
-        return json({ ok: true });
+        const { data: ver } = await db.from("site_content_version").select("version, bumped_at").eq("id", 1).maybeSingle();
+        await adminAudit(auth.userId, "site_content.unpublish", "site_content", `${body.key}:${body.locale}`, {
+          staff_user_id: auth.userId,
+          via: auth.via,
+          key: body.key,
+          locale: body.locale,
+          version_after: ver?.version ?? null,
+          version_bumped_at: ver?.bumped_at ?? null,
+        });
+        return json({ ok: true, version: ver?.version ?? null });
       },
     },
   },

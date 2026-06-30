@@ -86,7 +86,13 @@ export const Route = createFileRoute("/api/admin/v1/site-content")({
           isPublish ? "site_content.publish" : "site_content.save_draft",
           "site_content",
           `${body.key}:${body.locale}`,
-          { status: patch.status },
+          await withVersion(db, {
+            status: patch.status,
+            staff_user_id: auth.userId,
+            via: auth.via,
+            key: body.key,
+            locale: body.locale,
+          }),
         );
         return json(data);
       },
@@ -100,9 +106,22 @@ export const Route = createFileRoute("/api/admin/v1/site-content")({
         const db = adminDb();
         const { error } = await db.from("site_content").delete().eq("key", key).eq("locale", locale);
         if (error) return json({ error: error.message, code: "db/delete_failed", request_id: crypto.randomUUID() }, 400);
-        await adminAudit(auth.userId, "site_content.delete", "site_content", `${key}:${locale}`, null);
+        await adminAudit(
+          auth.userId,
+          "site_content.delete",
+          "site_content",
+          `${key}:${locale}`,
+          await withVersion(db, { staff_user_id: auth.userId, via: auth.via, key, locale }),
+        );
         return json({ ok: true });
       },
     },
   },
 });
+
+/** Read the current cache-bust version and attach to an audit payload. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function withVersion(db: any, payload: Record<string, unknown>) {
+  const { data } = await db.from("site_content_version").select("version, bumped_at").eq("id", 1).maybeSingle();
+  return { ...payload, version_after: data?.version ?? null, version_bumped_at: data?.bumped_at ?? null };
+}

@@ -75,9 +75,34 @@ export const Route = createFileRoute("/api/admin/v1/site-content/publish")({
         // so a no-content-change publish (e.g. "republish all") still busts caches.
         await db.rpc("bump_site_content_version", { _actor: actor });
         const { data: ver } = await db.from("site_content_version").select("version").eq("id", 1).maybeSingle();
+        const versionAfter = (ver as { version?: number } | null)?.version ?? null;
 
-        await adminAudit(auth.userId, "site_content.publish_batch", "site_content", null, { count: results.length, results });
-        return json({ ok: true, results, version: (ver as { version?: number } | null)?.version ?? null });
+        // Per-row audit so each publish is traceable to staff + version.
+        for (const r of results) {
+          await adminAudit(
+            auth.userId,
+            r.ok ? "site_content.publish" : "site_content.publish_failed",
+            "site_content",
+            `${r.key}:${r.locale}`,
+            {
+              staff_user_id: auth.userId,
+              via: auth.via,
+              source: body.all ? "publish_all" : body.keys ? "publish_batch" : "publish_one",
+              version_after: versionAfter,
+              error: r.error ?? null,
+            },
+          );
+        }
+        // Roll-up entry so the batch is easy to find in the audit feed.
+        await adminAudit(auth.userId, body.all ? "site_content.publish_all" : "site_content.publish_batch", "site_content", null, {
+          staff_user_id: auth.userId,
+          via: auth.via,
+          count: results.length,
+          succeeded: results.filter((r) => r.ok).length,
+          version_after: versionAfter,
+          results,
+        });
+        return json({ ok: true, results, version: versionAfter });
       },
     },
   },
