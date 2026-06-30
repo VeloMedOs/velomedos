@@ -16,24 +16,22 @@ export function FeaturedPartnersPane() {
   const [busy, setBusy] = useState<string | null>(null);
 
   async function load() {
-    const r = (await adminFetch("/api/admin/v1/business-requests")) as Response;
-    if (!r.ok) { toast.error("Failed to load subscribers"); return; }
-    const data = await r.json();
-    const list = (data.requests ?? data.rows ?? data ?? []) as Sub[];
-    setRows(list.filter((s) => ["lead", "subscribed", "prospect", "demo", "negotiation"].includes(s.stage)));
+    try {
+      const data = await adminFetch<{ requests?: Sub[] }>("/api/admin/v1/business-requests");
+      const list = (data.requests ?? []) as Sub[];
+      setRows(list.filter((s) => ["lead", "subscribed", "prospect", "demo", "negotiation"].includes(s.stage)));
+    } catch (e) { toast.error((e as Error).message || "Failed to load subscribers"); }
   }
   useEffect(() => { load(); }, []);
 
   async function patch(id: string, body: Partial<Sub>) {
     setBusy(id);
-    const r = (await adminFetch(`/api/admin/v1/business-requests/${id}/featured`, {
-      method: "PATCH", headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
-    })) as Response;
-    setBusy(null);
-    if (!r.ok) { toast.error("Update failed"); return; }
-    toast.success("Updated");
-    load();
+    try {
+      await adminFetch(`/api/admin/v1/business-requests/${id}/featured`, { method: "PATCH", body });
+      toast.success("Updated");
+      load();
+    } catch (e) { toast.error((e as Error).message || "Update failed"); }
+    finally { setBusy(null); }
   }
 
   const filtered = rows.filter((r) => !q || r.company_name.toLowerCase().includes(q.toLowerCase()));
