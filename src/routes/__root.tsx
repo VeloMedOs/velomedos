@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { organizationLd, jsonld } from "@/components/Jsonld";
 import { SITE } from "@/lib/site-config";
+import { ThemeProvider, useTheme, NO_FLASH_SCRIPT } from "@/lib/theme";
 // Lazy-load DebugOverlay — it's an opt-in developer tool toggled via
 // localStorage; no reason to ship it in the public LCP bundle.
 const DebugOverlay = lazy(() =>
@@ -122,6 +123,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     scripts: [
       { type: "application/ld+json", children: jsonld(organizationLd()) },
+      // No-flash theme script. Runs before React mounts so the right theme
+      // class is on <html> on first paint.
+      { children: NO_FLASH_SCRIPT },
     ],
   }),
   shellComponent: RootShell,
@@ -158,11 +162,18 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <Toaster theme="dark" position="top-right" />
-      <Suspense fallback={null}>
-        <DebugOverlay />
-      </Suspense>
+      <ThemeProvider>
+        <Outlet />
+        <ThemedToaster />
+        <Suspense fallback={null}>
+          <DebugOverlay />
+        </Suspense>
+      </ThemeProvider>
     </QueryClientProvider>
   );
+}
+
+function ThemedToaster() {
+  const { resolved } = useTheme();
+  return <Toaster theme={resolved} position="top-right" />;
 }
