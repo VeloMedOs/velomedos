@@ -16,7 +16,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { organizationLd, jsonld } from "@/components/Jsonld";
 import { SITE } from "@/lib/site-config";
 import { ThemeProvider, useTheme, NO_FLASH_SCRIPT } from "@/lib/theme";
-import { HeroModeProvider } from "@/lib/hero-mode";
 // Lazy-load DebugOverlay — it's an opt-in developer tool toggled via
 // localStorage; no reason to ship it in the public LCP bundle.
 const DebugOverlay = lazy(() =>
@@ -164,13 +163,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <HeroModeProvider>
-          <Outlet />
-          <ThemedToaster />
-          <Suspense fallback={null}>
-            <DebugOverlay />
-          </Suspense>
-        </HeroModeProvider>
+        <Outlet />
+        <ThemedToaster />
+        <Suspense fallback={null}>
+          <DebugOverlay />
+        </Suspense>
       </ThemeProvider>
     </QueryClientProvider>
   );
