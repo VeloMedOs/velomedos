@@ -73,9 +73,32 @@ export function useSiteContent(locale: "en" | "ar" = "en") {
     const row = content[key];
     if (!row) return fallback;
     const v = row[locale] ?? row.en;
-    if (typeof v === "string" && v.trim()) return v;
-    return fallback;
+    const s = coerce(v);
+    return s && s.trim() ? s : fallback;
   }
 
   return { get, preview, version, raw: content, revalidate: fetchOnce };
+}
+
+/**
+ * Normalize whatever shape an editor stored into a display string.
+ * Accepts:
+ *   • string          → returned as-is
+ *   • number/boolean  → String(v)
+ *   • { value: "…" }  → unwrap (common admin payload)
+ *   • { en: "…", ar:… }, in case a single row holds all locales
+ * Anything else returns "" so the caller falls back to its default,
+ * eliminating runtime undefined surfacing on the marketing pages.
+ */
+function coerce(v: unknown): string {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "string") return v;
+  if (typeof v === "number" || typeof v === "boolean") return String(v);
+  if (typeof v === "object") {
+    const o = v as Record<string, unknown>;
+    if (typeof o.value === "string") return o.value;
+    if (typeof o.en === "string") return o.en;
+    if (typeof o.text === "string") return o.text;
+  }
+  return "";
 }
