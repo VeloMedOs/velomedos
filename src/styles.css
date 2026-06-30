@@ -193,6 +193,89 @@
 .light .leaflet-container { background: oklch(0.96 0.008 230) !important; }
 .light .leaflet-control-attribution { background: rgba(255,255,255,0.85) !important; color: oklch(0.40 0.02 240) !important; }
 
+/* ───────────────────────────────────────────────────────────────
+   CLINICAL DAYLIGHT — scoped light theme for the HIS only.
+   Mounted by wrapping the clinical workspace in `.clinical-shell`.
+   Keeps brand teal/sky/coral but on an airy, AA-contrast canvas
+   tuned for hours of charting (see VeloMed HIS design system).
+   ─────────────────────────────────────────────────────────────── */
+.clinical-shell {
+  --background: #F5F8FC;
+  --foreground: #15233B;
+  --panel: #FFFFFF;
+  --panel-elevated: #FBFDFF;
+  --hairline: #E2E9F1;
+  --card: #FFFFFF;
+  --card-foreground: #15233B;
+  --popover: #FFFFFF;
+  --popover-foreground: #15233B;
+  --primary: #0E9C86;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EEF3F9;
+  --secondary-foreground: #15233B;
+  --muted: #EEF3F9;
+  --muted-foreground: #73849B;
+  --accent: #E5F7F3;
+  --accent-foreground: #0E9C86;
+  --destructive: #E5484D;
+  --destructive-foreground: #FFFFFF;
+  --emergency: #E5484D;
+  --emergency-foreground: #FFFFFF;
+  --action: #0E9C86;
+  --action-foreground: #FFFFFF;
+  --stable: #1F9D72;
+  --caution: #C9821B;
+  --teal: #0E9C86;
+  --teal-deep: #0c8a76;
+  --sky: #2F6FED;
+  --sky-deep: #255fd6;
+  --coral: #E5484D;
+  --coral-deep: #B5363A;
+  --border: #E2E9F1;
+  --input: #FFFFFF;
+  --ring: #0E9C86;
+
+  /* clinical-only tokens */
+  --clin-canvas: #F5F8FC;
+  --clin-raised: #FBFDFF;
+  --clin-sunken: #EEF3F9;
+  --clin-ink: #15233B;
+  --clin-text: #42536B;
+  --clin-muted: #73849B;
+  --clin-faint: #9AA8BC;
+  --clin-line-strong: #CBD6E2;
+  --clin-teal-tint: #E5F7F3;
+  --clin-ok: #1F9D72;       --clin-ok-tint: #E6F6EF;
+  --clin-info: #2F6FED;     --clin-info-tint: #E8F0FE;
+  --clin-warn: #C9821B;     --clin-warn-tint: #FBF1DF;
+  --clin-crit: #E5484D;     --clin-crit-tint: #FCEBEC;
+  --clin-vbhc: #7C5CFC;     --clin-vbhc-tint: #EFEBFE;
+  --clin-shadow: 0 1px 2px rgba(20,35,59,.06), 0 8px 24px rgba(20,35,59,.05);
+
+  background: var(--clin-canvas);
+  color: var(--clin-text);
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+.clinical-shell .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+.clinical-shell h1,
+.clinical-shell h2,
+.clinical-shell h3,
+.clinical-shell h4 { color: var(--clin-ink); }
+.clinical-shell :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+/* daylight primitives */
+.clin-card { background: #fff; border: 1px solid var(--hairline); border-radius: 13px; box-shadow: var(--clin-shadow); overflow: hidden; }
+.clin-ctrl { width: 100%; border: 1px solid var(--hairline); background: var(--clin-raised); border-radius: 8px; padding: 10px 12px; color: var(--clin-ink); outline: none; transition: .12s; font-size: 14px; }
+.clin-ctrl:focus { border-color: var(--teal); box-shadow: 0 0 0 3px var(--clin-teal-tint); }
+.clin-ctrl.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .02em; }
+.clin-pill { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; letter-spacing: .06em; padding: 5px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; }
+.clin-pill.ok { color: var(--clin-ok); background: var(--clin-ok-tint); }
+.clin-pill.warn { color: var(--clin-warn); background: var(--clin-warn-tint); }
+.clin-pill.crit { color: var(--clin-crit); background: var(--clin-crit-tint); }
+.clin-pill.info { color: var(--clin-info); background: var(--clin-info-tint); }
+.clin-pill.muted { color: var(--clin-muted); background: var(--clin-sunken); }
+@media (prefers-reduced-motion: reduce) { .clinical-shell * { transition: none !important; animation: none !important; } }
+
 @layer base {
   html, body, #root { background-color: var(--color-background); }
   * {
