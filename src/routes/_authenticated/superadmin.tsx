@@ -15,6 +15,7 @@ import { PipelineBoard } from "@/components/superadmin/PipelineBoard";
 import { adminFetch } from "@/lib/admin-fetch";
 import { SuperadminSideNav } from "@/components/superadmin/SideNav";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { AccentPicker } from "@/components/AccentPicker";
 import { useServerFn } from "@tanstack/react-start";
 import { createOperator } from "@/lib/superadmin.functions";
 import {
@@ -333,6 +334,7 @@ function Superadmin() {
           <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-2">
             <span className="size-1.5 rounded-full bg-teal animate-pulse" /> Global · all tenants
           </div>
+          <AccentPicker />
           <ThemeSwitcher />
         </div>
       </header>
