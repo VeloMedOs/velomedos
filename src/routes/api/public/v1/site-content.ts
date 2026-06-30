@@ -27,7 +27,10 @@ export const Route = createFileRoute("/api/public/v1/site-content")({
         const url = new URL(request.url);
         const key = url.searchParams.get("key");
         const wantPreview = url.searchParams.get("preview") === "1";
-        const db = serviceClient();
+        // Loose-typed client: new tables/columns (site_content_version,
+        // draft_value, published_value) aren't in the regenerated typegen yet.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const db = serviceClient() as unknown as any;
 
         let isStaff = false;
         let staffUserId: string | null = null;
@@ -76,8 +79,10 @@ export const Route = createFileRoute("/api/public/v1/site-content")({
         // Fire-and-forget request log for stale-content diagnosis.
         db.from("debug_events").insert({
           source: "api.site_content",
-          level: "info",
-          message: allowDraft ? "preview_fetch" : "public_fetch",
+          kind: allowDraft ? "preview_fetch" : "public_fetch",
+          severity: "info",
+          route: "/api/public/v1/site-content",
+          message: `served v${version} · ${Object.keys(content).length} keys`,
           payload: {
             version,
             key,
@@ -87,7 +92,7 @@ export const Route = createFileRoute("/api/public/v1/site-content")({
             referer: request.headers.get("referer")?.slice(0, 240) ?? null,
             rows: (data ?? []).length,
             keys: Object.keys(content).length,
-          } as never,
+          },
         }).then(() => {});
 
         const body = { content, version, preview: allowDraft, generated_at: new Date().toISOString() };
