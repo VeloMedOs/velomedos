@@ -145,6 +145,11 @@ export function submitEligibility(bundle: any, idempotencyKey: string, tenantId?
   return sendBundle(bundle, { idempotencyKey, messageType: "eligibility-request", tenantId });
 }
 
+/** R2 — pre-authorization submission (rides the same $process-message transport). */
+export function submitPreauth(bundle: any, idempotencyKey: string, tenantId?: string | null): Promise<GatewayResult> {
+  return sendBundle(bundle, { idempotencyKey, messageType: "preauth-request", tenantId });
+}
+
 /* -------------- sandbox stub -------------- */
 
 function stubResponse(requestBundle: any, messageType: string): GatewayResult {
@@ -164,6 +169,48 @@ function stubResponse(requestBundle: any, messageType: string): GatewayResult {
               status: "active",
               outcome: "complete",
               insurance: [{ inforce: true, item: [] }],
+            },
+          },
+        ],
+      },
+    };
+  }
+  if (messageType === "preauth-request") {
+    // Mirror the Claim (preauth) totals back as an "approved" ClaimResponse
+    // with a synthetic preauthRef and a 90-day validity window.
+    const claimEntry = (requestBundle?.entry ?? []).find(
+      (e: any) => e?.resource?.resourceType === "Claim",
+    );
+    const claim = claimEntry?.resource ?? {};
+    const items = (claim.item ?? []).map((i: any) => ({
+      itemSequence: i.sequence,
+      adjudication: [
+        { category: { coding: [{ code: "benefit" }] }, amount: i.net },
+        { category: { coding: [{ code: "eligible" }] }, amount: i.net },
+      ],
+    }));
+    const now = new Date();
+    const end = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+    return {
+      ok: true,
+      http_status: 200,
+      sandbox: true,
+      bundle: {
+        resourceType: "Bundle",
+        type: "message",
+        sandbox: true,
+        timestamp: now.toISOString(),
+        entry: [
+          {
+            resource: {
+              resourceType: "ClaimResponse",
+              status: "active",
+              use: "preauthorization",
+              outcome: "complete",
+              disposition: "Sandbox auto-approval",
+              preAuthRef: `SBX-PA-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
+              preAuthPeriod: { start: now.toISOString().slice(0, 10), end: end.toISOString().slice(0, 10) },
+              item: items,
             },
           },
         ],

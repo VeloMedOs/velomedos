@@ -172,9 +172,57 @@ export function validateClaimRcmReadiness(b: ReadinessBundle): RcmReadiness {
     }
   }
 
-  // R2 auth, R4 admission/discharge — not yet schema-modeled. Placeholder
-  // returns ok=true so we don't false-block claims when the relevant tables
-  // arrive in later phases.
+  // R2 — authorization coverage. Any charged item whose underlying
+  // service_master/drug_master has preauth_required=true must have a
+  // covering authorization_item on an approved/partially_approved auth
+  // request whose valid_to is still in the future.
+  const now = Date.now();
+  const auths = (b as any).authRequests as any[] | undefined;
+  const authItems = (b as any).authItems as any[] | undefined;
+  const svcMasters = (b as any).serviceMasters as any[] | undefined;
+  const drugMasters = (b as any).drugMasters as any[] | undefined;
+  if (auths && authItems && (svcMasters || drugMasters)) {
+    const svcPreauth = new Map<string, boolean>((svcMasters ?? []).map((s: any) => [s.id, !!s.preauth_required]));
+    const drugPreauth = new Map<string, boolean>((drugMasters ?? []).map((d: any) => [d.id, !!d.preauth_required]));
+    const coveringAuthIds = new Set<string>(
+      auths.filter((a: any) => {
+        if (!["approved", "partially_approved"].includes(String(a.status))) return false;
+        if (a.valid_to) {
+          const to = new Date(a.valid_to).getTime();
+          if (Number.isFinite(to) && to < now) return false;
+        }
+        return true;
+      }).map((a: any) => a.id),
+    );
+    const coveredServiceIds = new Set<string>();
+    const coveredDrugIds = new Set<string>();
+    for (const it of authItems) {
+      if (!coveringAuthIds.has(it.authorization_request_id)) continue;
+      if (String(it.decision) === "rejected") continue;
+      if (it.service_id) coveredServiceIds.add(it.service_id);
+      if (it.drug_id) coveredDrugIds.add(it.drug_id);
+    }
+    const chargedById = new Map<string, any>((b.chargeItems ?? []).map((c: any) => [c.id, c]));
+    const linkedChargeIds = new Set<string>(
+      (b.claimItems ?? []).map((i: any) => i.charge_item_id).filter(Boolean),
+    );
+    for (const cid of linkedChargeIds) {
+      const ch = chargedById.get(cid as string);
+      if (!ch) continue;
+      const needsSvc = ch.service_id && svcPreauth.get(ch.service_id);
+      const needsDrug = ch.drug_id && drugPreauth.get(ch.drug_id);
+      if (needsSvc && !coveredServiceIds.has(ch.service_id)) {
+        flags.auth_ok = false;
+        add(missing, "AUTH_MISSING", "authorization",
+          `Charged service ${String(ch.id).slice(0, 8)} requires authorization but has no covering approval.`);
+      }
+      if (needsDrug && !coveredDrugIds.has(ch.drug_id)) {
+        flags.auth_ok = false;
+        add(missing, "AUTH_MISSING", "authorization",
+          `Charged drug ${String(ch.id).slice(0, 8)} requires authorization but has no covering approval.`);
+      }
+    }
+  }
 
   return { ok: missing.filter((m) => m.severity === "error").length === 0, missing, flags };
 }

@@ -151,6 +151,86 @@ export type Database = {
           },
         ]
       }
+      approval_rule: {
+        Row: {
+          active: boolean
+          auto_decision: string | null
+          class_id: string | null
+          condition: Json
+          created_at: string
+          created_by: string | null
+          default_valid_days: number | null
+          id: string
+          payer_id: string | null
+          policy_id: string | null
+          scope: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          auto_decision?: string | null
+          class_id?: string | null
+          condition?: Json
+          created_at?: string
+          created_by?: string | null
+          default_valid_days?: number | null
+          id?: string
+          payer_id?: string | null
+          policy_id?: string | null
+          scope: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          auto_decision?: string | null
+          class_id?: string | null
+          condition?: Json
+          created_at?: string
+          created_by?: string | null
+          default_valid_days?: number | null
+          id?: string
+          payer_id?: string | null
+          policy_id?: string | null
+          scope?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_rule_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_class"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_rule_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_rule_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_rule_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -180,6 +260,349 @@ export type Database = {
           payload?: Json | null
         }
         Relationships: []
+      }
+      authorization_attachment: {
+        Row: {
+          authorization_request_id: string
+          content_type: string | null
+          created_at: string
+          id: string
+          kind: string
+          size_bytes: number | null
+          tenant_id: string
+          title: string | null
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          authorization_request_id: string
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          size_bytes?: number | null
+          tenant_id: string
+          title?: string | null
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          authorization_request_id?: string
+          content_type?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          size_bytes?: number | null
+          tenant_id?: string
+          title?: string | null
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authorization_attachment_authorization_request_id_fkey"
+            columns: ["authorization_request_id"]
+            isOneToOne: false
+            referencedRelation: "authorization_request"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_attachment_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      authorization_communication: {
+        Row: {
+          author: string | null
+          authorization_request_id: string
+          body: string
+          channel: string
+          created_at: string
+          direction: string
+          id: string
+          payload: Json | null
+          tenant_id: string
+        }
+        Insert: {
+          author?: string | null
+          authorization_request_id: string
+          body: string
+          channel?: string
+          created_at?: string
+          direction: string
+          id?: string
+          payload?: Json | null
+          tenant_id: string
+        }
+        Update: {
+          author?: string | null
+          authorization_request_id?: string
+          body?: string
+          channel?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          payload?: Json | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authorization_communication_authorization_request_id_fkey"
+            columns: ["authorization_request_id"]
+            isOneToOne: false
+            referencedRelation: "authorization_request"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_communication_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      authorization_item: {
+        Row: {
+          approved_quantity: number | null
+          authorization_request_id: string
+          benefit_amount_minor: number | null
+          charge_item_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          decision: string | null
+          drug_id: string | null
+          id: string
+          quantity: number
+          quantity_code: string | null
+          reason: string | null
+          service_id: string | null
+          source: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          approved_quantity?: number | null
+          authorization_request_id: string
+          benefit_amount_minor?: number | null
+          charge_item_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          decision?: string | null
+          drug_id?: string | null
+          id?: string
+          quantity?: number
+          quantity_code?: string | null
+          reason?: string | null
+          service_id?: string | null
+          source: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          approved_quantity?: number | null
+          authorization_request_id?: string
+          benefit_amount_minor?: number | null
+          charge_item_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          decision?: string | null
+          drug_id?: string | null
+          id?: string
+          quantity?: number
+          quantity_code?: string | null
+          reason?: string | null
+          service_id?: string | null
+          source?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authorization_item_authorization_request_id_fkey"
+            columns: ["authorization_request_id"]
+            isOneToOne: false
+            referencedRelation: "authorization_request"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_item_charge_item_id_fkey"
+            columns: ["charge_item_id"]
+            isOneToOne: false
+            referencedRelation: "charge_item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_item_drug_id_fkey"
+            columns: ["drug_id"]
+            isOneToOne: false
+            referencedRelation: "drug_master"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_master"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_item_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      authorization_request: {
+        Row: {
+          assigned_to: string | null
+          beneficiary_id: string | null
+          class_id: string | null
+          coverage_id: string | null
+          created_at: string
+          created_by: string | null
+          decision_at: string | null
+          decision_reason: string | null
+          eligibility_ref: string | null
+          encounter_id: string | null
+          gateway_message_id: string | null
+          gateway_response: Json | null
+          id: string
+          locked_at: string | null
+          locked_by: string | null
+          notes: string | null
+          payer_id: string | null
+          policy_id: string | null
+          preauth_ref: string | null
+          priority: string
+          reasons_triggered: Json
+          requested_by: string | null
+          status: Database["public"]["Enums"]["authorization_status"]
+          submitted_at: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          valid_from: string | null
+          valid_to: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          beneficiary_id?: string | null
+          class_id?: string | null
+          coverage_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          decision_at?: string | null
+          decision_reason?: string | null
+          eligibility_ref?: string | null
+          encounter_id?: string | null
+          gateway_message_id?: string | null
+          gateway_response?: Json | null
+          id?: string
+          locked_at?: string | null
+          locked_by?: string | null
+          notes?: string | null
+          payer_id?: string | null
+          policy_id?: string | null
+          preauth_ref?: string | null
+          priority?: string
+          reasons_triggered?: Json
+          requested_by?: string | null
+          status?: Database["public"]["Enums"]["authorization_status"]
+          submitted_at?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          beneficiary_id?: string | null
+          class_id?: string | null
+          coverage_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          decision_at?: string | null
+          decision_reason?: string | null
+          eligibility_ref?: string | null
+          encounter_id?: string | null
+          gateway_message_id?: string | null
+          gateway_response?: Json | null
+          id?: string
+          locked_at?: string | null
+          locked_by?: string | null
+          notes?: string | null
+          payer_id?: string | null
+          policy_id?: string | null
+          preauth_ref?: string | null
+          priority?: string
+          reasons_triggered?: Json
+          requested_by?: string | null
+          status?: Database["public"]["Enums"]["authorization_status"]
+          submitted_at?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authorization_request_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_class"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_request_eligibility_ref_fkey"
+            columns: ["eligibility_ref"]
+            isOneToOne: false
+            referencedRelation: "visit_eligibility"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_request_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_request_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_request_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policy"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_request_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       beneficiary: {
         Row: {
@@ -2687,9 +3110,11 @@ export type Database = {
           id: string
           internal_code: string
           mrid: string | null
+          preauth_required: boolean
           route: string | null
           sfda_sci_code: string | null
           strength: string | null
+          sub_category: string | null
           tenant_id: string
           trade_name: string | null
           updated_at: string
@@ -2706,9 +3131,11 @@ export type Database = {
           id?: string
           internal_code: string
           mrid?: string | null
+          preauth_required?: boolean
           route?: string | null
           sfda_sci_code?: string | null
           strength?: string | null
+          sub_category?: string | null
           tenant_id: string
           trade_name?: string | null
           updated_at?: string
@@ -2725,9 +3152,11 @@ export type Database = {
           id?: string
           internal_code?: string
           mrid?: string | null
+          preauth_required?: boolean
           route?: string | null
           sfda_sci_code?: string | null
           strength?: string | null
+          sub_category?: string | null
           tenant_id?: string
           trade_name?: string | null
           updated_at?: string
@@ -7192,7 +7621,9 @@ export type Database = {
           is_package: boolean
           modality: string | null
           name: string
+          preauth_required: boolean
           service_type: string
+          sub_category: string | null
           tenant_id: string
           updated_at: string
           updated_by: string | null
@@ -7208,7 +7639,9 @@ export type Database = {
           is_package?: boolean
           modality?: string | null
           name: string
+          preauth_required?: boolean
           service_type: string
+          sub_category?: string | null
           tenant_id: string
           updated_at?: string
           updated_by?: string | null
@@ -7224,7 +7657,9 @@ export type Database = {
           is_package?: boolean
           modality?: string | null
           name?: string
+          preauth_required?: boolean
           service_type?: string
+          sub_category?: string | null
           tenant_id?: string
           updated_at?: string
           updated_by?: string | null
@@ -8467,6 +8902,24 @@ export type Database = {
         | "business_admin"
         | "home_nurse"
         | "caregiver"
+      authorization_status:
+        | "new"
+        | "scrubbing"
+        | "ready_to_submit"
+        | "submitted"
+        | "queued_at_payer"
+        | "in_review"
+        | "more_info_requested"
+        | "approved"
+        | "partially_approved"
+        | "rejected"
+        | "expired"
+        | "cancelled"
+        | "appealed"
+        | "appeal_approved"
+        | "appeal_rejected"
+        | "converted_to_self_pay"
+        | "closed"
       booking_status: "requested" | "confirmed" | "completed" | "cancelled"
       business_request_source:
         | "website"
@@ -8748,6 +9201,25 @@ export const Constants = {
         "business_admin",
         "home_nurse",
         "caregiver",
+      ],
+      authorization_status: [
+        "new",
+        "scrubbing",
+        "ready_to_submit",
+        "submitted",
+        "queued_at_payer",
+        "in_review",
+        "more_info_requested",
+        "approved",
+        "partially_approved",
+        "rejected",
+        "expired",
+        "cancelled",
+        "appealed",
+        "appeal_approved",
+        "appeal_rejected",
+        "converted_to_self_pay",
+        "closed",
       ],
       booking_status: ["requested", "confirmed", "completed", "cancelled"],
       business_request_source: [

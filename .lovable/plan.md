@@ -1,90 +1,103 @@
-# RCM R1 — full build (worklists + bulk + HIS wiring), validated & paste-ready
+# RCM R1 amendment + R2 Authorization — FINAL (validated, paste-ready)
 
-Validated against `velomedos@e4500fa`. **Confirmed present** (no migrations, no new routes): all R1 tables (`visit_eligibility`, `eligibility_exception`, `policy_activation_request`, `payer_agreement`, `not_covered_rule`, `need_approval_rule`, `maternity_protocol`, `contract_change_request`); every route (`eligibility.*` incl `$id.transition`/`$id.exception`/`check`, `policy-activations.*` incl `$id` PATCH + `$id.activate`, `masters/*` full CRUD incl `payer-agreements`/`not-covered-rules`/`need-approval-rules`/ `maternity-protocols` + `contract-change-requests.$id.{approve,apply}`); columns `visit_eligibility.{status, financial_type, result_payload}`, `eligibility_exception.mother_coverage_id`, `policy_activation_request.{policy_no,class_code,membership_no,validity_from,validity_to,notify_reception_at}`. Self-contained: this builds the nav/tab foundation too. Daylight primitives only.
+Validated against `velomedos@e4500fa`. Repo facts confirmed inline so nothing is assumed. Two micro-fixes folded in beyond the prior round (RcmStubs location; the claim-gate flag). Everything else in the plan is correct.
 
-## Canonical facts to code against (do not invent)
+---
 
-- `EligibilityStatus` SSOT = `src/lib/rcm/eligibility-sm.ts`: `new · checking · eligible · not_eligible · error · exception_review · exception_approved · activation_pending · activated · insured · self_pay · cancelled`. Import the type; never hard-code a different list.
-- **Transition is EVENT-based** (`eligibility.$id.transition`, body = `EligibilityTransitionRequest`): events are `check.start/success/error`, `exception.raise{referral|emergency|newborn}`, `exception.approve/reject`, `activation.request/complete/reject`, `select.self_pay`, `cancel` — each with `reason?`. You POST an **event** `{kind, reason?}`, not a status.
-- `financial_type` = `insurance | self_pay | pending` (default `pending`). "Not yet determined" is `pending`, **not null**.
-- `policy_activation_request.status` = `pending | in_progress | activated | rejected`.
-- `contract_change_request.status` = `draft | approved | applied | rejected`.
-- Masters `$id` PATCH via `_crud.ts` is a **direct update** (no built-in governance) → governed edits go through `contract_change_request` (draft → approve → apply).
+## PART A — R1 amendment: `ContractMastersPane` change-request payload
 
-## 0 · API client wrappers — `src/lib/clinical-api.ts` (extend; `checkEligibility`/`listEligibility` already exist)
+**Fix (client —** `src/components/clinical/daylight/ContractMastersPane.tsx`**).** In `ChangeProposal.submit()` send only the editable columns as `after` (not the whole row):
 
 ```ts
-transitionEligibility:   (id, event: { kind: string; reason?: string; exception_type?: "referral"|"emergency"|"newborn" }) =>
-                         clinicalFetch(`/api/clinical/v1/eligibility/${id}/transition`, { method: "POST", body: event }),
-raiseEligibilityException:(id, body) => clinicalFetch(`/api/clinical/v1/eligibility/${id}/exception`, { method: "POST", body }),
-listPolicyActivations:   (p?: { status?: string }) => clinicalFetch(`/api/clinical/v1/policy-activations${qsInline(p)}`),
-patchPolicyActivation:   (id, body) => clinicalFetch(`/api/clinical/v1/policy-activations/${id}`, { method: "PATCH", body }), // assign/reject (status+assignee+reason)
-activatePolicy:          (id, body) => clinicalFetch(`/api/clinical/v1/policy-activations/${id}/activate`, { method: "POST", body }),
-// masters (thin list/create/update over _crud) — governed edits create a change request instead of PATCH:
-listMaster:   (kind) => clinicalFetch(`/api/clinical/v1/masters/${kind}`),
-createMaster: (kind, body) => clinicalFetch(`/api/clinical/v1/masters/${kind}`, { method: "POST", body }),
-updateMaster: (kind, id, body) => clinicalFetch(`/api/clinical/v1/masters/${kind}/${id}`, { method: "PATCH", body }),
-createContractChangeRequest: (body) => clinicalFetch(`/api/clinical/v1/masters/contract-change-requests`, { method: "POST", body }),
-approveContractChangeRequest:(id) => clinicalFetch(`/api/clinical/v1/masters/contract-change-requests/${id}/approve`, { method: "POST" }),
-applyContractChangeRequest:  (id) => clinicalFetch(`/api/clinical/v1/masters/contract-change-requests/${id}/apply`, { method: "POST" }),
+const after = Object.fromEntries(editableColumns.map((c) => [c, draft[c]]));
+await ClinicalAPI.createContractChangeRequest({
+  target_table: tableName, target_id: before.id, before, after,
+  reason: reason.trim(), effective_date: effective || null,
+});
 
 ```
 
-Build query strings inline (no shared `qs()` helper exists). No component calls `fetch`.
+**Server hardening (**`masters/contract-change-requests.$id.apply.ts`**).** Before `db.from(target_table).update(...)`, strip protected keys: `delete after.id; delete after.tenant_id; delete after.created_at; delete after.created_by;` — let `updated_at` default to `now()`.
 
-## 1 · Nav/tab foundation (self-contained)
+**Schema — CONFIRMED, no change needed.** `ContractChangeRequestUpsert` (`src/lib/mds/schema/rcm.ts`, lines 61-64) already accepts `before`, `after`, `effective_date`, `reason`. Don't widen it.
 
-- `src/components/clinical/daylight/nav-config.ts` (new): `NAV_SECTIONS` = Clinical / RCM / Finance / Admin → `{module,label,tab,icon}`. Tabs: `rcm-eligibility`, `rcm-activation`, `rcm-contracts`, `admin-masters` (+ R2–R7 stub tabs).
-- `Shell.tsx`: add those ids to the `TabId` union; render nav from `NAV_SECTIONS` filtered by `canViewModule(role, module)` (drop `disabled` flags); `read_only` sees all + "View only" chip.
-- `clinical.tsx`: extend `validateSearch` tab union; render the new panes **in the existing tab switch** (`{tab === "rcm-eligibility" && <EligibilityWorklistPane/>}` …). **No new route files** — `clinical.tsx` is a single tab-switched workspace with no `<Outlet/>`.
-- `src/hooks/use-clinical-role.ts` (new): reads `GET /api/clinical/v1/me` (`clinical_role`).
-- `src/lib/clinical-role-landing.ts` (**edit existing — do not recreate**): add `approval_officer → rcm-activation`, `rcm → rcm-eligibility`, `claims_officer → rcm-claims`, etc. It already returns `/clinical?tab=…`; landing sets the initial tab.
-- `src/lib/clinical/clinical-status.ts` (new): `toneOf(status: EligibilityStatus)` — `insured/eligible/ activated` → teal; `activation_pending/exception_review/exception_approved/checking` → sky/amber; `not_eligible/error` → coral; `self_pay` → muted; `new` → neutral; `cancelled` → muted. Shared across R2–R7. One shared `formatHalalas` (reuse `src/lib/mds/drg-pricing.ts`'s or lift to `src/lib/money.ts`).
-- `CapGate.tsx` (new): `<CapGate role cap>` → renders children only if `canPerform(role, cap)`.
+No migration, no route additions for Part A.
 
-## 2 · Eligibility Worklist — `EligibilityWorklistPane.tsx`
+---
 
-- Read `ClinicalAPI.listEligibility()`; **group by real** `EligibilityStatus`: Needs-me-now = `{new, not_eligible, error, exception_review}` · In-flight = `{checking, exception_approved, activation_pending}` · Cleared = `{eligible, insured, activated}` · Settled/Dead = `{self_pay, cancelled}`. Bucket tiles + status chips via `toneOf`.
-- **Table columns**: Beneficiary · Coverage · Payer · Policy/Class chips (from payload) · Financial-type lock badge (`insurance`/`self_pay`/`pending`) · Exception chip (referral/emergency/newborn) · last NPHIES reference (from `result_payload`) · Updated.
-- **Filters**: bucket · status · financial_type · exception_type · date range · free-text on IDs.
-- **Row multi-select + Select-all-in-view + sticky bulk bar** (hidden entirely for `read_only`):
-  - *Re-check selected* → per row `checkEligibility({ beneficiary_id, coverage_id, encounter_id })` — **must pass each row's** `coverage_id` (omitting it flips the row to `self_pay`).
-  - *Request activation* → `transitionEligibility(id, { kind: "activation.request" })`.
-  - *Mark self-pay* → `transitionEligibility(id, { kind: "select.self_pay", reason })`.
-  - *Cancel* → `transitionEligibility(id, { kind: "cancel", reason })`.
-  - Pattern: `Promise.allSettled(ids.map(runOne))` → toast `N updated / K failed (first: …)` → `refresh()` re-hydrates rows + bucket counts.
-- **Drawers**:
-  - `ExceptionCaptureDrawer.tsx` → `raiseEligibilityException(id, …)` with three variants: Referral (URL), Emergency (validate CTAS ∈ {1,2}), Newborn (mother coverage picked from `listCoverage`; writes `mother_coverage_id`). Then the SM moves to `exception_review`.
-  - `EligibilityDetailDrawer` → pretty-print `result_payload`; render the SM trail; governed override = a typed `reason` that enables a `transitionEligibility` event button (disabled until reason typed).
-- Amounts via `formatHalalas` in JetBrains Mono; reuse `PatientBanner` when a row is selected.
-- **CapGate**: bulk bar + row actions gated on **existing** `reg.eligibility` (do **not** add `elig.bulk` alias caps to the matrix).
+## PART B — R2 Authorization Engine
 
-## 3 · Policy Activation Worklist — `PolicyActivationPane.tsx`
+R2 legitimately ships one migration + new routes. Confirmed present: `service_master`/`drug_master` (real table names), the gateway `sendBundle({idempotencyKey, messageType, tenantId})` + `stubResponse(bundle, messageType)` pattern (with `submitClaim`/`submitEligibility` as the templates), all five order-item tables (`service_order_item`, `prescription_item`, `radiology_order_item`, `lab_order_item`, `ep_order_item`), `_order-factory.ts` + four order endpoints + `prescriptions.ts`, `claims.$id.completeness.ts`, `his-docs.ts`, and the `Authorization` module caps (`auth.request`/`auth.decide`/`auth.rules`) with `pharmacist` in the `clinical_role` enum.
 
-- `listPolicyActivations()`; bucket tiles Pending / In-progress / Activated / Rejected.
-- Columns: membership_no · policy_no · class_code · validity window · assignee · status.
-- Row actions: *Assign to me* → `patchPolicyActivation(id, { assignee_id, status: "in_progress" })`; *Activate* (drawer collects membership_no + validity_from/to + class_code) → `activatePolicy(id, body)` (server stamps `notify_reception_at` → toast "Reception notified"); *Reject* → `patchPolicyActivation(id, { status: "rejected", reason })`. Bulk assign-to-me / activate-with-defaults (only rows whose eligibility already carries payer+policy+class).
-- Gate on `reg.activation` (no alias cap).
+### 1. Migration — one call
 
-## 4 · Contracts + Masters editor
+- `CREATE TYPE authorization_status AS ENUM` — 17 states (`new · created · need_corrections · scrubbed · ready · submitted · pending · case_under_review · need_more_info · approved · partially_approved · rejected · referred_transfer · expired · cancelled · execution_released · converted_self_pay`). New type, same-txn use is fine. **No** `clinical_role`**** `ADD VALUE` (`pharmacist` already exists).
+- `authorization_trigger_rule` — `tenant_id, trigger_type, scope, condition jsonb, active, priority, note`.
+- `approval_rule` — precedence refs (`tpa_id, payer_id, policy_id, class_id, network_id`), `requester_role text[], patient_type, specialty, clinical_condition, approval_limit_minor, auto_send_script, medication_days_of_supply, medication_stock, active, inactive_reason`.
+- `authorization_request` — §D fields incl. `internal_seq_no, auth_type, encounter_id, eligibility_ref (→ visit_eligibility), payer/policy/class/network, parent_auth_id (self-fk), status authorization_status, approval_limit_minor, approved_amount_minor, valid_to date, request_bundle_id, response_bundle_id, assigned_to, locked_by, locked_at, elapsed_started_at, source_reason, approval_rule_reason, cancel_after`.
+- `authorization_item` — `auth_id, service_code/drug_code, qty, approved_qty, approval_no_per_item, approved_amount_minor, item_status`, nullable back-refs to the five order-item tables (all exist).
+- `authorization_attachment` — `auth_id, label, url, mime, uploaded_by, uploaded_at`.
+- `authorization_communication` — `direction (out|in), message, followup_no, created_by, nphies_communication_id nullable`.
+- **Additive master columns:** `service_master ADD is_high_control boolean default false, sub_category text`; `drug_master ADD is_high_control boolean default false, sub_category text, max_days_of_supply int`.
+- **Triggers:** BEFORE INSERT → `internal_seq_no = AUTH-YYYY-XXXXXX`, `elapsed_started_at = now()`, `cancel_after = now() + interval '30 days'`. AFTER UPDATE OF status → advance encounter journey. `authorization_item` AFTER UPDATE → resync parent `approved_amount_minor`.
+- All new tables: `GRANT` + RLS scoped by `tenant_members` (author + tenant staff read; `rcm`/ `approval_officer` write) per R1.
 
-- `ContractsPane.tsx`: `contract_change_request` + `payer_agreement` timeline (draft→approved→applied), diff viewer in a modal (before/after JSONB), target_table filter chips, multi-select **bulk Approve / bulk Apply** via `approve`/`apply` endpoints (`Promise.allSettled`). Gate on `contract.change`.
-- `ContractMastersPane.tsx` (new, tabbed: Payer agreements · Not-covered · Need-approval · Maternity): **Create** → `createMaster(kind, body)` (direct POST). **Edit existing** → **not** a direct `updateMaster` PATCH; instead `createContractChangeRequest({ target_table, target_id, before, after })` → the governed draft→approve→apply flow performs the update with audit. Gate on `contract.manage` / `contract.change`.
+### 2. `src/lib/rcm/auth-sm.ts` (new)
 
-## 5 · HIS linkage (integration)
+Pure TS: `AuthStatus` union (matches the enum), `nextStates(status)`, `canTransition(from, to, ctx)`, label/tint helpers. Used by API guards + UI.
 
-- `PatientBanner.tsx`: **Eligibility chip** from the most recent `visit_eligibility` for the encounter — derive from real `status` + `financial_type`: `insured/eligible/activated` → green; `activation_pending/ exception_review/checking` → amber; `not_eligible/error` → coral; `financial_type==="self_pay"` → muted. Click → jump to `rcm-eligibility` tab filtered to that row.
-- `RegistrationPane.tsx`: after coverage saved, a **"Check eligibility"** button → `checkEligibility({ beneficiary_id, coverage_id, encounter_id })` (**real** `coverage_id`). On `not_eligible`, offer inline "Capture exception" (open drawer) / "Register self-pay" (`transitionEligibility(id, { kind:"select.self_pay", reason })`).
-- `EncounterPane.tsx`: read-only ribbon (last eligibility status + financial_type); **disable charge-posting affordances when** `financial_type === "pending"` (not null) — mirrors the server gate, surfaced earlier.
+### 3. `src/lib/rcm/auth-engine.ts` (new)
 
-## 6 · Superadmin
+- `evaluateTriggers(ctx)` → reads `authorization_trigger_rule` + the **real** master flags: `preauth_required` (existing) plus the new `is_high_control`, `sub_category`, `max_days_of_supply`. No references to non-existent columns.
+- `resolveApprovalRule(ctx)` → precedence **TPA → Payor → Policy → Class** + **Network override**; honours `inactive_reason`.
+- `runPreSubmissionScrubber(auth)` → `{ ok, blockers[], warnings[] }`.
+- `resolveConversion(auth)` → billable vs self-pay split (exported for R3/R4).
 
-- `src/components/superadmin/RcmMastersPane.tsx`: mount `ContractMastersPane` inside the Superadmin shell (tenant selector already there). Register in `SideNav.tsx` under **RCM Masters**, visible to superadmin / tenant_admin only.
+### 4. APIs — `src/routes/api/clinical/v1/auth/*` (new)
 
-## Acceptance (spec §F)
+Guarded by `requireClinicalModule('Authorization', <cap>)` (`auth.request` work / `auth.decide` decide / `auth.rules` masters).
 
-Eligible+active class → row in Cleared, `financial_type=insurance`, green banner chip, no self-pay affordances. · Not-eligible + referral/emergency(CTAS 1–2)/newborn(mother coverage) → exception drawer → `exception_review` → activation row → Activate drawer → `activated` + reception toast. · Not-eligible, no exception → Register self-pay → `self_pay`, muted banner, charges disabled. · Governed override needs typed reason before the event button enables. · Contract change: create draft → bulk-approve → bulk-apply → target updated, audit visible in diff. · Every table: multi-select + select-all-in-view + sticky bar; `read_only` sees no bar.
+- `auth-requests.ts` GET (full filter set; sort oldest-unsubmitted-first; `include_closed=1`) / POST (create; auto-pull orders/dx/procedures + MDS + real `eligibility_ref` via `evaluateTriggers`).
+- `auth-requests.$id.ts` GET/PATCH · `.assign.ts` (assign-to-me; `xmin` **+** `locked_by`**/**`locked_at`**, 10-min TTL swept in-request, 409 on live collision** — new pattern, not cited as pre-existing) · `.scrub.ts` · `.submit.ts` (builds preauth Bundle → `gateway.submitPreauth(...)` → `submitted → pending`) · `.items.ts` (bulk PATCH) · `.attachments.ts` · `.communications.ts` (auto-increments `followup_no`) · `.cancel.ts` · `.refresh-validity.ts` · `.decision.ts` (inbound ClaimResponse simulation).
+- `auth-requests.bulk.ts` POST `{ action, ids[], payload? }` → **per-row result array** (server-side).
+- **Masters (direct CRUD, NOT change-request governed):** `masters/auth-trigger-rules.ts` (+`$id`), `masters/approval-rules.ts` (+`$id`), gated `rcm`/`tenant_admin` via `auth.rules`. They are **not** in `contract-change-requests` `ALLOWED_TABLES` and must not route through it.
+- **Gateway (**`src/lib/mds/nphies/gateway.ts`**):** add `submitPreauth(bundle, idempotencyKey, tenantId)` = `sendBundle(bundle, { idempotencyKey, messageType: "preauth-request", tenantId })` (same shape as `submitClaim`/`submitEligibility`). Extend `stubResponse` for `"preauth-request"` → deterministic `ClaimResponse` with `preauthRef`, `preAuthPeriod.end` (→ `valid_to`), per-item `benefit`. `isDemoTenant` already drives the sandbox path; surface a `SANDBOX` chip in the UI.
 
-## DoD
+### 5. HIS linkage (order-side triggers)
 
-`tsgo` clean; no migrations, no new routes. All R1 endpoints exercised from UI. Bulk on all four tables via `Promise.allSettled` over single-item endpoints. Statuses use the real `EligibilityStatus` union; transition posts events; charges gate on `financial_type==="pending"`. Governed masters edits via `contract_change_request`. Caps use existing matrix entries (no alias caps). One shared `toneOf` + `formatHalalas`. Panes are tabs in `clinical.tsx` (no new route files). Daylight only; halalas in mono; RTL-safe. Superadmin RCM Masters visible to superadmin/tenant_admin only.
+Extend `_order-factory.ts` + `orders.{lab,radiology,service,electrophysiology}.ts` + `prescriptions.ts`: after writing the order run `evaluateTriggers`; if required, create `authorization_request` (`status='new'`) with initiating items attached, and **append additively** `{ authorization_request_id, requires_auth, reasons: string[] }` to the existing order response (don't rename/remove existing fields). Populate `eligibility_ref` from the latest `visit_eligibility` for the encounter.
+
+### 6. Claim gate — `claims.$id.completeness.ts` (fixed flag)
+
+Add blocker `AUTH_MISSING`: a claim item whose service/drug has `preauth_required = true` (the real master column — **not** a nonexistent `need_approval` column) OR matches a `need_approval_rule` must have a covering `authorization_request` in `approved`/`partially_approved` with `valid_to >= now()` and policy not expired at charge time. Emit in `completeness.ts`; `claims.$id.ready.ts` reflects it automatically. R2 half of the Phase-10 gate.
+
+### 7. UI — `src/components/clinical/daylight/AuthorizationPane.tsx` (new)
+
+Mirrors `EligibilityWorklistPane`: bucket tiles (**Needs me now** `new`/`need_corrections`/`need_more_info` · **In flight** `submitted`/`pending`/`case_under_review` · **Decided** `approved`/`partially_approved`/ `rejected`/`referred_transfer` · **Closed** `expired`/`cancelled`); full filter set; columns seq · Encounter/MRN · Auth type · Payer/Policy · Rule reason · CTAS · Amount (shared `formatHalalas` mono) · TAT band · Status pill (shared `toneOf`) · Assigned · Locked-by. Row actions Assign/Scrub/Submit/Communicate/ Refresh-validity/Cancel/Convert-self-pay. Sticky bulk bar → `auth-requests.bulk.ts`, per-row toast summary. Row-expand drawer: **Items** (inline qty/approved_qty/approval_no) · **Attachments** · **Communications** (thread + `followup_no` + reply; inbound tagged). Right rail **Rule preview** (triggers fired + resolved approval rule). Eligibility surfacing uses real `EligibilityStatus` + shared `toneOf` + `financial_type ∈ {insurance,self_pay,pending}`. `CapGate`: work=`auth.request`, decide=`auth.decide`, masters=`auth.rules`; `read_only` sees no bulk bar.
+
+### 8. `src/components/clinical/daylight/AuthRulesPane.tsx` (new — NOT via `ContractMastersPane`)
+
+Tabbed operational-config editor: **Auth triggers** (`authorization_trigger_rule` CRUD, bulk enable/disable) · **Approval rules** (`approval_rule` precedence editor: chip pickers TPA/Payor/Policy/Class/Network, requester roles, patient type, specialty, limits, `auto_send_script`, DOS, stock, inactive-per-payer). Direct CRUD via `updateMaster('auth-trigger-rules', …)` / `updateMaster('approval-rules', …)` — **not** `contract_change_request`.
+
+### 9. Client — `src/lib/clinical-api.ts`
+
+Add `listAuthRequests, getAuthRequest, createAuthRequest, patchAuthRequest, assignAuthRequest, scrubAuthRequest, submitAuthRequest, cancelAuthRequest, refreshAuthValidity, patchAuthItem, postAuthAttachment, deleteAuthAttachment, listAuthCommunications, postAuthCommunication, bulkAuthAction(action, ids, payload?), simulateAuthDecision(id, payload)`. Masters via existing `listMaster`/`createMaster`/`updateMaster` with kinds `auth-trigger-rules` / `approval-rules`.
+
+### 10. Wiring (fixed stub reference)
+
+- `nav-config.ts` — no structural change; the existing `rcm-authorization` tab renders the real pane.
+- `clinical.tsx` — `RcmStubs.tsx` **does not exist**; wire `AuthorizationPane` into wherever the `rcm-authorization` tab currently renders its stub (the inline stub/placeholder from the R1 build). Mount `AuthRulesPane` under `admin-masters` (sub-section or adjacent tab).
+- `clinical-role-landing.ts` — set `pharmacist → rcm-authorization`.
+- `src/lib/his-docs.ts` — add "RCM · Authorization (R2)" (tech-manual: trigger taxonomy, 16-step SM, post-decision governance, gateway wiring; user-manual: work the worklist, physician response, officer declaration).
+
+### 11. Acceptance
+
+MRI sub-category rule → auto-auth (`requires_auth:true` in order response) → worklist → scrub → submit → sandbox approves w/ `valid_to` → order releases. · GLP-1 high-control → partial approval → approved qty billable, remainder self-pay via `resolveConversion`. · CTAS 1–2 → manual path. · Policy expiry < `valid_to` → `completeness.ts` emits `AUTH_MISSING`. · Follow-up/extend/transfer preserve `parent_auth_id`; server bulk-cancel returns per-row results. · Every table: multi-select + select-all-in-view + sticky bar; `read_only` no bar.
+
+### DoD
+
+**R1:** pane sends only editable `after`; apply strips `id/tenant_id/created_at/created_by`; schema already accepts the fields. **R2:** one migration (new tables + `is_high_control`/`sub_category`/ `max_days_of_supply` on `service_master`/`drug_master`; no `clinical_role` `ADD VALUE`). New `auth/*` routes guarded by `requireClinicalModule('Authorization', …)`. Order endpoints create auths via `evaluateTriggers` and append `requires_auth` additively. `AUTH_MISSING` in `completeness.ts` keyed off `preauth_required`. Rule masters via direct CRUD. Worklist mirrors R1 (buckets, shared `toneOf`/`formatHalalas`/`CapGate`, server bulk w/ per-row results). `submitPreauth` in `src/lib/mds/nphies/gateway.ts` via `sendBundle` `messageType:"preauth-request"` + `stubResponse`. `tsgo` green; Daylight only; halalas in mono; RTL-safe.
+
+```
+
+```

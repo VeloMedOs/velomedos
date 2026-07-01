@@ -28,8 +28,17 @@ export const Route = createFileRoute(
         return envelope(`Target table ${owned.row.target_table} not allowed`, "invalid_target", 400);
       }
       const db = serviceClient() as any;
+      // Defensive hardening — strip protected keys so an apply cannot
+      // rewrite id/tenant_id/created_at/created_by with stale snapshot
+      // values (audit loss + RLS WITH CHECK hazard).
+      const after = { ...(owned.row.after as Record<string, unknown>) };
+      delete (after as any).id;
+      delete (after as any).tenant_id;
+      delete (after as any).created_at;
+      delete (after as any).created_by;
+      delete (after as any).updated_at; // let touch trigger set now()
       const { error: applyErr } = await db.from(owned.row.target_table)
-        .update({ ...owned.row.after, updated_by: auth.ctx.userId })
+        .update({ ...after, updated_by: auth.ctx.userId })
         .eq("id", owned.row.target_id)
         .eq("tenant_id", auth.ctx.tenantId);
       if (applyErr) return envelope(applyErr.message, "apply_error", 400);

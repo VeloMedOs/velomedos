@@ -250,4 +250,41 @@ export const ClinicalAPI = {
       benchmark: { pcs: number | null; mcs: number | null };
     }>(`/api/clinical/v1/outcomes/summary${qs ? `?${qs}` : ""}`);
   },
+
+  // R2 · Authorization
+  listAuthRequests: (params?: { status?: string; encounter_id?: string; limit?: number; offset?: number }) => {
+    const q = new URLSearchParams();
+    Object.entries(params ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });
+    const qs = q.toString();
+    return clinicalFetch<{ data: any[]; pagination?: { limit: number; offset: number; total: number } }>(
+      `/api/clinical/v1/auth/requests${qs ? `?${qs}` : ""}`,
+    );
+  },
+  createAuthRequest: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/auth/requests`, { method: "POST", body }),
+  getAuthRequest: (id: string) =>
+    clinicalFetch<{ data: { request: any; items: any[]; attachments: any[]; communications: any[] } }>(
+      `/api/clinical/v1/auth/requests/${id}`,
+    ),
+  patchAuthRequest: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/auth/requests/${id}`, { method: "PATCH", body }),
+  submitAuthRequest: (id: string) =>
+    clinicalFetch<{ data: any; sandbox: boolean; http_status: number }>(
+      `/api/clinical/v1/auth/requests/${id}/submit`, { method: "POST", body: {} },
+    ),
+  decideAuthRequest: (id: string, body: {
+    decision: "approve" | "partial" | "reject";
+    reason?: string | null;
+    valid_from?: string | null;
+    valid_to?: string | null;
+    items?: Array<{ id: string; decision?: "approved" | "partial" | "rejected"; approved_quantity?: number | null; benefit_amount_minor?: number | null; reason?: string | null }>;
+  }) => clinicalFetch<{ data: any }>(`/api/clinical/v1/auth/requests/${id}/decision`, { method: "POST", body }),
+  bulkAuthRequests: (action: "assign_me" | "scrub" | "submit" | "cancel" | "mark_self_pay", ids: string[]) =>
+    clinicalFetch<{ data: Array<{ id: string; ok: boolean; error?: string }> }>(
+      `/api/clinical/v1/auth/requests/bulk`, { method: "POST", body: { action, ids } },
+    ),
+  addAuthAttachment: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/auth/requests/${id}/attachments`, { method: "POST", body }),
+  addAuthCommunication: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/auth/requests/${id}/communications`, { method: "POST", body }),
 };

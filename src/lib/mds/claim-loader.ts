@@ -23,6 +23,10 @@ export type ReadinessBundle = {
   arDrgVersion: string | null;
   chargeItems: any[];
   claimItems: any[];
+  authRequests?: any[];
+  authItems?: any[];
+  serviceMasters?: any[];
+  drugMasters?: any[];
 };
 
 export async function loadClaimReadinessBundle(
@@ -78,6 +82,29 @@ export async function loadClaimReadinessBundle(
     .eq("key", "ar-drg")
     .eq("is_current", true)
     .maybeSingle();
+
+  // R2 — authorization coverage: any auth request against this encounter
+  // whose items include the same service_master/drug_master ids priced into
+  // the claim. Used by AUTH_MISSING in the completeness gate.
+  const [ar, ai] = await Promise.all([
+    db.from("authorization_request").select("*").eq("tenant_id", tenantId).eq("encounter_id", encId),
+    db.from("authorization_item").select("*").eq("tenant_id", tenantId),
+  ]);
+  const arRows = (ar.data ?? []) as any[];
+  const arIds = new Set(arRows.map((r: any) => r.id));
+  const aiRows = ((ai.data ?? []) as any[]).filter((i: any) => arIds.has(i.authorization_request_id));
+
+  // Preauth flag lookup for charged items' underlying service/drug ids.
+  const svcIds = new Set<string>();
+  const drugIds = new Set<string>();
+  for (const c of (ci.data ?? []) as any[]) {
+    if (c.service_id) svcIds.add(c.service_id);
+    if (c.drug_id) drugIds.add(c.drug_id);
+  }
+  const [svcMasters, drugMasters] = await Promise.all([
+    svcIds.size ? db.from("service_master").select("id, preauth_required").in("id", Array.from(svcIds)) : Promise.resolve({ data: [] }),
+    drugIds.size ? db.from("drug_master").select("id, preauth_required").in("id", Array.from(drugIds)) : Promise.resolve({ data: [] }),
+  ]);
   const arDrgVersion = (csv.data?.version as string | undefined) ?? null;
 
   return {
@@ -97,6 +124,10 @@ export async function loadClaimReadinessBundle(
       arDrgVersion,
       chargeItems: (ci.data ?? []) as any[],
       claimItems: (items.data ?? []) as any[],
+      authRequests: arRows,
+      authItems: aiRows,
+      serviceMasters: (svcMasters as any).data ?? [],
+      drugMasters: (drugMasters as any).data ?? [],
     },
   };
 }
