@@ -15,9 +15,10 @@ import { EligibilityWorklistPane } from "@/components/clinical/daylight/Eligibil
 import { ContractsPane } from "@/components/clinical/daylight/ContractsPane";
 import { PolicyActivationPane } from "@/components/clinical/daylight/PolicyActivationPane";
 import { ContractMastersPane } from "@/components/clinical/daylight/ContractMastersPane";
+import { ClaimsWorklistPane } from "@/components/clinical/daylight/ClaimsWorklistPane";
 import {
   RcmHubPane, AuthorizationPane,
-  BillingOpPane, BillingIpPane, DepositsPane, CashPane,
+  BillingOpPane, BillingIpPane, DepositsPane, CashPane, ClaimsDenialsPane,
   VitalsTrendPane,
 } from "@/components/clinical/daylight/RcmStubs";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
@@ -91,7 +92,7 @@ function ClinicalWorkspace() {
       {tab === "registration"        && <RegistrationPane />}
       {tab === "encounters"          && <EncounterPane />}
       {tab === "coding"              && <CodingPane />}
-      {(tab === "claims" || tab === "rcm-claims") && <ClaimsPane />}
+      {(tab === "claims" || tab === "rcm-claims") && <ClaimsWorklistPane role={me.clinicalRole} />}
       {tab === "rcm"                 && <RcmHubPane />}
       {tab === "rcm-eligibility"     && <EligibilityWorklistPane role={me.clinicalRole} />}
       {tab === "rcm-activation"      && <PolicyActivationPane role={me.clinicalRole} />}
