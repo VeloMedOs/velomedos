@@ -139,6 +139,62 @@ export function toneOfAdmissionStatus(status: string): StatusTone {
   return ADMISSION_STATUS_TONE[status] ?? "muted";
 }
 
+/* ─────────────────────── R5 · Batch / Remit / Denial ─────────────────────── */
+
+const BATCH_TONE: Record<string, StatusTone> = {
+  open: "amber",
+  submitting: "sky",
+  submitted: "teal",
+  closed: "muted",
+  cancelled: "muted",
+};
+export function toneOfBatchStatus(status: string): StatusTone {
+  return BATCH_TONE[status] ?? "muted";
+}
+
+const REMITTANCE_TONE: Record<string, StatusTone> = {
+  staged: "amber",
+  matching: "sky",
+  matched: "sky",
+  posted: "teal",
+  reconciliation: "coral",
+  closed: "muted",
+};
+export function toneOfRemittanceStatus(status: string): StatusTone {
+  return REMITTANCE_TONE[status] ?? "muted";
+}
+
+const REMITTANCE_MATCH_TONE: Record<string, StatusTone> = {
+  unmatched: "coral",
+  mismatch: "coral",
+  matched: "teal",
+  manual: "amber",
+};
+export function toneOfRemittanceMatch(status: string): StatusTone {
+  return REMITTANCE_MATCH_TONE[status] ?? "muted";
+}
+
+const DENIAL_TONE: Record<string, StatusTone> = {
+  pending_action: "coral",
+  in_correction: "amber",
+  accepted: "sky",
+  resubmitted: "sky",
+  resolved: "teal",
+  disposed: "muted",
+};
+export function toneOfDenialStatus(status: string): StatusTone {
+  return DENIAL_TONE[status] ?? "muted";
+}
+
+const READINESS_TONE: Record<string, StatusTone> = {
+  ready: "teal",
+  needs_correction: "coral",
+  hold: "amber",
+};
+export function toneOfReadiness(status: string | null | undefined): StatusTone {
+  return status ? READINESS_TONE[status] ?? "muted" : "muted";
+}
+
 /**
  * Presentational styles for a tone chip. Daylight tokens only.
  * Consumers apply via `style={toneStyle(tone)}` on a `<span>` / pill.
