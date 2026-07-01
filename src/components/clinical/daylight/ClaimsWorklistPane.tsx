@@ -205,24 +205,22 @@ export function ClaimsWorklistPane({ role }: { role: ClinicalRole | null }) {
             </span>
           }
         >
-          <CapGate role={role} capId="claim.assemble">
-            {(_can) => (
-              <div className="flex items-center gap-2 mb-2">
-                <button onClick={() => runBulk("scrub")}   disabled={readOnly || busy?.startsWith("bulk")} className="clin-pill">
-                  <PlayCircle className="size-3.5" /><span className="text-[11px]">Scrub</span>
-                </button>
-                <button onClick={() => runBulk("submit")}  disabled={readOnly || busy?.startsWith("bulk")} className="clin-pill">
-                  <Send className="size-3.5" /><span className="text-[11px]">Submit</span>
-                </button>
-                <button onClick={() => runBulk("assign_me")} disabled={readOnly || busy?.startsWith("bulk")} className="clin-pill muted">
-                  <RotateCcw className="size-3.5" /><span className="text-[11px]">Assign me</span>
-                </button>
-                <button onClick={() => runBulk("void")}    disabled={readOnly || busy?.startsWith("bulk")} className="clin-pill muted">
-                  <XCircle className="size-3.5" /><span className="text-[11px]">Void</span>
-                </button>
-                <span className="mono text-[10px] ml-2" style={{ color: "var(--clin-muted)" }}>{selected.size} selected</span>
-              </div>
-            )}
+          <CapGate role={role} cap="claim.assemble" mode="hide">
+            <div className="flex items-center gap-2 mb-2">
+              <button onClick={() => runBulk("scrub")}   disabled={readOnly || busy?.startsWith("bulk")} className="clin-pill">
+                <PlayCircle className="size-3.5" /><span className="text-[11px]">Scrub</span>
+              </button>
+              <button onClick={() => runBulk("submit")}  disabled={readOnly || busy?.startsWith("bulk")} className="clin-pill">
+                <Send className="size-3.5" /><span className="text-[11px]">Submit</span>
+              </button>
+              <button onClick={() => runBulk("assign_me")} disabled={readOnly || busy?.startsWith("bulk")} className="clin-pill muted">
+                <RotateCcw className="size-3.5" /><span className="text-[11px]">Assign me</span>
+              </button>
+              <button onClick={() => runBulk("void")}    disabled={readOnly || busy?.startsWith("bulk")} className="clin-pill muted">
+                <XCircle className="size-3.5" /><span className="text-[11px]">Void</span>
+              </button>
+              <span className="mono text-[10px] ml-2" style={{ color: "var(--clin-muted)" }}>{selected.size} selected</span>
+            </div>
           </CapGate>
 
           <div className="overflow-auto rounded-lg" style={{ border: "1px solid var(--clin-border)" }}>
