@@ -306,6 +306,7 @@ import { Route as ApiClinicalV1EncountersIdOrdersRadiologyRouteImport } from './
 import { Route as ApiClinicalV1EncountersIdOrdersLabRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.lab'
 import { Route as ApiClinicalV1EncountersIdOrdersElectrophysiologyRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.electrophysiology'
 import { Route as ApiClinicalV1DepositsDepositsIdTransferRouteImport } from './routes/api/clinical/v1/deposits/deposits.$id.transfer'
+import { Route as ApiClinicalV1DepositsDepositsIdAttachmentsRouteImport } from './routes/api/clinical/v1/deposits/deposits.$id.attachments'
 import { Route as ApiClinicalV1DepositsDepositsIdApplyRouteImport } from './routes/api/clinical/v1/deposits/deposits.$id.apply'
 import { Route as ApiClinicalV1ClaimsMgmtRemittancesIdActionRouteImport } from './routes/api/clinical/v1/claims-mgmt/remittances.$id.action'
 import { Route as ApiClinicalV1ClaimsMgmtDenialsIdActionRouteImport } from './routes/api/clinical/v1/claims-mgmt/denials.$id.action'
@@ -1980,6 +1981,12 @@ const ApiClinicalV1DepositsDepositsIdTransferRoute =
     path: '/transfer',
     getParentRoute: () => ApiClinicalV1DepositsDepositsIdRoute,
   } as any)
+const ApiClinicalV1DepositsDepositsIdAttachmentsRoute =
+  ApiClinicalV1DepositsDepositsIdAttachmentsRouteImport.update({
+    id: '/attachments',
+    path: '/attachments',
+    getParentRoute: () => ApiClinicalV1DepositsDepositsIdRoute,
+  } as any)
 const ApiClinicalV1DepositsDepositsIdApplyRoute =
   ApiClinicalV1DepositsDepositsIdApplyRouteImport.update({
     id: '/apply',
@@ -2329,6 +2336,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/claims-mgmt/denials/$id/action': typeof ApiClinicalV1ClaimsMgmtDenialsIdActionRoute
   '/api/clinical/v1/claims-mgmt/remittances/$id/action': typeof ApiClinicalV1ClaimsMgmtRemittancesIdActionRoute
   '/api/clinical/v1/deposits/deposits/$id/apply': typeof ApiClinicalV1DepositsDepositsIdApplyRoute
+  '/api/clinical/v1/deposits/deposits/$id/attachments': typeof ApiClinicalV1DepositsDepositsIdAttachmentsRoute
   '/api/clinical/v1/deposits/deposits/$id/transfer': typeof ApiClinicalV1DepositsDepositsIdTransferRoute
   '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
@@ -2635,6 +2643,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/claims-mgmt/denials/$id/action': typeof ApiClinicalV1ClaimsMgmtDenialsIdActionRoute
   '/api/clinical/v1/claims-mgmt/remittances/$id/action': typeof ApiClinicalV1ClaimsMgmtRemittancesIdActionRoute
   '/api/clinical/v1/deposits/deposits/$id/apply': typeof ApiClinicalV1DepositsDepositsIdApplyRoute
+  '/api/clinical/v1/deposits/deposits/$id/attachments': typeof ApiClinicalV1DepositsDepositsIdAttachmentsRoute
   '/api/clinical/v1/deposits/deposits/$id/transfer': typeof ApiClinicalV1DepositsDepositsIdTransferRoute
   '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
@@ -2945,6 +2954,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/claims-mgmt/denials/$id/action': typeof ApiClinicalV1ClaimsMgmtDenialsIdActionRoute
   '/api/clinical/v1/claims-mgmt/remittances/$id/action': typeof ApiClinicalV1ClaimsMgmtRemittancesIdActionRoute
   '/api/clinical/v1/deposits/deposits/$id/apply': typeof ApiClinicalV1DepositsDepositsIdApplyRoute
+  '/api/clinical/v1/deposits/deposits/$id/attachments': typeof ApiClinicalV1DepositsDepositsIdAttachmentsRoute
   '/api/clinical/v1/deposits/deposits/$id/transfer': typeof ApiClinicalV1DepositsDepositsIdTransferRoute
   '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
@@ -3255,6 +3265,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims-mgmt/denials/$id/action'
     | '/api/clinical/v1/claims-mgmt/remittances/$id/action'
     | '/api/clinical/v1/deposits/deposits/$id/apply'
+    | '/api/clinical/v1/deposits/deposits/$id/attachments'
     | '/api/clinical/v1/deposits/deposits/$id/transfer'
     | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
     | '/api/clinical/v1/encounters/$id/orders/lab'
@@ -3561,6 +3572,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims-mgmt/denials/$id/action'
     | '/api/clinical/v1/claims-mgmt/remittances/$id/action'
     | '/api/clinical/v1/deposits/deposits/$id/apply'
+    | '/api/clinical/v1/deposits/deposits/$id/attachments'
     | '/api/clinical/v1/deposits/deposits/$id/transfer'
     | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
     | '/api/clinical/v1/encounters/$id/orders/lab'
@@ -3870,6 +3882,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims-mgmt/denials/$id/action'
     | '/api/clinical/v1/claims-mgmt/remittances/$id/action'
     | '/api/clinical/v1/deposits/deposits/$id/apply'
+    | '/api/clinical/v1/deposits/deposits/$id/attachments'
     | '/api/clinical/v1/deposits/deposits/$id/transfer'
     | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
     | '/api/clinical/v1/encounters/$id/orders/lab'
@@ -6121,6 +6134,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1DepositsDepositsIdTransferRouteImport
       parentRoute: typeof ApiClinicalV1DepositsDepositsIdRoute
     }
+    '/api/clinical/v1/deposits/deposits/$id/attachments': {
+      id: '/api/clinical/v1/deposits/deposits/$id/attachments'
+      path: '/attachments'
+      fullPath: '/api/clinical/v1/deposits/deposits/$id/attachments'
+      preLoaderRoute: typeof ApiClinicalV1DepositsDepositsIdAttachmentsRouteImport
+      parentRoute: typeof ApiClinicalV1DepositsDepositsIdRoute
+    }
     '/api/clinical/v1/deposits/deposits/$id/apply': {
       id: '/api/clinical/v1/deposits/deposits/$id/apply'
       path: '/apply'
@@ -6589,6 +6609,7 @@ const ApiClinicalV1ClaimsRouteWithChildren =
 
 interface ApiClinicalV1DepositsDepositsIdRouteChildren {
   ApiClinicalV1DepositsDepositsIdApplyRoute: typeof ApiClinicalV1DepositsDepositsIdApplyRoute
+  ApiClinicalV1DepositsDepositsIdAttachmentsRoute: typeof ApiClinicalV1DepositsDepositsIdAttachmentsRoute
   ApiClinicalV1DepositsDepositsIdTransferRoute: typeof ApiClinicalV1DepositsDepositsIdTransferRoute
 }
 
@@ -6596,6 +6617,8 @@ const ApiClinicalV1DepositsDepositsIdRouteChildren: ApiClinicalV1DepositsDeposit
   {
     ApiClinicalV1DepositsDepositsIdApplyRoute:
       ApiClinicalV1DepositsDepositsIdApplyRoute,
+    ApiClinicalV1DepositsDepositsIdAttachmentsRoute:
+      ApiClinicalV1DepositsDepositsIdAttachmentsRoute,
     ApiClinicalV1DepositsDepositsIdTransferRoute:
       ApiClinicalV1DepositsDepositsIdTransferRoute,
   }
