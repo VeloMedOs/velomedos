@@ -20,6 +20,8 @@ const Body = z.object({
   action: z.enum(["start_correction","resubmit","accept","dispose","resolve","add_communication"]),
   note: z.string().max(4000).optional(),
   disposition: z.enum(["none","write_off","adjustment"]).optional(),
+  disposition_amount_minor: z.number().int().nonnegative().optional(),
+  direction: z.enum(["outbound","inbound","internal"]).default("internal").optional(),
   channel: z.enum(["note","email","phone","portal","letter"]).default("note").optional(),
   assignee_id: z.string().uuid().optional(),
 });
@@ -47,8 +49,9 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/denials/$id/a
           const ins = await db.from("denial_communication").insert({
             tenant_id: auth.ctx.tenantId,
             denial_case_id: params.id,
+            direction: body.data.direction ?? "internal",
             channel: body.data.channel ?? "note",
-            author_id: auth.ctx.userId,
+            actor_id: auth.ctx.userId,
             body: body.data.note,
           }).select("*").single();
           if (ins.error) return envelope(ins.error.message, "db_error", 500);
@@ -56,14 +59,14 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/denials/$id/a
         }
 
         if (body.data.action === "start_correction") {
-          await move("in_correction", { assignee_id: body.data.assignee_id ?? auth.ctx.userId });
+          await move("in_correction", { assigned_to: body.data.assignee_id ?? auth.ctx.userId });
           return jsonData({ ok: true, status: "in_correction" });
         }
 
         if (body.data.action === "resubmit") {
           const { data: src } = await db.from("claim").select("*").eq("id", d.claim_id).maybeSingle();
           if (!src) return envelope("source_claim_missing", "not_found", 404);
-          const cloneNo = `${src.provider_claim_no ?? "CL"}-R${(d.resubmit_count ?? 0) + 1}`;
+          const cloneNo = `${src.provider_claim_no ?? "CL"}-R${Date.now().toString(36)}`;
           const clone = await db.from("claim").insert({
             tenant_id: auth.ctx.tenantId,
             encounter_id: src.encounter_id,
@@ -74,13 +77,10 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/denials/$id/a
             claim_sequence_no: src.claim_sequence_no,
             status: "draft",
             readiness_status: "hold",
-            parent_claim_id: src.id,
+            replaces_claim_id: src.id,
           }).select("*").single();
           if (clone.error) return envelope(clone.error.message, "db_error", 500);
-          await move("resubmitted", {
-            resubmission_claim_id: clone.data.id,
-            resubmit_count: (d.resubmit_count ?? 0) + 1,
-          });
+          await move("resubmitted", { replaces_claim_id: clone.data.id });
           return jsonData({ ok: true, status: "resubmitted", claim: clone.data });
         }
 
@@ -91,12 +91,18 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/denials/$id/a
 
         if (body.data.action === "dispose") {
           const disp: DenialFinanceDisposition = body.data.disposition ?? "write_off";
-          await move("disposed", { finance_disposition: disp, disposed_at: new Date().toISOString() });
+          await move("disposed", {
+            finance_disposition: disp,
+            disposition_amount_minor: body.data.disposition_amount_minor ?? 0,
+            disposition_note: body.data.note ?? null,
+            disposed_at: new Date().toISOString(),
+            disposed_by: auth.ctx.userId,
+          });
           return jsonData({ ok: true, status: "disposed", disposition: disp });
         }
 
         if (body.data.action === "resolve") {
-          await move("resolved", { resolved_at: new Date().toISOString() });
+          await move("resolved");
           return jsonData({ ok: true, status: "resolved" });
         }
       } catch (e) {
