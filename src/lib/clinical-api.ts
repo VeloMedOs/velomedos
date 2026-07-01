@@ -415,11 +415,11 @@ export const refundsApi = {
   create: (body: unknown) =>
     clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/refund-requests`, { method: "POST", body }),
   approve: (id: string, body: { approval_reason?: string; approval_level?: string }) =>
-    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/refund-requests/${id}/approve`, { method: "POST", body }),
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/refund-requests/${id}/action`, { method: "POST", body: { action: "approve", ...body } }),
   reject: (id: string, body: { reason: string }) =>
-    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/refund-requests/${id}/reject`, { method: "POST", body }),
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/refund-requests/${id}/action`, { method: "POST", body: { action: "reject", ...body } }),
   execute: (id: string, body: { receipt_no?: string }) =>
-    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/refund-requests/${id}/execute`, { method: "POST", body }),
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/refund-requests/${id}/action`, { method: "POST", body: { action: "execute", ...body } }),
   bulk: (action: "approve" | "reject" | "execute", ids: string[], reason?: string) =>
     clinicalFetch<{ data: Array<{ id: string; ok: boolean; error?: string }> }>(
       `/api/clinical/v1/deposits/refund-requests/bulk`, { method: "POST", body: { action, ids, reason } },

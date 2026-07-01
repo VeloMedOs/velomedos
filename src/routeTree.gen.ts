@@ -309,6 +309,7 @@ import { Route as ApiClinicalV1EncountersIdOrdersServiceRouteImport } from './ro
 import { Route as ApiClinicalV1EncountersIdOrdersRadiologyRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.radiology'
 import { Route as ApiClinicalV1EncountersIdOrdersLabRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.lab'
 import { Route as ApiClinicalV1EncountersIdOrdersElectrophysiologyRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.electrophysiology'
+import { Route as ApiClinicalV1DepositsRefundRequestsIdActionRouteImport } from './routes/api/clinical/v1/deposits/refund-requests.$id.action'
 import { Route as ApiClinicalV1DepositsDepositsIdTransferRouteImport } from './routes/api/clinical/v1/deposits/deposits.$id.transfer'
 import { Route as ApiClinicalV1DepositsDepositsIdAttachmentsRouteImport } from './routes/api/clinical/v1/deposits/deposits.$id.attachments'
 import { Route as ApiClinicalV1DepositsDepositsIdApplyRouteImport } from './routes/api/clinical/v1/deposits/deposits.$id.apply'
@@ -2003,6 +2004,12 @@ const ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute =
     path: '/orders/electrophysiology',
     getParentRoute: () => ApiClinicalV1EncountersIdRoute,
   } as any)
+const ApiClinicalV1DepositsRefundRequestsIdActionRoute =
+  ApiClinicalV1DepositsRefundRequestsIdActionRouteImport.update({
+    id: '/action',
+    path: '/action',
+    getParentRoute: () => ApiClinicalV1DepositsRefundRequestsIdRoute,
+  } as any)
 const ApiClinicalV1DepositsDepositsIdTransferRoute =
   ApiClinicalV1DepositsDepositsIdTransferRouteImport.update({
     id: '/transfer',
@@ -2300,7 +2307,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/deposits/deposits/$id': typeof ApiClinicalV1DepositsDepositsIdRouteWithChildren
   '/api/clinical/v1/deposits/deposits/availability': typeof ApiClinicalV1DepositsDepositsAvailabilityRoute
   '/api/clinical/v1/deposits/deposits/bulk': typeof ApiClinicalV1DepositsDepositsBulkRoute
-  '/api/clinical/v1/deposits/refund-requests/$id': typeof ApiClinicalV1DepositsRefundRequestsIdRoute
+  '/api/clinical/v1/deposits/refund-requests/$id': typeof ApiClinicalV1DepositsRefundRequestsIdRouteWithChildren
   '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/eligibility/$id/exception': typeof ApiClinicalV1EligibilityIdExceptionRoute
   '/api/clinical/v1/eligibility/$id/transition': typeof ApiClinicalV1EligibilityIdTransitionRoute
@@ -2370,6 +2377,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/deposits/deposits/$id/apply': typeof ApiClinicalV1DepositsDepositsIdApplyRoute
   '/api/clinical/v1/deposits/deposits/$id/attachments': typeof ApiClinicalV1DepositsDepositsIdAttachmentsRoute
   '/api/clinical/v1/deposits/deposits/$id/transfer': typeof ApiClinicalV1DepositsDepositsIdTransferRoute
+  '/api/clinical/v1/deposits/refund-requests/$id/action': typeof ApiClinicalV1DepositsRefundRequestsIdActionRoute
   '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
@@ -2611,7 +2619,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/deposits/deposits/$id': typeof ApiClinicalV1DepositsDepositsIdRouteWithChildren
   '/api/clinical/v1/deposits/deposits/availability': typeof ApiClinicalV1DepositsDepositsAvailabilityRoute
   '/api/clinical/v1/deposits/deposits/bulk': typeof ApiClinicalV1DepositsDepositsBulkRoute
-  '/api/clinical/v1/deposits/refund-requests/$id': typeof ApiClinicalV1DepositsRefundRequestsIdRoute
+  '/api/clinical/v1/deposits/refund-requests/$id': typeof ApiClinicalV1DepositsRefundRequestsIdRouteWithChildren
   '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/eligibility/$id/exception': typeof ApiClinicalV1EligibilityIdExceptionRoute
   '/api/clinical/v1/eligibility/$id/transition': typeof ApiClinicalV1EligibilityIdTransitionRoute
@@ -2681,6 +2689,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/deposits/deposits/$id/apply': typeof ApiClinicalV1DepositsDepositsIdApplyRoute
   '/api/clinical/v1/deposits/deposits/$id/attachments': typeof ApiClinicalV1DepositsDepositsIdAttachmentsRoute
   '/api/clinical/v1/deposits/deposits/$id/transfer': typeof ApiClinicalV1DepositsDepositsIdTransferRoute
+  '/api/clinical/v1/deposits/refund-requests/$id/action': typeof ApiClinicalV1DepositsRefundRequestsIdActionRoute
   '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
@@ -2926,7 +2935,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/deposits/deposits/$id': typeof ApiClinicalV1DepositsDepositsIdRouteWithChildren
   '/api/clinical/v1/deposits/deposits/availability': typeof ApiClinicalV1DepositsDepositsAvailabilityRoute
   '/api/clinical/v1/deposits/deposits/bulk': typeof ApiClinicalV1DepositsDepositsBulkRoute
-  '/api/clinical/v1/deposits/refund-requests/$id': typeof ApiClinicalV1DepositsRefundRequestsIdRoute
+  '/api/clinical/v1/deposits/refund-requests/$id': typeof ApiClinicalV1DepositsRefundRequestsIdRouteWithChildren
   '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/eligibility/$id/exception': typeof ApiClinicalV1EligibilityIdExceptionRoute
   '/api/clinical/v1/eligibility/$id/transition': typeof ApiClinicalV1EligibilityIdTransitionRoute
@@ -2996,6 +3005,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/deposits/deposits/$id/apply': typeof ApiClinicalV1DepositsDepositsIdApplyRoute
   '/api/clinical/v1/deposits/deposits/$id/attachments': typeof ApiClinicalV1DepositsDepositsIdAttachmentsRoute
   '/api/clinical/v1/deposits/deposits/$id/transfer': typeof ApiClinicalV1DepositsDepositsIdTransferRoute
+  '/api/clinical/v1/deposits/refund-requests/$id/action': typeof ApiClinicalV1DepositsRefundRequestsIdActionRoute
   '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
@@ -3311,6 +3321,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/deposits/deposits/$id/apply'
     | '/api/clinical/v1/deposits/deposits/$id/attachments'
     | '/api/clinical/v1/deposits/deposits/$id/transfer'
+    | '/api/clinical/v1/deposits/refund-requests/$id/action'
     | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
     | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/encounters/$id/orders/radiology'
@@ -3622,6 +3633,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/deposits/deposits/$id/apply'
     | '/api/clinical/v1/deposits/deposits/$id/attachments'
     | '/api/clinical/v1/deposits/deposits/$id/transfer'
+    | '/api/clinical/v1/deposits/refund-requests/$id/action'
     | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
     | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/encounters/$id/orders/radiology'
@@ -3936,6 +3948,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/deposits/deposits/$id/apply'
     | '/api/clinical/v1/deposits/deposits/$id/attachments'
     | '/api/clinical/v1/deposits/deposits/$id/transfer'
+    | '/api/clinical/v1/deposits/refund-requests/$id/action'
     | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
     | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/encounters/$id/orders/radiology'
@@ -6207,6 +6220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRouteImport
       parentRoute: typeof ApiClinicalV1EncountersIdRoute
     }
+    '/api/clinical/v1/deposits/refund-requests/$id/action': {
+      id: '/api/clinical/v1/deposits/refund-requests/$id/action'
+      path: '/action'
+      fullPath: '/api/clinical/v1/deposits/refund-requests/$id/action'
+      preLoaderRoute: typeof ApiClinicalV1DepositsRefundRequestsIdActionRouteImport
+      parentRoute: typeof ApiClinicalV1DepositsRefundRequestsIdRoute
+    }
     '/api/clinical/v1/deposits/deposits/$id/transfer': {
       id: '/api/clinical/v1/deposits/deposits/$id/transfer'
       path: '/transfer'
@@ -6687,14 +6707,29 @@ const ApiClinicalV1ClaimsRouteChildren: ApiClinicalV1ClaimsRouteChildren = {
 const ApiClinicalV1ClaimsRouteWithChildren =
   ApiClinicalV1ClaimsRoute._addFileChildren(ApiClinicalV1ClaimsRouteChildren)
 
+interface ApiClinicalV1DepositsRefundRequestsIdRouteChildren {
+  ApiClinicalV1DepositsRefundRequestsIdActionRoute: typeof ApiClinicalV1DepositsRefundRequestsIdActionRoute
+}
+
+const ApiClinicalV1DepositsRefundRequestsIdRouteChildren: ApiClinicalV1DepositsRefundRequestsIdRouteChildren =
+  {
+    ApiClinicalV1DepositsRefundRequestsIdActionRoute:
+      ApiClinicalV1DepositsRefundRequestsIdActionRoute,
+  }
+
+const ApiClinicalV1DepositsRefundRequestsIdRouteWithChildren =
+  ApiClinicalV1DepositsRefundRequestsIdRoute._addFileChildren(
+    ApiClinicalV1DepositsRefundRequestsIdRouteChildren,
+  )
+
 interface ApiClinicalV1DepositsRefundRequestsRouteChildren {
-  ApiClinicalV1DepositsRefundRequestsIdRoute: typeof ApiClinicalV1DepositsRefundRequestsIdRoute
+  ApiClinicalV1DepositsRefundRequestsIdRoute: typeof ApiClinicalV1DepositsRefundRequestsIdRouteWithChildren
 }
 
 const ApiClinicalV1DepositsRefundRequestsRouteChildren: ApiClinicalV1DepositsRefundRequestsRouteChildren =
   {
     ApiClinicalV1DepositsRefundRequestsIdRoute:
-      ApiClinicalV1DepositsRefundRequestsIdRoute,
+      ApiClinicalV1DepositsRefundRequestsIdRouteWithChildren,
   }
 
 const ApiClinicalV1DepositsRefundRequestsRouteWithChildren =
