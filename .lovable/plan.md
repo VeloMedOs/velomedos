@@ -1,58 +1,51 @@
-# RCM R2 verdict + R3 (Claims scrub/assemble/submit) — validated, paste-ready
+# RCM R3 verdict + R4 (IP / Day-Case Accounting) — validated, paste-ready
 
-Validated against `velomedos@4174ff3`.
-
----
-
-## PART A — R2 engine: CORRECTLY WIRED, no amendment
-
-The shipped `src/lib/rcm/auth-engine.ts` matches the R2 schema exactly:
-
-- `authorization_request` insert — every field is a real column (`reasons_triggered`, `requested_by`, `eligibility_ref`, `coverage_id`, `status`, …). ✓
-- `authorization_item` insert — `source`, `service_id`, `drug_id`, `charge_item_id`, `quantity`, `quantity_code`, `reason` all exist; `decision` is a real column (`CHECK IN ('pending','approved','partial','rejected')`), so `resolveConversion` is valid. ✓
-- `isInsured` reads `encounter.coverage_id` → **exists** (FK to `coverage`), so triggers actually fire. ✓
-- `service_master`/`drug_master` reads (`preauth_required`, `sub_category`, `atc_code`) — real. ✓
-
-**One caveat (not a fix):** `conditionMatches` returns `false` for any unknown `condition` key, so a `need_approval_rule` using a key the engine doesn't handle silently never matches. As rule taxonomy grows, add handled keys in lockstep — otherwise new rule types are inert. Document the supported key set.
+Validated against `velomedos@48e87b7`.
 
 ---
 
-## PART B — R3 Claims (scrub / assemble / submit) — corrected
+## PART A — R3 `ClaimsWorklistPane`: CORRECTLY WIRED, no amendment
 
-R3 legitimately ships a migration + new routes. **Confirmed present:** `claim.status` is a **text CHECK** (`CHECK (status IN ('draft','ready','submitted','accepted','rejected'))`) — not an enum; `claims.$id.submit.ts`, `claim_submission_attempt`, and `replaces_claim_id` all exist; `validation.ts` exists (rcm + mds). Five corrections:
+Every claim column the pane reads is real (`total_net_minor`, `total_patient_share_minor`, `total_payer_share_minor`, `provider_claim_no`, `invoice_no`, `claim_type`, `claim_subtype`, `billing_model`, `reimbursement_model`, `adjudication_outcome`); `claim.assemble` is a real cap; `toneOfClaim`/`toneStyle` (`clinical-status.ts`), `bucketOfClaim`/`ClaimBucket` (`claim-sm.ts`) and `formatHalalas` (`format-money.ts`) all resolve. Bulk fans out through `claims/bulk` with per-row results. Nothing to fix.
 
-### [FIX 1 — invented roles] use the real role names
+**Minor (not blocking):** `formatHalalas` now lives in **both** `src/lib/clinical/format-money.ts` and `src/lib/mds/drg-pricing.ts`. Pick one as canonical and re-export the other to avoid drift when you next touch either. The pane consistently imports from `format-money.ts`, so leave it as the canonical one.
 
-The plan gates RLS/policies on `billing_officer` / `claim_specialist` — **neither exists** in `clinical_role`. Use `biller` and `claims_officer` (+ `rcm`, `finance`, `tenant_admin`, `superadmin`) — the real roles the `Claims & Remittance` matrix module already maps. Module gate stays `requireClinicalModule('Claims & Remittance', <cap>)`.
+---
 
-### [FIX 2 — blockers are mostly NEW, not "reused"] define them in `src/lib/rcm/validation.ts`
+## PART B — R4 IP / Day-Case Accounting — corrected
 
-Only `AUTH_MISSING` exists today. `ELIG_INVALID`, `ICD_MISSING`, `PRICE_STALE`, `DRG_UNGROUPED`, `CHARGE_ZERO`, `COVERAGE_EXPIRED`, `SIG_MISSING` are **new** — the scrubber must **define** them in `src/lib/rcm/validation.ts` following the existing blocker shape (`{ code, severity, message, fixHint, deepLink }`), reusing only `AUTH_MISSING`. Don't claim reuse for codes that aren't there. Keep them deterministic + idempotent (safe for bulk re-run).
+R4 legitimately ships one migration + new routes. **Confirmed seams (keep as written):** `priceDrg(encounterId)` exists in `src/lib/mds/drg-pricing.ts`; `claim.reimbursement_model` already accepts `'drg_bundled'` (and `'package'`); `encounter_advance_journey(_enc_id uuid, _to text)` exists and already drives `admitted`/`discharged`; `charge_item` exists with a `cost_only` column; `admission_request_id` does **not** exist yet (correctly added). Four corrections:
 
-### [FIX 3 — claim status migration is SAFE, just name the constraint]
+### [FIX 1 — routing, recurring] Tabs in `clinical.tsx`, not `clinical.$module.tsx`
 
-`claim.status` is a CHECK, so the plan's "drop and re-add with 14 states" is correct (no enum ADD-VALUE hazard). All five current values (`draft, ready, submitted, accepted, rejected`) are inside the new 14-state set, so existing rows won't violate the new CHECK. **Confirm the constraint name** before dropping (Postgres inline default = `claim_status_check`) and keep it a **CHECK** (do not convert to an enum). Map: existing `submitted/accepted/rejected` unchanged; new sub-states additive.
+`src/routes/clinical.$module.tsx` **does not exist** — the workspace is the single tab-switched `src/routes/_authenticated/clinical.tsx`. Wire the IP panes as **tabs** there (add TabIds `ip-admissions`, `ip-lounge`, `ip-reception`, `ip-discharge`, `ip-masters`, `ip-deposits`; extend `validateSearch`; render in the switch; nav via `onTab`). Put the panes in `src/components/clinical/daylight/` (the established dir), not a new `src/components/clinical/ip/`. Role-landing sets the initial IP tab per role.
 
-### [FIX 4 — `authorization_request.decision` does not exist] fix the refresh trigger
+### [FIX 2 — `charge_item.cost_only` already exists] only add the FK
 
-The plan's trigger "on `authorization_request.decision` update → touch draft claims" references a column that isn't there — the request table has `status`, `decision_at`, `decision_reason`, `reasons_triggered`; the `decision` column is on `authorization_item`. So fire the trigger on `authorization_request.status` change (e.g. → `approved`/`partially_approved`) OR on `authorization_item.decision` change, whichever advances the claim. Same correction anywhere R3 reads an "auth decision" at the request level — read `status` there, `decision` on items.
+Don't re-add `cost_only` (already present). The only `charge_item` change is a **nullable** `admission_request_id` **FK**. The daily-charges engine writes `cost_only = true` rows tagged with it.
 
-### [FIX 5 — RcmStubs.tsx doesn't exist] wire into the real tab stub
+### [FIX 3 — enum discipline] new `CREATE TYPE` only; no `ADD VALUE` to existing enums
 
-`ClaimsWorklistPane` "replaces stub in `RcmStubs`" — there is no `RcmStubs.tsx`. Wire it into wherever the `rcm-claims` tab currently renders its placeholder (inline stub in `clinical.tsx`), same as the R2 `rcm-authorization` swap.
+All R4 status enums (`admission_status`, `auth_scope`, discharge-stage, etc.) are **new** `CREATE TYPE` — safe same-txn. The encounter sync uses the **existing** `journey_state` values `admitted`/`discharged` (via `encounter_advance_journey`), so **do not** `ALTER TYPE journey_state ADD VALUE` anywhere in this migration. If any new value on an existing enum is ever needed, it goes in a separate earlier migration (R1 lesson). `authorization_request` gets additive nullable `admission_request_id` + `auth_scope` (new enum) columns — additive, safe.
 
-### Confirmed-good — keep as written
+### [FIX 4 — new blocker codes] define in `src/lib/rcm/validation.ts`
 
-- 14-state `claim-sm.ts` + `claim_lifecycle_event` audit + advisory lock (10-min TTL, R2 pattern).
-- `assemble` freezes charge snapshot, pulls DRG/coding, **links R2 auth via** `authorization_item.decision` (real column) and uses the exported `resolveConversion` to snapshot covered qty/amount — this is the clean R2→R3 seam.
-- Routes `claims/worklist.ts`, `$id.{assemble,scrub,void,resubmit,lifecycle}.ts`, `bulk.ts` returning `{ results: [{ id, ok, error? }] }` (matches R2 bulk contract); `submit.ts` hardened (idempotency key, SM guard, sandbox stub, persist to `claim_submission_attempt`); `resubmit` links `replaces_claim_id` (real column).
-- Masters `scrub_rule` / `submission_channel` via **direct CRUD** (`masters/scrub-rules`, `masters/submission-channels`) — not `contract_change_request` (R2 FIX 3 convention).
-- **HIS linkage:** `EncounterPane` claim-status chip from `claims.$id.completeness`; `DischargePanel` auto-assemble when journey → discharged + coded; `AuthorizationPane` decision writes invalidate the claim worklist query so `AUTH_MISSING` clears without manual refresh; Coding pane "Send to claim" → `assemble`.
-- **R1 linkage:** worklist joins `visit_eligibility` for the encounter; `ELIG_INVALID` deep-links to the R1 Eligibility Worklist row (real `EligibilityStatus` tokens + shared `toneOf`).
-- Worklist mirrors R1/R2 (bucket pill counts, shared `toneOf`/`formatHalalas`/`CapGate`, sticky bulk bar with per-row toast, dry-run toggle for Scrub, lock badge). Buckets: Draft · Scrub Failed · Ready · Auth Hold · Coding Hold · Submitted · Rejected · Adjudicated.
+`BED_NOT_COVERED`, `CONSENT_MISSING`, `PAC_MISSING`, `ANESTHESIA_UNFIT`, `ORDERS_PENDING`, `LOS_EXPIRED`, `DEPOSIT_INSUFFICIENT` are **new** — define them in `src/lib/rcm/validation.ts` in the existing blocker shape (`{ code, severity, message, fix_hint, deep_link }`), **reusing** the now-existing `ELIG_INVALID` / `AUTH_MISSING`. The IP-specific ones (`ORDERS_PENDING`, `BED_NOT_COVERED`, `CONSENT_MISSING`) also extend `claim-scrubber.ts` so IP claims scrub correctly.
+
+### Confirmed-good — integration wiring (keep)
+
+- **R1:** `admission_request.eligibility_ref` FK → `visit_eligibility`; reception re-runs the eligibility snapshot; exception capture reuses `eligibility_exception`.
+- **R2:** authorize/transfer/extend-LOS funnel into `authorization_request` with `auth_scope` + `admission_request_id`; the higher-category bed-transfer auto-creates a scoped R2 request via the server-side auth creator; IP drawer deep-links to the auth rows. Reads auth outcome from `authorization_request.status` + `authorization_item.decision` (not a request-level `decision`).
+- **R3:** financial-discharge calls the R3 `assemble` with `reimbursement_model='drg_bundled'` (real value) after `priceDrg(encounterId)`; daily `charge_item` stays `cost_only` (off the payer claim); `ClaimsWorklistPane` already surfaces via `claim_lifecycle_event`.
+- **HIS:** journey via the existing `encounter_advance_journey(_enc_id, _to)`; new triggers keep `encounter.journey_state` in sync using existing values.
+- **Masters** (`ip_package`, `room_board_entitlement`) via **direct CRUD** (R2 governance-scope lesson) — not `contract_change_request`.
+- **Bulk** endpoints return `{ results: [{ id, ok, error? }] }` (R2/R3 contract); panes reuse the R3 table/drawer primitives + shared `toneOf`/`formatHalalas`/`CapGate`; worklists bucketed with pill counts.
+- **Deposits** table shared with R6 (R6 adds settlement columns later); `deposit` insert/update recalcs `admission_request.paid_amount_minor` via trigger.
+- **Daily-charges cron** (`api/public/ip/daily-charges/run.ts`) mirrors the existing `src/routes/api/public/…` route structure; add an HMAC guard; `postDailyCharges(admissionId, date)` is idempotent per `(admission, date)`, one txn per admission-day.
+- **Roles/caps:** extend the matrix with `ip.*` caps default-granted to `rcm`, `front_office`, `cashier`, `physician`, `case_manager`, `nurse` — all real `clinical_role` values (no invented roles).
 
 ### DoD
 
-One migration: re-add `claim_status_check` (14 states, confirm name, CHECK not enum) + `claim_lifecycle_event`
+One migration: new IP tables + new `CREATE TYPE` enums (no `journey_state` ADD VALUE) + additive columns (`charge_item.admission_request_id`, `authorization_request.admission_request_id`/`auth_scope`) + triggers
 
-- `claim_scrub_result` + `scrub_rule` + `submission_channel` (GRANT + RLS by `tenant_members`, roles `biller`/`claims_officer`/`finance`/`tenant_admin`/`superadmin`); refresh trigger keyed off `authorization_request.status` / `authorization_item.decision`. New `claims/*` + masters routes; bulk returns per-row results; scrubber defines the new blockers in `src/lib/rcm/validation.ts` (reusing `AUTH_MISSING`); `ClaimsWorklistPane` wired into the real `rcm-claims` tab. `tsgo` green; Daylight only; halalas in mono; RTL-safe; no `clinical_role` ADD VALUE.
+- GRANT/RLS by `tenant_members`. IP panes are **tabs in** `clinical.tsx` under `daylight/`. New blockers in `validation.ts` (+ scrubber). Financial-discharge → `priceDrg` → R3 `assemble` (`drg_bundled`). Masters direct CRUD; bulk per-row; deposits recalc trigger; cron HMAC + idempotent. `tsgo` green; Daylight only; halalas in mono; RTL-safe.

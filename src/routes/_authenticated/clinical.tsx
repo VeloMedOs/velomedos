@@ -18,9 +18,10 @@ import { ContractMastersPane } from "@/components/clinical/daylight/ContractMast
 import { ClaimsWorklistPane } from "@/components/clinical/daylight/ClaimsWorklistPane";
 import {
   RcmHubPane, AuthorizationPane,
-  BillingOpPane, BillingIpPane, DepositsPane, CashPane,
+  BillingOpPane, DepositsPane, CashPane,
   VitalsTrendPane,
 } from "@/components/clinical/daylight/RcmStubs";
+import { IpAdmissionsPane } from "@/components/clinical/daylight/IpAdmissionsPane";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
 import { formatHalalas } from "@/lib/clinical/format-money";
 
@@ -98,7 +99,7 @@ function ClinicalWorkspace() {
       {tab === "rcm-activation"      && <PolicyActivationPane role={me.clinicalRole} />}
       {tab === "rcm-authorization"   && <AuthorizationPane />}
       {tab === "finance-billing-op"  && <BillingOpPane />}
-      {tab === "finance-billing-ip"  && <BillingIpPane />}
+      {tab === "finance-billing-ip"  && <IpAdmissionsPane role={me.clinicalRole} />}
       {tab === "finance-deposits"    && <DepositsPane />}
       {tab === "finance-cash"        && <CashPane />}
       {tab === "billing"             && <BillingOpPane />}

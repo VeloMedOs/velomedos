@@ -107,6 +107,39 @@ export function toneOfClaim(status: string): StatusTone {
 }
 
 /**
+ * R4 · Admission / IP bucket → tone map. Buckets come from
+ * {@link import("@/lib/rcm/ip-accounting-sm").bucketOfAdmission}.
+ */
+const IP_BUCKET_TONE: Record<string, StatusTone> = {
+  requested:           "amber",
+  lounge:              "amber",
+  reception:           "sky",
+  in_house:            "teal",
+  discharge_advice:    "sky",
+  discharge_order:     "sky",
+  medical_discharge:   "sky",
+  financial_discharge: "amber",
+  discharged:          "muted",
+  cancelled:           "muted",
+};
+export function toneOfIpBucket(bucket: string): StatusTone {
+  return IP_BUCKET_TONE[bucket] ?? "muted";
+}
+
+/** Admission_request.status token → tone (used inside detail drawers). */
+const ADMISSION_STATUS_TONE: Record<string, StatusTone> = {
+  requested:  "amber",
+  authorized: "sky",
+  lounge:     "amber",
+  admitted:   "teal",
+  discharged: "muted",
+  cancelled:  "muted",
+};
+export function toneOfAdmissionStatus(status: string): StatusTone {
+  return ADMISSION_STATUS_TONE[status] ?? "muted";
+}
+
+/**
  * Presentational styles for a tone chip. Daylight tokens only.
  * Consumers apply via `style={toneStyle(tone)}` on a `<span>` / pill.
  */

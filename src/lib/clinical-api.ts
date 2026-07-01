@@ -318,4 +318,53 @@ export const ClinicalAPI = {
   ) => clinicalFetch<{ data: Array<{ id: string; ok: boolean; error?: string; hash?: string; next_status?: string }> }>(
     `/api/clinical/v1/claims/bulk`, { method: "POST", body: { action, ids, reason } },
   ),
+
+  // R4 · IP / Day-Case accounting
+  listIpWorklist: (params?: { bucket?: string; q?: string; limit?: number }) => {
+    const q = new URLSearchParams();
+    Object.entries(params ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });
+    const qs = q.toString();
+    return clinicalFetch<{
+      data: any[];
+      counts: Record<string, number>;
+      pagination: { total: number; limit: number; offset: number };
+    }>(`/api/clinical/v1/ip/worklists${qs ? `?${qs}` : ""}`);
+  },
+  listAdmissionRequests: (params?: { status?: string; encounter_id?: string; q?: string; limit?: number; offset?: number }) => {
+    const q = new URLSearchParams();
+    Object.entries(params ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });
+    const qs = q.toString();
+    return clinicalFetch<{ data: any[]; pagination: { total: number; limit: number; offset: number } }>(
+      `/api/clinical/v1/ip/admission-requests${qs ? `?${qs}` : ""}`,
+    );
+  },
+  createAdmissionRequest: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/ip/admission-requests`, { method: "POST", body }),
+  getAdmissionRequest: (id: string) =>
+    clinicalFetch<{ data: {
+      row: any; bucket: string; readiness: { ok: boolean; blockers: Array<{ code: string; message: string; severity: "error" | "warning" }> };
+      transfers: any[]; los_extensions: any[]; deposits: any[]; authorizations: any[];
+    } }>(`/api/clinical/v1/ip/admission-requests/${id}`),
+  ipAdmissionAction: (id: string, body: { action: string; [key: string]: unknown }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/ip/admission-requests/${id}/action`, { method: "POST", body }),
+  bulkAdmissionRequests: (action: "assign_me" | "cancel" | "authorize" | "advance_lounge", ids: string[], reason?: string) =>
+    clinicalFetch<{ data: Array<{ id: string; ok: boolean; error?: string }> }>(
+      `/api/clinical/v1/ip/admission-requests/bulk`, { method: "POST", body: { action, ids, reason } },
+    ),
+  listIpDeposits: (params?: { admission_request_id?: string; status?: string; limit?: number; offset?: number }) => {
+    const q = new URLSearchParams();
+    Object.entries(params ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });
+    const qs = q.toString();
+    return clinicalFetch<{ data: any[]; pagination: { total: number; limit: number; offset: number } }>(
+      `/api/clinical/v1/ip/deposits${qs ? `?${qs}` : ""}`,
+    );
+  },
+  createIpDeposit: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/ip/deposits`, { method: "POST", body }),
+  updateIpDeposit: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/ip/deposits/${id}`, { method: "PATCH", body }),
+  runIpDailyCharges: (run_date?: string) =>
+    clinicalFetch<{ data: { run_date: string; results: Array<{ admission_request_id: string; ok: boolean; charges: number; total_minor: number; error?: string }> } }>(
+      `/api/clinical/v1/ip/daily-charges`, { method: "POST", body: { run_date } },
+    ),
 };

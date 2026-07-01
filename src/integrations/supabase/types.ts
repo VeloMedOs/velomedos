@@ -14,6 +14,208 @@ export type Database = {
   }
   public: {
     Tables: {
+      admission_request: {
+        Row: {
+          admission_no: string | null
+          admission_serial: string | null
+          admission_source: string | null
+          admitted_at: string | null
+          anesthesia_fit: boolean | null
+          anesthesia_fit_at: string | null
+          bed_reserved_at: string | null
+          beneficiary_id: string | null
+          cancel_reason: string | null
+          cancelled_at: string | null
+          class_id: string | null
+          consent_captured_at: string | null
+          consent_id: string | null
+          coverage_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          discharge_stage: Database["public"]["Enums"]["discharge_stage"]
+          discharged_at: string | null
+          edd: string | null
+          eligibility_ref: string | null
+          encounter_id: string
+          id: string
+          journey_state: string
+          locked_at: string | null
+          locked_by: string | null
+          los_days: number | null
+          mrp_id: string | null
+          network_id: string | null
+          pac_completed_at: string | null
+          package_duration_days: number | null
+          package_id: string | null
+          paid_amount_minor: number
+          payer_id: string | null
+          policy_id: string | null
+          reasons_triggered: Json
+          request_type: Database["public"]["Enums"]["ip_request_type"]
+          requested_deposit_minor: number
+          room_type_entitled: string | null
+          status: Database["public"]["Enums"]["admission_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          admission_no?: string | null
+          admission_serial?: string | null
+          admission_source?: string | null
+          admitted_at?: string | null
+          anesthesia_fit?: boolean | null
+          anesthesia_fit_at?: string | null
+          bed_reserved_at?: string | null
+          beneficiary_id?: string | null
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          class_id?: string | null
+          consent_captured_at?: string | null
+          consent_id?: string | null
+          coverage_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          discharge_stage?: Database["public"]["Enums"]["discharge_stage"]
+          discharged_at?: string | null
+          edd?: string | null
+          eligibility_ref?: string | null
+          encounter_id: string
+          id?: string
+          journey_state?: string
+          locked_at?: string | null
+          locked_by?: string | null
+          los_days?: number | null
+          mrp_id?: string | null
+          network_id?: string | null
+          pac_completed_at?: string | null
+          package_duration_days?: number | null
+          package_id?: string | null
+          paid_amount_minor?: number
+          payer_id?: string | null
+          policy_id?: string | null
+          reasons_triggered?: Json
+          request_type?: Database["public"]["Enums"]["ip_request_type"]
+          requested_deposit_minor?: number
+          room_type_entitled?: string | null
+          status?: Database["public"]["Enums"]["admission_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          admission_no?: string | null
+          admission_serial?: string | null
+          admission_source?: string | null
+          admitted_at?: string | null
+          anesthesia_fit?: boolean | null
+          anesthesia_fit_at?: string | null
+          bed_reserved_at?: string | null
+          beneficiary_id?: string | null
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          class_id?: string | null
+          consent_captured_at?: string | null
+          consent_id?: string | null
+          coverage_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          discharge_stage?: Database["public"]["Enums"]["discharge_stage"]
+          discharged_at?: string | null
+          edd?: string | null
+          eligibility_ref?: string | null
+          encounter_id?: string
+          id?: string
+          journey_state?: string
+          locked_at?: string | null
+          locked_by?: string | null
+          los_days?: number | null
+          mrp_id?: string | null
+          network_id?: string | null
+          pac_completed_at?: string | null
+          package_duration_days?: number | null
+          package_id?: string | null
+          paid_amount_minor?: number
+          payer_id?: string | null
+          policy_id?: string | null
+          reasons_triggered?: Json
+          request_type?: Database["public"]["Enums"]["ip_request_type"]
+          requested_deposit_minor?: number
+          room_type_entitled?: string | null
+          status?: Database["public"]["Enums"]["admission_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admission_request_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admission_request_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_class"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admission_request_coverage_id_fkey"
+            columns: ["coverage_id"]
+            isOneToOne: false
+            referencedRelation: "coverage"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admission_request_eligibility_ref_fkey"
+            columns: ["eligibility_ref"]
+            isOneToOne: false
+            referencedRelation: "visit_eligibility"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admission_request_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admission_request_network_id_fkey"
+            columns: ["network_id"]
+            isOneToOne: false
+            referencedRelation: "network"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admission_request_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "ip_package"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admission_request_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admission_request_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "policy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ambulance_locations: {
         Row: {
           ambulance_id: string
@@ -467,7 +669,9 @@ export type Database = {
       }
       authorization_request: {
         Row: {
+          admission_request_id: string | null
           assigned_to: string | null
+          auth_scope: Database["public"]["Enums"]["auth_scope"] | null
           beneficiary_id: string | null
           class_id: string | null
           coverage_id: string | null
@@ -498,7 +702,9 @@ export type Database = {
           valid_to: string | null
         }
         Insert: {
+          admission_request_id?: string | null
           assigned_to?: string | null
+          auth_scope?: Database["public"]["Enums"]["auth_scope"] | null
           beneficiary_id?: string | null
           class_id?: string | null
           coverage_id?: string | null
@@ -529,7 +735,9 @@ export type Database = {
           valid_to?: string | null
         }
         Update: {
+          admission_request_id?: string | null
           assigned_to?: string | null
+          auth_scope?: Database["public"]["Enums"]["auth_scope"] | null
           beneficiary_id?: string | null
           class_id?: string | null
           coverage_id?: string | null
@@ -560,6 +768,13 @@ export type Database = {
           valid_to?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "authorization_request_admission_request_id_fkey"
+            columns: ["admission_request_id"]
+            isOneToOne: false
+            referencedRelation: "admission_request"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "authorization_request_class_id_fkey"
             columns: ["class_id"]
@@ -600,6 +815,78 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bed_transfer: {
+        Row: {
+          admission_request_id: string
+          authorization_request_id: string | null
+          created_at: string
+          created_by: string | null
+          from_bed_type: string | null
+          from_tier: number | null
+          id: string
+          reason: string | null
+          requires_preauth: boolean
+          status: Database["public"]["Enums"]["bed_transfer_status"]
+          tenant_id: string
+          to_bed_type: string
+          to_tier: number | null
+          transferred_at: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          admission_request_id: string
+          authorization_request_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          from_bed_type?: string | null
+          from_tier?: number | null
+          id?: string
+          reason?: string | null
+          requires_preauth?: boolean
+          status?: Database["public"]["Enums"]["bed_transfer_status"]
+          tenant_id: string
+          to_bed_type: string
+          to_tier?: number | null
+          transferred_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          admission_request_id?: string
+          authorization_request_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          from_bed_type?: string | null
+          from_tier?: number | null
+          id?: string
+          reason?: string | null
+          requires_preauth?: boolean
+          status?: Database["public"]["Enums"]["bed_transfer_status"]
+          tenant_id?: string
+          to_bed_type?: string
+          to_tier?: number | null
+          transferred_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bed_transfer_admission_request_id_fkey"
+            columns: ["admission_request_id"]
+            isOneToOne: false
+            referencedRelation: "admission_request"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bed_transfer_authorization_request_id_fkey"
+            columns: ["authorization_request_id"]
+            isOneToOne: false
+            referencedRelation: "authorization_request"
             referencedColumns: ["id"]
           },
         ]
@@ -1257,6 +1544,7 @@ export type Database = {
       charge_item: {
         Row: {
           achi_code: string | null
+          admission_request_id: string | null
           body_site: string | null
           cost_only: boolean
           created_at: string
@@ -1296,6 +1584,7 @@ export type Database = {
         }
         Insert: {
           achi_code?: string | null
+          admission_request_id?: string | null
           body_site?: string | null
           cost_only?: boolean
           created_at?: string
@@ -1335,6 +1624,7 @@ export type Database = {
         }
         Update: {
           achi_code?: string | null
+          admission_request_id?: string | null
           body_site?: string | null
           cost_only?: boolean
           created_at?: string
@@ -1373,6 +1663,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "charge_item_admission_request_id_fkey"
+            columns: ["admission_request_id"]
+            isOneToOne: false
+            referencedRelation: "admission_request"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "charge_item_drug_id_fkey"
             columns: ["drug_id"]
@@ -2907,6 +3204,94 @@ export type Database = {
         }
         Relationships: []
       }
+      deposit: {
+        Row: {
+          admission_request_id: string | null
+          amount_minor: number
+          applied_to_bill_id: string | null
+          beneficiary_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          encounter_id: string | null
+          id: string
+          method: Database["public"]["Enums"]["deposit_method"]
+          notes: string | null
+          received_at: string | null
+          received_by: string | null
+          reference_no: string | null
+          requested_minor: number
+          status: Database["public"]["Enums"]["deposit_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          admission_request_id?: string | null
+          amount_minor?: number
+          applied_to_bill_id?: string | null
+          beneficiary_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          encounter_id?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["deposit_method"]
+          notes?: string | null
+          received_at?: string | null
+          received_by?: string | null
+          reference_no?: string | null
+          requested_minor?: number
+          status?: Database["public"]["Enums"]["deposit_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          admission_request_id?: string | null
+          amount_minor?: number
+          applied_to_bill_id?: string | null
+          beneficiary_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          encounter_id?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["deposit_method"]
+          notes?: string | null
+          received_at?: string | null
+          received_by?: string | null
+          reference_no?: string | null
+          requested_minor?: number
+          status?: Database["public"]["Enums"]["deposit_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deposit_admission_request_id_fkey"
+            columns: ["admission_request_id"]
+            isOneToOne: false
+            referencedRelation: "admission_request"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deposit_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deposit_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       drg: {
         Row: {
           active: boolean
@@ -4220,6 +4605,116 @@ export type Database = {
           },
         ]
       }
+      ip_daily_charge_run: {
+        Row: {
+          admission_request_id: string
+          charges_posted: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          notes: string | null
+          run_date: string
+          status: string
+          tenant_id: string
+          total_minor: number
+        }
+        Insert: {
+          admission_request_id: string
+          charges_posted?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          run_date: string
+          status?: string
+          tenant_id: string
+          total_minor?: number
+        }
+        Update: {
+          admission_request_id?: string
+          charges_posted?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          notes?: string | null
+          run_date?: string
+          status?: string
+          tenant_id?: string
+          total_minor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ip_daily_charge_run_admission_request_id_fkey"
+            columns: ["admission_request_id"]
+            isOneToOne: false
+            referencedRelation: "admission_request"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ip_package: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          currency: string
+          duration_days: number
+          exclusions: Json
+          id: string
+          inclusions: Json
+          name: string
+          notes: string | null
+          package_code: string
+          package_type: string
+          price_minor: number
+          room_type: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          duration_days?: number
+          exclusions?: Json
+          id?: string
+          inclusions?: Json
+          name: string
+          notes?: string | null
+          package_code: string
+          package_type?: string
+          price_minor?: number
+          room_type?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          duration_days?: number
+          exclusions?: Json
+          id?: string
+          inclusions?: Json
+          name?: string
+          notes?: string | null
+          package_code?: string
+          package_type?: string
+          price_minor?: number
+          room_type?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       lab_order: {
         Row: {
           created_at: string
@@ -4502,6 +4997,72 @@ export type Database = {
           version?: number
         }
         Relationships: []
+      }
+      los_extension: {
+        Row: {
+          admission_request_id: string
+          approved_at: string | null
+          authorization_request_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          new_edd: string | null
+          new_los_days: number
+          prior_los_days: number | null
+          reason: string | null
+          status: Database["public"]["Enums"]["los_ext_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          admission_request_id: string
+          approved_at?: string | null
+          authorization_request_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          new_edd?: string | null
+          new_los_days: number
+          prior_los_days?: number | null
+          reason?: string | null
+          status?: Database["public"]["Enums"]["los_ext_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          admission_request_id?: string
+          approved_at?: string | null
+          authorization_request_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          new_edd?: string | null
+          new_los_days?: number
+          prior_los_days?: number | null
+          reason?: string | null
+          status?: Database["public"]["Enums"]["los_ext_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "los_extension_admission_request_id_fkey"
+            columns: ["admission_request_id"]
+            isOneToOne: false
+            referencedRelation: "admission_request"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "los_extension_authorization_request_id_fkey"
+            columns: ["authorization_request_id"]
+            isOneToOne: false
+            referencedRelation: "authorization_request"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       maternity_protocol: {
         Row: {
@@ -7507,6 +8068,68 @@ export type Database = {
         }
         Relationships: []
       }
+      room_board_entitlement: {
+        Row: {
+          active: boolean
+          class_id: string
+          covered: boolean
+          created_at: string
+          created_by: string | null
+          currency: string
+          daily_rate_minor: number
+          id: string
+          notes: string | null
+          room_type: string
+          tenant_id: string
+          tier: number
+          updated_at: string
+          updated_by: string | null
+          upgrade_allowed: boolean
+        }
+        Insert: {
+          active?: boolean
+          class_id: string
+          covered?: boolean
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          daily_rate_minor?: number
+          id?: string
+          notes?: string | null
+          room_type: string
+          tenant_id: string
+          tier?: number
+          updated_at?: string
+          updated_by?: string | null
+          upgrade_allowed?: boolean
+        }
+        Update: {
+          active?: boolean
+          class_id?: string
+          covered?: boolean
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          daily_rate_minor?: number
+          id?: string
+          notes?: string | null
+          room_type?: string
+          tenant_id?: string
+          tier?: number
+          updated_at?: string
+          updated_by?: string | null
+          upgrade_allowed?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_board_entitlement_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_class"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       screening_orders: {
         Row: {
           appointment_at: string | null
@@ -9077,6 +9700,13 @@ export type Database = {
       profile_completeness: { Args: { _user_id: string }; Returns: number }
     }
     Enums: {
+      admission_status:
+        | "requested"
+        | "authorized"
+        | "lounge"
+        | "admitted"
+        | "discharged"
+        | "cancelled"
       ambulance_status:
         | "available"
         | "en_route"
@@ -9095,6 +9725,14 @@ export type Database = {
         | "business_admin"
         | "home_nurse"
         | "caregiver"
+      auth_scope:
+        | "package"
+        | "blood"
+        | "room_board"
+        | "transfer"
+        | "los_extension"
+        | "order"
+        | "prescription"
       authorization_status:
         | "new"
         | "scrubbing"
@@ -9113,6 +9751,13 @@ export type Database = {
         | "appeal_rejected"
         | "converted_to_self_pay"
         | "closed"
+      bed_transfer_status:
+        | "requested"
+        | "preauth_pending"
+        | "approved"
+        | "rejected"
+        | "executed"
+        | "cancelled"
       booking_status: "requested" | "confirmed" | "completed" | "cancelled"
       business_request_source:
         | "website"
@@ -9196,6 +9841,19 @@ export type Database = {
         | "operating_permit"
         | "provider_license"
       defect_severity: "minor" | "major" | "critical"
+      deposit_method: "cash" | "card" | "bank_transfer" | "wallet" | "insurance"
+      deposit_status:
+        | "requested"
+        | "collected"
+        | "applied"
+        | "refunded"
+        | "cancelled"
+      discharge_stage:
+        | "none"
+        | "discharge_advice"
+        | "discharge_order"
+        | "medical_discharge"
+        | "financial_discharge"
       fitness_status: "fit" | "fit_with_restrictions" | "unfit" | "pending"
       incident_severity: "code_red" | "code_yellow" | "routine"
       incident_status:
@@ -9206,6 +9864,7 @@ export type Database = {
         | "transporting"
         | "completed"
         | "cancelled"
+      ip_request_type: "surgery" | "procedure" | "cath" | "medical" | "day_case"
       legal_locale: "en" | "ar"
       legal_slug:
         | "privacy-home"
@@ -9213,6 +9872,12 @@ export type Database = {
         | "hipaa"
         | "patient-rights"
       legal_status: "draft" | "in_review" | "published" | "archived"
+      los_ext_status:
+        | "requested"
+        | "approved"
+        | "rejected"
+        | "extended"
+        | "cancelled"
       portal_role:
         | "superadmin"
         | "finance"
@@ -9375,6 +10040,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      admission_status: [
+        "requested",
+        "authorized",
+        "lounge",
+        "admitted",
+        "discharged",
+        "cancelled",
+      ],
       ambulance_status: [
         "available",
         "en_route",
@@ -9395,6 +10068,15 @@ export const Constants = {
         "home_nurse",
         "caregiver",
       ],
+      auth_scope: [
+        "package",
+        "blood",
+        "room_board",
+        "transfer",
+        "los_extension",
+        "order",
+        "prescription",
+      ],
       authorization_status: [
         "new",
         "scrubbing",
@@ -9413,6 +10095,14 @@ export const Constants = {
         "appeal_rejected",
         "converted_to_self_pay",
         "closed",
+      ],
+      bed_transfer_status: [
+        "requested",
+        "preauth_pending",
+        "approved",
+        "rejected",
+        "executed",
+        "cancelled",
       ],
       booking_status: ["requested", "confirmed", "completed", "cancelled"],
       business_request_source: [
@@ -9506,6 +10196,21 @@ export const Constants = {
         "provider_license",
       ],
       defect_severity: ["minor", "major", "critical"],
+      deposit_method: ["cash", "card", "bank_transfer", "wallet", "insurance"],
+      deposit_status: [
+        "requested",
+        "collected",
+        "applied",
+        "refunded",
+        "cancelled",
+      ],
+      discharge_stage: [
+        "none",
+        "discharge_advice",
+        "discharge_order",
+        "medical_discharge",
+        "financial_discharge",
+      ],
       fitness_status: ["fit", "fit_with_restrictions", "unfit", "pending"],
       incident_severity: ["code_red", "code_yellow", "routine"],
       incident_status: [
@@ -9517,6 +10222,7 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      ip_request_type: ["surgery", "procedure", "cath", "medical", "day_case"],
       legal_locale: ["en", "ar"],
       legal_slug: [
         "privacy-home",
@@ -9525,6 +10231,13 @@ export const Constants = {
         "patient-rights",
       ],
       legal_status: ["draft", "in_review", "published", "archived"],
+      los_ext_status: [
+        "requested",
+        "approved",
+        "rejected",
+        "extended",
+        "cancelled",
+      ],
       portal_role: [
         "superadmin",
         "finance",
