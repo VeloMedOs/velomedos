@@ -287,4 +287,35 @@ export const ClinicalAPI = {
     clinicalFetch<{ data: any }>(`/api/clinical/v1/auth/requests/${id}/attachments`, { method: "POST", body }),
   addAuthCommunication: (id: string, body: unknown) =>
     clinicalFetch<{ data: any }>(`/api/clinical/v1/auth/requests/${id}/communications`, { method: "POST", body }),
+
+  // R3 · Claims worklist / scrubber / lifecycle
+  listClaimsWorklist: (params?: { bucket?: string; status?: string; q?: string; limit?: number; offset?: number }) => {
+    const q = new URLSearchParams();
+    Object.entries(params ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });
+    const qs = q.toString();
+    return clinicalFetch<{
+      data: any[];
+      counts: Record<string, number>;
+      pagination: { total: number; limit: number; offset: number };
+    }>(`/api/clinical/v1/claims/worklist${qs ? `?${qs}` : ""}`);
+  },
+  scrubClaim: (id: string, dry_run = false) =>
+    clinicalFetch<{ data: { blockers: any[]; warnings: any[]; next_status: string; hash: string; ok: boolean } }>(
+      `/api/clinical/v1/claims/${id}/scrub`, { method: "POST", body: { dry_run } },
+    ),
+  voidClaim: (id: string, reason: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/claims/${id}/void`, { method: "POST", body: { reason } }),
+  resubmitClaim: (id: string, reason: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/claims/${id}/resubmit`, { method: "POST", body: { reason } }),
+  claimLifecycle: (id: string) =>
+    clinicalFetch<{ data: { events: any[]; scrubs: any[]; submissions: any[] } }>(
+      `/api/clinical/v1/claims/${id}/lifecycle`,
+    ),
+  bulkClaims: (
+    action: "scrub" | "submit" | "assign_me" | "void",
+    ids: string[],
+    reason?: string,
+  ) => clinicalFetch<{ data: Array<{ id: string; ok: boolean; error?: string; hash?: string; next_status?: string }> }>(
+    `/api/clinical/v1/claims/bulk`, { method: "POST", body: { action, ids, reason } },
+  ),
 };

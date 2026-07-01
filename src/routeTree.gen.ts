@@ -156,6 +156,8 @@ import { Route as ApiClinicalV1EligibilityIdRouteImport } from './routes/api/cli
 import { Route as ApiClinicalV1DocsSlugRouteImport } from './routes/api/clinical/v1/docs.$slug'
 import { Route as ApiClinicalV1DiagnosesIdRouteImport } from './routes/api/clinical/v1/diagnoses.$id'
 import { Route as ApiClinicalV1CoverageIdRouteImport } from './routes/api/clinical/v1/coverage.$id'
+import { Route as ApiClinicalV1ClaimsWorklistRouteImport } from './routes/api/clinical/v1/claims/worklist'
+import { Route as ApiClinicalV1ClaimsBulkRouteImport } from './routes/api/clinical/v1/claims/bulk'
 import { Route as ApiClinicalV1ClaimsIdRouteImport } from './routes/api/clinical/v1/claims.$id'
 import { Route as ApiClinicalV1CatalogSearchRouteImport } from './routes/api/clinical/v1/catalog.search'
 import { Route as ApiClinicalV1CareTeamIdRouteImport } from './routes/api/clinical/v1/care-team.$id'
@@ -243,8 +245,12 @@ import { Route as ApiClinicalV1EncountersIdAdmitRouteImport } from './routes/api
 import { Route as ApiClinicalV1EligibilityIdTransitionRouteImport } from './routes/api/clinical/v1/eligibility.$id.transition'
 import { Route as ApiClinicalV1EligibilityIdExceptionRouteImport } from './routes/api/clinical/v1/eligibility.$id.exception'
 import { Route as ApiClinicalV1DocsSlugModuleRouteImport } from './routes/api/clinical/v1/docs.$slug.$module'
+import { Route as ApiClinicalV1ClaimsIdVoidRouteImport } from './routes/api/clinical/v1/claims/$id.void'
 import { Route as ApiClinicalV1ClaimsIdSubmitRouteImport } from './routes/api/clinical/v1/claims.$id.submit'
+import { Route as ApiClinicalV1ClaimsIdScrubRouteImport } from './routes/api/clinical/v1/claims/$id.scrub'
+import { Route as ApiClinicalV1ClaimsIdResubmitRouteImport } from './routes/api/clinical/v1/claims/$id.resubmit'
 import { Route as ApiClinicalV1ClaimsIdReadyRouteImport } from './routes/api/clinical/v1/claims.$id.ready'
+import { Route as ApiClinicalV1ClaimsIdLifecycleRouteImport } from './routes/api/clinical/v1/claims/$id.lifecycle'
 import { Route as ApiClinicalV1ClaimsIdFhirRouteImport } from './routes/api/clinical/v1/claims.$id.fhir'
 import { Route as ApiClinicalV1ClaimsIdEligibilityRouteImport } from './routes/api/clinical/v1/claims.$id.eligibility'
 import { Route as ApiClinicalV1ClaimsIdCompletenessRouteImport } from './routes/api/clinical/v1/claims.$id.completeness'
@@ -1065,6 +1071,17 @@ const ApiClinicalV1CoverageIdRoute = ApiClinicalV1CoverageIdRouteImport.update({
   path: '/api/clinical/v1/coverage/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiClinicalV1ClaimsWorklistRoute =
+  ApiClinicalV1ClaimsWorklistRouteImport.update({
+    id: '/worklist',
+    path: '/worklist',
+    getParentRoute: () => ApiClinicalV1ClaimsRoute,
+  } as any)
+const ApiClinicalV1ClaimsBulkRoute = ApiClinicalV1ClaimsBulkRouteImport.update({
+  id: '/bulk',
+  path: '/bulk',
+  getParentRoute: () => ApiClinicalV1ClaimsRoute,
+} as any)
 const ApiClinicalV1ClaimsIdRoute = ApiClinicalV1ClaimsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -1570,16 +1587,40 @@ const ApiClinicalV1DocsSlugModuleRoute =
     path: '/$module',
     getParentRoute: () => ApiClinicalV1DocsSlugRoute,
   } as any)
+const ApiClinicalV1ClaimsIdVoidRoute =
+  ApiClinicalV1ClaimsIdVoidRouteImport.update({
+    id: '/void',
+    path: '/void',
+    getParentRoute: () => ApiClinicalV1ClaimsIdRoute,
+  } as any)
 const ApiClinicalV1ClaimsIdSubmitRoute =
   ApiClinicalV1ClaimsIdSubmitRouteImport.update({
     id: '/submit',
     path: '/submit',
     getParentRoute: () => ApiClinicalV1ClaimsIdRoute,
   } as any)
+const ApiClinicalV1ClaimsIdScrubRoute =
+  ApiClinicalV1ClaimsIdScrubRouteImport.update({
+    id: '/scrub',
+    path: '/scrub',
+    getParentRoute: () => ApiClinicalV1ClaimsIdRoute,
+  } as any)
+const ApiClinicalV1ClaimsIdResubmitRoute =
+  ApiClinicalV1ClaimsIdResubmitRouteImport.update({
+    id: '/resubmit',
+    path: '/resubmit',
+    getParentRoute: () => ApiClinicalV1ClaimsIdRoute,
+  } as any)
 const ApiClinicalV1ClaimsIdReadyRoute =
   ApiClinicalV1ClaimsIdReadyRouteImport.update({
     id: '/ready',
     path: '/ready',
+    getParentRoute: () => ApiClinicalV1ClaimsIdRoute,
+  } as any)
+const ApiClinicalV1ClaimsIdLifecycleRoute =
+  ApiClinicalV1ClaimsIdLifecycleRouteImport.update({
+    id: '/lifecycle',
+    path: '/lifecycle',
     getParentRoute: () => ApiClinicalV1ClaimsIdRoute,
   } as any)
 const ApiClinicalV1ClaimsIdFhirRoute =
@@ -1940,6 +1981,8 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
   '/api/clinical/v1/claims/$id': typeof ApiClinicalV1ClaimsIdRouteWithChildren
+  '/api/clinical/v1/claims/bulk': typeof ApiClinicalV1ClaimsBulkRoute
+  '/api/clinical/v1/claims/worklist': typeof ApiClinicalV1ClaimsWorklistRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
   '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
@@ -1994,8 +2037,12 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/claims/$id/completeness': typeof ApiClinicalV1ClaimsIdCompletenessRoute
   '/api/clinical/v1/claims/$id/eligibility': typeof ApiClinicalV1ClaimsIdEligibilityRoute
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
+  '/api/clinical/v1/claims/$id/lifecycle': typeof ApiClinicalV1ClaimsIdLifecycleRoute
   '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
+  '/api/clinical/v1/claims/$id/resubmit': typeof ApiClinicalV1ClaimsIdResubmitRoute
+  '/api/clinical/v1/claims/$id/scrub': typeof ApiClinicalV1ClaimsIdScrubRoute
   '/api/clinical/v1/claims/$id/submit': typeof ApiClinicalV1ClaimsIdSubmitRoute
+  '/api/clinical/v1/claims/$id/void': typeof ApiClinicalV1ClaimsIdVoidRoute
   '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/eligibility/$id/exception': typeof ApiClinicalV1EligibilityIdExceptionRoute
   '/api/clinical/v1/eligibility/$id/transition': typeof ApiClinicalV1EligibilityIdTransitionRoute
@@ -2211,6 +2258,8 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
   '/api/clinical/v1/claims/$id': typeof ApiClinicalV1ClaimsIdRouteWithChildren
+  '/api/clinical/v1/claims/bulk': typeof ApiClinicalV1ClaimsBulkRoute
+  '/api/clinical/v1/claims/worklist': typeof ApiClinicalV1ClaimsWorklistRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
   '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
@@ -2265,8 +2314,12 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/claims/$id/completeness': typeof ApiClinicalV1ClaimsIdCompletenessRoute
   '/api/clinical/v1/claims/$id/eligibility': typeof ApiClinicalV1ClaimsIdEligibilityRoute
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
+  '/api/clinical/v1/claims/$id/lifecycle': typeof ApiClinicalV1ClaimsIdLifecycleRoute
   '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
+  '/api/clinical/v1/claims/$id/resubmit': typeof ApiClinicalV1ClaimsIdResubmitRoute
+  '/api/clinical/v1/claims/$id/scrub': typeof ApiClinicalV1ClaimsIdScrubRoute
   '/api/clinical/v1/claims/$id/submit': typeof ApiClinicalV1ClaimsIdSubmitRoute
+  '/api/clinical/v1/claims/$id/void': typeof ApiClinicalV1ClaimsIdVoidRoute
   '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/eligibility/$id/exception': typeof ApiClinicalV1EligibilityIdExceptionRoute
   '/api/clinical/v1/eligibility/$id/transition': typeof ApiClinicalV1EligibilityIdTransitionRoute
@@ -2486,6 +2539,8 @@ export interface FileRoutesById {
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
   '/api/clinical/v1/claims/$id': typeof ApiClinicalV1ClaimsIdRouteWithChildren
+  '/api/clinical/v1/claims/bulk': typeof ApiClinicalV1ClaimsBulkRoute
+  '/api/clinical/v1/claims/worklist': typeof ApiClinicalV1ClaimsWorklistRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
   '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
@@ -2540,8 +2595,12 @@ export interface FileRoutesById {
   '/api/clinical/v1/claims/$id/completeness': typeof ApiClinicalV1ClaimsIdCompletenessRoute
   '/api/clinical/v1/claims/$id/eligibility': typeof ApiClinicalV1ClaimsIdEligibilityRoute
   '/api/clinical/v1/claims/$id/fhir': typeof ApiClinicalV1ClaimsIdFhirRoute
+  '/api/clinical/v1/claims/$id/lifecycle': typeof ApiClinicalV1ClaimsIdLifecycleRoute
   '/api/clinical/v1/claims/$id/ready': typeof ApiClinicalV1ClaimsIdReadyRoute
+  '/api/clinical/v1/claims/$id/resubmit': typeof ApiClinicalV1ClaimsIdResubmitRoute
+  '/api/clinical/v1/claims/$id/scrub': typeof ApiClinicalV1ClaimsIdScrubRoute
   '/api/clinical/v1/claims/$id/submit': typeof ApiClinicalV1ClaimsIdSubmitRoute
+  '/api/clinical/v1/claims/$id/void': typeof ApiClinicalV1ClaimsIdVoidRoute
   '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/eligibility/$id/exception': typeof ApiClinicalV1EligibilityIdExceptionRoute
   '/api/clinical/v1/eligibility/$id/transition': typeof ApiClinicalV1EligibilityIdTransitionRoute
@@ -2761,6 +2820,8 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/care-team/$id'
     | '/api/clinical/v1/catalog/search'
     | '/api/clinical/v1/claims/$id'
+    | '/api/clinical/v1/claims/bulk'
+    | '/api/clinical/v1/claims/worklist'
     | '/api/clinical/v1/coverage/$id'
     | '/api/clinical/v1/diagnoses/$id'
     | '/api/clinical/v1/docs/$slug'
@@ -2815,8 +2876,12 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/$id/completeness'
     | '/api/clinical/v1/claims/$id/eligibility'
     | '/api/clinical/v1/claims/$id/fhir'
+    | '/api/clinical/v1/claims/$id/lifecycle'
     | '/api/clinical/v1/claims/$id/ready'
+    | '/api/clinical/v1/claims/$id/resubmit'
+    | '/api/clinical/v1/claims/$id/scrub'
     | '/api/clinical/v1/claims/$id/submit'
+    | '/api/clinical/v1/claims/$id/void'
     | '/api/clinical/v1/docs/$slug/$module'
     | '/api/clinical/v1/eligibility/$id/exception'
     | '/api/clinical/v1/eligibility/$id/transition'
@@ -3032,6 +3097,8 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/care-team/$id'
     | '/api/clinical/v1/catalog/search'
     | '/api/clinical/v1/claims/$id'
+    | '/api/clinical/v1/claims/bulk'
+    | '/api/clinical/v1/claims/worklist'
     | '/api/clinical/v1/coverage/$id'
     | '/api/clinical/v1/diagnoses/$id'
     | '/api/clinical/v1/docs/$slug'
@@ -3086,8 +3153,12 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/$id/completeness'
     | '/api/clinical/v1/claims/$id/eligibility'
     | '/api/clinical/v1/claims/$id/fhir'
+    | '/api/clinical/v1/claims/$id/lifecycle'
     | '/api/clinical/v1/claims/$id/ready'
+    | '/api/clinical/v1/claims/$id/resubmit'
+    | '/api/clinical/v1/claims/$id/scrub'
     | '/api/clinical/v1/claims/$id/submit'
+    | '/api/clinical/v1/claims/$id/void'
     | '/api/clinical/v1/docs/$slug/$module'
     | '/api/clinical/v1/eligibility/$id/exception'
     | '/api/clinical/v1/eligibility/$id/transition'
@@ -3306,6 +3377,8 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/care-team/$id'
     | '/api/clinical/v1/catalog/search'
     | '/api/clinical/v1/claims/$id'
+    | '/api/clinical/v1/claims/bulk'
+    | '/api/clinical/v1/claims/worklist'
     | '/api/clinical/v1/coverage/$id'
     | '/api/clinical/v1/diagnoses/$id'
     | '/api/clinical/v1/docs/$slug'
@@ -3360,8 +3433,12 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/$id/completeness'
     | '/api/clinical/v1/claims/$id/eligibility'
     | '/api/clinical/v1/claims/$id/fhir'
+    | '/api/clinical/v1/claims/$id/lifecycle'
     | '/api/clinical/v1/claims/$id/ready'
+    | '/api/clinical/v1/claims/$id/resubmit'
+    | '/api/clinical/v1/claims/$id/scrub'
     | '/api/clinical/v1/claims/$id/submit'
+    | '/api/clinical/v1/claims/$id/void'
     | '/api/clinical/v1/docs/$slug/$module'
     | '/api/clinical/v1/eligibility/$id/exception'
     | '/api/clinical/v1/eligibility/$id/transition'
@@ -4608,6 +4685,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1CoverageIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/claims/worklist': {
+      id: '/api/clinical/v1/claims/worklist'
+      path: '/worklist'
+      fullPath: '/api/clinical/v1/claims/worklist'
+      preLoaderRoute: typeof ApiClinicalV1ClaimsWorklistRouteImport
+      parentRoute: typeof ApiClinicalV1ClaimsRoute
+    }
+    '/api/clinical/v1/claims/bulk': {
+      id: '/api/clinical/v1/claims/bulk'
+      path: '/bulk'
+      fullPath: '/api/clinical/v1/claims/bulk'
+      preLoaderRoute: typeof ApiClinicalV1ClaimsBulkRouteImport
+      parentRoute: typeof ApiClinicalV1ClaimsRoute
+    }
     '/api/clinical/v1/claims/$id': {
       id: '/api/clinical/v1/claims/$id'
       path: '/$id'
@@ -5217,6 +5308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1DocsSlugModuleRouteImport
       parentRoute: typeof ApiClinicalV1DocsSlugRoute
     }
+    '/api/clinical/v1/claims/$id/void': {
+      id: '/api/clinical/v1/claims/$id/void'
+      path: '/void'
+      fullPath: '/api/clinical/v1/claims/$id/void'
+      preLoaderRoute: typeof ApiClinicalV1ClaimsIdVoidRouteImport
+      parentRoute: typeof ApiClinicalV1ClaimsIdRoute
+    }
     '/api/clinical/v1/claims/$id/submit': {
       id: '/api/clinical/v1/claims/$id/submit'
       path: '/submit'
@@ -5224,11 +5322,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1ClaimsIdSubmitRouteImport
       parentRoute: typeof ApiClinicalV1ClaimsIdRoute
     }
+    '/api/clinical/v1/claims/$id/scrub': {
+      id: '/api/clinical/v1/claims/$id/scrub'
+      path: '/scrub'
+      fullPath: '/api/clinical/v1/claims/$id/scrub'
+      preLoaderRoute: typeof ApiClinicalV1ClaimsIdScrubRouteImport
+      parentRoute: typeof ApiClinicalV1ClaimsIdRoute
+    }
+    '/api/clinical/v1/claims/$id/resubmit': {
+      id: '/api/clinical/v1/claims/$id/resubmit'
+      path: '/resubmit'
+      fullPath: '/api/clinical/v1/claims/$id/resubmit'
+      preLoaderRoute: typeof ApiClinicalV1ClaimsIdResubmitRouteImport
+      parentRoute: typeof ApiClinicalV1ClaimsIdRoute
+    }
     '/api/clinical/v1/claims/$id/ready': {
       id: '/api/clinical/v1/claims/$id/ready'
       path: '/ready'
       fullPath: '/api/clinical/v1/claims/$id/ready'
       preLoaderRoute: typeof ApiClinicalV1ClaimsIdReadyRouteImport
+      parentRoute: typeof ApiClinicalV1ClaimsIdRoute
+    }
+    '/api/clinical/v1/claims/$id/lifecycle': {
+      id: '/api/clinical/v1/claims/$id/lifecycle'
+      path: '/lifecycle'
+      fullPath: '/api/clinical/v1/claims/$id/lifecycle'
+      preLoaderRoute: typeof ApiClinicalV1ClaimsIdLifecycleRouteImport
       parentRoute: typeof ApiClinicalV1ClaimsIdRoute
     }
     '/api/clinical/v1/claims/$id/fhir': {
@@ -5837,8 +5956,12 @@ interface ApiClinicalV1ClaimsIdRouteChildren {
   ApiClinicalV1ClaimsIdCompletenessRoute: typeof ApiClinicalV1ClaimsIdCompletenessRoute
   ApiClinicalV1ClaimsIdEligibilityRoute: typeof ApiClinicalV1ClaimsIdEligibilityRoute
   ApiClinicalV1ClaimsIdFhirRoute: typeof ApiClinicalV1ClaimsIdFhirRoute
+  ApiClinicalV1ClaimsIdLifecycleRoute: typeof ApiClinicalV1ClaimsIdLifecycleRoute
   ApiClinicalV1ClaimsIdReadyRoute: typeof ApiClinicalV1ClaimsIdReadyRoute
+  ApiClinicalV1ClaimsIdResubmitRoute: typeof ApiClinicalV1ClaimsIdResubmitRoute
+  ApiClinicalV1ClaimsIdScrubRoute: typeof ApiClinicalV1ClaimsIdScrubRoute
   ApiClinicalV1ClaimsIdSubmitRoute: typeof ApiClinicalV1ClaimsIdSubmitRoute
+  ApiClinicalV1ClaimsIdVoidRoute: typeof ApiClinicalV1ClaimsIdVoidRoute
 }
 
 const ApiClinicalV1ClaimsIdRouteChildren: ApiClinicalV1ClaimsIdRouteChildren = {
@@ -5847,8 +5970,12 @@ const ApiClinicalV1ClaimsIdRouteChildren: ApiClinicalV1ClaimsIdRouteChildren = {
     ApiClinicalV1ClaimsIdCompletenessRoute,
   ApiClinicalV1ClaimsIdEligibilityRoute: ApiClinicalV1ClaimsIdEligibilityRoute,
   ApiClinicalV1ClaimsIdFhirRoute: ApiClinicalV1ClaimsIdFhirRoute,
+  ApiClinicalV1ClaimsIdLifecycleRoute: ApiClinicalV1ClaimsIdLifecycleRoute,
   ApiClinicalV1ClaimsIdReadyRoute: ApiClinicalV1ClaimsIdReadyRoute,
+  ApiClinicalV1ClaimsIdResubmitRoute: ApiClinicalV1ClaimsIdResubmitRoute,
+  ApiClinicalV1ClaimsIdScrubRoute: ApiClinicalV1ClaimsIdScrubRoute,
   ApiClinicalV1ClaimsIdSubmitRoute: ApiClinicalV1ClaimsIdSubmitRoute,
+  ApiClinicalV1ClaimsIdVoidRoute: ApiClinicalV1ClaimsIdVoidRoute,
 }
 
 const ApiClinicalV1ClaimsIdRouteWithChildren =
@@ -5858,10 +5985,14 @@ const ApiClinicalV1ClaimsIdRouteWithChildren =
 
 interface ApiClinicalV1ClaimsRouteChildren {
   ApiClinicalV1ClaimsIdRoute: typeof ApiClinicalV1ClaimsIdRouteWithChildren
+  ApiClinicalV1ClaimsBulkRoute: typeof ApiClinicalV1ClaimsBulkRoute
+  ApiClinicalV1ClaimsWorklistRoute: typeof ApiClinicalV1ClaimsWorklistRoute
 }
 
 const ApiClinicalV1ClaimsRouteChildren: ApiClinicalV1ClaimsRouteChildren = {
   ApiClinicalV1ClaimsIdRoute: ApiClinicalV1ClaimsIdRouteWithChildren,
+  ApiClinicalV1ClaimsBulkRoute: ApiClinicalV1ClaimsBulkRoute,
+  ApiClinicalV1ClaimsWorklistRoute: ApiClinicalV1ClaimsWorklistRoute,
 }
 
 const ApiClinicalV1ClaimsRouteWithChildren =

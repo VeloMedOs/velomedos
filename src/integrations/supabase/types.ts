@@ -1421,6 +1421,8 @@ export type Database = {
           id: string
           idempotency_key: string | null
           invoice_no: string | null
+          locked_at: string | null
+          locked_by: string | null
           nphies_claim_id: string | null
           nphies_request: Json | null
           nphies_response: Json | null
@@ -1453,6 +1455,8 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           invoice_no?: string | null
+          locked_at?: string | null
+          locked_by?: string | null
           nphies_claim_id?: string | null
           nphies_request?: Json | null
           nphies_response?: Json | null
@@ -1485,6 +1489,8 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           invoice_no?: string | null
+          locked_at?: string | null
+          locked_by?: string | null
           nphies_claim_id?: string | null
           nphies_request?: Json | null
           nphies_response?: Json | null
@@ -1755,6 +1761,97 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "claim_item_link_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_lifecycle_event: {
+        Row: {
+          actor_id: string | null
+          claim_id: string
+          created_at: string
+          from_status: string | null
+          id: string
+          payload: Json | null
+          reason: string | null
+          tenant_id: string
+          to_status: string
+        }
+        Insert: {
+          actor_id?: string | null
+          claim_id: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          payload?: Json | null
+          reason?: string | null
+          tenant_id: string
+          to_status: string
+        }
+        Update: {
+          actor_id?: string | null
+          claim_id?: string
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          payload?: Json | null
+          reason?: string | null
+          tenant_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_lifecycle_event_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_scrub_result: {
+        Row: {
+          actor_id: string | null
+          blocker_count: number
+          blockers: Json
+          claim_id: string
+          hash: string | null
+          id: string
+          run_at: string
+          tenant_id: string
+          warning_count: number
+          warnings: Json
+        }
+        Insert: {
+          actor_id?: string | null
+          blocker_count?: number
+          blockers?: Json
+          claim_id: string
+          hash?: string | null
+          id?: string
+          run_at?: string
+          tenant_id: string
+          warning_count?: number
+          warnings?: Json
+        }
+        Update: {
+          actor_id?: string | null
+          blocker_count?: number
+          blockers?: Json
+          claim_id?: string
+          hash?: string | null
+          id?: string
+          run_at?: string
+          tenant_id?: string
+          warning_count?: number
+          warnings?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_scrub_result_claim_id_fkey"
             columns: ["claim_id"]
             isOneToOne: false
             referencedRelation: "claim"
@@ -7535,6 +7632,57 @@ export type Database = {
           },
         ]
       }
+      scrub_rule: {
+        Row: {
+          category: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          effective_from: string | null
+          effective_to: string | null
+          enabled: boolean
+          id: string
+          label: string
+          params: Json
+          severity: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          enabled?: boolean
+          id?: string
+          label: string
+          params?: Json
+          severity?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          enabled?: boolean
+          id?: string
+          label?: string
+          params?: Json
+          severity?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       service_code: {
         Row: {
           code: string
@@ -7859,6 +8007,51 @@ export type Database = {
           bumped_by?: string | null
           id?: number
           version?: number
+        }
+        Relationships: []
+      }
+      submission_channel: {
+        Row: {
+          active: boolean
+          channel_kind: string
+          config: Json
+          created_at: string
+          created_by: string | null
+          endpoint: string | null
+          id: string
+          label: string
+          payer_id: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          channel_kind?: string
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          endpoint?: string | null
+          id?: string
+          label: string
+          payer_id?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          channel_kind?: string
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          endpoint?: string | null
+          id?: string
+          label?: string
+          payer_id?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }

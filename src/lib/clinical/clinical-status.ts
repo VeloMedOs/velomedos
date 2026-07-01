@@ -83,6 +83,30 @@ export function toneOfContractChange(status: string): StatusTone {
 }
 
 /**
+ * R3 · Claim status → tone map. Statuses come from `claim.status` (SSOT in
+ * `src/lib/rcm/claim-sm.ts`).
+ */
+const CLAIM_TONE: Record<string, StatusTone> = {
+  draft: "muted",
+  assembled: "muted",
+  scrubbing: "sky",
+  scrub_failed: "coral",
+  ready: "teal",
+  auth_hold: "amber",
+  coding_hold: "amber",
+  priced: "teal",
+  submitted: "sky",
+  accepted: "teal",
+  rejected: "coral",
+  resubmit_required: "amber",
+  adjudicated: "violet",
+  closed: "muted",
+};
+export function toneOfClaim(status: string): StatusTone {
+  return CLAIM_TONE[status] ?? "muted";
+}
+
+/**
  * Presentational styles for a tone chip. Daylight tokens only.
  * Consumers apply via `style={toneStyle(tone)}` on a `<span>` / pill.
  */
