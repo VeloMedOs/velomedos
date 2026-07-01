@@ -28,11 +28,14 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/deposits/$id/tra
         return envelope("Insufficient balance for transfer", "DEPOSIT_OVERDRAW", 409);
       }
       const { data: txn, error } = await db.from("deposit_transaction").insert({
-        tenant_id: auth.ctx.tenantId, deposit_id: dep.id, txn_type: "transfer_out",
+        tenant_id: auth.ctx.tenantId, deposit_id: dep.id, txn_type: "transfer",
         amount_minor: parsed.data.amount_minor,
-        target_encounter_id: parsed.data.target_encounter_id ?? null,
-        target_beneficiary_id: parsed.data.target_beneficiary_id ?? null,
-        reason: parsed.data.reason, approved_by: auth.ctx.userId, created_by: auth.ctx.userId,
+        reason: JSON.stringify({
+          note: parsed.data.reason,
+          target_encounter_id: parsed.data.target_encounter_id ?? null,
+          target_beneficiary_id: parsed.data.target_beneficiary_id ?? null,
+        }),
+        approved_by: auth.ctx.userId, created_by: auth.ctx.userId,
       }).select("*").single();
       if (error) return envelope(error.message, "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "deposit.transfer", "deposit", dep.id, {
