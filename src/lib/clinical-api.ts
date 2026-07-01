@@ -167,6 +167,12 @@ export const ClinicalAPI = {
   },
   activatePolicy: (id: string, body: unknown = {}) =>
     clinicalFetch<{ data: any }>(`/api/clinical/v1/policy-activations/${id}/activate`, { method: "POST", body }),
+  patchPolicyActivation: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/policy-activations/${id}`, { method: "PATCH", body }),
+  raiseEligibilityException: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/eligibility/${id}/exception`, { method: "POST", body }),
+  createContractChangeRequest: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/masters/contract-change-requests`, { method: "POST", body }),
   listContractChangeRequests: (p?: { status?: string; target_table?: string; target_id?: string }) => {
     const q = new URLSearchParams();
     Object.entries(p ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });

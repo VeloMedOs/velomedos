@@ -22,7 +22,7 @@ const MAP: Record<string, ClinicalTab> = {
   cashier:          "finance-billing-op",
   rcm:              "rcm",
   claims_officer:   "rcm-claims",
-  approval_officer: "rcm-authorization",
+  approval_officer: "rcm-activation",
   finance:          "finance-deposits",
   read_only:        "encounters",
 };

@@ -13,6 +13,8 @@ import { EncounterPane } from "@/components/clinical/daylight/EncounterPane";
 import { DCard } from "@/components/clinical/daylight/Primitives";
 import { EligibilityWorklistPane } from "@/components/clinical/daylight/EligibilityWorklistPane";
 import { ContractsPane } from "@/components/clinical/daylight/ContractsPane";
+import { PolicyActivationPane } from "@/components/clinical/daylight/PolicyActivationPane";
+import { ContractMastersPane } from "@/components/clinical/daylight/ContractMastersPane";
 import {
   RcmHubPane, AuthorizationPane,
   BillingOpPane, BillingIpPane, DepositsPane, CashPane,
@@ -92,6 +94,7 @@ function ClinicalWorkspace() {
       {(tab === "claims" || tab === "rcm-claims") && <ClaimsPane />}
       {tab === "rcm"                 && <RcmHubPane />}
       {tab === "rcm-eligibility"     && <EligibilityWorklistPane role={me.clinicalRole} />}
+      {tab === "rcm-activation"      && <PolicyActivationPane role={me.clinicalRole} />}
       {tab === "rcm-authorization"   && <AuthorizationPane />}
       {tab === "finance-billing-op"  && <BillingOpPane />}
       {tab === "finance-billing-ip"  && <BillingIpPane />}
@@ -99,6 +102,7 @@ function ClinicalWorkspace() {
       {tab === "finance-cash"        && <CashPane />}
       {tab === "billing"             && <BillingOpPane />}
       {tab === "admin-masters"       && <ContractsPane role={me.clinicalRole} />}
+      {tab === "admin-contract-masters" && <ContractMastersPane role={me.clinicalRole} />}
       {tab === "orders"              && <VitalsTrendPane />}
       {tab === "results"             && <VitalsTrendPane />}
       {tab === "vitals"              && <VitalsTrendPane />}
