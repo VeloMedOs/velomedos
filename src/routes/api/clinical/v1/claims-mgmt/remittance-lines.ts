@@ -12,12 +12,13 @@ import { envelope, jsonData, parseBody } from "../_helpers";
 const CreateLine = z.object({
   remittance_id: z.string().uuid(),
   claim_id: z.string().uuid().optional(),
-  provider_claim_no: z.string().max(64).optional(),
   claim_sequence_no: z.string().max(64).optional(),
-  expected_amount_minor: z.number().int().nonnegative(),
+  bill_ref: z.string().max(64).optional(),
   paid_amount_minor: z.number().int().nonnegative(),
-  denial_code: z.string().max(32).optional(),
-  denial_reason: z.string().max(500).optional(),
+  allocated_amount_minor: z.number().int().nonnegative().default(0),
+  adjustment_minor: z.number().int().default(0),
+  reason_code: z.string().max(64).optional(),
+  notes: z.string().max(1000).optional(),
   match_status: z.enum(["unmatched","matched","mismatch","manual"]).default("unmatched"),
 });
 
