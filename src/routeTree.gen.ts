@@ -159,6 +159,7 @@ import { Route as ApiClinicalV1ClaimsIdRouteImport } from './routes/api/clinical
 import { Route as ApiClinicalV1CatalogSearchRouteImport } from './routes/api/clinical/v1/catalog.search'
 import { Route as ApiClinicalV1CareTeamIdRouteImport } from './routes/api/clinical/v1/care-team.$id'
 import { Route as ApiClinicalV1BeneficiariesIdRouteImport } from './routes/api/clinical/v1/beneficiaries.$id'
+import { Route as ApiClinicalV1AuthRequestsRouteImport } from './routes/api/clinical/v1/auth/requests'
 import { Route as ApiAdminV1UsageDailyRouteImport } from './routes/api/admin/v1/usage.daily'
 import { Route as ApiAdminV1TenantSubscriptionsIdRouteImport } from './routes/api/admin/v1/tenant-subscriptions.$id'
 import { Route as ApiAdminV1SubscribersIdRouteImport } from './routes/api/admin/v1/subscribers.$id'
@@ -1072,6 +1073,12 @@ const ApiClinicalV1BeneficiariesIdRoute =
     path: '/$id',
     getParentRoute: () => ApiClinicalV1BeneficiariesRoute,
   } as any)
+const ApiClinicalV1AuthRequestsRoute =
+  ApiClinicalV1AuthRequestsRouteImport.update({
+    id: '/api/clinical/v1/auth/requests',
+    path: '/api/clinical/v1/auth/requests',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminV1UsageDailyRoute = ApiAdminV1UsageDailyRouteImport.update({
   id: '/api/admin/v1/usage/daily',
   path: '/api/admin/v1/usage/daily',
@@ -1872,6 +1879,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
+  '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRoute
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
@@ -2134,6 +2142,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
+  '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRoute
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
@@ -2400,6 +2409,7 @@ export interface FileRoutesById {
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
+  '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRoute
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
@@ -2666,6 +2676,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
+    | '/api/clinical/v1/auth/requests'
     | '/api/clinical/v1/beneficiaries/$id'
     | '/api/clinical/v1/care-team/$id'
     | '/api/clinical/v1/catalog/search'
@@ -2928,6 +2939,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
+    | '/api/clinical/v1/auth/requests'
     | '/api/clinical/v1/beneficiaries/$id'
     | '/api/clinical/v1/care-team/$id'
     | '/api/clinical/v1/catalog/search'
@@ -3193,6 +3205,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/subscribers/$id'
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
+    | '/api/clinical/v1/auth/requests'
     | '/api/clinical/v1/beneficiaries/$id'
     | '/api/clinical/v1/care-team/$id'
     | '/api/clinical/v1/catalog/search'
@@ -3413,6 +3426,7 @@ export interface RootRouteChildren {
   ApiAdminV1OpsTestRunsRoute: typeof ApiAdminV1OpsTestRunsRoute
   ApiAdminV1OpsWorkspaceRoute: typeof ApiAdminV1OpsWorkspaceRoute
   ApiAdminV1UsageDailyRoute: typeof ApiAdminV1UsageDailyRoute
+  ApiClinicalV1AuthRequestsRoute: typeof ApiClinicalV1AuthRequestsRoute
   ApiClinicalV1CareTeamIdRoute: typeof ApiClinicalV1CareTeamIdRoute
   ApiClinicalV1CatalogSearchRoute: typeof ApiClinicalV1CatalogSearchRoute
   ApiClinicalV1CoverageIdRoute: typeof ApiClinicalV1CoverageIdRoute
@@ -4509,6 +4523,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/clinical/v1/beneficiaries/$id'
       preLoaderRoute: typeof ApiClinicalV1BeneficiariesIdRouteImport
       parentRoute: typeof ApiClinicalV1BeneficiariesRoute
+    }
+    '/api/clinical/v1/auth/requests': {
+      id: '/api/clinical/v1/auth/requests'
+      path: '/api/clinical/v1/auth/requests'
+      fullPath: '/api/clinical/v1/auth/requests'
+      preLoaderRoute: typeof ApiClinicalV1AuthRequestsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/admin/v1/usage/daily': {
       id: '/api/admin/v1/usage/daily'
@@ -6405,6 +6426,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1OpsTestRunsRoute: ApiAdminV1OpsTestRunsRoute,
   ApiAdminV1OpsWorkspaceRoute: ApiAdminV1OpsWorkspaceRoute,
   ApiAdminV1UsageDailyRoute: ApiAdminV1UsageDailyRoute,
+  ApiClinicalV1AuthRequestsRoute: ApiClinicalV1AuthRequestsRoute,
   ApiClinicalV1CareTeamIdRoute: ApiClinicalV1CareTeamIdRoute,
   ApiClinicalV1CatalogSearchRoute: ApiClinicalV1CatalogSearchRoute,
   ApiClinicalV1CoverageIdRoute: ApiClinicalV1CoverageIdRoute,
