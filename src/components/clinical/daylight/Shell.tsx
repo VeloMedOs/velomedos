@@ -36,7 +36,7 @@ export function DaylightShell({
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   }
-  const viewOnly = isReadOnly(role);
+  const viewOnly = role ? isReadOnly(role) : false;
   return (
     <div className="clinical-shell min-h-screen">
       <div className="grid" style={{ gridTemplateColumns: "232px 1fr", minHeight: "100vh" }}>
