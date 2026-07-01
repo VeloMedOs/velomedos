@@ -226,3 +226,49 @@ export function validateClaimRcmReadiness(b: ReadinessBundle): RcmReadiness {
 
   return { ok: missing.filter((m) => m.severity === "error").length === 0, missing, flags };
 }
+
+/* ---------------------------------------------------------------------------
+ * R5 gates — batch / remittance / denial readiness helpers.
+ * Kept separate so the R3 readiness validator stays snapshot-focused.
+ * ------------------------------------------------------------------------- */
+export type R5Blocker =
+  | "BATCH_NOT_READY" | "SNAPSHOT_NOT_LOCKED"
+  | "REMIT_UNMATCHED_LINES" | "DENIAL_OPEN";
+
+export type R5Issue = { code: R5Blocker; message: string };
+
+/** Every claim in a batch must be readiness=ready and snapshot-locked. */
+export function validateBatchClaims(
+  claims: Array<{ id: string; readiness_status?: string | null; snapshot_locked_at?: string | null; batch_id?: string | null }>,
+): R5Issue[] {
+  const issues: R5Issue[] = [];
+  for (const c of claims) {
+    if (c.readiness_status !== "ready") {
+      issues.push({ code: "BATCH_NOT_READY", message: `Claim ${c.id.slice(0, 8)} is not marked ready.` });
+    }
+    if (!c.snapshot_locked_at) {
+      issues.push({ code: "SNAPSHOT_NOT_LOCKED", message: `Claim ${c.id.slice(0, 8)} snapshot is not locked.` });
+    }
+  }
+  return issues;
+}
+
+/** Remittance may not be posted while any line is unmatched or in mismatch. */
+export function validateRemittanceLines(
+  lines: Array<{ match_status: string }>,
+): R5Issue[] {
+  const bad = lines.filter((l) => l.match_status === "unmatched" || l.match_status === "mismatch");
+  return bad.length
+    ? [{ code: "REMIT_UNMATCHED_LINES", message: `${bad.length} remittance line(s) still unmatched — reconcile before posting.` }]
+    : [];
+}
+
+/** A claim with an open denial case cannot be closed until the case resolves. */
+export function validateNoOpenDenial(
+  cases: Array<{ status: string }>,
+): R5Issue[] {
+  const open = cases.filter((c) => c.status !== "resolved" && c.status !== "disposed");
+  return open.length
+    ? [{ code: "DENIAL_OPEN", message: `${open.length} denial case(s) still open on this claim.` }]
+    : [];
+}

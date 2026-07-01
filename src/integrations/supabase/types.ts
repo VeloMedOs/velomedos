@@ -1704,7 +1704,9 @@ export type Database = {
         Row: {
           adjudicated_at: string | null
           adjudication_outcome: string | null
+          batch_id: string | null
           billing_model: string
+          claim_sequence_no: string | null
           claim_subtype: string
           claim_type: string
           coverage_id: string | null
@@ -1715,6 +1717,7 @@ export type Database = {
           eligibility_checked_at: string | null
           eligibility_response: Json | null
           encounter_id: string
+          esign_ref: string | null
           id: string
           idempotency_key: string | null
           invoice_no: string | null
@@ -1725,7 +1728,11 @@ export type Database = {
           nphies_response: Json | null
           pricing_trace: Json | null
           provider_claim_no: string
+          readiness_status:
+            | Database["public"]["Enums"]["claim_readiness_status"]
+            | null
           replaces_claim_id: string | null
+          snapshot_locked_at: string | null
           status: string
           submitted_at: string | null
           tenant_id: string
@@ -1738,7 +1745,9 @@ export type Database = {
         Insert: {
           adjudicated_at?: string | null
           adjudication_outcome?: string | null
+          batch_id?: string | null
           billing_model: string
+          claim_sequence_no?: string | null
           claim_subtype: string
           claim_type: string
           coverage_id?: string | null
@@ -1749,6 +1758,7 @@ export type Database = {
           eligibility_checked_at?: string | null
           eligibility_response?: Json | null
           encounter_id: string
+          esign_ref?: string | null
           id?: string
           idempotency_key?: string | null
           invoice_no?: string | null
@@ -1759,7 +1769,11 @@ export type Database = {
           nphies_response?: Json | null
           pricing_trace?: Json | null
           provider_claim_no: string
+          readiness_status?:
+            | Database["public"]["Enums"]["claim_readiness_status"]
+            | null
           replaces_claim_id?: string | null
+          snapshot_locked_at?: string | null
           status?: string
           submitted_at?: string | null
           tenant_id: string
@@ -1772,7 +1786,9 @@ export type Database = {
         Update: {
           adjudicated_at?: string | null
           adjudication_outcome?: string | null
+          batch_id?: string | null
           billing_model?: string
+          claim_sequence_no?: string | null
           claim_subtype?: string
           claim_type?: string
           coverage_id?: string | null
@@ -1783,6 +1799,7 @@ export type Database = {
           eligibility_checked_at?: string | null
           eligibility_response?: Json | null
           encounter_id?: string
+          esign_ref?: string | null
           id?: string
           idempotency_key?: string | null
           invoice_no?: string | null
@@ -1793,7 +1810,11 @@ export type Database = {
           nphies_response?: Json | null
           pricing_trace?: Json | null
           provider_claim_no?: string
+          readiness_status?:
+            | Database["public"]["Enums"]["claim_readiness_status"]
+            | null
           replaces_claim_id?: string | null
+          snapshot_locked_at?: string | null
           status?: string
           submitted_at?: string | null
           tenant_id?: string
@@ -1804,6 +1825,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "claim_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "claim_batch"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "claim_coverage_id_fkey"
             columns: ["coverage_id"]
@@ -1830,6 +1858,77 @@ export type Database = {
             columns: ["replaces_claim_id"]
             isOneToOne: false
             referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      claim_batch: {
+        Row: {
+          batch_no: string
+          cancel_reason: string | null
+          cancelled_at: string | null
+          claim_count: number
+          cover_letter_url: string | null
+          created_at: string
+          created_by: string | null
+          esign_ref: string | null
+          id: string
+          integration_type: Database["public"]["Enums"]["batch_integration_type"]
+          notes: string | null
+          payer_id: string
+          status: Database["public"]["Enums"]["batch_status"]
+          submitted_at: string | null
+          tenant_id: string
+          total_amount_minor: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          batch_no: string
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          claim_count?: number
+          cover_letter_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          esign_ref?: string | null
+          id?: string
+          integration_type: Database["public"]["Enums"]["batch_integration_type"]
+          notes?: string | null
+          payer_id: string
+          status?: Database["public"]["Enums"]["batch_status"]
+          submitted_at?: string | null
+          tenant_id: string
+          total_amount_minor?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          batch_no?: string
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          claim_count?: number
+          cover_letter_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          esign_ref?: string | null
+          id?: string
+          integration_type?: Database["public"]["Enums"]["batch_integration_type"]
+          notes?: string | null
+          payer_id?: string
+          status?: Database["public"]["Enums"]["batch_status"]
+          submitted_at?: string | null
+          tenant_id?: string
+          total_amount_minor?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_batch_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
             referencedColumns: ["id"]
           },
         ]
@@ -3203,6 +3302,147 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      denial_case: {
+        Row: {
+          assigned_to: string | null
+          claim_id: string
+          claim_sequence_no: string
+          created_at: string
+          created_by: string | null
+          denial_category: Database["public"]["Enums"]["denial_category"] | null
+          denial_codes: Json
+          disposed_at: string | null
+          disposed_by: string | null
+          disposition_amount_minor: number
+          disposition_note: string | null
+          finance_disposition: Database["public"]["Enums"]["denial_finance_disposition"]
+          followup_no: number
+          id: string
+          item_level_reasons: Json
+          last_comm_at: string | null
+          replaces_claim_id: string | null
+          status: Database["public"]["Enums"]["denial_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          claim_id: string
+          claim_sequence_no: string
+          created_at?: string
+          created_by?: string | null
+          denial_category?:
+            | Database["public"]["Enums"]["denial_category"]
+            | null
+          denial_codes?: Json
+          disposed_at?: string | null
+          disposed_by?: string | null
+          disposition_amount_minor?: number
+          disposition_note?: string | null
+          finance_disposition?: Database["public"]["Enums"]["denial_finance_disposition"]
+          followup_no?: number
+          id?: string
+          item_level_reasons?: Json
+          last_comm_at?: string | null
+          replaces_claim_id?: string | null
+          status?: Database["public"]["Enums"]["denial_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          claim_id?: string
+          claim_sequence_no?: string
+          created_at?: string
+          created_by?: string | null
+          denial_category?:
+            | Database["public"]["Enums"]["denial_category"]
+            | null
+          denial_codes?: Json
+          disposed_at?: string | null
+          disposed_by?: string | null
+          disposition_amount_minor?: number
+          disposition_note?: string | null
+          finance_disposition?: Database["public"]["Enums"]["denial_finance_disposition"]
+          followup_no?: number
+          id?: string
+          item_level_reasons?: Json
+          last_comm_at?: string | null
+          replaces_claim_id?: string | null
+          status?: Database["public"]["Enums"]["denial_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "denial_case_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "denial_case_replaces_claim_id_fkey"
+            columns: ["replaces_claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      denial_communication: {
+        Row: {
+          actor_id: string | null
+          attachments: Json
+          body: string
+          channel: string | null
+          created_at: string
+          denial_case_id: string
+          direction: string
+          id: string
+          occurred_at: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          actor_id?: string | null
+          attachments?: Json
+          body: string
+          channel?: string | null
+          created_at?: string
+          denial_case_id: string
+          direction: string
+          id?: string
+          occurred_at?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          actor_id?: string | null
+          attachments?: Json
+          body?: string
+          channel?: string | null
+          created_at?: string
+          denial_case_id?: string
+          direction?: string
+          id?: string
+          occurred_at?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "denial_communication_denial_case_id_fkey"
+            columns: ["denial_case_id"]
+            isOneToOne: false
+            referencedRelation: "denial_case"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       deposit: {
         Row: {
@@ -7978,6 +8218,137 @@ export type Database = {
           },
         ]
       }
+      remittance: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          payer_id: string
+          posted_at: string | null
+          posted_by: string | null
+          raw_payload: Json | null
+          received_at: string
+          remittance_ref: string
+          source: Database["public"]["Enums"]["remittance_source"]
+          status: Database["public"]["Enums"]["remittance_status"]
+          tenant_id: string
+          total_amount_minor: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          payer_id: string
+          posted_at?: string | null
+          posted_by?: string | null
+          raw_payload?: Json | null
+          received_at?: string
+          remittance_ref: string
+          source: Database["public"]["Enums"]["remittance_source"]
+          status?: Database["public"]["Enums"]["remittance_status"]
+          tenant_id: string
+          total_amount_minor?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          payer_id?: string
+          posted_at?: string | null
+          posted_by?: string | null
+          raw_payload?: Json | null
+          received_at?: string
+          remittance_ref?: string
+          source?: Database["public"]["Enums"]["remittance_source"]
+          status?: Database["public"]["Enums"]["remittance_status"]
+          tenant_id?: string
+          total_amount_minor?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "remittance_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "payer"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      remittance_line: {
+        Row: {
+          adjustment_minor: number
+          allocated_amount_minor: number
+          bill_ref: string | null
+          claim_id: string | null
+          claim_sequence_no: string | null
+          created_at: string
+          id: string
+          match_status: Database["public"]["Enums"]["remittance_match_status"]
+          notes: string | null
+          paid_amount_minor: number
+          reason_code: string | null
+          remittance_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          adjustment_minor?: number
+          allocated_amount_minor?: number
+          bill_ref?: string | null
+          claim_id?: string | null
+          claim_sequence_no?: string | null
+          created_at?: string
+          id?: string
+          match_status?: Database["public"]["Enums"]["remittance_match_status"]
+          notes?: string | null
+          paid_amount_minor?: number
+          reason_code?: string | null
+          remittance_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          adjustment_minor?: number
+          allocated_amount_minor?: number
+          bill_ref?: string | null
+          claim_id?: string | null
+          claim_sequence_no?: string | null
+          created_at?: string
+          id?: string
+          match_status?: Database["public"]["Enums"]["remittance_match_status"]
+          notes?: string | null
+          paid_amount_minor?: number
+          reason_code?: string | null
+          remittance_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "remittance_line_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claim"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "remittance_line_remittance_id_fkey"
+            columns: ["remittance_id"]
+            isOneToOne: false
+            referencedRelation: "remittance"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rentals: {
         Row: {
           ambulance_id: string
@@ -9751,6 +10122,8 @@ export type Database = {
         | "appeal_rejected"
         | "converted_to_self_pay"
         | "closed"
+      batch_integration_type: "moh" | "gosi" | "cchi" | "direct" | "self_pay"
+      batch_status: "open" | "submitting" | "submitted" | "closed" | "cancelled"
       bed_transfer_status:
         | "requested"
         | "preauth_pending"
@@ -9802,6 +10175,7 @@ export type Database = {
         | "resulted"
         | "dispensed"
         | "cancelled"
+      claim_readiness_status: "ready" | "needs_correction" | "hold"
       clinical_order_status:
         | "ordered"
         | "in_progress"
@@ -9841,6 +10215,15 @@ export type Database = {
         | "operating_permit"
         | "provider_license"
       defect_severity: "minor" | "major" | "critical"
+      denial_category: "technical" | "medical"
+      denial_finance_disposition: "none" | "write_off" | "adjustment"
+      denial_status:
+        | "pending_action"
+        | "in_correction"
+        | "accepted"
+        | "resubmitted"
+        | "resolved"
+        | "disposed"
       deposit_method: "cash" | "card" | "bank_transfer" | "wallet" | "insurance"
       deposit_status:
         | "requested"
@@ -9892,6 +10275,15 @@ export type Database = {
         | "substitution"
         | "drg_outlier"
         | "out_of_network"
+      remittance_match_status: "unmatched" | "matched" | "mismatch" | "manual"
+      remittance_source: "interface" | "file_upload"
+      remittance_status:
+        | "staged"
+        | "matching"
+        | "matched"
+        | "posted"
+        | "reconciliation"
+        | "closed"
       screening_order_status:
         | "booked"
         | "sample_collected"
@@ -10096,6 +10488,8 @@ export const Constants = {
         "converted_to_self_pay",
         "closed",
       ],
+      batch_integration_type: ["moh", "gosi", "cchi", "direct", "self_pay"],
+      batch_status: ["open", "submitting", "submitted", "closed", "cancelled"],
       bed_transfer_status: [
         "requested",
         "preauth_pending",
@@ -10153,6 +10547,7 @@ export const Constants = {
         "dispensed",
         "cancelled",
       ],
+      claim_readiness_status: ["ready", "needs_correction", "hold"],
       clinical_order_status: [
         "ordered",
         "in_progress",
@@ -10196,6 +10591,16 @@ export const Constants = {
         "provider_license",
       ],
       defect_severity: ["minor", "major", "critical"],
+      denial_category: ["technical", "medical"],
+      denial_finance_disposition: ["none", "write_off", "adjustment"],
+      denial_status: [
+        "pending_action",
+        "in_correction",
+        "accepted",
+        "resubmitted",
+        "resolved",
+        "disposed",
+      ],
       deposit_method: ["cash", "card", "bank_transfer", "wallet", "insurance"],
       deposit_status: [
         "requested",
@@ -10253,6 +10658,16 @@ export const Constants = {
         "substitution",
         "drg_outlier",
         "out_of_network",
+      ],
+      remittance_match_status: ["unmatched", "matched", "mismatch", "manual"],
+      remittance_source: ["interface", "file_upload"],
+      remittance_status: [
+        "staged",
+        "matching",
+        "matched",
+        "posted",
+        "reconciliation",
+        "closed",
       ],
       screening_order_status: [
         "booked",
