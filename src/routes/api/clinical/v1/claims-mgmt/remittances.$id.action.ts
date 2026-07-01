@@ -47,21 +47,24 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/remittances/$
           for (const ln of (lines ?? []) as any[]) {
             if (ln.claim_id) continue;
             let claim: any = null;
-            if (ln.provider_claim_no) {
-              const q = await db.from("claim").select("id, total_net_minor").eq("tenant_id", auth.ctx.tenantId).eq("provider_claim_no", ln.provider_claim_no).maybeSingle();
+            if (ln.bill_ref) {
+              const q = await db.from("claim").select("id, total_payer_share_minor").eq("tenant_id", auth.ctx.tenantId).eq("invoice_no", ln.bill_ref).maybeSingle();
               claim = q.data;
             }
             if (!claim && ln.claim_sequence_no) {
-              const q = await db.from("claim").select("id, total_net_minor").eq("tenant_id", auth.ctx.tenantId).eq("claim_sequence_no", ln.claim_sequence_no).order("created_at", { ascending: false }).limit(1);
+              const q = await db.from("claim").select("id, total_payer_share_minor").eq("tenant_id", auth.ctx.tenantId).eq("claim_sequence_no", ln.claim_sequence_no).order("created_at", { ascending: false }).limit(1);
               claim = (q.data ?? [])[0];
             }
             if (!claim) {
               await db.from("remittance_line").update({ match_status: "unmatched" }).eq("id", ln.id);
               continue;
             }
-            const diff = Math.abs((ln.paid_amount_minor ?? 0) - (ln.expected_amount_minor ?? claim.total_net_minor ?? 0));
+            const target = claim.total_payer_share_minor ?? 0;
+            const paid = ln.paid_amount_minor ?? 0;
+            const diff = Math.abs(paid - target);
             await db.from("remittance_line").update({
               claim_id: claim.id,
+              allocated_amount_minor: paid,
               match_status: diff <= 1 ? "matched" : "mismatch",
             }).eq("id", ln.id);
           }
@@ -76,43 +79,40 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/remittances/$
           const { data: lines } = await db.from("remittance_line").select("*").eq("remittance_id", params.id);
           const issues = validateRemittanceLines((lines ?? []) as any[]);
           if (issues.length) return envelope("Lines not ready", "remit_not_ready", 409, { issues });
-          const now = new Date().toISOString();
-          let hasShort = false;
+          // Aggregate paid vs target per claim to decide reconciliation vs posted.
+          const perClaim = new Map<string, { paid: number; target: number }>();
           for (const ln of (lines ?? []) as any[]) {
             if (!ln.claim_id) continue;
-            const { data: claim } = await db.from("claim").select("id, encounter_id, status, total_net_minor, total_payer_share_minor").eq("id", ln.claim_id).maybeSingle();
-            if (!claim) continue;
-            const expected = ln.expected_amount_minor ?? claim.total_payer_share_minor ?? claim.total_net_minor ?? 0;
-            const paid = ln.paid_amount_minor ?? 0;
-            const short = paid < expected;
-            hasShort = hasShort || short;
-            const newStatus = paid <= 0 ? "denied" : short ? "part_paid" : "paid";
-            await db.from("claim").update({ status: newStatus, adjudication_outcome: newStatus, updated_at: now }).eq("id", claim.id);
-            await db.from("claim_lifecycle_event").insert({
-              tenant_id: auth.ctx.tenantId, claim_id: claim.id,
-              from_status: claim.status, to_status: newStatus,
-              actor_id: auth.ctx.userId,
-              reason: `Remittance ${r.remittance_no} posted (${paid}/${expected})`,
-            });
-            if (claim.encounter_id) {
-              const journey = newStatus === "denied" ? "denied" : short ? "part_settled" : "settled";
-              await db.from("encounter").update({ journey_state: journey }).eq("id", claim.encounter_id);
-            }
+            const cur = perClaim.get(ln.claim_id) ?? { paid: 0, target: 0 };
+            cur.paid += ln.paid_amount_minor ?? 0;
+            perClaim.set(ln.claim_id, cur);
           }
+          for (const [cid, agg] of perClaim.entries()) {
+            const { data: claim } = await db.from("claim").select("total_payer_share_minor").eq("id", cid).maybeSingle();
+            agg.target = claim?.total_payer_share_minor ?? 0;
+          }
+          const hasShort = Array.from(perClaim.values()).some((a) => a.paid < a.target);
+          const now = new Date().toISOString();
+          // Trigger `remittance_post_apply` fires when status flips to 'posted'
+          // and settles per-claim status + encounter journey.
           await db.from("remittance").update({
-            status: hasShort ? "reconciliation" : "posted",
+            status: "posted",
             posted_at: now,
+            posted_by: auth.ctx.userId,
             updated_by: auth.ctx.userId,
           }).eq("id", params.id);
+          if (hasShort) {
+            await db.from("remittance").update({ status: "reconciliation", updated_by: auth.ctx.userId }).eq("id", params.id);
+          }
           return jsonData({ ok: true, status: hasShort ? "reconciliation" : "posted" });
         }
 
         if (body.data.action === "reconcile") {
-          await move("reconciliation", { notes: body.data.note ?? r.notes });
+          await move("reconciliation", body.data.note ? { notes: body.data.note } : {});
           return jsonData({ ok: true, status: "reconciliation" });
         }
         if (body.data.action === "close") {
-          await move("closed", { closed_at: new Date().toISOString() });
+          await move("closed");
           return jsonData({ ok: true, status: "closed" });
         }
       } catch (e) {
