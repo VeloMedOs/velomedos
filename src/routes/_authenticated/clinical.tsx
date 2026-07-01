@@ -11,10 +11,21 @@ import { DaylightShell, type TabId } from "@/components/clinical/daylight/Shell"
 import { RegistrationPane } from "@/components/clinical/daylight/RegistrationPane";
 import { EncounterPane } from "@/components/clinical/daylight/EncounterPane";
 import { DCard } from "@/components/clinical/daylight/Primitives";
+import { EligibilityWorklistPane } from "@/components/clinical/daylight/EligibilityWorklistPane";
+import { ContractsPane } from "@/components/clinical/daylight/ContractsPane";
+import {
+  RcmHubPane, AuthorizationPane,
+  BillingOpPane, BillingIpPane, DepositsPane, CashPane,
+  VitalsTrendPane,
+} from "@/components/clinical/daylight/RcmStubs";
+import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
+import { formatHalalas } from "@/lib/clinical/format-money";
+
+const TAB_VALUES = ALL_NAV_TABS as [string, ...string[]];
 
 export const Route = createFileRoute("/_authenticated/clinical")({
   validateSearch: z.object({
-    tab: z.enum(["registration", "encounters", "coding", "claims", "vbhc"]).optional(),
+    tab: z.enum(TAB_VALUES).optional(),
   }),
   head: () => ({ meta: [{ title: "Clinical Workspace · VeloMed OS" }] }),
   component: ClinicalWorkspace,
@@ -43,14 +54,14 @@ type Claim = {
 };
 
 function fmtMinor(n: number, cur = "SAR") {
-  return `${(n / 100).toFixed(2)} ${cur}`;
+  return formatHalalas(n, { currency: cur });
 }
 
 function ClinicalWorkspace() {
   const { me, loading, error } = useClinicalMe();
   const search = useSearch({ from: "/_authenticated/clinical" });
-  const [tab, setTab] = useState<TabId>(search.tab ?? "registration");
-  useEffect(() => { if (search.tab) setTab(search.tab); }, [search.tab]);
+  const [tab, setTab] = useState<TabId>((search.tab as TabId) ?? "registration");
+  useEffect(() => { if (search.tab) setTab(search.tab as TabId); }, [search.tab]);
 
   if (loading) return <div className="p-10 mono text-xs text-muted-foreground">Loading clinical identity…</div>;
   if (error || !me) {
@@ -74,12 +85,24 @@ function ClinicalWorkspace() {
   const roleLabel = (me.clinicalRole ?? "clinical").replace(/_/g, " ");
 
   return (
-    <DaylightShell tab={tab} onTab={setTab} initials={initials} roleLabel={roleLabel}>
-      {tab === "registration" && <RegistrationPane />}
-      {tab === "encounters"   && <EncounterPane />}
-      {tab === "coding"       && <CodingPane />}
-      {tab === "claims"       && <ClaimsPane />}
-      {tab === "vbhc"         && (
+    <DaylightShell tab={tab} onTab={setTab} role={me.clinicalRole} initials={initials} roleLabel={roleLabel}>
+      {tab === "registration"        && <RegistrationPane />}
+      {tab === "encounters"          && <EncounterPane />}
+      {tab === "coding"              && <CodingPane />}
+      {(tab === "claims" || tab === "rcm-claims") && <ClaimsPane />}
+      {tab === "rcm"                 && <RcmHubPane />}
+      {tab === "rcm-eligibility"     && <EligibilityWorklistPane role={me.clinicalRole} />}
+      {tab === "rcm-authorization"   && <AuthorizationPane />}
+      {tab === "finance-billing-op"  && <BillingOpPane />}
+      {tab === "finance-billing-ip"  && <BillingIpPane />}
+      {tab === "finance-deposits"    && <DepositsPane />}
+      {tab === "finance-cash"        && <CashPane />}
+      {tab === "billing"             && <BillingOpPane />}
+      {tab === "admin-masters"       && <ContractsPane role={me.clinicalRole} />}
+      {tab === "orders"              && <VitalsTrendPane />}
+      {tab === "results"             && <VitalsTrendPane />}
+      {tab === "vitals"              && <VitalsTrendPane />}
+      {tab === "vbhc"                && (
         <div className="px-7 pt-6 pb-14 mx-auto" style={{ maxWidth: 1200, width: "100%" }}>
           <OutcomesPane />
         </div>
