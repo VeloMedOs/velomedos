@@ -22,7 +22,7 @@ const Create = z.object({
   status: z.enum(["collected","held","requested"]).default("collected"),
 });
 
-export const Route = createFileRoute("/api/clinical/v1/deposits/deposits")({
+export const Route = createFileRoute("/api/clinical/v1/deposits")({
   server: { handlers: {
     OPTIONS: () => preflight(),
     GET: async ({ request }) => {
