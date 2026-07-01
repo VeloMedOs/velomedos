@@ -14,9 +14,9 @@ import { DCard } from "@/components/clinical/daylight/Primitives";
 import { EligibilityWorklistPane } from "@/components/clinical/daylight/EligibilityWorklistPane";
 import { ContractsPane } from "@/components/clinical/daylight/ContractsPane";
 import {
-  RcmHubPane, AuthorizationPane, ClaimsDenialsPane,
+  RcmHubPane, AuthorizationPane,
   BillingOpPane, BillingIpPane, DepositsPane, CashPane,
-  AdminMastersPane, VbhcPlaceholderPane, VitalsTrendPane,
+  VitalsTrendPane,
 } from "@/components/clinical/daylight/RcmStubs";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
 import { formatHalalas } from "@/lib/clinical/format-money";
