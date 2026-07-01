@@ -20,6 +20,7 @@ import {
 } from "@/lib/api-clinical";
 import { envelope, jsonData, parseBody, assertMasterOwnership } from "./_helpers";
 import { resolvePrice } from "@/lib/mds/pricing";
+import { evaluateTriggers, ensureAuthorizationForOrder, type TriggerInputItem } from "@/lib/rcm/auth-engine";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const t = (db: any, table: string) => db.from(table);
@@ -140,7 +141,59 @@ export function orderRouteHandlers<TCreate extends ZodTypeAny>(cfg: ModalityConf
 
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, `${cfg.audit}.create`,
         cfg.headerTable, header.id, { item_count: itemsOut.length });
-      return jsonData({ data: { order: header, items: itemsOut, charges: chargesOut } }, 201);
+
+      // R2 — evaluate authorization triggers and, if hit, create the
+      // authorization_request additively (best-effort; order write already
+      // succeeded, so we swallow trigger errors and log them).
+      let authOut: { authorization_request_id: string; requires_auth: boolean; reasons: string[] } | null = null;
+      try {
+        const trigItems: TriggerInputItem[] = (body.items as any[]).map((it) => {
+          const ref = cfg.resolveRef(it);
+          return {
+            source: ref.source,
+            service_id: ref.serviceId ?? null,
+            drug_id: ref.drugId ?? null,
+            quantity: ref.quantity,
+          };
+        });
+        const trg = await evaluateTriggers({
+          tenantId: auth.ctx.tenantId,
+          encounterId: params.id,
+          items: trigItems,
+        });
+        if (trg.requires_auth) {
+          const created = await ensureAuthorizationForOrder({
+            tenantId: auth.ctx.tenantId,
+            encounterId: params.id,
+            userId: auth.ctx.userId,
+            hits: trg.hits,
+            reasons: trg.reasons,
+            items: trigItems,
+            chargeIds: chargesOut.map((c: any) => c?.id ?? null),
+          });
+          if (created) {
+            authOut = {
+              authorization_request_id: created.id,
+              requires_auth: true,
+              reasons: trg.reasons,
+            };
+          }
+        } else {
+          authOut = { authorization_request_id: "", requires_auth: false, reasons: [] };
+        }
+      } catch (e) {
+        // Non-blocking — order write already committed.
+        console.warn("[auth-trigger] evaluation failed:", (e as Error).message);
+      }
+
+      return jsonData({
+        data: {
+          order: header,
+          items: itemsOut,
+          charges: chargesOut,
+          ...(authOut ? { authorization: authOut } : {}),
+        },
+      }, 201);
     },
   };
 }
