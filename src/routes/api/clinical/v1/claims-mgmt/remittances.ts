@@ -48,13 +48,13 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/remittances")
       const body = await parseBody((raw) => CreateRemittance.parse(raw))(request);
       if (!body.ok) return body.res;
       const db = serviceClient() as any;
-      const remitNo = body.data.remittance_no ?? `REM-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+      const remitRef = body.data.remittance_ref ?? `REM-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
       const ins = await db.from("remittance").insert({
         tenant_id: auth.ctx.tenantId,
-        remittance_no: remitNo,
+        remittance_ref: remitRef,
         payer_id: body.data.payer_id,
-        currency: body.data.currency,
-        paid_at: body.data.paid_at ?? new Date().toISOString(),
+        source: body.data.source,
+        received_at: body.data.received_at ?? new Date().toISOString(),
         total_amount_minor: body.data.total_amount_minor,
         status: "staged",
         notes: body.data.notes ?? null,
