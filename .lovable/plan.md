@@ -1,55 +1,55 @@
-# RCM R4 verdict + R5 (Batching / Remittance / Denials) — validated, paste-ready
+# RCM R5 verdict + R6 (Deposits / Refunds / Wallet) — validated, paste-ready
 
-Validated against `velomedos@afa0704`.
-
----
-
-## PART A — R4 `IpAdmissionsPane`: CORRECTLY WIRED, no amendment
-
-`bill.ip` is a real cap; every `admission_request` column the pane reads exists (`admission_no`, `admission_serial`, `discharge_stage`, `room_type_entitled`, `requested_deposit_minor`, `paid_amount_minor`); `IP_BUCKET_LABEL`/`IP_BUCKET_ORDER`/`AdmissionBucket` (`ip-accounting-sm.ts`) and `toneOfIpBucket`/`toneOfAdmissionStatus` (`clinical-status.ts`) all resolve; bulk fans out with per-row results; daily-charges wired. Nothing to fix.
+Validated against `velomedos@a07f876`.
 
 ---
 
-## PART B — R5 Batching / Remittance / Denials — corrected
+## PART A — R5 `batch-sm.ts`: CORRECTLY FORMED, no amendment
 
-R5 ships one migration + new routes. Six corrections; one is good news that shrinks the migration.
+Pure TS state machine (`open → submitting → submitted → closed`, `cancelled` from `open`), no DB/API surface to mismatch. Transitions + guards are coherent. Nothing to fix. (Confirm the R5 migration landed the `claim_status_check` drop/re-add for `paid`/`part_paid`/`denied` per the prior amendment — R6's settlement depends on it.)
 
-### [FIX 1 — claim.status is a CHECK, not an enum]
+---
 
-To let remittance advance claims to `paid`/`part_paid`/`denied`, **drop + re-add the** `claim_status_check` **CHECK** (exactly the pattern already used in migration `20260701200540`: `ALTER TABLE public.claim DROP CONSTRAINT IF EXISTS claim_status_check; ALTER TABLE public.claim ADD CONSTRAINT claim_status_check CHECK (status IN (…existing 14… , 'paid','part_paid','denied'))`). **Do not** use `ALTER TYPE … ADD VALUE` — there is no claim-status enum. Keep every existing value in the new set so live rows stay valid.
+## PART B — R6 Deposits / Refunds / Wallet — corrected
 
-### [FIX 2 — journey_state is free text: settled/denied need NO migration]
+R6 ships a migration + new routes. **Confirmed present:** the `deposit` table (with `amount_minor`, `applied_to_bill_id`, `received_by`, `requested_minor`), `deposit_recalc_admission_paid()` (extendable), `requireClinicalModule("Deposits & Refunds")`, and the module's existing caps `dep.collect`/`dep.approve`. Seven corrections; the first is a migration-breaker.
 
-`encounter.journey_state` is a plain `text` column (no enum, no CHECK), and `encounter_advance_journey(_enc_id, _to)` just `UPDATE`s it. So the remittance/denial triggers can set `settled`/`denied` **directly with zero schema change** and **no ADD VALUE hazard**. Delete the "`ALTER TYPE journey ADD VALUE`" idea entirely.
+### [FIX 1 — CRITICAL: `deposit_status` is an ENUM → ADD VALUE hazard]
 
-### [FIX 3 — correct the enum discipline statement]
+`deposit_status` is a Postgres **enum** (current values incl. `collected`, `pending`, `applied`, `refunded`). Adding `held`/`partially_applied`/`transferred` via `ALTER TYPE … ADD VALUE` **and** using them in the **same migration's** `deposit_txn_apply` trigger will throw *"unsafe use of new value"* (the R1 lesson). **Split into two migrations:** (1) `ALTER TYPE deposit_status ADD VALUE IF NOT EXISTS …` for the three new values only; (2) the tables + triggers that reference them. `refunded` already exists — don't re-add. `deposit_type` (`general|encounter|…|caution`) is a **new** `CREATE TYPE` — safe same-txn.
 
-The plan's "all new enums added via `ALTER TYPE … ADD VALUE` guarded by `IF NOT EXISTS`" is wrong here. Correct model: new batch/remittance/denial status vocabularies are **their own new** `CREATE TYPE … AS ENUM` (or text CHECKs) — safe same-txn. Existing sets: claim.status = CHECK (FIX 1); journey_state = free text (FIX 2). **No** `ADD VALUE` **to any existing enum in this migration.**
+### [FIX 2 — invented roles] `rcm`/`finance`, not "RCM Manager"/"Finance Manager"
 
-### [FIX 4 — no-op / duplicate schema]
+`rcm_manager`/`finance_manager` don't exist. Map the manager-level caps to the real roles: `rcm` + `finance` for `deposit.override_caution` / `refund.approve`; `cashier`/`biller` for collect/apply/request; `cashier` (cash) + `finance` (bank/card) for `refund.execute`.
 
-`claims_officer` and `finance` **already exist** in `clinical_role` — **remove** the "adds … to the RCM role enum" step. `replaces_claim_id` **already exists** on `claim` — **don't re-add** it (use `IF NOT EXISTS` or omit). The genuinely new claim columns are `claim_sequence_no`, `batch_id`, `readiness_status`, `snapshot_locked_at`, `esign_ref` — add those.
+### [FIX 3 — caps: add to the matrix SSOT, keep the `dep.`/`refund.` convention]
 
-### [FIX 5 — no `SmartTable`/`BulkActionBar`/`ReadinessBanner` framework exists]
+Only `dep.collect` + `dep.approve` exist. Add the granular caps to `src/lib/clinical-role-matrix.ts` (the `CLINICAL_CAPABILITIES` SSOT — **not** `clinical-roles.ts`) under the existing **"Deposits & Refunds"** module, following the naming already in use: `dep.apply`, `dep.transfer`, `dep.override_caution`, `refund.request`, `refund.approve`, `refund.execute`, `credit_note.issue`, `erp.repost`. Gate routes/UI via `canPerform`/`CapGate` on these.
 
-These components were never built — every pane (Eligibility, Auth, Claims, IP) hand-rolls its table (`DCard` + `clin-table` + bucket tiles + bulk toolbar + drawer). Build the three R5 panes the **same hand-rolled way** as `ClaimsWorklistPane`/`IpAdmissionsPane` (shared `toneOf*`/`formatHalalas`/`CapGate`), or extract shared components first — don't import a framework that doesn't exist.
+### [FIX 4 — no `bill` table: deposits settle against `claim`]
 
-### [FIX 6 — guards + finance gating consistency]
+`deposit.applied_to_bill_id` is an **unconstrained UUID** and there is **no** `bill`**/**`invoice`**/**`charge` **settlement table** — the billable unit is the `claim` (R3) plus its `charge_item` lines. So the apply-to-bill wizard and `<AvailableDepositBanner>` must target the **claim** (set `applied_to_bill_id = claim.id`; reduce `available_minor`; reflect on the claim's patient-share). Same reconciliation R5's remittance posting needed — bind both to the real settlement entity.
 
-Use `requireClinicalModule('Claims & Remittance', <cap>)` (method-aware GET-permissive) on the new routes, not bare `requireSupabaseAuth + assertTenantMember`. Gate remittance **post** on the existing finance-only cap `claim.post` via `CapGate`/`canPerform` — not a separate `has_role` check.
+### [FIX 5 — panes live in `daylight/`, not a new `rcm/` dir]
 
-### [VERIFY — settlement target table]
+`src/components/clinical/rcm/` doesn't exist; all panes are in `src/components/clinical/daylight/` (alongside `ClaimsWorklistPane`, `IpAdmissionsPane`). Put the six R6 panes there. Wire them into `clinical.tsx` as tabs under a "Deposits & Wallet" node (add `TabId`s + `validateSearch`).
 
-No table literally named `bill` exists (the `paid_amount_minor` found is on `admission_request`). Confirm what `remittance_post_apply` actually settles — likely the `claim` aggregate + `charge_item` + `deposit.applied_to_bill_id`, or an OP invoice table if one exists. Bind the posting trigger to the real settlement table(s); don't `UPDATE bill.paid_amount_minor` on a table that isn't there.
+### [FIX 6 — banner embed targets] no R3 `BillingPane`
+
+There is no `BillingPane`. Embed `<AvailableDepositBanner beneficiaryId encounterId />` in the **R4** `IpAdmissionsPane`**/admission drawer** (exists) and the **OP claims/billing surface** that actually renders (`ClaimsWorklistPane` / the `finance-billing-op` tab) — not a nonexistent `BillingPane`. Defer any embed whose host pane isn't built yet.
+
+### [FIX 7 — don't re-add existing `deposit` columns]
+
+`amount_minor`, `applied_to_bill_id`, `received_by`, `requested_minor` already exist. Add only the new columns (`deposit_no`, `deposit_type`, `scope_ref_id`, `is_caution`, `available_minor`, `pos_reference`, `collected_by`, `erp_posting_ref`, `erp_posted_at`) with `IF NOT EXISTS`.
 
 ### Confirmed-good — keep (integration)
 
-- Routing: panes wired into `clinical.tsx` tabs (the plan targets it correctly this time) — confirm the tab ids match existing ones (e.g. `rcm-claims` / a finance tab), add new ones to the `TabId` union + `validateSearch`.
-- New tables `claim_batch` / `remittance` / `remittance_line` / `denial_case` / `denial_communication` with own CREATE→GRANT→RLS→POLICY; `claim_sequence_no` grouping; `denial_case` idempotent per `claim_sequence_no`.
-- Three SMs (`batch-sm`, `remittance-sm`, `denial-sm`); new blockers `BATCH_NOT_READY`, `SNAPSHOT_NOT_LOCKED`, `REMIT_UNMATCHED_LINES`, `DENIAL_OPEN` in `src/lib/rcm/validation.ts`.
-- **R1–R4 linkage:** `remittance_post_apply` advances `claim.status` (new CHECK values) + settlement + `encounter.journey_state='settled'` (free text); denial opens → `journey_state='denied'`; R3 `ClaimDrawer` gains `batch_id`/`readiness_status`/denial+remit deep links; R2 `AUTH_MISSING` still gates readiness; R4 admission settlement reflected in `IpAdmissionsPane`.
-- Bulk endpoints return `{ results: [{ id, ok, error? }] }`; interface/remittance intake stays sandboxed; D365 settlement summary is a contract-only stub (built in R7).
+- `requireClinicalModule("Deposits & Refunds", <cap>)` guard; **extend** the existing `deposit_recalc_admission_paid()` for the new statuses (function exists).
+- New tables `deposit_transaction` (immutable ledger) / `deposit_attachment` / `refund_request` (+attach) / `patient_wallet` / `wallet_txn` / `credit_note` / `erp_posting_queue` — own CREATE→GRANT→RLS→POLICY.
+- `deposit-sm.ts` / `refund-sm.ts` pure SMs; new blockers `CAUTION_CANNOT_SETTLE`, `REFUND_METHOD_MISMATCH`, `REFUND_HOLD_OUTSTANDING`, `REFUND_REASON_REQUIRED`, `DEPOSIT_ERP_UNPOSTED` in `src/lib/rcm/validation.ts`.
+- Caution guard (`deposit_apply_guard` blocks settle unless `OVERRIDE:` reason + approver); refund-method matrix (`refund_method_guard`); `credit_note_apply` → `wallet_txn` credit; every txn enqueues `erp_posting_queue` (contract only — R7 builds the connector).
+- **Linkage:** R4 admission paid via the extended recalc; R3 claim settlement (FIX 4); credit note from a non-performed billed service → wallet (R3 charge linkage); bulk endpoints return `{ results:[{id,ok,error?}] }`; shared `toneOf*`/`formatHalalas`/`CapGate`; halalas in mono.
 
 ### DoD
 
-One migration: new R5 tables (CREATE→GRANT→RLS→POLICY) + claim CHECK drop/re-add for `paid`/`part_paid`/`denied` + additive claim columns (`claim_sequence_no`/`batch_id`/`readiness_status`/ `snapshot_locked_at`/`esign_ref`; **not** `replaces_claim_id`, exists) + triggers (`claim_batch_advance_claim`, `remittance_post_apply`, `denial_case_from_response`). **No** `ALTER TYPE ADD VALUE`**; no journey_state migration; no role-enum change.** Routes under `requireClinicalModule('Claims & Remittance', …)`; post gated on `claim.post`. Panes hand-rolled into `clinical.tsx` tabs; new blockers in `validation.ts`; bulk per-row. Settlement trigger bound to the real table(s). `tsgo` green; Daylight only; halalas in mono; RTL-safe.
+**Migration 1:** `deposit_status` ADD VALUE (`held`/`partially_applied`/`transferred`, IF NOT EXISTS) only. **Migration 2:** `deposit_type` CREATE TYPE + additive `deposit` columns (IF NOT EXISTS, not the four that exist) + new tables (CREATE→GRANT→RLS→POLICY) + triggers (referencing the now-committed enum values) + extended `deposit_recalc_admission_paid`. Caps added to `clinical-role-matrix.ts` with real roles. Apply/ banner target `claim`. Panes in `daylight/`, tabs in `clinical.tsx`. New blockers in `validation.ts`; bulk per-row. `tsgo` green; Daylight only; halalas in mono; RTL-safe; no invented roles.

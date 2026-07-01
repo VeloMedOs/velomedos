@@ -3143,6 +3143,85 @@ export type Database = {
           },
         ]
       }
+      credit_note: {
+        Row: {
+          amount_minor: number
+          beneficiary_id: string
+          cn_no: string | null
+          created_at: string
+          created_by: string | null
+          encounter_id: string | null
+          erp_posted_at: string | null
+          erp_posting_ref: string | null
+          id: string
+          reason: string
+          source_charge_ref: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          wallet_txn_id: string | null
+        }
+        Insert: {
+          amount_minor: number
+          beneficiary_id: string
+          cn_no?: string | null
+          created_at?: string
+          created_by?: string | null
+          encounter_id?: string | null
+          erp_posted_at?: string | null
+          erp_posting_ref?: string | null
+          id?: string
+          reason: string
+          source_charge_ref?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          wallet_txn_id?: string | null
+        }
+        Update: {
+          amount_minor?: number
+          beneficiary_id?: string
+          cn_no?: string | null
+          created_at?: string
+          created_by?: string | null
+          encounter_id?: string | null
+          erp_posted_at?: string | null
+          erp_posting_ref?: string | null
+          id?: string
+          reason?: string
+          source_charge_ref?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          wallet_txn_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_note_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_note_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_note_wallet_txn_id_fkey"
+            columns: ["wallet_txn_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_txn"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       debug_events: {
         Row: {
           created_at: string
@@ -3449,18 +3528,27 @@ export type Database = {
           admission_request_id: string | null
           amount_minor: number
           applied_to_bill_id: string | null
+          available_minor: number
           beneficiary_id: string | null
+          collected_by: string | null
           created_at: string
           created_by: string | null
           currency: string
+          deposit_no: string | null
+          deposit_type: Database["public"]["Enums"]["deposit_type"]
           encounter_id: string | null
+          erp_posted_at: string | null
+          erp_posting_ref: string | null
           id: string
+          is_caution: boolean
           method: Database["public"]["Enums"]["deposit_method"]
           notes: string | null
+          pos_reference: string | null
           received_at: string | null
           received_by: string | null
           reference_no: string | null
           requested_minor: number
+          scope_ref_id: string | null
           status: Database["public"]["Enums"]["deposit_status"]
           tenant_id: string
           updated_at: string
@@ -3470,18 +3558,27 @@ export type Database = {
           admission_request_id?: string | null
           amount_minor?: number
           applied_to_bill_id?: string | null
+          available_minor?: number
           beneficiary_id?: string | null
+          collected_by?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string
+          deposit_no?: string | null
+          deposit_type?: Database["public"]["Enums"]["deposit_type"]
           encounter_id?: string | null
+          erp_posted_at?: string | null
+          erp_posting_ref?: string | null
           id?: string
+          is_caution?: boolean
           method?: Database["public"]["Enums"]["deposit_method"]
           notes?: string | null
+          pos_reference?: string | null
           received_at?: string | null
           received_by?: string | null
           reference_no?: string | null
           requested_minor?: number
+          scope_ref_id?: string | null
           status?: Database["public"]["Enums"]["deposit_status"]
           tenant_id: string
           updated_at?: string
@@ -3491,18 +3588,27 @@ export type Database = {
           admission_request_id?: string | null
           amount_minor?: number
           applied_to_bill_id?: string | null
+          available_minor?: number
           beneficiary_id?: string | null
+          collected_by?: string | null
           created_at?: string
           created_by?: string | null
           currency?: string
+          deposit_no?: string | null
+          deposit_type?: Database["public"]["Enums"]["deposit_type"]
           encounter_id?: string | null
+          erp_posted_at?: string | null
+          erp_posting_ref?: string | null
           id?: string
+          is_caution?: boolean
           method?: Database["public"]["Enums"]["deposit_method"]
           notes?: string | null
+          pos_reference?: string | null
           received_at?: string | null
           received_by?: string | null
           reference_no?: string | null
           requested_minor?: number
+          scope_ref_id?: string | null
           status?: Database["public"]["Enums"]["deposit_status"]
           tenant_id?: string
           updated_at?: string
@@ -3528,6 +3634,122 @@ export type Database = {
             columns: ["encounter_id"]
             isOneToOne: false
             referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deposit_attachment: {
+        Row: {
+          created_at: string
+          deposit_id: string
+          id: string
+          kind: string
+          note: string | null
+          tenant_id: string
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          deposit_id: string
+          id?: string
+          kind: string
+          note?: string | null
+          tenant_id: string
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          deposit_id?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          tenant_id?: string
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deposit_attachment_deposit_id_fkey"
+            columns: ["deposit_id"]
+            isOneToOne: false
+            referencedRelation: "deposit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deposit_transaction: {
+        Row: {
+          amount_minor: number
+          applied_to_claim_id: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          credit_note_id: string | null
+          deposit_id: string
+          erp_posted_at: string | null
+          erp_posting_ref: string | null
+          id: string
+          method: Database["public"]["Enums"]["deposit_method"] | null
+          reason: string | null
+          receipt_no: string | null
+          refund_request_id: string | null
+          tenant_id: string
+          transferred_to_deposit_id: string | null
+          txn_type: string
+        }
+        Insert: {
+          amount_minor: number
+          applied_to_claim_id?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          credit_note_id?: string | null
+          deposit_id: string
+          erp_posted_at?: string | null
+          erp_posting_ref?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["deposit_method"] | null
+          reason?: string | null
+          receipt_no?: string | null
+          refund_request_id?: string | null
+          tenant_id: string
+          transferred_to_deposit_id?: string | null
+          txn_type: string
+        }
+        Update: {
+          amount_minor?: number
+          applied_to_claim_id?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          credit_note_id?: string | null
+          deposit_id?: string
+          erp_posted_at?: string | null
+          erp_posting_ref?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["deposit_method"] | null
+          reason?: string | null
+          receipt_no?: string | null
+          refund_request_id?: string | null
+          tenant_id?: string
+          transferred_to_deposit_id?: string | null
+          txn_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deposit_transaction_deposit_id_fkey"
+            columns: ["deposit_id"]
+            isOneToOne: false
+            referencedRelation: "deposit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deposit_transaction_transferred_to_deposit_id_fkey"
+            columns: ["transferred_to_deposit_id"]
+            isOneToOne: false
+            referencedRelation: "deposit"
             referencedColumns: ["id"]
           },
         ]
@@ -4598,6 +4820,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      erp_posting_queue: {
+        Row: {
+          attempt_count: number
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          last_error: string | null
+          payload: Json
+          posted_at: string | null
+          posting_ref: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          attempt_count?: number
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          last_error?: string | null
+          payload?: Json
+          posted_at?: string | null
+          posting_ref?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          attempt_count?: number
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          last_error?: string | null
+          payload?: Json
+          posted_at?: string | null
+          posting_ref?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       incident_events: {
         Row: {
@@ -6413,6 +6680,44 @@ export type Database = {
         }
         Relationships: []
       }
+      patient_wallet: {
+        Row: {
+          balance_minor: number
+          beneficiary_id: string
+          created_at: string
+          currency: string
+          id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          balance_minor?: number
+          beneficiary_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          balance_minor?: number
+          beneficiary_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_wallet_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payer: {
         Row: {
           active: boolean
@@ -8218,6 +8523,127 @@ export type Database = {
           },
         ]
       }
+      refund_request: {
+        Row: {
+          amount_minor: number
+          approval_level: string | null
+          approval_reason: string | null
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          deposit_id: string
+          exception_override: boolean
+          executed_at: string | null
+          executed_by: string | null
+          id: string
+          original_method: Database["public"]["Enums"]["deposit_method"]
+          reason: string
+          receipt_no: string | null
+          refund_method: string
+          rejected_at: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          amount_minor: number
+          approval_level?: string | null
+          approval_reason?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deposit_id: string
+          exception_override?: boolean
+          executed_at?: string | null
+          executed_by?: string | null
+          id?: string
+          original_method: Database["public"]["Enums"]["deposit_method"]
+          reason: string
+          receipt_no?: string | null
+          refund_method: string
+          rejected_at?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          amount_minor?: number
+          approval_level?: string | null
+          approval_reason?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deposit_id?: string
+          exception_override?: boolean
+          executed_at?: string | null
+          executed_by?: string | null
+          id?: string
+          original_method?: Database["public"]["Enums"]["deposit_method"]
+          reason?: string
+          receipt_no?: string | null
+          refund_method?: string
+          rejected_at?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_request_deposit_id_fkey"
+            columns: ["deposit_id"]
+            isOneToOne: false
+            referencedRelation: "deposit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      refund_request_attachment: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          note: string | null
+          refund_request_id: string
+          tenant_id: string
+          uploaded_by: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          note?: string | null
+          refund_request_id: string
+          tenant_id: string
+          uploaded_by?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          refund_request_id?: string
+          tenant_id?: string
+          uploaded_by?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_request_attachment_refund_request_id_fkey"
+            columns: ["refund_request_id"]
+            isOneToOne: false
+            referencedRelation: "refund_request"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       remittance: {
         Row: {
           created_at: string
@@ -9704,6 +10130,53 @@ export type Database = {
           },
         ]
       }
+      wallet_txn: {
+        Row: {
+          amount_minor: number
+          created_at: string
+          created_by: string | null
+          direction: string
+          id: string
+          reason: string | null
+          source: string
+          source_ref_id: string | null
+          tenant_id: string
+          wallet_id: string
+        }
+        Insert: {
+          amount_minor: number
+          created_at?: string
+          created_by?: string | null
+          direction: string
+          id?: string
+          reason?: string | null
+          source: string
+          source_ref_id?: string | null
+          tenant_id: string
+          wallet_id: string
+        }
+        Update: {
+          amount_minor?: number
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          id?: string
+          reason?: string | null
+          source?: string
+          source_ref_id?: string | null
+          tenant_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_txn_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "patient_wallet"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       web_leads: {
         Row: {
           city: string | null
@@ -10231,6 +10704,16 @@ export type Database = {
         | "applied"
         | "refunded"
         | "cancelled"
+        | "held"
+        | "partially_applied"
+        | "transferred"
+      deposit_type:
+        | "general"
+        | "encounter"
+        | "department"
+        | "billing_group"
+        | "order_item"
+        | "caution"
       discharge_stage:
         | "none"
         | "discharge_advice"
@@ -10608,6 +11091,17 @@ export const Constants = {
         "applied",
         "refunded",
         "cancelled",
+        "held",
+        "partially_applied",
+        "transferred",
+      ],
+      deposit_type: [
+        "general",
+        "encounter",
+        "department",
+        "billing_group",
+        "order_item",
+        "caution",
       ],
       discharge_stage: [
         "none",

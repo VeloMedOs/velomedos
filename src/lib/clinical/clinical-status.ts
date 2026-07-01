@@ -195,6 +195,47 @@ export function toneOfReadiness(status: string | null | undefined): StatusTone {
   return status ? READINESS_TONE[status] ?? "muted" : "muted";
 }
 
+/* ─────────────────────── R6 · Deposits / Refunds / Wallet ───────────────── */
+
+const DEPOSIT_STATUS_TONE: Record<string, StatusTone> = {
+  requested: "amber", pending: "amber", held: "amber",
+  collected: "teal", partially_applied: "sky",
+  applied: "muted", refunded: "muted", transferred: "muted", cancelled: "muted",
+};
+export function toneOfDepositStatus(status: string): StatusTone {
+  return DEPOSIT_STATUS_TONE[status] ?? "muted";
+}
+
+const DEPOSIT_TYPE_TONE: Record<string, StatusTone> = {
+  general: "muted", encounter: "sky", department: "sky",
+  billing_group: "sky", order_item: "sky", caution: "violet",
+};
+export function toneOfDepositType(type: string): StatusTone {
+  return DEPOSIT_TYPE_TONE[type] ?? "muted";
+}
+
+const REFUND_STATUS_TONE: Record<string, StatusTone> = {
+  pending: "amber", held: "amber", approved: "sky",
+  executed: "teal", rejected: "coral",
+};
+export function toneOfRefundStatus(status: string): StatusTone {
+  return REFUND_STATUS_TONE[status] ?? "muted";
+}
+
+const REFUND_METHOD_TONE: Record<string, StatusTone> = {
+  cash: "teal", bank_transfer: "sky", card_reversal: "violet",
+};
+export function toneOfRefundMethod(m: string): StatusTone {
+  return REFUND_METHOD_TONE[m] ?? "muted";
+}
+
+const ERP_POSTING_TONE: Record<string, StatusTone> = {
+  pending: "amber", posted: "teal", failed: "coral", dead: "muted",
+};
+export function toneOfErpPosting(status: string): StatusTone {
+  return ERP_POSTING_TONE[status] ?? "muted";
+}
+
 /**
  * Presentational styles for a tone chip. Daylight tokens only.
  * Consumers apply via `style={toneStyle(tone)}` on a `<span>` / pill.
