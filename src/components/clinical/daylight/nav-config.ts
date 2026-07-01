@@ -17,9 +17,9 @@ import {
 export type NavTabId =
   | "registration" | "encounters" | "orders" | "results"
   | "coding"
-  | "rcm" | "rcm-eligibility" | "rcm-authorization" | "rcm-claims"
+  | "rcm" | "rcm-eligibility" | "rcm-activation" | "rcm-authorization" | "rcm-claims"
   | "finance-billing-op" | "finance-billing-ip" | "finance-deposits" | "finance-cash"
-  | "admin-masters"
+  | "admin-masters" | "admin-contract-masters"
   | "vbhc" | "vitals" | "billing" | "claims";
 
 export type NavItemDef = {
@@ -50,6 +50,7 @@ export const NAV_SECTIONS: NavSectionDef[] = [
     group: "RCM",
     items: [
       { module: "Registration & Eligibility", label: "Eligibility & activation", tab: "rcm-eligibility",   icon: ShieldCheck },
+      { module: "Registration & Eligibility", label: "Policy activation",        tab: "rcm-activation",    icon: BadgeCheck },
       { module: "Authorization",              label: "Authorization",            tab: "rcm-authorization", icon: BadgeCheck },
       { module: "Claims & Remittance",        label: "Claims & denials",         tab: "rcm-claims",        icon: Receipt },
     ],
@@ -74,6 +75,7 @@ export const NAV_SECTIONS: NavSectionDef[] = [
     group: "Admin",
     items: [
       { module: "Masters & Contracts",        label: "Masters & contracts",      tab: "admin-masters",      icon: Settings },
+      { module: "Masters & Contracts",        label: "Contract masters editor",  tab: "admin-contract-masters", icon: FileText },
     ],
   },
 ];
