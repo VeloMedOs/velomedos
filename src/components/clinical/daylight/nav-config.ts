@@ -90,4 +90,4 @@ export const ALL_NAV_TABS: NavTabId[] = [
 
 // Silence unused-import (icons are used in items above; FileText retained
 // for future NavItems).
-void FileText;
+// FileText is now referenced by the "Contract masters editor" item.
