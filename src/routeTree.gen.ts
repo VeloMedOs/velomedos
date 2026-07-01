@@ -262,6 +262,7 @@ import { Route as ApiClinicalV1EncountersIdAdmitRouteImport } from './routes/api
 import { Route as ApiClinicalV1EligibilityIdTransitionRouteImport } from './routes/api/clinical/v1/eligibility.$id.transition'
 import { Route as ApiClinicalV1EligibilityIdExceptionRouteImport } from './routes/api/clinical/v1/eligibility.$id.exception'
 import { Route as ApiClinicalV1DocsSlugModuleRouteImport } from './routes/api/clinical/v1/docs.$slug.$module'
+import { Route as ApiClinicalV1DepositsRefundRequestsIdRouteImport } from './routes/api/clinical/v1/deposits/refund-requests.$id'
 import { Route as ApiClinicalV1DepositsDepositsBulkRouteImport } from './routes/api/clinical/v1/deposits/deposits.bulk'
 import { Route as ApiClinicalV1DepositsDepositsAvailabilityRouteImport } from './routes/api/clinical/v1/deposits/deposits.availability'
 import { Route as ApiClinicalV1DepositsDepositsIdRouteImport } from './routes/api/clinical/v1/deposits/deposits.$id'
@@ -1720,6 +1721,12 @@ const ApiClinicalV1DocsSlugModuleRoute =
     path: '/$module',
     getParentRoute: () => ApiClinicalV1DocsSlugRoute,
   } as any)
+const ApiClinicalV1DepositsRefundRequestsIdRoute =
+  ApiClinicalV1DepositsRefundRequestsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiClinicalV1DepositsRefundRequestsRoute,
+  } as any)
 const ApiClinicalV1DepositsDepositsBulkRoute =
   ApiClinicalV1DepositsDepositsBulkRouteImport.update({
     id: '/deposits/bulk',
@@ -2219,7 +2226,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/claims/bulk': typeof ApiClinicalV1ClaimsBulkRoute
   '/api/clinical/v1/claims/worklist': typeof ApiClinicalV1ClaimsWorklistRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
-  '/api/clinical/v1/deposits/refund-requests': typeof ApiClinicalV1DepositsRefundRequestsRoute
+  '/api/clinical/v1/deposits/refund-requests': typeof ApiClinicalV1DepositsRefundRequestsRouteWithChildren
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
   '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
   '/api/clinical/v1/eligibility/$id': typeof ApiClinicalV1EligibilityIdRouteWithChildren
@@ -2293,6 +2300,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/deposits/deposits/$id': typeof ApiClinicalV1DepositsDepositsIdRouteWithChildren
   '/api/clinical/v1/deposits/deposits/availability': typeof ApiClinicalV1DepositsDepositsAvailabilityRoute
   '/api/clinical/v1/deposits/deposits/bulk': typeof ApiClinicalV1DepositsDepositsBulkRoute
+  '/api/clinical/v1/deposits/refund-requests/$id': typeof ApiClinicalV1DepositsRefundRequestsIdRoute
   '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/eligibility/$id/exception': typeof ApiClinicalV1EligibilityIdExceptionRoute
   '/api/clinical/v1/eligibility/$id/transition': typeof ApiClinicalV1EligibilityIdTransitionRoute
@@ -2529,7 +2537,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/claims/bulk': typeof ApiClinicalV1ClaimsBulkRoute
   '/api/clinical/v1/claims/worklist': typeof ApiClinicalV1ClaimsWorklistRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
-  '/api/clinical/v1/deposits/refund-requests': typeof ApiClinicalV1DepositsRefundRequestsRoute
+  '/api/clinical/v1/deposits/refund-requests': typeof ApiClinicalV1DepositsRefundRequestsRouteWithChildren
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
   '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
   '/api/clinical/v1/eligibility/$id': typeof ApiClinicalV1EligibilityIdRouteWithChildren
@@ -2603,6 +2611,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/deposits/deposits/$id': typeof ApiClinicalV1DepositsDepositsIdRouteWithChildren
   '/api/clinical/v1/deposits/deposits/availability': typeof ApiClinicalV1DepositsDepositsAvailabilityRoute
   '/api/clinical/v1/deposits/deposits/bulk': typeof ApiClinicalV1DepositsDepositsBulkRoute
+  '/api/clinical/v1/deposits/refund-requests/$id': typeof ApiClinicalV1DepositsRefundRequestsIdRoute
   '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/eligibility/$id/exception': typeof ApiClinicalV1EligibilityIdExceptionRoute
   '/api/clinical/v1/eligibility/$id/transition': typeof ApiClinicalV1EligibilityIdTransitionRoute
@@ -2843,7 +2852,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/claims/bulk': typeof ApiClinicalV1ClaimsBulkRoute
   '/api/clinical/v1/claims/worklist': typeof ApiClinicalV1ClaimsWorklistRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
-  '/api/clinical/v1/deposits/refund-requests': typeof ApiClinicalV1DepositsRefundRequestsRoute
+  '/api/clinical/v1/deposits/refund-requests': typeof ApiClinicalV1DepositsRefundRequestsRouteWithChildren
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
   '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
   '/api/clinical/v1/eligibility/$id': typeof ApiClinicalV1EligibilityIdRouteWithChildren
@@ -2917,6 +2926,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/deposits/deposits/$id': typeof ApiClinicalV1DepositsDepositsIdRouteWithChildren
   '/api/clinical/v1/deposits/deposits/availability': typeof ApiClinicalV1DepositsDepositsAvailabilityRoute
   '/api/clinical/v1/deposits/deposits/bulk': typeof ApiClinicalV1DepositsDepositsBulkRoute
+  '/api/clinical/v1/deposits/refund-requests/$id': typeof ApiClinicalV1DepositsRefundRequestsIdRoute
   '/api/clinical/v1/docs/$slug/$module': typeof ApiClinicalV1DocsSlugModuleRoute
   '/api/clinical/v1/eligibility/$id/exception': typeof ApiClinicalV1EligibilityIdExceptionRoute
   '/api/clinical/v1/eligibility/$id/transition': typeof ApiClinicalV1EligibilityIdTransitionRoute
@@ -3231,6 +3241,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/deposits/deposits/$id'
     | '/api/clinical/v1/deposits/deposits/availability'
     | '/api/clinical/v1/deposits/deposits/bulk'
+    | '/api/clinical/v1/deposits/refund-requests/$id'
     | '/api/clinical/v1/docs/$slug/$module'
     | '/api/clinical/v1/eligibility/$id/exception'
     | '/api/clinical/v1/eligibility/$id/transition'
@@ -3541,6 +3552,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/deposits/deposits/$id'
     | '/api/clinical/v1/deposits/deposits/availability'
     | '/api/clinical/v1/deposits/deposits/bulk'
+    | '/api/clinical/v1/deposits/refund-requests/$id'
     | '/api/clinical/v1/docs/$slug/$module'
     | '/api/clinical/v1/eligibility/$id/exception'
     | '/api/clinical/v1/eligibility/$id/transition'
@@ -3854,6 +3866,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/deposits/deposits/$id'
     | '/api/clinical/v1/deposits/deposits/availability'
     | '/api/clinical/v1/deposits/deposits/bulk'
+    | '/api/clinical/v1/deposits/refund-requests/$id'
     | '/api/clinical/v1/docs/$slug/$module'
     | '/api/clinical/v1/eligibility/$id/exception'
     | '/api/clinical/v1/eligibility/$id/transition'
@@ -5865,6 +5878,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1DocsSlugModuleRouteImport
       parentRoute: typeof ApiClinicalV1DocsSlugRoute
     }
+    '/api/clinical/v1/deposits/refund-requests/$id': {
+      id: '/api/clinical/v1/deposits/refund-requests/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/deposits/refund-requests/$id'
+      preLoaderRoute: typeof ApiClinicalV1DepositsRefundRequestsIdRouteImport
+      parentRoute: typeof ApiClinicalV1DepositsRefundRequestsRoute
+    }
     '/api/clinical/v1/deposits/deposits/bulk': {
       id: '/api/clinical/v1/deposits/deposits/bulk'
       path: '/deposits/bulk'
@@ -6667,6 +6687,21 @@ const ApiClinicalV1ClaimsRouteChildren: ApiClinicalV1ClaimsRouteChildren = {
 const ApiClinicalV1ClaimsRouteWithChildren =
   ApiClinicalV1ClaimsRoute._addFileChildren(ApiClinicalV1ClaimsRouteChildren)
 
+interface ApiClinicalV1DepositsRefundRequestsRouteChildren {
+  ApiClinicalV1DepositsRefundRequestsIdRoute: typeof ApiClinicalV1DepositsRefundRequestsIdRoute
+}
+
+const ApiClinicalV1DepositsRefundRequestsRouteChildren: ApiClinicalV1DepositsRefundRequestsRouteChildren =
+  {
+    ApiClinicalV1DepositsRefundRequestsIdRoute:
+      ApiClinicalV1DepositsRefundRequestsIdRoute,
+  }
+
+const ApiClinicalV1DepositsRefundRequestsRouteWithChildren =
+  ApiClinicalV1DepositsRefundRequestsRoute._addFileChildren(
+    ApiClinicalV1DepositsRefundRequestsRouteChildren,
+  )
+
 interface ApiClinicalV1DepositsDepositsIdRouteChildren {
   ApiClinicalV1DepositsDepositsIdApplyRoute: typeof ApiClinicalV1DepositsDepositsIdApplyRoute
   ApiClinicalV1DepositsDepositsIdAttachmentsRoute: typeof ApiClinicalV1DepositsDepositsIdAttachmentsRoute
@@ -6689,7 +6724,7 @@ const ApiClinicalV1DepositsDepositsIdRouteWithChildren =
   )
 
 interface ApiClinicalV1DepositsRouteChildren {
-  ApiClinicalV1DepositsRefundRequestsRoute: typeof ApiClinicalV1DepositsRefundRequestsRoute
+  ApiClinicalV1DepositsRefundRequestsRoute: typeof ApiClinicalV1DepositsRefundRequestsRouteWithChildren
   ApiClinicalV1DepositsDepositsIdRoute: typeof ApiClinicalV1DepositsDepositsIdRouteWithChildren
   ApiClinicalV1DepositsDepositsAvailabilityRoute: typeof ApiClinicalV1DepositsDepositsAvailabilityRoute
   ApiClinicalV1DepositsDepositsBulkRoute: typeof ApiClinicalV1DepositsDepositsBulkRoute
@@ -6697,7 +6732,7 @@ interface ApiClinicalV1DepositsRouteChildren {
 
 const ApiClinicalV1DepositsRouteChildren: ApiClinicalV1DepositsRouteChildren = {
   ApiClinicalV1DepositsRefundRequestsRoute:
-    ApiClinicalV1DepositsRefundRequestsRoute,
+    ApiClinicalV1DepositsRefundRequestsRouteWithChildren,
   ApiClinicalV1DepositsDepositsIdRoute:
     ApiClinicalV1DepositsDepositsIdRouteWithChildren,
   ApiClinicalV1DepositsDepositsAvailabilityRoute:
