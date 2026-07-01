@@ -99,15 +99,14 @@ function ClinicalWorkspace() {
       {tab === "finance-cash"        && <CashPane />}
       {tab === "billing"             && <BillingOpPane />}
       {tab === "admin-masters"       && <ContractsPane role={me.clinicalRole} />}
-      {tab === "orders"              && <AdminMastersPane />}
-      {tab === "results"             && <AdminMastersPane />}
+      {tab === "orders"              && <VitalsTrendPane />}
+      {tab === "results"             && <VitalsTrendPane />}
       {tab === "vitals"              && <VitalsTrendPane />}
       {tab === "vbhc"                && (
         <div className="px-7 pt-6 pb-14 mx-auto" style={{ maxWidth: 1200, width: "100%" }}>
           <OutcomesPane />
         </div>
       )}
-      {tab === "vitals" && <VbhcPlaceholderPane />}
     </DaylightShell>
   );
 }
