@@ -224,6 +224,7 @@ import { Route as ApiClinicalV1MastersDrugsIdRouteImport } from './routes/api/cl
 import { Route as ApiClinicalV1MastersDrgBaseRatesIdRouteImport } from './routes/api/clinical/v1/masters/drg-base-rates.$id'
 import { Route as ApiClinicalV1MastersDrgAdjustmentsIdRouteImport } from './routes/api/clinical/v1/masters/drg-adjustments.$id'
 import { Route as ApiClinicalV1MastersContractChangeRequestsIdRouteImport } from './routes/api/clinical/v1/masters/contract-change-requests.$id'
+import { Route as ApiClinicalV1MastersApprovalRulesIdRouteImport } from './routes/api/clinical/v1/masters/approval-rules.$id'
 import { Route as ApiClinicalV1EncountersIdVitalsRouteImport } from './routes/api/clinical/v1/encounters.$id.vitals'
 import { Route as ApiClinicalV1EncountersIdSupportingInfoRouteImport } from './routes/api/clinical/v1/encounters.$id.supporting-info'
 import { Route as ApiClinicalV1EncountersIdPrescriptionsRouteImport } from './routes/api/clinical/v1/encounters.$id.prescriptions'
@@ -1455,6 +1456,12 @@ const ApiClinicalV1MastersContractChangeRequestsIdRoute =
     path: '/$id',
     getParentRoute: () => ApiClinicalV1MastersContractChangeRequestsRoute,
   } as any)
+const ApiClinicalV1MastersApprovalRulesIdRoute =
+  ApiClinicalV1MastersApprovalRulesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiClinicalV1MastersApprovalRulesRoute,
+  } as any)
 const ApiClinicalV1EncountersIdVitalsRoute =
   ApiClinicalV1EncountersIdVitalsRouteImport.update({
     id: '/vitals',
@@ -1940,7 +1947,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/eligibility/check': typeof ApiClinicalV1EligibilityCheckRoute
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
-  '/api/clinical/v1/masters/approval-rules': typeof ApiClinicalV1MastersApprovalRulesRoute
+  '/api/clinical/v1/masters/approval-rules': typeof ApiClinicalV1MastersApprovalRulesRouteWithChildren
   '/api/clinical/v1/masters/contract-change-requests': typeof ApiClinicalV1MastersContractChangeRequestsRouteWithChildren
   '/api/clinical/v1/masters/drg-adjustments': typeof ApiClinicalV1MastersDrgAdjustmentsRouteWithChildren
   '/api/clinical/v1/masters/drg-base-rates': typeof ApiClinicalV1MastersDrgBaseRatesRouteWithChildren
@@ -2007,6 +2014,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/encounters/$id/prescriptions': typeof ApiClinicalV1EncountersIdPrescriptionsRoute
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
+  '/api/clinical/v1/masters/approval-rules/$id': typeof ApiClinicalV1MastersApprovalRulesIdRoute
   '/api/clinical/v1/masters/contract-change-requests/$id': typeof ApiClinicalV1MastersContractChangeRequestsIdRouteWithChildren
   '/api/clinical/v1/masters/drg-adjustments/$id': typeof ApiClinicalV1MastersDrgAdjustmentsIdRoute
   '/api/clinical/v1/masters/drg-base-rates/$id': typeof ApiClinicalV1MastersDrgBaseRatesIdRoute
@@ -2210,7 +2218,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/eligibility/check': typeof ApiClinicalV1EligibilityCheckRoute
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
-  '/api/clinical/v1/masters/approval-rules': typeof ApiClinicalV1MastersApprovalRulesRoute
+  '/api/clinical/v1/masters/approval-rules': typeof ApiClinicalV1MastersApprovalRulesRouteWithChildren
   '/api/clinical/v1/masters/contract-change-requests': typeof ApiClinicalV1MastersContractChangeRequestsRouteWithChildren
   '/api/clinical/v1/masters/drg-adjustments': typeof ApiClinicalV1MastersDrgAdjustmentsRouteWithChildren
   '/api/clinical/v1/masters/drg-base-rates': typeof ApiClinicalV1MastersDrgBaseRatesRouteWithChildren
@@ -2277,6 +2285,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/encounters/$id/prescriptions': typeof ApiClinicalV1EncountersIdPrescriptionsRoute
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
+  '/api/clinical/v1/masters/approval-rules/$id': typeof ApiClinicalV1MastersApprovalRulesIdRoute
   '/api/clinical/v1/masters/contract-change-requests/$id': typeof ApiClinicalV1MastersContractChangeRequestsIdRouteWithChildren
   '/api/clinical/v1/masters/drg-adjustments/$id': typeof ApiClinicalV1MastersDrgAdjustmentsIdRoute
   '/api/clinical/v1/masters/drg-base-rates/$id': typeof ApiClinicalV1MastersDrgBaseRatesIdRoute
@@ -2484,7 +2493,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/eligibility/check': typeof ApiClinicalV1EligibilityCheckRoute
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
-  '/api/clinical/v1/masters/approval-rules': typeof ApiClinicalV1MastersApprovalRulesRoute
+  '/api/clinical/v1/masters/approval-rules': typeof ApiClinicalV1MastersApprovalRulesRouteWithChildren
   '/api/clinical/v1/masters/contract-change-requests': typeof ApiClinicalV1MastersContractChangeRequestsRouteWithChildren
   '/api/clinical/v1/masters/drg-adjustments': typeof ApiClinicalV1MastersDrgAdjustmentsRouteWithChildren
   '/api/clinical/v1/masters/drg-base-rates': typeof ApiClinicalV1MastersDrgBaseRatesRouteWithChildren
@@ -2551,6 +2560,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/encounters/$id/prescriptions': typeof ApiClinicalV1EncountersIdPrescriptionsRoute
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
+  '/api/clinical/v1/masters/approval-rules/$id': typeof ApiClinicalV1MastersApprovalRulesIdRoute
   '/api/clinical/v1/masters/contract-change-requests/$id': typeof ApiClinicalV1MastersContractChangeRequestsIdRouteWithChildren
   '/api/clinical/v1/masters/drg-adjustments/$id': typeof ApiClinicalV1MastersDrgAdjustmentsIdRoute
   '/api/clinical/v1/masters/drg-base-rates/$id': typeof ApiClinicalV1MastersDrgBaseRatesIdRoute
@@ -2825,6 +2835,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/prescriptions'
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
+    | '/api/clinical/v1/masters/approval-rules/$id'
     | '/api/clinical/v1/masters/contract-change-requests/$id'
     | '/api/clinical/v1/masters/drg-adjustments/$id'
     | '/api/clinical/v1/masters/drg-base-rates/$id'
@@ -3095,6 +3106,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/prescriptions'
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
+    | '/api/clinical/v1/masters/approval-rules/$id'
     | '/api/clinical/v1/masters/contract-change-requests/$id'
     | '/api/clinical/v1/masters/drg-adjustments/$id'
     | '/api/clinical/v1/masters/drg-base-rates/$id'
@@ -3368,6 +3380,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/prescriptions'
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
+    | '/api/clinical/v1/masters/approval-rules/$id'
     | '/api/clinical/v1/masters/contract-change-requests/$id'
     | '/api/clinical/v1/masters/drg-adjustments/$id'
     | '/api/clinical/v1/masters/drg-base-rates/$id'
@@ -3522,7 +3535,7 @@ export interface RootRouteChildren {
   ApiClinicalV1CatalogSearchRoute: typeof ApiClinicalV1CatalogSearchRoute
   ApiClinicalV1CoverageIdRoute: typeof ApiClinicalV1CoverageIdRoute
   ApiClinicalV1DiagnosesIdRoute: typeof ApiClinicalV1DiagnosesIdRoute
-  ApiClinicalV1MastersApprovalRulesRoute: typeof ApiClinicalV1MastersApprovalRulesRoute
+  ApiClinicalV1MastersApprovalRulesRoute: typeof ApiClinicalV1MastersApprovalRulesRouteWithChildren
   ApiClinicalV1MastersContractChangeRequestsRoute: typeof ApiClinicalV1MastersContractChangeRequestsRouteWithChildren
   ApiClinicalV1MastersDrgAdjustmentsRoute: typeof ApiClinicalV1MastersDrgAdjustmentsRouteWithChildren
   ApiClinicalV1MastersDrgBaseRatesRoute: typeof ApiClinicalV1MastersDrgBaseRatesRouteWithChildren
@@ -5071,6 +5084,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1MastersContractChangeRequestsIdRouteImport
       parentRoute: typeof ApiClinicalV1MastersContractChangeRequestsRoute
     }
+    '/api/clinical/v1/masters/approval-rules/$id': {
+      id: '/api/clinical/v1/masters/approval-rules/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/masters/approval-rules/$id'
+      preLoaderRoute: typeof ApiClinicalV1MastersApprovalRulesIdRouteImport
+      parentRoute: typeof ApiClinicalV1MastersApprovalRulesRoute
+    }
     '/api/clinical/v1/encounters/$id/vitals': {
       id: '/api/clinical/v1/encounters/$id/vitals'
       path: '/vitals'
@@ -6135,6 +6155,21 @@ const ApiClinicalV1AuthRequestsRouteWithChildren =
     ApiClinicalV1AuthRequestsRouteChildren,
   )
 
+interface ApiClinicalV1MastersApprovalRulesRouteChildren {
+  ApiClinicalV1MastersApprovalRulesIdRoute: typeof ApiClinicalV1MastersApprovalRulesIdRoute
+}
+
+const ApiClinicalV1MastersApprovalRulesRouteChildren: ApiClinicalV1MastersApprovalRulesRouteChildren =
+  {
+    ApiClinicalV1MastersApprovalRulesIdRoute:
+      ApiClinicalV1MastersApprovalRulesIdRoute,
+  }
+
+const ApiClinicalV1MastersApprovalRulesRouteWithChildren =
+  ApiClinicalV1MastersApprovalRulesRoute._addFileChildren(
+    ApiClinicalV1MastersApprovalRulesRouteChildren,
+  )
+
 interface ApiClinicalV1MastersContractChangeRequestsIdRouteChildren {
   ApiClinicalV1MastersContractChangeRequestsIdApplyRoute: typeof ApiClinicalV1MastersContractChangeRequestsIdApplyRoute
   ApiClinicalV1MastersContractChangeRequestsIdApproveRoute: typeof ApiClinicalV1MastersContractChangeRequestsIdApproveRoute
@@ -6614,7 +6649,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1CoverageIdRoute: ApiClinicalV1CoverageIdRoute,
   ApiClinicalV1DiagnosesIdRoute: ApiClinicalV1DiagnosesIdRoute,
   ApiClinicalV1MastersApprovalRulesRoute:
-    ApiClinicalV1MastersApprovalRulesRoute,
+    ApiClinicalV1MastersApprovalRulesRouteWithChildren,
   ApiClinicalV1MastersContractChangeRequestsRoute:
     ApiClinicalV1MastersContractChangeRequestsRouteWithChildren,
   ApiClinicalV1MastersDrgAdjustmentsRoute:
