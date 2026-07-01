@@ -18,7 +18,7 @@ import { ContractMastersPane } from "@/components/clinical/daylight/ContractMast
 import { ClaimsWorklistPane } from "@/components/clinical/daylight/ClaimsWorklistPane";
 import {
   RcmHubPane, AuthorizationPane,
-  BillingOpPane, BillingIpPane, DepositsPane, CashPane, ClaimsDenialsPane,
+  BillingOpPane, BillingIpPane, DepositsPane, CashPane,
   VitalsTrendPane,
 } from "@/components/clinical/daylight/RcmStubs";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
