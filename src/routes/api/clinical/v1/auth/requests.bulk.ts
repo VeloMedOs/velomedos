@@ -59,7 +59,7 @@ export const Route = createFileRoute("/api/clinical/v1/auth/requests/bulk")({
         }
       }
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "auth_request.bulk",
-        "authorization_request", null, { action, count: ids.length, failed: results.filter((r) => !r.ok).length });
+        "authorization_request", undefined, { action, count: ids.length, failed: results.filter((r) => !r.ok).length });
       return jsonData({ data: results });
     },
   } },
