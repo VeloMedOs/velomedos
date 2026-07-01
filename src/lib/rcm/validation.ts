@@ -272,3 +272,66 @@ export function validateNoOpenDenial(
     ? [{ code: "DENIAL_OPEN", message: `${open.length} denial case(s) still open on this claim.` }]
     : [];
 }
+
+/* ---------------------------------------------------------------------------
+ * R6 gates — deposit / refund readiness helpers.
+ * ------------------------------------------------------------------------- */
+import { defaultRefundMethod } from "./refund-sm";
+
+export type R6Blocker =
+  | "CAUTION_CANNOT_SETTLE" | "REFUND_METHOD_MISMATCH"
+  | "REFUND_HOLD_OUTSTANDING" | "REFUND_REASON_REQUIRED"
+  | "DEPOSIT_ERP_UNPOSTED" | "DEPOSIT_OVERDRAW";
+
+export type R6Issue = { code: R6Blocker; message: string };
+
+/** Apply-to-bill guard: caution deposits require an approved override. */
+export function validateDepositApply(deposit: {
+  is_caution?: boolean; deposit_no?: string | null; available_minor?: number | null;
+}, txn: { amount_minor: number; reason?: string | null; approved_by?: string | null }): R6Issue[] {
+  const issues: R6Issue[] = [];
+  if (deposit.is_caution) {
+    const okOverride = txn.approved_by && txn.reason && txn.reason.startsWith("OVERRIDE:");
+    if (!okOverride) {
+      issues.push({
+        code: "CAUTION_CANNOT_SETTLE",
+        message: `Caution deposit ${deposit.deposit_no ?? ""} cannot settle a bill without an approved override.`,
+      });
+    }
+  }
+  if ((deposit.available_minor ?? 0) < txn.amount_minor) {
+    issues.push({ code: "DEPOSIT_OVERDRAW", message: `Deposit balance is insufficient for this apply.` });
+  }
+  return issues;
+}
+
+/** Refund-method rule + mandatory reason on exception override. */
+export function validateRefundRequest(input: {
+  original_method: string; refund_method: string;
+  exception_override?: boolean; approval_reason?: string | null;
+  reason?: string | null;
+}): R6Issue[] {
+  const issues: R6Issue[] = [];
+  if (!input.reason || input.reason.length < 3) {
+    issues.push({ code: "REFUND_REASON_REQUIRED", message: "Refund reason is mandatory." });
+  }
+  const expected = defaultRefundMethod(input.original_method);
+  if (expected !== input.refund_method && !input.exception_override) {
+    issues.push({
+      code: "REFUND_METHOD_MISMATCH",
+      message: `Refund method (${input.refund_method}) differs from original (${input.original_method}). Approved exception required.`,
+    });
+  }
+  if (input.exception_override && (!input.approval_reason || input.approval_reason.length < 3)) {
+    issues.push({ code: "REFUND_REASON_REQUIRED", message: "Exception override requires an approval reason." });
+  }
+  return issues;
+}
+
+/** Deny closing a deposit while any ERP row is still pending/failed. */
+export function validateDepositErpPosted(queue: Array<{ status: string }>): R6Issue[] {
+  const open = queue.filter((r) => r.status === "pending" || r.status === "failed");
+  return open.length
+    ? [{ code: "DEPOSIT_ERP_UNPOSTED", message: `${open.length} ERP posting(s) still pending/failed.` }]
+    : [];
+}
