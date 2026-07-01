@@ -106,13 +106,19 @@ export const ClinicalAPI = {
     clinicalFetch<{ data: { current: any | null; history: any[] } }>(`/api/clinical/v1/encounters/${encId}/drg`),
   checkEligibility: (body: { beneficiary_id: string; coverage_id?: string | null; encounter_id?: string | null }) =>
     clinicalFetch<{ data: any; sandbox?: boolean }>(`/api/clinical/v1/eligibility/check`, { method: "POST", body }),
-  listEligibility: (p?: { encounter_id?: string; beneficiary_id?: string }) => {
+  listEligibility: (p?: { encounter_id?: string; beneficiary_id?: string; status?: string; financial_type?: string; limit?: number; offset?: number }) => {
     const u = new URLSearchParams();
-    if (p?.encounter_id) u.set("encounter_id", p.encounter_id);
-    if (p?.beneficiary_id) u.set("beneficiary_id", p.beneficiary_id);
+    Object.entries(p ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") u.set(k, String(v)); });
     const s = u.toString();
-    return clinicalFetch<{ data: any[] }>(`/api/clinical/v1/eligibility${s ? `?${s}` : ""}`);
+    return clinicalFetch<{ data: any[]; pagination?: { total: number } }>(`/api/clinical/v1/eligibility${s ? `?${s}` : ""}`);
   },
+  transitionEligibility: (id: string, event:
+    | "exception.approve" | "exception.reject"
+    | "activation.request" | "activation.complete" | "activation.reject"
+    | "select.self_pay" | "cancel",
+    reason?: string,
+  ) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/eligibility/${id}/transition`, { method: "POST", body: { event, reason } }),
   admit: (encId: string, body: unknown) =>
     clinicalFetch<{ data: any }>(`/api/clinical/v1/encounters/${encId}/admit`, { method: "POST", body }),
   discharge: (encId: string, body: unknown) =>
@@ -149,6 +155,32 @@ export const ClinicalAPI = {
       drg: { required: boolean; present: boolean; grouper_version_ok: boolean; los_ok: boolean; achi_ok: boolean; pdx_match_ok: boolean };
       rcm: { eligibility_ok: boolean; executed_only_ok: boolean; snapshot_locked: boolean; auth_ok: boolean };
     }>(`/api/clinical/v1/claims/${id}/completeness`),
+
+  // R1 — Policy activation & contract change requests
+  listPolicyActivations: (p?: { status?: string; visit_eligibility_id?: string; limit?: number; offset?: number }) => {
+    const q = new URLSearchParams();
+    Object.entries(p ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });
+    const qs = q.toString();
+    return clinicalFetch<{ data: any[]; pagination?: { total: number } }>(
+      `/api/clinical/v1/policy-activations${qs ? `?${qs}` : ""}`,
+    );
+  },
+  activatePolicy: (id: string, body: unknown = {}) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/policy-activations/${id}/activate`, { method: "POST", body }),
+  listContractChangeRequests: (p?: { status?: string; target_table?: string; target_id?: string }) => {
+    const q = new URLSearchParams();
+    Object.entries(p ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });
+    const qs = q.toString();
+    return clinicalFetch<{ data: any[]; pagination?: { total: number } }>(
+      `/api/clinical/v1/masters/contract-change-requests${qs ? `?${qs}` : ""}`,
+    );
+  },
+  approveContractChange: (id: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/masters/contract-change-requests/${id}/approve`, { method: "POST", body: {} }),
+  applyContractChange: (id: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/masters/contract-change-requests/${id}/apply`, { method: "POST", body: {} }),
+  listPayerAgreements: () =>
+    clinicalFetch<{ data: any[] }>(`/api/clinical/v1/masters/payer-agreements`),
 
   // Masters
   listMaster: (resource: string) =>

@@ -1,24 +1,30 @@
 /**
- * Map a tenant_members.clinical_role value to the default HIS tab on
- * /clinical so demo / role-based sign-ins land directly on the section
- * that role actually works in.
+ * Map a tenant_members.clinical_role value to the default Daylight tab on
+ * /clinical so demo / role-based sign-ins land directly on the worklist that
+ * role actually works in. Extended for RCM/Finance panes (Chunk R1 nav).
  */
-export type ClinicalTab = "registration" | "encounters" | "coding" | "claims" | "vbhc";
+import type { NavTabId } from "@/components/clinical/daylight/nav-config";
+
+export type ClinicalTab = NavTabId;
 
 const MAP: Record<string, ClinicalTab> = {
-  registrar: "registration",
-  physician: "encounters",
-  nurse: "encounters",
-  case_manager: "encounters",
-  tenant_admin: "encounters",
-  coder: "coding",
-  biller: "claims",
-  cashier: "claims",
-  rcm: "claims",
-  claims_officer: "claims",
-  approval_officer: "claims",
-  finance: "claims",
-  read_only: "encounters",
+  registrar:        "registration",
+  front_office:     "registration",
+  physician:        "encounters",
+  nurse:            "encounters",
+  lab_tech:         "encounters",
+  radiologist:      "encounters",
+  pharmacist:       "encounters",
+  case_manager:     "encounters",
+  tenant_admin:     "admin-masters",
+  coder:            "coding",
+  biller:           "finance-billing-op",
+  cashier:          "finance-billing-op",
+  rcm:              "rcm",
+  claims_officer:   "rcm-claims",
+  approval_officer: "rcm-authorization",
+  finance:          "finance-deposits",
+  read_only:        "encounters",
 };
 
 export function tabForClinicalRole(role: string | null | undefined): ClinicalTab {
