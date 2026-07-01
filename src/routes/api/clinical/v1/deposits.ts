@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { clinicalAudit, preflight, requireClinicalModule, serviceClient } from "@/lib/api-clinical";
-import { envelope, jsonData, parseBody, assertMasterOwnership } from "../_helpers";
+import { envelope, jsonData, parseBody, assertMasterOwnership } from "./_helpers";
 import { bucketOfDeposit } from "@/lib/rcm/deposit-sm";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
