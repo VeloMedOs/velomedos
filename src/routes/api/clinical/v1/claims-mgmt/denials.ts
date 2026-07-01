@@ -19,8 +19,8 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/denials")({
       let sel = db.from("denial_case").select("*").eq("tenant_id", auth.ctx.tenantId)
         .order("updated_at", { ascending: false }).limit(limit);
       if (status) sel = sel.eq("status", status);
-      if (category) sel = sel.eq("category", category);
-      if (q) sel = sel.or(`case_no.ilike.%${q}%,denial_code.ilike.%${q}%`);
+      if (category) sel = sel.eq("denial_category", category);
+      if (q) sel = sel.or(`claim_sequence_no.ilike.%${q}%`);
       const { data, error } = await sel;
       if (error) return envelope(error.message, "db_error", 500);
       const { data: all } = await db.from("denial_case").select("status").eq("tenant_id", auth.ctx.tenantId);
