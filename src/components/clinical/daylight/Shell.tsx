@@ -1,9 +1,13 @@
 import type { ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, UserPlus, Stethoscope, FileText, Receipt, Activity, ClipboardList, FlaskConical, Wallet, HeartPulse, type LucideIcon } from "lucide-react";
+import { Search, type LucideIcon } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { NAV_SECTIONS, type NavTabId } from "./nav-config";
+import { canViewModule, isReadOnly, type ClinicalRole } from "@/lib/clinical-role-matrix";
+
+export type TabId = NavTabId;
 
 /**
  * Clinical Daylight shell — sidebar + top bar + body.
@@ -13,12 +17,14 @@ import { useQueryClient } from "@tanstack/react-query";
 export function DaylightShell({
   tab,
   onTab,
+  role,
   roleLabel,
   initials,
   children,
 }: {
   tab: TabId;
   onTab: (t: TabId) => void;
+  role: ClinicalRole | null;
   roleLabel: string;
   initials: string;
   children: ReactNode;
@@ -30,6 +36,7 @@ export function DaylightShell({
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   }
+  const viewOnly = isReadOnly(role);
   return (
     <div className="clinical-shell min-h-screen">
       <div className="grid" style={{ gridTemplateColumns: "232px 1fr", minHeight: "100vh" }}>
@@ -39,23 +46,25 @@ export function DaylightShell({
             <span className="font-bold text-[17px]" style={{ color: "var(--clin-ink)" }}>VeloMed<span style={{ color: "var(--teal)" }}> HIS</span></span>
           </Link>
 
-          <NavGroup label="Clinical">
-            <NavItem id="registration" tab={tab} onTab={onTab} icon={UserPlus} label="Registration" />
-            <NavItem id="encounters"   tab={tab} onTab={onTab} icon={Stethoscope} label="Encounter" />
-            <NavItem id="orders"       tab={tab} onTab={onTab} icon={ClipboardList} label="Orders" disabled />
-            <NavItem id="results"      tab={tab} onTab={onTab} icon={FlaskConical} label="Results" disabled />
-          </NavGroup>
-
-          <NavGroup label="Revenue">
-            <NavItem id="coding" tab={tab} onTab={onTab} icon={FileText} label="Coding · DRG" />
-            <NavItem id="claims" tab={tab} onTab={onTab} icon={Receipt}  label="Claims" />
-            <NavItem id="billing" tab={tab} onTab={onTab} icon={Wallet}  label="Billing" disabled />
-          </NavGroup>
-
-          <NavGroup label="Outcomes">
-            <NavItem id="vbhc" tab={tab} onTab={onTab} icon={HeartPulse} label="VBHC · PROMs" />
-            <NavItem id="vitals" tab={tab} onTab={onTab} icon={Activity} label="Vitals trend" disabled />
-          </NavGroup>
+          {NAV_SECTIONS.map((section) => {
+            const visible = section.items.filter((it) => canViewModule(role, it.module));
+            if (visible.length === 0) return null;
+            return (
+              <NavGroup key={section.group} label={section.group}>
+                {visible.map((it) => (
+                  <NavItem
+                    key={it.tab}
+                    id={it.tab}
+                    tab={tab}
+                    onTab={onTab}
+                    icon={it.icon}
+                    label={it.label}
+                    disabled={it.disabled}
+                  />
+                ))}
+              </NavGroup>
+            );
+          })}
         </aside>
 
         <div className="flex flex-col min-w-0">
@@ -69,6 +78,12 @@ export function DaylightShell({
             </label>
             <div className="flex-1" />
             <span className="mono text-[11px] px-2.5 py-1.5 rounded-md cursor-pointer" style={{ color: "var(--clin-muted)", border: "1px solid var(--clin-line-strong)" }}>ع · EN</span>
+            {viewOnly && (
+              <span className="mono text-[11px] px-2.5 py-1.5 rounded-md"
+                    style={{ color: "var(--clin-muted)", background: "var(--clin-sunken)", border: "1px solid var(--hairline)" }}>
+                View only
+              </span>
+            )}
             <span className="mono text-[11px] px-2.5 py-1.5 rounded-md" style={{ color: "var(--teal)", background: "var(--clin-teal-tint)" }}>{roleLabel}</span>
             <button onClick={signOut} className="size-9 rounded-full text-white font-semibold text-[13px] grid place-items-center" style={{ background: "linear-gradient(135deg,#0E9C86,#2F6FED)" }} aria-label="Sign out · account">
               {initials}
@@ -81,8 +96,6 @@ export function DaylightShell({
     </div>
   );
 }
-
-export type TabId = "registration" | "encounters" | "coding" | "claims" | "vbhc" | "orders" | "results" | "billing" | "vitals";
 
 function NavGroup({ label, children }: { label: string; children: ReactNode }) {
   return (
