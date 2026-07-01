@@ -49,7 +49,6 @@ export function bucketOfEligibility(status: EligibilityStatus | string): Eligibi
     case "checking":
     case "exception_approved":
     case "activation_pending":
-    case "submitted" as EligibilityStatus:
       return "in_flight";
     case "eligible":
     case "activated":
