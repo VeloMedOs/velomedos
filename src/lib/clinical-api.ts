@@ -368,3 +368,87 @@ export const ClinicalAPI = {
       `/api/clinical/v1/ip/daily-charges`, { method: "POST", body: { run_date } },
     ),
 };
+
+/* ─────────────────────── R6 · Deposits / Refunds / Wallet ───────────────── */
+
+const qs = (params?: Record<string, unknown>) => {
+  const q = new URLSearchParams();
+  Object.entries(params ?? {}).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== "") q.set(k, String(v)); });
+  const s = q.toString();
+  return s ? `?${s}` : "";
+};
+
+export const depositsApi = {
+  list: (params?: { bucket?: string; status?: string; type?: string; caution?: string; beneficiary_id?: string; encounter_id?: string; q?: string; limit?: number; offset?: number }) =>
+    clinicalFetch<{ data: any[]; counts: Record<string, number>; pagination: { total: number; limit: number; offset: number } }>(
+      `/api/clinical/v1/deposits${qs(params)}`,
+    ),
+  get: (id: string) =>
+    clinicalFetch<{ data: { row: any; txns: any[]; attachments: any[] } }>(`/api/clinical/v1/deposits/${id}`),
+  create: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits`, { method: "POST", body }),
+  patch: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/${id}`, { method: "PATCH", body }),
+  apply: (id: string, body: { amount_minor: number; claim_id: string; reason?: string; receipt_no?: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/${id}/apply`, { method: "POST", body }),
+  transfer: (id: string, body: { amount_minor: number; target_encounter_id?: string; target_beneficiary_id?: string; reason: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/${id}/transfer`, { method: "POST", body }),
+  addAttachment: (id: string, body: { kind: string; url: string; note?: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/${id}/attachments`, { method: "POST", body }),
+  bulk: (action: "approve" | "release_hold" | "erp_repost" | "cancel", ids: string[], reason?: string) =>
+    clinicalFetch<{ data: Array<{ id: string; ok: boolean; error?: string }> }>(
+      `/api/clinical/v1/deposits/bulk`, { method: "POST", body: { action, ids, reason } },
+    ),
+  availability: (beneficiaryId: string, encounterId?: string | null) =>
+    clinicalFetch<{ data: { available_minor: number; deposits: any[] } }>(
+      `/api/clinical/v1/deposits/availability${qs({ beneficiary_id: beneficiaryId, encounter_id: encounterId ?? undefined })}`,
+    ),
+};
+
+export const refundsApi = {
+  list: (params?: { bucket?: string; status?: string; deposit_id?: string; limit?: number; offset?: number }) =>
+    clinicalFetch<{ data: any[]; counts: Record<string, number>; pagination: { total: number; limit: number; offset: number } }>(
+      `/api/clinical/v1/deposits/refund-requests${qs(params)}`,
+    ),
+  get: (id: string) =>
+    clinicalFetch<{ data: { row: any; attachments: any[] } }>(`/api/clinical/v1/deposits/refund-requests/${id}`),
+  create: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/refund-requests`, { method: "POST", body }),
+  approve: (id: string, body: { approval_reason?: string; approval_level?: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/refund-requests/${id}/approve`, { method: "POST", body }),
+  reject: (id: string, body: { reason: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/refund-requests/${id}/reject`, { method: "POST", body }),
+  execute: (id: string, body: { receipt_no?: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/refund-requests/${id}/execute`, { method: "POST", body }),
+  bulk: (action: "approve" | "reject" | "execute", ids: string[], reason?: string) =>
+    clinicalFetch<{ data: Array<{ id: string; ok: boolean; error?: string }> }>(
+      `/api/clinical/v1/deposits/refund-requests/bulk`, { method: "POST", body: { action, ids, reason } },
+    ),
+};
+
+export const walletApi = {
+  get: (beneficiaryId: string) =>
+    clinicalFetch<{ data: { wallet: any | null; txns: any[] } }>(`/api/clinical/v1/deposits/wallets/${beneficiaryId}`),
+};
+
+export const creditNotesApi = {
+  list: (params?: { beneficiary_id?: string; encounter_id?: string; status?: string; limit?: number; offset?: number }) =>
+    clinicalFetch<{ data: any[]; pagination: { total: number; limit: number; offset: number } }>(
+      `/api/clinical/v1/deposits/credit-notes${qs(params)}`,
+    ),
+  create: (body: { beneficiary_id: string; encounter_id?: string; amount_minor: number; reason: string; source_charge_ref?: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/credit-notes`, { method: "POST", body }),
+  void: (id: string, reason: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/deposits/credit-notes/${id}/void`, { method: "POST", body: { reason } }),
+};
+
+export const erpPostingApi = {
+  list: (params?: { status?: string; entity_type?: string; limit?: number; offset?: number }) =>
+    clinicalFetch<{ data: any[]; counts: Record<string, number>; pagination: { total: number; limit: number; offset: number } }>(
+      `/api/clinical/v1/deposits/erp-posting${qs(params)}`,
+    ),
+  bulk: (action: "retry" | "mark_dead" | "mark_posted", ids: string[]) =>
+    clinicalFetch<{ data: Array<{ id: string; ok: boolean; error?: string }> }>(
+      `/api/clinical/v1/deposits/erp-posting/bulk`, { method: "POST", body: { action, ids } },
+    ),
+};
