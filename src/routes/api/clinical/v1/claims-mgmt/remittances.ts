@@ -13,9 +13,9 @@ import { envelope, jsonData, parseBody } from "../_helpers";
  */
 const CreateRemittance = z.object({
   payer_id: z.string().uuid(),
-  remittance_no: z.string().min(1).max(64).optional(),
-  currency: z.string().length(3).default("SAR"),
-  paid_at: z.string().datetime().optional(),
+  remittance_ref: z.string().min(1).max(64).optional(),
+  source: z.enum(["interface","file_upload"]).default("file_upload"),
+  received_at: z.string().datetime().optional(),
   total_amount_minor: z.number().int().nonnegative().default(0),
   notes: z.string().max(2000).optional(),
 });
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/remittances")
       let sel = db.from("remittance").select("*").eq("tenant_id", auth.ctx.tenantId)
         .order("updated_at", { ascending: false }).limit(limit);
       if (status) sel = sel.eq("status", status);
-      if (q) sel = sel.or(`remittance_no.ilike.%${q}%`);
+      if (q) sel = sel.or(`remittance_ref.ilike.%${q}%`);
       const { data, error } = await sel;
       if (error) return envelope(error.message, "db_error", 500);
       const { data: all } = await db.from("remittance").select("status").eq("tenant_id", auth.ctx.tenantId);
