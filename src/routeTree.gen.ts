@@ -162,6 +162,7 @@ import { Route as ApiClinicalV1EligibilityIdRouteImport } from './routes/api/cli
 import { Route as ApiClinicalV1DocsSlugRouteImport } from './routes/api/clinical/v1/docs.$slug'
 import { Route as ApiClinicalV1DiagnosesIdRouteImport } from './routes/api/clinical/v1/diagnoses.$id'
 import { Route as ApiClinicalV1DepositsRefundRequestsRouteImport } from './routes/api/clinical/v1/deposits/refund-requests'
+import { Route as ApiClinicalV1DepositsCreditNotesRouteImport } from './routes/api/clinical/v1/deposits/credit-notes'
 import { Route as ApiClinicalV1CoverageIdRouteImport } from './routes/api/clinical/v1/coverage.$id'
 import { Route as ApiClinicalV1ClaimsWorklistRouteImport } from './routes/api/clinical/v1/claims/worklist'
 import { Route as ApiClinicalV1ClaimsBulkRouteImport } from './routes/api/clinical/v1/claims/bulk'
@@ -1141,6 +1142,12 @@ const ApiClinicalV1DepositsRefundRequestsRoute =
   ApiClinicalV1DepositsRefundRequestsRouteImport.update({
     id: '/refund-requests',
     path: '/refund-requests',
+    getParentRoute: () => ApiClinicalV1DepositsRoute,
+  } as any)
+const ApiClinicalV1DepositsCreditNotesRoute =
+  ApiClinicalV1DepositsCreditNotesRouteImport.update({
+    id: '/credit-notes',
+    path: '/credit-notes',
     getParentRoute: () => ApiClinicalV1DepositsRoute,
   } as any)
 const ApiClinicalV1CoverageIdRoute = ApiClinicalV1CoverageIdRouteImport.update({
@@ -2247,6 +2254,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/claims/bulk': typeof ApiClinicalV1ClaimsBulkRoute
   '/api/clinical/v1/claims/worklist': typeof ApiClinicalV1ClaimsWorklistRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
+  '/api/clinical/v1/deposits/credit-notes': typeof ApiClinicalV1DepositsCreditNotesRoute
   '/api/clinical/v1/deposits/refund-requests': typeof ApiClinicalV1DepositsRefundRequestsRouteWithChildren
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
   '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
@@ -2561,6 +2569,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/claims/bulk': typeof ApiClinicalV1ClaimsBulkRoute
   '/api/clinical/v1/claims/worklist': typeof ApiClinicalV1ClaimsWorklistRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
+  '/api/clinical/v1/deposits/credit-notes': typeof ApiClinicalV1DepositsCreditNotesRoute
   '/api/clinical/v1/deposits/refund-requests': typeof ApiClinicalV1DepositsRefundRequestsRouteWithChildren
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
   '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
@@ -2879,6 +2888,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/claims/bulk': typeof ApiClinicalV1ClaimsBulkRoute
   '/api/clinical/v1/claims/worklist': typeof ApiClinicalV1ClaimsWorklistRoute
   '/api/clinical/v1/coverage/$id': typeof ApiClinicalV1CoverageIdRoute
+  '/api/clinical/v1/deposits/credit-notes': typeof ApiClinicalV1DepositsCreditNotesRoute
   '/api/clinical/v1/deposits/refund-requests': typeof ApiClinicalV1DepositsRefundRequestsRouteWithChildren
   '/api/clinical/v1/diagnoses/$id': typeof ApiClinicalV1DiagnosesIdRoute
   '/api/clinical/v1/docs/$slug': typeof ApiClinicalV1DocsSlugRouteWithChildren
@@ -3197,6 +3207,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/bulk'
     | '/api/clinical/v1/claims/worklist'
     | '/api/clinical/v1/coverage/$id'
+    | '/api/clinical/v1/deposits/credit-notes'
     | '/api/clinical/v1/deposits/refund-requests'
     | '/api/clinical/v1/diagnoses/$id'
     | '/api/clinical/v1/docs/$slug'
@@ -3511,6 +3522,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/bulk'
     | '/api/clinical/v1/claims/worklist'
     | '/api/clinical/v1/coverage/$id'
+    | '/api/clinical/v1/deposits/credit-notes'
     | '/api/clinical/v1/deposits/refund-requests'
     | '/api/clinical/v1/diagnoses/$id'
     | '/api/clinical/v1/docs/$slug'
@@ -3828,6 +3840,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/claims/bulk'
     | '/api/clinical/v1/claims/worklist'
     | '/api/clinical/v1/coverage/$id'
+    | '/api/clinical/v1/deposits/credit-notes'
     | '/api/clinical/v1/deposits/refund-requests'
     | '/api/clinical/v1/diagnoses/$id'
     | '/api/clinical/v1/docs/$slug'
@@ -5215,6 +5228,13 @@ declare module '@tanstack/react-router' {
       path: '/refund-requests'
       fullPath: '/api/clinical/v1/deposits/refund-requests'
       preLoaderRoute: typeof ApiClinicalV1DepositsRefundRequestsRouteImport
+      parentRoute: typeof ApiClinicalV1DepositsRoute
+    }
+    '/api/clinical/v1/deposits/credit-notes': {
+      id: '/api/clinical/v1/deposits/credit-notes'
+      path: '/credit-notes'
+      fullPath: '/api/clinical/v1/deposits/credit-notes'
+      preLoaderRoute: typeof ApiClinicalV1DepositsCreditNotesRouteImport
       parentRoute: typeof ApiClinicalV1DepositsRoute
     }
     '/api/clinical/v1/coverage/$id': {
@@ -6802,6 +6822,7 @@ const ApiClinicalV1DepositsDepositsIdRouteWithChildren =
   )
 
 interface ApiClinicalV1DepositsRouteChildren {
+  ApiClinicalV1DepositsCreditNotesRoute: typeof ApiClinicalV1DepositsCreditNotesRoute
   ApiClinicalV1DepositsRefundRequestsRoute: typeof ApiClinicalV1DepositsRefundRequestsRouteWithChildren
   ApiClinicalV1DepositsDepositsIdRoute: typeof ApiClinicalV1DepositsDepositsIdRouteWithChildren
   ApiClinicalV1DepositsDepositsAvailabilityRoute: typeof ApiClinicalV1DepositsDepositsAvailabilityRoute
@@ -6810,6 +6831,7 @@ interface ApiClinicalV1DepositsRouteChildren {
 }
 
 const ApiClinicalV1DepositsRouteChildren: ApiClinicalV1DepositsRouteChildren = {
+  ApiClinicalV1DepositsCreditNotesRoute: ApiClinicalV1DepositsCreditNotesRoute,
   ApiClinicalV1DepositsRefundRequestsRoute:
     ApiClinicalV1DepositsRefundRequestsRouteWithChildren,
   ApiClinicalV1DepositsDepositsIdRoute:
