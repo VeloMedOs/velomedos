@@ -199,11 +199,17 @@ function ChangeProposal({
     if (!reason.trim()) { toast.error("Reason is required for governance."); return; }
     setBusy(true);
     try {
+      // Only send the editable columns as `after` — never the whole row.
+      // Sending the full row would let apply overwrite id/tenant_id/created_at
+      // with stale snapshot values and trip RLS WITH CHECK.
+      const after = Object.fromEntries(
+        editableColumns.map((c) => [c, draft[c]]),
+      );
       await ClinicalAPI.createContractChangeRequest({
         target_table: tableName,
         target_id: before.id,
         before,
-        after: { ...before, ...draft },
+        after,
         reason: reason.trim(),
         effective_date: effective || null,
       });
