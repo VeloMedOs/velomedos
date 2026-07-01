@@ -10231,6 +10231,9 @@ export type Database = {
         | "applied"
         | "refunded"
         | "cancelled"
+        | "held"
+        | "partially_applied"
+        | "transferred"
       discharge_stage:
         | "none"
         | "discharge_advice"
@@ -10608,6 +10611,9 @@ export const Constants = {
         "applied",
         "refunded",
         "cancelled",
+        "held",
+        "partially_applied",
+        "transferred",
       ],
       discharge_stage: [
         "none",
