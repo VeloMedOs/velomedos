@@ -275,6 +275,7 @@ import { Route as ApiClinicalV1EncountersIdOrdersLabRouteImport } from './routes
 import { Route as ApiClinicalV1EncountersIdOrdersElectrophysiologyRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.electrophysiology'
 import { Route as ApiClinicalV1AuthRequestsIdSubmitRouteImport } from './routes/api/clinical/v1/auth/requests.$id.submit'
 import { Route as ApiClinicalV1AuthRequestsIdDecisionRouteImport } from './routes/api/clinical/v1/auth/requests.$id.decision'
+import { Route as ApiClinicalV1AuthRequestsIdAttachmentsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.attachments'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsFeedRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.feed'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.bulk-update'
 
@@ -1758,6 +1759,12 @@ const ApiClinicalV1AuthRequestsIdDecisionRoute =
     path: '/decision',
     getParentRoute: () => ApiClinicalV1AuthRequestsIdRoute,
   } as any)
+const ApiClinicalV1AuthRequestsIdAttachmentsRoute =
+  ApiClinicalV1AuthRequestsIdAttachmentsRouteImport.update({
+    id: '/attachments',
+    path: '/attachments',
+    getParentRoute: () => ApiClinicalV1AuthRequestsIdRoute,
+  } as any)
 const ApiClinicalV1MastersPriceListsIdItemsFeedRoute =
   ApiClinicalV1MastersPriceListsIdItemsFeedRouteImport.update({
     id: '/feed',
@@ -2020,6 +2027,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/clinical/v1/auth/requests/$id/attachments': typeof ApiClinicalV1AuthRequestsIdAttachmentsRoute
   '/api/clinical/v1/auth/requests/$id/decision': typeof ApiClinicalV1AuthRequestsIdDecisionRoute
   '/api/clinical/v1/auth/requests/$id/submit': typeof ApiClinicalV1AuthRequestsIdSubmitRoute
   '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
@@ -2287,6 +2295,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/clinical/v1/auth/requests/$id/attachments': typeof ApiClinicalV1AuthRequestsIdAttachmentsRoute
   '/api/clinical/v1/auth/requests/$id/decision': typeof ApiClinicalV1AuthRequestsIdDecisionRoute
   '/api/clinical/v1/auth/requests/$id/submit': typeof ApiClinicalV1AuthRequestsIdSubmitRoute
   '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
@@ -2558,6 +2567,7 @@ export interface FileRoutesById {
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/clinical/v1/auth/requests/$id/attachments': typeof ApiClinicalV1AuthRequestsIdAttachmentsRoute
   '/api/clinical/v1/auth/requests/$id/decision': typeof ApiClinicalV1AuthRequestsIdDecisionRoute
   '/api/clinical/v1/auth/requests/$id/submit': typeof ApiClinicalV1AuthRequestsIdSubmitRoute
   '/api/clinical/v1/encounters/$id/orders/electrophysiology': typeof ApiClinicalV1EncountersIdOrdersElectrophysiologyRoute
@@ -2829,6 +2839,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/clinical/v1/auth/requests/$id/attachments'
     | '/api/clinical/v1/auth/requests/$id/decision'
     | '/api/clinical/v1/auth/requests/$id/submit'
     | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
@@ -3096,6 +3107,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/clinical/v1/auth/requests/$id/attachments'
     | '/api/clinical/v1/auth/requests/$id/decision'
     | '/api/clinical/v1/auth/requests/$id/submit'
     | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
@@ -3366,6 +3378,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/clinical/v1/auth/requests/$id/attachments'
     | '/api/clinical/v1/auth/requests/$id/decision'
     | '/api/clinical/v1/auth/requests/$id/submit'
     | '/api/clinical/v1/encounters/$id/orders/electrophysiology'
@@ -5388,6 +5401,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1AuthRequestsIdDecisionRouteImport
       parentRoute: typeof ApiClinicalV1AuthRequestsIdRoute
     }
+    '/api/clinical/v1/auth/requests/$id/attachments': {
+      id: '/api/clinical/v1/auth/requests/$id/attachments'
+      path: '/attachments'
+      fullPath: '/api/clinical/v1/auth/requests/$id/attachments'
+      preLoaderRoute: typeof ApiClinicalV1AuthRequestsIdAttachmentsRouteImport
+      parentRoute: typeof ApiClinicalV1AuthRequestsIdRoute
+    }
     '/api/clinical/v1/masters/price-lists/$id/items/feed': {
       id: '/api/clinical/v1/masters/price-lists/$id/items/feed'
       path: '/feed'
@@ -6034,12 +6054,15 @@ const ApiPublicV1IncidentsRouteWithChildren =
   ApiPublicV1IncidentsRoute._addFileChildren(ApiPublicV1IncidentsRouteChildren)
 
 interface ApiClinicalV1AuthRequestsIdRouteChildren {
+  ApiClinicalV1AuthRequestsIdAttachmentsRoute: typeof ApiClinicalV1AuthRequestsIdAttachmentsRoute
   ApiClinicalV1AuthRequestsIdDecisionRoute: typeof ApiClinicalV1AuthRequestsIdDecisionRoute
   ApiClinicalV1AuthRequestsIdSubmitRoute: typeof ApiClinicalV1AuthRequestsIdSubmitRoute
 }
 
 const ApiClinicalV1AuthRequestsIdRouteChildren: ApiClinicalV1AuthRequestsIdRouteChildren =
   {
+    ApiClinicalV1AuthRequestsIdAttachmentsRoute:
+      ApiClinicalV1AuthRequestsIdAttachmentsRoute,
     ApiClinicalV1AuthRequestsIdDecisionRoute:
       ApiClinicalV1AuthRequestsIdDecisionRoute,
     ApiClinicalV1AuthRequestsIdSubmitRoute:
