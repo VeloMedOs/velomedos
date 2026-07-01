@@ -33,7 +33,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/denials/bulk"
           if (!d || d.tenant_id !== auth.ctx.tenantId) throw new Error("not_found");
           if (body.data.action === "reassign") {
             if (!body.data.assignee_id) throw new Error("assignee_required");
-            await db.from("denial_case").update({ assignee_id: body.data.assignee_id }).eq("id", id);
+            await db.from("denial_case").update({ assigned_to: body.data.assignee_id }).eq("id", id);
           } else {
             const to = map[body.data.action];
             if (!canTransitionDenial(d.status, to)) throw new Error(`illegal_${d.status}_${to}`);
