@@ -41,7 +41,7 @@ export const Route = createFileRoute("/api/clinical/v1/cash/collections/bulk")({
           results.push({ id, ok: r.ok, error: r.ok ? undefined : `HTTP ${r.status}` });
         } catch (e) { results.push({ id, ok: false, error: (e as Error).message }); }
       }
-      await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, `cash.collection.bulk.${parsed.data.action}`, "cash_collection", null, { count: results.length, ok: results.filter((r) => r.ok).length });
+      await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, `cash.collection.bulk.${parsed.data.action}`, "cash_collection", undefined, { count: results.length, ok: results.filter((r) => r.ok).length });
       return jsonData({ data: results });
     },
   } },
