@@ -1,55 +1,42 @@
-# RCM R5 verdict + R6 (Deposits / Refunds / Wallet) — validated, paste-ready
+# RCM R7 — Cash / ZATCA / Interfaces (capstone) — final build, paste-ready
 
-Validated against `velomedos@a07f876`.
+Confirmed against a **fresh clone** at HEAD `10edae4`. Verified state: **R1–R6 fully landed** (eligibility, authorization, claim + 14-state CHECK, batch/remittance/denial, admission/IP, deposit/refund/wallet/ credit-note/erp-queue). **R7 is greenfield** — no `cash_*`/`tax_*`/`interface_*` tables, routes, wrappers, engines, or panes exist yet. The `Cash & ZATCA` matrix module exists with caps `cash.collect` / `cash.tax` / `cash.interfaces`. There is **no** `payment` **or** `bill` **table** — the billable/settlement unit is `claim`. Build R7 as one migration + new routes/engines/panes, folding the four standing lessons in from the start.
 
----
+## Ground rules (verified facts — code to these)
 
-## PART A — R5 `batch-sm.ts`: CORRECTLY FORMED, no amendment
+- **Panes are tabs in** `clinical.tsx`**, under** `src/components/clinical/daylight/`**.** `superadmin/rcm/` does not exist; every operational pane lives in `daylight/` and renders via a `TabId` in `clinical.tsx`.
+- `cash_collection` **is standalone and settles against** `claim` (`claim_id` + `beneficiary_id`), applying R6 `deposit_transaction`/`wallet_txn`/`credit_note` amounts against the claim's patient share. It does not extend a `payment` table (none exists).
+- **NPHIES interfaces ride the shared Phase-9 gateway** `src/lib/mds/nphies/gateway.ts` — the interface registry logs around it; it never opens a second NPHIES transport. D365/ZATCA/POS are new outbound emitters (sandbox stubs).
+- `eligibility.check` **is state-mutating** — the cash-collection eligibility recheck passes a real `coverage_id` (never omit → self_pay flip); recheck is explicit/idempotent.
+- **Enum discipline:** all R7 status enums are **new** `CREATE TYPE` (safe same-txn). **No** `ALTER TYPE … ADD VALUE` on any existing enum. Additive columns use `IF NOT EXISTS`.
+- `supabaseAdmin`/`serviceClient` loaded **inside handlers**, never at module scope.
 
-Pure TS state machine (`open → submitting → submitted → closed`, `cancelled` from `open`), no DB/API surface to mismatch. Transitions + guards are coherent. Nothing to fix. (Confirm the R5 migration landed the `claim_status_check` drop/re-add for `paid`/`part_paid`/`denied` per the prior amendment — R6's settlement depends on it.)
+## A. Migration (single file, CREATE → GRANT → ENABLE RLS → POLICY; tenant-scoped)
 
----
+New tables: `cash_collection` (method `cash|pos|bank_transfer|cheque|online`, `pos_ref`, `bank_ref`, `bank_ref_attachment_url`, `cheque_no`, `cheque_date`, `rounding_minor`, `outstanding_after_minor`, `deposit_applied_minor`, `wallet_applied_minor`, `cn_applied_minor`, `receipt_no`, `session_id`, `claim_id`, `beneficiary_id`, `tenant_id`; trigger sets `receipt_no` + enqueues `erp_posting_queue`), `cash_session` (cashier_id, opened/closed_at, opening_float/expected/counted/variance_minor, status `open|closed|reconciled`), `cash_session_txn` (rollup per collection/refund), `tax_invoice` (`invoice_type b2b_insurance|b2c_patient|direct_company|credit_note|debit_note`, counterparty, `claim_id`, gross/discount/taxable_base/vat/total_minor, vat_rate, `zatca_uuid/hash/qr`, `zatca_status pending|cleared|reported|failed`, `reporting_box`, `irn`, `parent_invoice_id`), `tax_invoice_line` (desc, service_code, qty, unit_price/discount/taxable_minor, `vat_rate 15|0`, vat_minor, reporting_code), `interface_log` (name, direction `in|out|bi`, trigger, payload/response jsonb, status `queued|sent|ack|failed|retrying`, retry_count, correlation_id, error), `event_posting_matrix` (VAT box / GL account config 225320/225330/225340), `interface_mapping` (mapping_type `dept_nphies|cost_erp|kayan_ext|order_tariff_payer`, source/target_code, payer_id nullable, active). Additive: `refund_request.{tax_credit_note_id, vat_reversal_minor}`, `deposit_transaction.cash_collection_id` (all `IF NOT EXISTS`). RLS `finance`/`cashier`/`rcm`/ `tenant_admin`; GRANT `authenticated` + `service_role`.
 
-## PART B — R6 Deposits / Refunds / Wallet — corrected
+## B. Engines (`src/lib/rcm/`)
 
-R6 ships a migration + new routes. **Confirmed present:** the `deposit` table (with `amount_minor`, `applied_to_bill_id`, `received_by`, `requested_minor`), `deposit_recalc_admission_paid()` (extendable), `requireClinicalModule("Deposits & Refunds")`, and the module's existing caps `dep.collect`/`dep.approve`. Seven corrections; the first is a migration-breaker.
+`cash-collection-sm.ts` (14-step: allocate → **eligibility recheck if** `bill_date>visit_date`**, with real** `coverage_id` → apply deposit/CN/wallet → method → capture → post → excess routing → receipt → ERP), `cash-refund-sm.ts` (16-step: reference → reason → executed-service revert gate → method split → same-method rule → approval → VAT reversal → receipt → ERP), `vat-engine.ts` (15%/0%, B2B/B2C, proportional partial-payment `VAT_Paid_BoxX = round(Settled_Gross/Open_Gross × Open_VAT_BoxX, 2)`), `zatca.ts` (Phase-2: UUID + **hash chain persisted per tenant + invoice_type**, TLV QR, signed-XML skeleton, B2C simplified=reported / B2B standard=cleared, CN/DN reversals; submission stubbed), `d365-summary.ts` (daily rollup of collections/refunds/deposits + R5 remittance ack per posting box), `interface-registry.ts` (enum of interfaces + `logCall(...)`; NPHIES entries wrap the shared gateway). Extend `src/lib/rcm/validation.ts`: `EXECUTED_ONLY` (reuse existing executed-states), `ELIGIBILITY_RECHECK_REQUIRED`, `SAME_METHOD_REFUND`, `VAT_REVERSAL_REQUIRED`, `SESSION_MUST_BALANCE`, `ZATCA_STRUCTURE_INVALID`.
 
-### [FIX 1 — CRITICAL: `deposit_status` is an ENUM → ADD VALUE hazard]
+## C. Routes (`src/routes/api/clinical/v1/`) — `requireClinicalModule('Cash & ZATCA', <cap>)`
 
-`deposit_status` is a Postgres **enum** (current values incl. `collected`, `pending`, `applied`, `refunded`). Adding `held`/`partially_applied`/`transferred` via `ALTER TYPE … ADD VALUE` **and** using them in the **same migration's** `deposit_txn_apply` trigger will throw *"unsafe use of new value"* (the R1 lesson). **Split into two migrations:** (1) `ALTER TYPE deposit_status ADD VALUE IF NOT EXISTS …` for the three new values only; (2) the tables + triggers that reference them. `refunded` already exists — don't re-add. `deposit_type` (`general|encounter|…|caution`) is a **new** `CREATE TYPE` — safe same-txn.
+`cash/cash-collections.ts` (GET buckets / POST method-aware + deposit/CN/wallet apply + excess routing), `cash/cash-collections.$id.ts` (GET/PATCH void/reprint), `cash/cash-refunds.ts` + `cash-refunds.$id.action.ts` (approve/execute + VAT-reversal artifact), `cash/cash-sessions.ts` (open) + `.$id.ts` (close/reconcile) + `.$id.txns.ts`, `tax/tax-invoices.ts` (GET/POST B2B/B2C) + `.$id.ts` + `.$id.credit-note.ts` + `.$id.zatca-submit.ts`, `interfaces/log.ts` (GET + bulk retry), `interfaces/d365.daily-summary.ts`, `interfaces/zatca.submit.ts` + `zatca.status.ts`, `interfaces/pos.capture.ts` + `pos.result.ts`, `interfaces/mappings.ts` + `mappings.$id.ts`. Bulk endpoints return `{ results:[{id,ok,error?}] }`.
 
-### [FIX 2 — invented roles] `rcm`/`finance`, not "RCM Manager"/"Finance Manager"
+## D. Caps + client
 
-`rcm_manager`/`finance_manager` don't exist. Map the manager-level caps to the real roles: `rcm` + `finance` for `deposit.override_caution` / `refund.approve`; `cashier`/`biller` for collect/apply/request; `cashier` (cash) + `finance` (bank/card) for `refund.execute`.
+Add granular caps to `src/lib/clinical-role-matrix.ts` under the existing `Cash & ZATCA` module, reconciled with `cash.collect`/`cash.tax`/`cash.interfaces`: `cash.refund.execute`, `cash.session.open`, `cash.session.close`; fold `tax.invoice.issue`/`tax.invoice.credit` under `cash.tax` and `interface.retry`/`interface.mapping.edit` under `cash.interfaces` (or add explicitly — don't duplicate the coarse caps). Roles: `finance`/`cashier`/`rcm`/`tenant_admin` (all real). Client wrappers in `src/lib/clinical-api.ts`: `cashCollectionsApi`, `cashRefundsApi`, `cashSessionsApi`, `taxInvoicesApi`, `interfaceLogApi`, `interfaceMappingsApi`, `d365Api`, `zatcaApi`, `posApi`. Add `zatca_status` / `session.status` / `interface.status` tones to `src/lib/clinical/clinical-status.ts`.
 
-### [FIX 3 — caps: add to the matrix SSOT, keep the `dep.`/`refund.` convention]
+## E. Panes — `src/components/clinical/daylight/`, wired as `clinical.tsx` tabs
 
-Only `dep.collect` + `dep.approve` exist. Add the granular caps to `src/lib/clinical-role-matrix.ts` (the `CLINICAL_CAPABILITIES` SSOT — **not** `clinical-roles.ts`) under the existing **"Deposits & Refunds"** module, following the naming already in use: `dep.apply`, `dep.transfer`, `dep.override_caution`, `refund.request`, `refund.approve`, `refund.execute`, `credit_note.issue`, `erp.repost`. Gate routes/UI via `canPerform`/`CapGate` on these.
+`CashCollectionPane` (worklist by method/outstanding; method-aware capture drawer — POS stub, cheque fields, bank-ref+upload; deposit/CN/wallet apply; receipt print; deep-links to encounter/claim), `CashRefundPane` (buckets pending-approval / awaiting-VAT-reversal / executed; same-method guard + exception override; VAT credit-note preview), `CashSessionPane` (open/close cashbox; expected vs counted; variance flag; rollup table + bulk export/reconcile), `TaxInvoicesPane` (B2B/B2C tabs; `zatca_status` chip
 
-### [FIX 4 — no `bill` table: deposits settle against `claim`]
+- QR preview; credit-note issuance; ZATCA submit/retry bulk), `InterfaceInboxPane` (`interface_log` with direction/status filters, bulk retry, correlation-id drill-in), `InterfaceMappingsPane` (mapping masters, payer-wise editor), `D365DailySummaryPane` (day picker → summary preview → post to queue). All server-driven tables with bulk actions; shared `toneOf*`/`formatHalalas`/`CapGate`; halalas in mono; RTL-safe.
 
-`deposit.applied_to_bill_id` is an **unconstrained UUID** and there is **no** `bill`**/**`invoice`**/**`charge` **settlement table** — the billable unit is the `claim` (R3) plus its `charge_item` lines. So the apply-to-bill wizard and `<AvailableDepositBanner>` must target the **claim** (set `applied_to_bill_id = claim.id`; reduce `available_minor`; reflect on the claim's patient-share). Same reconciliation R5's remittance posting needed — bind both to the real settlement entity.
+## F. HIS / R1–R6 linkage
 
-### [FIX 5 — panes live in `daylight/`, not a new `rcm/` dir]
+Cash collection deep-links encounter/claim and settles the **claim** patient share, applying R6 deposit/wallet/CN; refund VAT-reversal issues a `tax_invoice` credit-note + reverses `wallet`/`deposit`; executed-service gate (`EXECUTED_ONLY`); R1 eligibility recheck (real `coverage_id`); R5 remittance ack rolls into the D365 daily summary; every txn enqueues `erp_posting_queue` (the R6 contract, now emitted).
 
-`src/components/clinical/rcm/` doesn't exist; all panes are in `src/components/clinical/daylight/` (alongside `ClaimsWorklistPane`, `IpAdmissionsPane`). Put the six R6 panes there. Wire them into `clinical.tsx` as tabs under a "Deposits & Wallet" node (add `TabId`s + `validateSearch`).
+## Docs & DoD
 
-### [FIX 6 — banner embed targets] no R3 `BillingPane`
-
-There is no `BillingPane`. Embed `<AvailableDepositBanner beneficiaryId encounterId />` in the **R4** `IpAdmissionsPane`**/admission drawer** (exists) and the **OP claims/billing surface** that actually renders (`ClaimsWorklistPane` / the `finance-billing-op` tab) — not a nonexistent `BillingPane`. Defer any embed whose host pane isn't built yet.
-
-### [FIX 7 — don't re-add existing `deposit` columns]
-
-`amount_minor`, `applied_to_bill_id`, `received_by`, `requested_minor` already exist. Add only the new columns (`deposit_no`, `deposit_type`, `scope_ref_id`, `is_caution`, `available_minor`, `pos_reference`, `collected_by`, `erp_posting_ref`, `erp_posted_at`) with `IF NOT EXISTS`.
-
-### Confirmed-good — keep (integration)
-
-- `requireClinicalModule("Deposits & Refunds", <cap>)` guard; **extend** the existing `deposit_recalc_admission_paid()` for the new statuses (function exists).
-- New tables `deposit_transaction` (immutable ledger) / `deposit_attachment` / `refund_request` (+attach) / `patient_wallet` / `wallet_txn` / `credit_note` / `erp_posting_queue` — own CREATE→GRANT→RLS→POLICY.
-- `deposit-sm.ts` / `refund-sm.ts` pure SMs; new blockers `CAUTION_CANNOT_SETTLE`, `REFUND_METHOD_MISMATCH`, `REFUND_HOLD_OUTSTANDING`, `REFUND_REASON_REQUIRED`, `DEPOSIT_ERP_UNPOSTED` in `src/lib/rcm/validation.ts`.
-- Caution guard (`deposit_apply_guard` blocks settle unless `OVERRIDE:` reason + approver); refund-method matrix (`refund_method_guard`); `credit_note_apply` → `wallet_txn` credit; every txn enqueues `erp_posting_queue` (contract only — R7 builds the connector).
-- **Linkage:** R4 admission paid via the extended recalc; R3 claim settlement (FIX 4); credit note from a non-performed billed service → wallet (R3 charge linkage); bulk endpoints return `{ results:[{id,ok,error?}] }`; shared `toneOf*`/`formatHalalas`/`CapGate`; halalas in mono.
-
-### DoD
-
-**Migration 1:** `deposit_status` ADD VALUE (`held`/`partially_applied`/`transferred`, IF NOT EXISTS) only. **Migration 2:** `deposit_type` CREATE TYPE + additive `deposit` columns (IF NOT EXISTS, not the four that exist) + new tables (CREATE→GRANT→RLS→POLICY) + triggers (referencing the now-committed enum values) + extended `deposit_recalc_admission_paid`. Caps added to `clinical-role-matrix.ts` with real roles. Apply/ banner target `claim`. Panes in `daylight/`, tabs in `clinical.tsx`. New blockers in `validation.ts`; bulk per-row. `tsgo` green; Daylight only; halalas in mono; RTL-safe; no invented roles.
+Append R7 to `docs/his-rcm-user-manual.md` + `docs/his-technical-manual.md` + `docs/changelog.md`, **and** add the in-app entry to `src/lib/his-docs.ts`. DoD: one migration (CREATE→GRANT→RLS→POLICY; new tables + new `CREATE TYPE` enums + additive `IF NOT EXISTS` columns; **no ADD VALUE**); `cash_collection` settles vs `claim`; NPHIES via shared gateway, D365/ZATCA/POS sandbox; caps in `clinical-role-matrix.ts`; panes in `daylight/` as `clinical.tsx` tabs; eligibility recheck passes `coverage_id`; `supabaseAdmin` inside handlers; new blockers in `validation.ts`; bulk per-row; `tsgo` green; Daylight only; halalas in mono.
