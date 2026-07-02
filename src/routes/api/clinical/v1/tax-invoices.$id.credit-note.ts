@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/clinical/v1/tax-invoices/$id/credit-n
           unit_price_minor: -pl.taxable_minor, discount_minor: 0, vat_rate: Number(pl.vat_rate) as 0 | 15,
         }));
       }
-      const rollup = computeInvoice(lines);
+      const rollup = computeInvoice(lines ?? []);
       const { data: cn, error } = await db.from("tax_invoice").insert({
         tenant_id: auth.ctx.tenantId,
         invoice_no: `CN-${Date.now().toString(36).toUpperCase()}`,
