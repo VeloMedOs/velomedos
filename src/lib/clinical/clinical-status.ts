@@ -251,3 +251,66 @@ export function toneStyle(tone: StatusTone): { background: string; color: string
     default:       return { background: "var(--clin-sunken)",      color: "var(--clin-muted)" };
   }
 }
+
+/** R7 — cash collection tone (draft/posted/voided + bucket variants). */
+export function toneOfCash(status: string): StatusTone {
+  switch (status) {
+    case "posted":         return "teal";
+    case "draft":          return "amber";
+    case "voided":         return "coral";
+    case "outstanding":    return "amber";
+    case "session_open":   return "sky";
+    case "posted_today":   return "teal";
+    default: return "muted";
+  }
+}
+
+/** R7 — cash method tone (grouped by settlement channel). */
+export function toneOfCashMethod(m: string): StatusTone {
+  switch (m) {
+    case "cash":          return "amber";
+    case "pos":
+    case "card":          return "sky";
+    case "bank_transfer": return "violet";
+    case "cheque":        return "muted";
+    case "online":        return "teal";
+    default: return "muted";
+  }
+}
+
+/** R7 — ZATCA / tax invoice tone. */
+export function toneOfZatca(status: string): StatusTone {
+  switch (status) {
+    case "cleared":   return "teal";
+    case "reported":  return "sky";
+    case "queued":    return "amber";
+    case "failed":    return "coral";
+    case "cancelled": return "muted";
+    default: return "muted";
+  }
+}
+
+/** R7 — cash session tone. */
+export function toneOfCashSession(status: string): StatusTone {
+  switch (status) {
+    case "open":         return "sky";
+    case "closing":      return "amber";
+    case "closed":       return "teal";
+    case "reconciled":   return "violet";
+    case "over_short":   return "coral";
+    default: return "muted";
+  }
+}
+
+/** R7 — interface_log tone. */
+export function toneOfInterface(status: string): StatusTone {
+  switch (status) {
+    case "ack":       return "teal";
+    case "sent":      return "sky";
+    case "queued":    return "amber";
+    case "retrying":  return "amber";
+    case "failed":    return "coral";
+    case "dead":      return "coral";
+    default: return "muted";
+  }
+}

@@ -1512,6 +1512,221 @@ export type Database = {
           },
         ]
       }
+      cash_collection: {
+        Row: {
+          bank_ref: string | null
+          bank_ref_attachment_url: string | null
+          beneficiary_id: string | null
+          cashier_id: string | null
+          cheque_date: string | null
+          cheque_no: string | null
+          claim_id: string | null
+          cn_applied_minor: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          deposit_applied_minor: number
+          encounter_id: string | null
+          gross_minor: number
+          id: string
+          method: Database["public"]["Enums"]["cash_method"]
+          net_collected_minor: number
+          notes: string | null
+          online_ref: string | null
+          outstanding_after_minor: number
+          pos_ref: string | null
+          posted_at: string | null
+          receipt_no: string | null
+          rounding_minor: number
+          session_id: string | null
+          status: Database["public"]["Enums"]["cash_status"]
+          tenant_id: string
+          updated_at: string
+          void_reason: string | null
+          voided_at: string | null
+          wallet_applied_minor: number
+        }
+        Insert: {
+          bank_ref?: string | null
+          bank_ref_attachment_url?: string | null
+          beneficiary_id?: string | null
+          cashier_id?: string | null
+          cheque_date?: string | null
+          cheque_no?: string | null
+          claim_id?: string | null
+          cn_applied_minor?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          deposit_applied_minor?: number
+          encounter_id?: string | null
+          gross_minor?: number
+          id?: string
+          method: Database["public"]["Enums"]["cash_method"]
+          net_collected_minor?: number
+          notes?: string | null
+          online_ref?: string | null
+          outstanding_after_minor?: number
+          pos_ref?: string | null
+          posted_at?: string | null
+          receipt_no?: string | null
+          rounding_minor?: number
+          session_id?: string | null
+          status?: Database["public"]["Enums"]["cash_status"]
+          tenant_id: string
+          updated_at?: string
+          void_reason?: string | null
+          voided_at?: string | null
+          wallet_applied_minor?: number
+        }
+        Update: {
+          bank_ref?: string | null
+          bank_ref_attachment_url?: string | null
+          beneficiary_id?: string | null
+          cashier_id?: string | null
+          cheque_date?: string | null
+          cheque_no?: string | null
+          claim_id?: string | null
+          cn_applied_minor?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          deposit_applied_minor?: number
+          encounter_id?: string | null
+          gross_minor?: number
+          id?: string
+          method?: Database["public"]["Enums"]["cash_method"]
+          net_collected_minor?: number
+          notes?: string | null
+          online_ref?: string | null
+          outstanding_after_minor?: number
+          pos_ref?: string | null
+          posted_at?: string | null
+          receipt_no?: string | null
+          rounding_minor?: number
+          session_id?: string | null
+          status?: Database["public"]["Enums"]["cash_status"]
+          tenant_id?: string
+          updated_at?: string
+          void_reason?: string | null
+          voided_at?: string | null
+          wallet_applied_minor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_collection_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "cash_session"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cash_session: {
+        Row: {
+          cashier_id: string | null
+          closed_at: string | null
+          counted_minor: number | null
+          created_at: string
+          expected_minor: number
+          id: string
+          notes: string | null
+          opened_at: string
+          opening_float_minor: number
+          session_no: string | null
+          status: Database["public"]["Enums"]["cash_session_status"]
+          tenant_id: string
+          updated_at: string
+          variance_minor: number | null
+        }
+        Insert: {
+          cashier_id?: string | null
+          closed_at?: string | null
+          counted_minor?: number | null
+          created_at?: string
+          expected_minor?: number
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          opening_float_minor?: number
+          session_no?: string | null
+          status?: Database["public"]["Enums"]["cash_session_status"]
+          tenant_id: string
+          updated_at?: string
+          variance_minor?: number | null
+        }
+        Update: {
+          cashier_id?: string | null
+          closed_at?: string | null
+          counted_minor?: number | null
+          created_at?: string
+          expected_minor?: number
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          opening_float_minor?: number
+          session_no?: string | null
+          status?: Database["public"]["Enums"]["cash_session_status"]
+          tenant_id?: string
+          updated_at?: string
+          variance_minor?: number | null
+        }
+        Relationships: []
+      }
+      cash_session_txn: {
+        Row: {
+          amount_minor: number
+          cash_collection_id: string | null
+          created_at: string
+          direction: string
+          id: string
+          method: Database["public"]["Enums"]["cash_method"] | null
+          refund_request_id: string | null
+          session_id: string
+          tenant_id: string
+          txn_kind: string
+        }
+        Insert: {
+          amount_minor?: number
+          cash_collection_id?: string | null
+          created_at?: string
+          direction?: string
+          id?: string
+          method?: Database["public"]["Enums"]["cash_method"] | null
+          refund_request_id?: string | null
+          session_id: string
+          tenant_id: string
+          txn_kind: string
+        }
+        Update: {
+          amount_minor?: number
+          cash_collection_id?: string | null
+          created_at?: string
+          direction?: string
+          id?: string
+          method?: Database["public"]["Enums"]["cash_method"] | null
+          refund_request_id?: string | null
+          session_id?: string
+          tenant_id?: string
+          txn_kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_session_txn_cash_collection_id_fkey"
+            columns: ["cash_collection_id"]
+            isOneToOne: false
+            referencedRelation: "cash_collection"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_session_txn_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "cash_session"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       certificates: {
         Row: {
           code: string
@@ -3684,6 +3899,7 @@ export type Database = {
           amount_minor: number
           applied_to_claim_id: string | null
           approved_by: string | null
+          cash_collection_id: string | null
           created_at: string
           created_by: string | null
           credit_note_id: string | null
@@ -3703,6 +3919,7 @@ export type Database = {
           amount_minor: number
           applied_to_claim_id?: string | null
           approved_by?: string | null
+          cash_collection_id?: string | null
           created_at?: string
           created_by?: string | null
           credit_note_id?: string | null
@@ -3722,6 +3939,7 @@ export type Database = {
           amount_minor?: number
           applied_to_claim_id?: string | null
           approved_by?: string | null
+          cash_collection_id?: string | null
           created_at?: string
           created_by?: string | null
           credit_note_id?: string | null
@@ -3738,6 +3956,13 @@ export type Database = {
           txn_type?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "deposit_transaction_cash_collection_id_fkey"
+            columns: ["cash_collection_id"]
+            isOneToOne: false
+            referencedRelation: "cash_collection"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "deposit_transaction_deposit_id_fkey"
             columns: ["deposit_id"]
@@ -4866,6 +5091,49 @@ export type Database = {
         }
         Relationships: []
       }
+      event_posting_matrix: {
+        Row: {
+          active: boolean
+          created_at: string
+          event_type: string
+          gl_account: string
+          id: string
+          notes: string | null
+          reporting_box: Database["public"]["Enums"]["tax_reporting_box"] | null
+          tenant_id: string
+          updated_at: string
+          vat_rate: number | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          event_type: string
+          gl_account: string
+          id?: string
+          notes?: string | null
+          reporting_box?:
+            | Database["public"]["Enums"]["tax_reporting_box"]
+            | null
+          tenant_id: string
+          updated_at?: string
+          vat_rate?: number | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          event_type?: string
+          gl_account?: string
+          id?: string
+          notes?: string | null
+          reporting_box?:
+            | Database["public"]["Enums"]["tax_reporting_box"]
+            | null
+          tenant_id?: string
+          updated_at?: string
+          vat_rate?: number | null
+        }
+        Relationships: []
+      }
       incident_events: {
         Row: {
           actor_id: string | null
@@ -5111,6 +5379,102 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      interface_log: {
+        Row: {
+          acked_at: string | null
+          correlation_id: string | null
+          created_at: string
+          created_by: string | null
+          direction: Database["public"]["Enums"]["interface_direction"]
+          id: string
+          interface_name: string
+          last_error: string | null
+          payload: Json | null
+          response: Json | null
+          retry_count: number
+          sent_at: string | null
+          status: Database["public"]["Enums"]["interface_msg_status"]
+          tenant_id: string
+          trigger: string | null
+          updated_at: string
+        }
+        Insert: {
+          acked_at?: string | null
+          correlation_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          direction: Database["public"]["Enums"]["interface_direction"]
+          id?: string
+          interface_name: string
+          last_error?: string | null
+          payload?: Json | null
+          response?: Json | null
+          retry_count?: number
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["interface_msg_status"]
+          tenant_id: string
+          trigger?: string | null
+          updated_at?: string
+        }
+        Update: {
+          acked_at?: string | null
+          correlation_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          direction?: Database["public"]["Enums"]["interface_direction"]
+          id?: string
+          interface_name?: string
+          last_error?: string | null
+          payload?: Json | null
+          response?: Json | null
+          retry_count?: number
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["interface_msg_status"]
+          tenant_id?: string
+          trigger?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      interface_mapping: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          mapping_type: Database["public"]["Enums"]["mapping_type"]
+          notes: string | null
+          payer_id: string | null
+          source_code: string
+          target_code: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          mapping_type: Database["public"]["Enums"]["mapping_type"]
+          notes?: string | null
+          payer_id?: string | null
+          source_code: string
+          target_code: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          mapping_type?: Database["public"]["Enums"]["mapping_type"]
+          notes?: string | null
+          payer_id?: string | null
+          source_code?: string
+          target_code?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       ip_daily_charge_run: {
         Row: {
@@ -8543,9 +8907,11 @@ export type Database = {
           refund_method: string
           rejected_at: string | null
           status: string
+          tax_credit_note_id: string | null
           tenant_id: string
           updated_at: string
           updated_by: string | null
+          vat_reversal_minor: number
         }
         Insert: {
           amount_minor: number
@@ -8566,9 +8932,11 @@ export type Database = {
           refund_method: string
           rejected_at?: string | null
           status?: string
+          tax_credit_note_id?: string | null
           tenant_id: string
           updated_at?: string
           updated_by?: string | null
+          vat_reversal_minor?: number
         }
         Update: {
           amount_minor?: number
@@ -8589,9 +8957,11 @@ export type Database = {
           refund_method?: string
           rejected_at?: string | null
           status?: string
+          tax_credit_note_id?: string | null
           tenant_id?: string
           updated_at?: string
           updated_by?: string | null
+          vat_reversal_minor?: number
         }
         Relationships: [
           {
@@ -8599,6 +8969,13 @@ export type Database = {
             columns: ["deposit_id"]
             isOneToOne: false
             referencedRelation: "deposit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refund_request_tax_credit_note_id_fkey"
+            columns: ["tax_credit_note_id"]
+            isOneToOne: false
+            referencedRelation: "tax_invoice"
             referencedColumns: ["id"]
           },
         ]
@@ -9597,6 +9974,176 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      tax_invoice: {
+        Row: {
+          cash_collection_id: string | null
+          claim_id: string | null
+          counterparty_id: string | null
+          counterparty_type: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          discount_minor: number
+          gross_minor: number
+          id: string
+          invoice_no: string | null
+          invoice_type: Database["public"]["Enums"]["tax_invoice_type"]
+          irn: string | null
+          issued_at: string | null
+          parent_invoice_id: string | null
+          reporting_box: Database["public"]["Enums"]["tax_reporting_box"]
+          taxable_base_minor: number
+          tenant_id: string
+          total_minor: number
+          updated_at: string
+          vat_minor: number
+          vat_rate: number
+          zatca_hash: string | null
+          zatca_last_error: string | null
+          zatca_prev_hash: string | null
+          zatca_qr: string | null
+          zatca_signed_xml: string | null
+          zatca_status: Database["public"]["Enums"]["zatca_status"]
+          zatca_uuid: string | null
+        }
+        Insert: {
+          cash_collection_id?: string | null
+          claim_id?: string | null
+          counterparty_id?: string | null
+          counterparty_type: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          discount_minor?: number
+          gross_minor?: number
+          id?: string
+          invoice_no?: string | null
+          invoice_type: Database["public"]["Enums"]["tax_invoice_type"]
+          irn?: string | null
+          issued_at?: string | null
+          parent_invoice_id?: string | null
+          reporting_box: Database["public"]["Enums"]["tax_reporting_box"]
+          taxable_base_minor?: number
+          tenant_id: string
+          total_minor?: number
+          updated_at?: string
+          vat_minor?: number
+          vat_rate?: number
+          zatca_hash?: string | null
+          zatca_last_error?: string | null
+          zatca_prev_hash?: string | null
+          zatca_qr?: string | null
+          zatca_signed_xml?: string | null
+          zatca_status?: Database["public"]["Enums"]["zatca_status"]
+          zatca_uuid?: string | null
+        }
+        Update: {
+          cash_collection_id?: string | null
+          claim_id?: string | null
+          counterparty_id?: string | null
+          counterparty_type?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          discount_minor?: number
+          gross_minor?: number
+          id?: string
+          invoice_no?: string | null
+          invoice_type?: Database["public"]["Enums"]["tax_invoice_type"]
+          irn?: string | null
+          issued_at?: string | null
+          parent_invoice_id?: string | null
+          reporting_box?: Database["public"]["Enums"]["tax_reporting_box"]
+          taxable_base_minor?: number
+          tenant_id?: string
+          total_minor?: number
+          updated_at?: string
+          vat_minor?: number
+          vat_rate?: number
+          zatca_hash?: string | null
+          zatca_last_error?: string | null
+          zatca_prev_hash?: string | null
+          zatca_qr?: string | null
+          zatca_signed_xml?: string | null
+          zatca_status?: Database["public"]["Enums"]["zatca_status"]
+          zatca_uuid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_invoice_cash_collection_id_fkey"
+            columns: ["cash_collection_id"]
+            isOneToOne: false
+            referencedRelation: "cash_collection"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_invoice_parent_invoice_id_fkey"
+            columns: ["parent_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "tax_invoice"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_invoice_line: {
+        Row: {
+          created_at: string
+          description: string | null
+          discount_minor: number
+          id: string
+          invoice_id: string
+          qty: number
+          reporting_code: string | null
+          seq: number
+          service_code: string | null
+          taxable_minor: number
+          tenant_id: string
+          unit_price_minor: number
+          vat_minor: number
+          vat_rate: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          discount_minor?: number
+          id?: string
+          invoice_id: string
+          qty?: number
+          reporting_code?: string | null
+          seq?: number
+          service_code?: string | null
+          taxable_minor?: number
+          tenant_id: string
+          unit_price_minor?: number
+          vat_minor?: number
+          vat_rate?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          discount_minor?: number
+          id?: string
+          invoice_id?: string
+          qty?: number
+          reporting_code?: string | null
+          seq?: number
+          service_code?: string | null
+          taxable_minor?: number
+          tenant_id?: string
+          unit_price_minor?: number
+          vat_minor?: number
+          vat_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_invoice_line_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "tax_invoice"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       telehealth_sessions: {
         Row: {
@@ -10640,6 +11187,9 @@ export type Database = {
         | "completed"
         | "missed"
         | "cancelled"
+      cash_method: "cash" | "pos" | "bank_transfer" | "cheque" | "online"
+      cash_session_status: "open" | "closed" | "reconciled"
+      cash_status: "draft" | "posted" | "voided"
       charge_pricing_mode: "cash" | "insured" | "drg_bundled"
       charge_status:
         | "ordered"
@@ -10730,6 +11280,14 @@ export type Database = {
         | "transporting"
         | "completed"
         | "cancelled"
+      interface_direction: "inbound" | "outbound" | "bidirectional"
+      interface_msg_status:
+        | "queued"
+        | "sent"
+        | "ack"
+        | "failed"
+        | "retrying"
+        | "dead"
       ip_request_type: "surgery" | "procedure" | "cath" | "medical" | "day_case"
       legal_locale: "en" | "ar"
       legal_slug:
@@ -10744,6 +11302,11 @@ export type Database = {
         | "rejected"
         | "extended"
         | "cancelled"
+      mapping_type:
+        | "dept_nphies"
+        | "cost_erp"
+        | "kayan_ext"
+        | "order_tariff_payer"
       portal_role:
         | "superadmin"
         | "finance"
@@ -10773,6 +11336,17 @@ export type Database = {
         | "results_ready"
         | "certified"
         | "cancelled"
+      tax_invoice_type:
+        | "b2b_insurance"
+        | "b2c_patient"
+        | "direct_company"
+        | "credit_note"
+        | "debit_note"
+      tax_reporting_box:
+        | "insurance_output"
+        | "patient_output"
+        | "direct_output"
+        | "refund_adjustment"
       telehealth_status:
         | "scheduled"
         | "live"
@@ -10788,6 +11362,7 @@ export type Database = {
         | "custom"
       work_order_status: "open" | "in_progress" | "closed" | "cancelled"
       work_order_type: "preventive" | "corrective"
+      zatca_status: "pending" | "cleared" | "reported" | "failed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -11021,6 +11596,9 @@ export const Constants = {
         "missed",
         "cancelled",
       ],
+      cash_method: ["cash", "pos", "bank_transfer", "cheque", "online"],
+      cash_session_status: ["open", "closed", "reconciled"],
+      cash_status: ["draft", "posted", "voided"],
       charge_pricing_mode: ["cash", "insured", "drg_bundled"],
       charge_status: [
         "ordered",
@@ -11121,6 +11699,15 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      interface_direction: ["inbound", "outbound", "bidirectional"],
+      interface_msg_status: [
+        "queued",
+        "sent",
+        "ack",
+        "failed",
+        "retrying",
+        "dead",
+      ],
       ip_request_type: ["surgery", "procedure", "cath", "medical", "day_case"],
       legal_locale: ["en", "ar"],
       legal_slug: [
@@ -11136,6 +11723,12 @@ export const Constants = {
         "rejected",
         "extended",
         "cancelled",
+      ],
+      mapping_type: [
+        "dept_nphies",
+        "cost_erp",
+        "kayan_ext",
+        "order_tariff_payer",
       ],
       portal_role: [
         "superadmin",
@@ -11170,6 +11763,19 @@ export const Constants = {
         "certified",
         "cancelled",
       ],
+      tax_invoice_type: [
+        "b2b_insurance",
+        "b2c_patient",
+        "direct_company",
+        "credit_note",
+        "debit_note",
+      ],
+      tax_reporting_box: [
+        "insurance_output",
+        "patient_output",
+        "direct_output",
+        "refund_adjustment",
+      ],
       telehealth_status: [
         "scheduled",
         "live",
@@ -11187,6 +11793,7 @@ export const Constants = {
       ],
       work_order_status: ["open", "in_progress", "closed", "cancelled"],
       work_order_type: ["preventive", "corrective"],
+      zatca_status: ["pending", "cleared", "reported", "failed"],
     },
   },
 } as const

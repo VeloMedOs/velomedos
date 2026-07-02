@@ -452,3 +452,111 @@ export const erpPostingApi = {
       `/api/clinical/v1/deposits/erp-posting/bulk`, { method: "POST", body: { action, ids } },
     ),
 };
+
+// -----------------------------------------------------------------------------
+// R7 · Cash · ZATCA · Interfaces
+// -----------------------------------------------------------------------------
+
+export const cashSessionsApi = {
+  list: (params?: { status?: string; drawer_id?: string; opened_by?: string; limit?: number; offset?: number }) =>
+    clinicalFetch<{ data: any[]; counts: Record<string, number>; pagination: { total: number; limit: number; offset: number } }>(
+      `/api/clinical/v1/cash/sessions${qs(params)}`,
+    ),
+  get: (id: string) =>
+    clinicalFetch<{ data: { session: any; txns: any[]; collections: any[] } }>(`/api/clinical/v1/cash/sessions/${id}`),
+  open: (body: { drawer_id?: string; opening_float_minor?: number; note?: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/cash/sessions`, { method: "POST", body }),
+  close: (id: string, body: { counted_minor: Record<string, number>; note?: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/cash/sessions/${id}/close`, { method: "POST", body }),
+  reconcile: (id: string, body: { reason?: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/cash/sessions/${id}/reconcile`, { method: "POST", body }),
+};
+
+export const cashCollectionsApi = {
+  list: (params?: {
+    bucket?: string; status?: string; method?: string; session_id?: string;
+    encounter_id?: string; claim_id?: string; q?: string; limit?: number; offset?: number;
+  }) =>
+    clinicalFetch<{ data: any[]; counts: Record<string, number>; pagination: { total: number; limit: number; offset: number } }>(
+      `/api/clinical/v1/cash/collections${qs(params)}`,
+    ),
+  get: (id: string) =>
+    clinicalFetch<{ data: { row: any; allocations: any[]; deposit_txns: any[] } }>(`/api/clinical/v1/cash/collections/${id}`),
+  create: (body: {
+    encounter_id?: string; claim_id?: string; beneficiary_id: string;
+    method: string; details?: Record<string, unknown>;
+    lines: Array<{ description: string; taxable_minor: number; vat_rate: number; discount_minor?: number }>;
+    deposit_ids?: string[]; credit_note_ids?: string[]; wallet_apply_minor?: number;
+    session_id?: string;
+  }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/cash/collections`, { method: "POST", body }),
+  post: (id: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/cash/collections/${id}/post`, { method: "POST", body: {} }),
+  void: (id: string, reason: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/cash/collections/${id}/void`, { method: "POST", body: { reason } }),
+  bulk: (action: "post" | "void" | "print_receipt" | "reissue_zatca", ids: string[], reason?: string) =>
+    clinicalFetch<{ data: Array<{ id: string; ok: boolean; error?: string }> }>(
+      `/api/clinical/v1/cash/collections/bulk`, { method: "POST", body: { action, ids, reason } },
+    ),
+};
+
+export const cashRefundsApi = {
+  create: (body: {
+    original_collection_id?: string; deposit_id?: string;
+    reason_code: string; refund_method: string; details?: Record<string, unknown>;
+    lines: Array<{ description: string; amount_minor: number; vat_rate: number }>;
+    has_taxed_invoice?: boolean;
+  }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/cash/refunds`, { method: "POST", body }),
+};
+
+export const taxInvoicesApi = {
+  list: (params?: {
+    bucket?: string; status?: string; type?: string; encounter_id?: string;
+    claim_id?: string; buyer_id?: string; q?: string; limit?: number; offset?: number;
+  }) =>
+    clinicalFetch<{ data: any[]; counts: Record<string, number>; pagination: { total: number; limit: number; offset: number } }>(
+      `/api/clinical/v1/tax-invoices${qs(params)}`,
+    ),
+  get: (id: string) =>
+    clinicalFetch<{ data: { invoice: any; lines: any[]; parent?: any; children: any[] } }>(`/api/clinical/v1/tax-invoices/${id}`),
+  issue: (body: {
+    invoice_type: "b2b_insurance" | "b2c_patient" | "direct_company" | "credit_note" | "debit_note";
+    encounter_id?: string; claim_id?: string; buyer_id?: string;
+    lines: Array<{ description: string; qty?: number; unit_price_minor: number; discount_minor?: number; vat_rate?: 0 | 15; reporting_code?: string }>;
+    parent_invoice_id?: string; reason?: string;
+  }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/tax-invoices`, { method: "POST", body }),
+  submitZatca: (id: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/tax-invoices/${id}/submit`, { method: "POST", body: {} }),
+  reprint: (id: string) =>
+    clinicalFetch<{ data: { pdf_url: string; qr_tlv_base64: string } }>(`/api/clinical/v1/tax-invoices/${id}/reprint`, { method: "POST", body: {} }),
+  creditNote: (id: string, body: { reason: string; lines?: Array<{ description: string; amount_minor: number; vat_rate: number }> }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/tax-invoices/${id}/credit-note`, { method: "POST", body }),
+  bulk: (action: "submit" | "reprint" | "cancel", ids: string[], reason?: string) =>
+    clinicalFetch<{ data: Array<{ id: string; ok: boolean; error?: string }> }>(
+      `/api/clinical/v1/tax-invoices/bulk`, { method: "POST", body: { action, ids, reason } },
+    ),
+};
+
+export const interfaceLogApi = {
+  list: (params?: {
+    interface_name?: string; direction?: string; status?: string;
+    correlation_id?: string; from?: string; to?: string; limit?: number; offset?: number;
+  }) =>
+    clinicalFetch<{ data: any[]; counts: Record<string, number>; pagination: { total: number; limit: number; offset: number } }>(
+      `/api/clinical/v1/interfaces/log${qs(params)}`,
+    ),
+  get: (id: string) =>
+    clinicalFetch<{ data: { row: any; siblings: any[] } }>(`/api/clinical/v1/interfaces/log/${id}`),
+  retry: (id: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/interfaces/log/${id}/retry`, { method: "POST", body: {} }),
+  bulk: (action: "retry" | "mark_dead", ids: string[]) =>
+    clinicalFetch<{ data: Array<{ id: string; ok: boolean; error?: string }> }>(
+      `/api/clinical/v1/interfaces/log/bulk`, { method: "POST", body: { action, ids } },
+    ),
+  d365Summary: (date: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/interfaces/d365/summary${qs({ date })}`),
+  postD365Summary: (date: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/interfaces/d365/summary`, { method: "POST", body: { date } }),
+};
