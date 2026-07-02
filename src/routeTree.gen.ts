@@ -288,6 +288,7 @@ import { Route as ApiClinicalV1ClaimsMgmtDenialsBulkRouteImport } from './routes
 import { Route as ApiClinicalV1ClaimsMgmtDenialsIdRouteImport } from './routes/api/clinical/v1/claims-mgmt/denials.$id'
 import { Route as ApiClinicalV1ClaimsMgmtBatchesBulkRouteImport } from './routes/api/clinical/v1/claims-mgmt/batches.bulk'
 import { Route as ApiClinicalV1ClaimsMgmtBatchesIdRouteImport } from './routes/api/clinical/v1/claims-mgmt/batches.$id'
+import { Route as ApiClinicalV1CashSessionsIdRouteImport } from './routes/api/clinical/v1/cash.sessions.$id'
 import { Route as ApiClinicalV1BeneficiariesIdFhirRouteImport } from './routes/api/clinical/v1/beneficiaries.$id.fhir'
 import { Route as ApiClinicalV1BeneficiariesIdCoverageRouteImport } from './routes/api/clinical/v1/beneficiaries.$id.coverage'
 import { Route as ApiClinicalV1AuthRequestsBulkRouteImport } from './routes/api/clinical/v1/auth/requests.bulk'
@@ -323,6 +324,8 @@ import { Route as ApiClinicalV1DepositsCreditNotesIdVoidRouteImport } from './ro
 import { Route as ApiClinicalV1ClaimsMgmtRemittancesIdActionRouteImport } from './routes/api/clinical/v1/claims-mgmt/remittances.$id.action'
 import { Route as ApiClinicalV1ClaimsMgmtDenialsIdActionRouteImport } from './routes/api/clinical/v1/claims-mgmt/denials.$id.action'
 import { Route as ApiClinicalV1ClaimsMgmtBatchesIdSubmitRouteImport } from './routes/api/clinical/v1/claims-mgmt/batches.$id.submit'
+import { Route as ApiClinicalV1CashSessionsIdReconcileRouteImport } from './routes/api/clinical/v1/cash.sessions.$id.reconcile'
+import { Route as ApiClinicalV1CashSessionsIdCloseRouteImport } from './routes/api/clinical/v1/cash.sessions.$id.close'
 import { Route as ApiClinicalV1AuthRequestsIdSubmitRouteImport } from './routes/api/clinical/v1/auth/requests.$id.submit'
 import { Route as ApiClinicalV1AuthRequestsIdDecisionRouteImport } from './routes/api/clinical/v1/auth/requests.$id.decision'
 import { Route as ApiClinicalV1AuthRequestsIdCommunicationsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.communications'
@@ -1885,6 +1888,12 @@ const ApiClinicalV1ClaimsMgmtBatchesIdRoute =
     path: '/$id',
     getParentRoute: () => ApiClinicalV1ClaimsMgmtBatchesRoute,
   } as any)
+const ApiClinicalV1CashSessionsIdRoute =
+  ApiClinicalV1CashSessionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiClinicalV1CashSessionsRoute,
+  } as any)
 const ApiClinicalV1BeneficiariesIdFhirRoute =
   ApiClinicalV1BeneficiariesIdFhirRouteImport.update({
     id: '/fhir',
@@ -2095,6 +2104,18 @@ const ApiClinicalV1ClaimsMgmtBatchesIdSubmitRoute =
     path: '/submit',
     getParentRoute: () => ApiClinicalV1ClaimsMgmtBatchesIdRoute,
   } as any)
+const ApiClinicalV1CashSessionsIdReconcileRoute =
+  ApiClinicalV1CashSessionsIdReconcileRouteImport.update({
+    id: '/reconcile',
+    path: '/reconcile',
+    getParentRoute: () => ApiClinicalV1CashSessionsIdRoute,
+  } as any)
+const ApiClinicalV1CashSessionsIdCloseRoute =
+  ApiClinicalV1CashSessionsIdCloseRouteImport.update({
+    id: '/close',
+    path: '/close',
+    getParentRoute: () => ApiClinicalV1CashSessionsIdRoute,
+  } as any)
 const ApiClinicalV1AuthRequestsIdSubmitRoute =
   ApiClinicalV1AuthRequestsIdSubmitRouteImport.update({
     id: '/submit',
@@ -2272,7 +2293,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRouteWithChildren
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
-  '/api/clinical/v1/cash/sessions': typeof ApiClinicalV1CashSessionsRoute
+  '/api/clinical/v1/cash/sessions': typeof ApiClinicalV1CashSessionsRouteWithChildren
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
   '/api/clinical/v1/claims-mgmt/batches': typeof ApiClinicalV1ClaimsMgmtBatchesRouteWithChildren
   '/api/clinical/v1/claims-mgmt/denials': typeof ApiClinicalV1ClaimsMgmtDenialsRouteWithChildren
@@ -2340,6 +2361,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/auth/requests/bulk': typeof ApiClinicalV1AuthRequestsBulkRoute
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
+  '/api/clinical/v1/cash/sessions/$id': typeof ApiClinicalV1CashSessionsIdRouteWithChildren
   '/api/clinical/v1/claims-mgmt/batches/$id': typeof ApiClinicalV1ClaimsMgmtBatchesIdRouteWithChildren
   '/api/clinical/v1/claims-mgmt/batches/bulk': typeof ApiClinicalV1ClaimsMgmtBatchesBulkRoute
   '/api/clinical/v1/claims-mgmt/denials/$id': typeof ApiClinicalV1ClaimsMgmtDenialsIdRouteWithChildren
@@ -2426,6 +2448,8 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/auth/requests/$id/communications': typeof ApiClinicalV1AuthRequestsIdCommunicationsRoute
   '/api/clinical/v1/auth/requests/$id/decision': typeof ApiClinicalV1AuthRequestsIdDecisionRoute
   '/api/clinical/v1/auth/requests/$id/submit': typeof ApiClinicalV1AuthRequestsIdSubmitRoute
+  '/api/clinical/v1/cash/sessions/$id/close': typeof ApiClinicalV1CashSessionsIdCloseRoute
+  '/api/clinical/v1/cash/sessions/$id/reconcile': typeof ApiClinicalV1CashSessionsIdReconcileRoute
   '/api/clinical/v1/claims-mgmt/batches/$id/submit': typeof ApiClinicalV1ClaimsMgmtBatchesIdSubmitRoute
   '/api/clinical/v1/claims-mgmt/denials/$id/action': typeof ApiClinicalV1ClaimsMgmtDenialsIdActionRoute
   '/api/clinical/v1/claims-mgmt/remittances/$id/action': typeof ApiClinicalV1ClaimsMgmtRemittancesIdActionRoute
@@ -2591,7 +2615,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRouteWithChildren
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
-  '/api/clinical/v1/cash/sessions': typeof ApiClinicalV1CashSessionsRoute
+  '/api/clinical/v1/cash/sessions': typeof ApiClinicalV1CashSessionsRouteWithChildren
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
   '/api/clinical/v1/claims-mgmt/batches': typeof ApiClinicalV1ClaimsMgmtBatchesRouteWithChildren
   '/api/clinical/v1/claims-mgmt/denials': typeof ApiClinicalV1ClaimsMgmtDenialsRouteWithChildren
@@ -2659,6 +2683,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/auth/requests/bulk': typeof ApiClinicalV1AuthRequestsBulkRoute
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
+  '/api/clinical/v1/cash/sessions/$id': typeof ApiClinicalV1CashSessionsIdRouteWithChildren
   '/api/clinical/v1/claims-mgmt/batches/$id': typeof ApiClinicalV1ClaimsMgmtBatchesIdRouteWithChildren
   '/api/clinical/v1/claims-mgmt/batches/bulk': typeof ApiClinicalV1ClaimsMgmtBatchesBulkRoute
   '/api/clinical/v1/claims-mgmt/denials/$id': typeof ApiClinicalV1ClaimsMgmtDenialsIdRouteWithChildren
@@ -2745,6 +2770,8 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/auth/requests/$id/communications': typeof ApiClinicalV1AuthRequestsIdCommunicationsRoute
   '/api/clinical/v1/auth/requests/$id/decision': typeof ApiClinicalV1AuthRequestsIdDecisionRoute
   '/api/clinical/v1/auth/requests/$id/submit': typeof ApiClinicalV1AuthRequestsIdSubmitRoute
+  '/api/clinical/v1/cash/sessions/$id/close': typeof ApiClinicalV1CashSessionsIdCloseRoute
+  '/api/clinical/v1/cash/sessions/$id/reconcile': typeof ApiClinicalV1CashSessionsIdReconcileRoute
   '/api/clinical/v1/claims-mgmt/batches/$id/submit': typeof ApiClinicalV1ClaimsMgmtBatchesIdSubmitRoute
   '/api/clinical/v1/claims-mgmt/denials/$id/action': typeof ApiClinicalV1ClaimsMgmtDenialsIdActionRoute
   '/api/clinical/v1/claims-mgmt/remittances/$id/action': typeof ApiClinicalV1ClaimsMgmtRemittancesIdActionRoute
@@ -2914,7 +2941,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRouteWithChildren
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
-  '/api/clinical/v1/cash/sessions': typeof ApiClinicalV1CashSessionsRoute
+  '/api/clinical/v1/cash/sessions': typeof ApiClinicalV1CashSessionsRouteWithChildren
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
   '/api/clinical/v1/claims-mgmt/batches': typeof ApiClinicalV1ClaimsMgmtBatchesRouteWithChildren
   '/api/clinical/v1/claims-mgmt/denials': typeof ApiClinicalV1ClaimsMgmtDenialsRouteWithChildren
@@ -2982,6 +3009,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/auth/requests/bulk': typeof ApiClinicalV1AuthRequestsBulkRoute
   '/api/clinical/v1/beneficiaries/$id/coverage': typeof ApiClinicalV1BeneficiariesIdCoverageRoute
   '/api/clinical/v1/beneficiaries/$id/fhir': typeof ApiClinicalV1BeneficiariesIdFhirRoute
+  '/api/clinical/v1/cash/sessions/$id': typeof ApiClinicalV1CashSessionsIdRouteWithChildren
   '/api/clinical/v1/claims-mgmt/batches/$id': typeof ApiClinicalV1ClaimsMgmtBatchesIdRouteWithChildren
   '/api/clinical/v1/claims-mgmt/batches/bulk': typeof ApiClinicalV1ClaimsMgmtBatchesBulkRoute
   '/api/clinical/v1/claims-mgmt/denials/$id': typeof ApiClinicalV1ClaimsMgmtDenialsIdRouteWithChildren
@@ -3068,6 +3096,8 @@ export interface FileRoutesById {
   '/api/clinical/v1/auth/requests/$id/communications': typeof ApiClinicalV1AuthRequestsIdCommunicationsRoute
   '/api/clinical/v1/auth/requests/$id/decision': typeof ApiClinicalV1AuthRequestsIdDecisionRoute
   '/api/clinical/v1/auth/requests/$id/submit': typeof ApiClinicalV1AuthRequestsIdSubmitRoute
+  '/api/clinical/v1/cash/sessions/$id/close': typeof ApiClinicalV1CashSessionsIdCloseRoute
+  '/api/clinical/v1/cash/sessions/$id/reconcile': typeof ApiClinicalV1CashSessionsIdReconcileRoute
   '/api/clinical/v1/claims-mgmt/batches/$id/submit': typeof ApiClinicalV1ClaimsMgmtBatchesIdSubmitRoute
   '/api/clinical/v1/claims-mgmt/denials/$id/action': typeof ApiClinicalV1ClaimsMgmtDenialsIdActionRoute
   '/api/clinical/v1/claims-mgmt/remittances/$id/action': typeof ApiClinicalV1ClaimsMgmtRemittancesIdActionRoute
@@ -3305,6 +3335,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/auth/requests/bulk'
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
+    | '/api/clinical/v1/cash/sessions/$id'
     | '/api/clinical/v1/claims-mgmt/batches/$id'
     | '/api/clinical/v1/claims-mgmt/batches/bulk'
     | '/api/clinical/v1/claims-mgmt/denials/$id'
@@ -3391,6 +3422,8 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/auth/requests/$id/communications'
     | '/api/clinical/v1/auth/requests/$id/decision'
     | '/api/clinical/v1/auth/requests/$id/submit'
+    | '/api/clinical/v1/cash/sessions/$id/close'
+    | '/api/clinical/v1/cash/sessions/$id/reconcile'
     | '/api/clinical/v1/claims-mgmt/batches/$id/submit'
     | '/api/clinical/v1/claims-mgmt/denials/$id/action'
     | '/api/clinical/v1/claims-mgmt/remittances/$id/action'
@@ -3624,6 +3657,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/auth/requests/bulk'
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
+    | '/api/clinical/v1/cash/sessions/$id'
     | '/api/clinical/v1/claims-mgmt/batches/$id'
     | '/api/clinical/v1/claims-mgmt/batches/bulk'
     | '/api/clinical/v1/claims-mgmt/denials/$id'
@@ -3710,6 +3744,8 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/auth/requests/$id/communications'
     | '/api/clinical/v1/auth/requests/$id/decision'
     | '/api/clinical/v1/auth/requests/$id/submit'
+    | '/api/clinical/v1/cash/sessions/$id/close'
+    | '/api/clinical/v1/cash/sessions/$id/reconcile'
     | '/api/clinical/v1/claims-mgmt/batches/$id/submit'
     | '/api/clinical/v1/claims-mgmt/denials/$id/action'
     | '/api/clinical/v1/claims-mgmt/remittances/$id/action'
@@ -3946,6 +3982,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/auth/requests/bulk'
     | '/api/clinical/v1/beneficiaries/$id/coverage'
     | '/api/clinical/v1/beneficiaries/$id/fhir'
+    | '/api/clinical/v1/cash/sessions/$id'
     | '/api/clinical/v1/claims-mgmt/batches/$id'
     | '/api/clinical/v1/claims-mgmt/batches/bulk'
     | '/api/clinical/v1/claims-mgmt/denials/$id'
@@ -4032,6 +4069,8 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/auth/requests/$id/communications'
     | '/api/clinical/v1/auth/requests/$id/decision'
     | '/api/clinical/v1/auth/requests/$id/submit'
+    | '/api/clinical/v1/cash/sessions/$id/close'
+    | '/api/clinical/v1/cash/sessions/$id/reconcile'
     | '/api/clinical/v1/claims-mgmt/batches/$id/submit'
     | '/api/clinical/v1/claims-mgmt/denials/$id/action'
     | '/api/clinical/v1/claims-mgmt/remittances/$id/action'
@@ -4154,7 +4193,7 @@ export interface RootRouteChildren {
   ApiAdminV1UsageDailyRoute: typeof ApiAdminV1UsageDailyRoute
   ApiClinicalV1AuthRequestsRoute: typeof ApiClinicalV1AuthRequestsRouteWithChildren
   ApiClinicalV1CareTeamIdRoute: typeof ApiClinicalV1CareTeamIdRoute
-  ApiClinicalV1CashSessionsRoute: typeof ApiClinicalV1CashSessionsRoute
+  ApiClinicalV1CashSessionsRoute: typeof ApiClinicalV1CashSessionsRouteWithChildren
   ApiClinicalV1CatalogSearchRoute: typeof ApiClinicalV1CatalogSearchRoute
   ApiClinicalV1ClaimsMgmtBatchesRoute: typeof ApiClinicalV1ClaimsMgmtBatchesRouteWithChildren
   ApiClinicalV1ClaimsMgmtDenialsRoute: typeof ApiClinicalV1ClaimsMgmtDenialsRouteWithChildren
@@ -6165,6 +6204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1ClaimsMgmtBatchesIdRouteImport
       parentRoute: typeof ApiClinicalV1ClaimsMgmtBatchesRoute
     }
+    '/api/clinical/v1/cash/sessions/$id': {
+      id: '/api/clinical/v1/cash/sessions/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/cash/sessions/$id'
+      preLoaderRoute: typeof ApiClinicalV1CashSessionsIdRouteImport
+      parentRoute: typeof ApiClinicalV1CashSessionsRoute
+    }
     '/api/clinical/v1/beneficiaries/$id/fhir': {
       id: '/api/clinical/v1/beneficiaries/$id/fhir'
       path: '/fhir'
@@ -6409,6 +6455,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/clinical/v1/claims-mgmt/batches/$id/submit'
       preLoaderRoute: typeof ApiClinicalV1ClaimsMgmtBatchesIdSubmitRouteImport
       parentRoute: typeof ApiClinicalV1ClaimsMgmtBatchesIdRoute
+    }
+    '/api/clinical/v1/cash/sessions/$id/reconcile': {
+      id: '/api/clinical/v1/cash/sessions/$id/reconcile'
+      path: '/reconcile'
+      fullPath: '/api/clinical/v1/cash/sessions/$id/reconcile'
+      preLoaderRoute: typeof ApiClinicalV1CashSessionsIdReconcileRouteImport
+      parentRoute: typeof ApiClinicalV1CashSessionsIdRoute
+    }
+    '/api/clinical/v1/cash/sessions/$id/close': {
+      id: '/api/clinical/v1/cash/sessions/$id/close'
+      path: '/close'
+      fullPath: '/api/clinical/v1/cash/sessions/$id/close'
+      preLoaderRoute: typeof ApiClinicalV1CashSessionsIdCloseRouteImport
+      parentRoute: typeof ApiClinicalV1CashSessionsIdRoute
     }
     '/api/clinical/v1/auth/requests/$id/submit': {
       id: '/api/clinical/v1/auth/requests/$id/submit'
@@ -7252,6 +7312,39 @@ const ApiClinicalV1AuthRequestsRouteWithChildren =
     ApiClinicalV1AuthRequestsRouteChildren,
   )
 
+interface ApiClinicalV1CashSessionsIdRouteChildren {
+  ApiClinicalV1CashSessionsIdCloseRoute: typeof ApiClinicalV1CashSessionsIdCloseRoute
+  ApiClinicalV1CashSessionsIdReconcileRoute: typeof ApiClinicalV1CashSessionsIdReconcileRoute
+}
+
+const ApiClinicalV1CashSessionsIdRouteChildren: ApiClinicalV1CashSessionsIdRouteChildren =
+  {
+    ApiClinicalV1CashSessionsIdCloseRoute:
+      ApiClinicalV1CashSessionsIdCloseRoute,
+    ApiClinicalV1CashSessionsIdReconcileRoute:
+      ApiClinicalV1CashSessionsIdReconcileRoute,
+  }
+
+const ApiClinicalV1CashSessionsIdRouteWithChildren =
+  ApiClinicalV1CashSessionsIdRoute._addFileChildren(
+    ApiClinicalV1CashSessionsIdRouteChildren,
+  )
+
+interface ApiClinicalV1CashSessionsRouteChildren {
+  ApiClinicalV1CashSessionsIdRoute: typeof ApiClinicalV1CashSessionsIdRouteWithChildren
+}
+
+const ApiClinicalV1CashSessionsRouteChildren: ApiClinicalV1CashSessionsRouteChildren =
+  {
+    ApiClinicalV1CashSessionsIdRoute:
+      ApiClinicalV1CashSessionsIdRouteWithChildren,
+  }
+
+const ApiClinicalV1CashSessionsRouteWithChildren =
+  ApiClinicalV1CashSessionsRoute._addFileChildren(
+    ApiClinicalV1CashSessionsRouteChildren,
+  )
+
 interface ApiClinicalV1ClaimsMgmtBatchesIdRouteChildren {
   ApiClinicalV1ClaimsMgmtBatchesIdSubmitRoute: typeof ApiClinicalV1ClaimsMgmtBatchesIdSubmitRoute
 }
@@ -7931,7 +8024,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1UsageDailyRoute: ApiAdminV1UsageDailyRoute,
   ApiClinicalV1AuthRequestsRoute: ApiClinicalV1AuthRequestsRouteWithChildren,
   ApiClinicalV1CareTeamIdRoute: ApiClinicalV1CareTeamIdRoute,
-  ApiClinicalV1CashSessionsRoute: ApiClinicalV1CashSessionsRoute,
+  ApiClinicalV1CashSessionsRoute: ApiClinicalV1CashSessionsRouteWithChildren,
   ApiClinicalV1CatalogSearchRoute: ApiClinicalV1CatalogSearchRoute,
   ApiClinicalV1ClaimsMgmtBatchesRoute:
     ApiClinicalV1ClaimsMgmtBatchesRouteWithChildren,
