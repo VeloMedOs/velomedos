@@ -175,6 +175,7 @@ import { Route as ApiClinicalV1ClaimsMgmtDenialsRouteImport } from './routes/api
 import { Route as ApiClinicalV1ClaimsMgmtBatchesRouteImport } from './routes/api/clinical/v1/claims-mgmt/batches'
 import { Route as ApiClinicalV1CatalogSearchRouteImport } from './routes/api/clinical/v1/catalog.search'
 import { Route as ApiClinicalV1CashSessionsRouteImport } from './routes/api/clinical/v1/cash.sessions'
+import { Route as ApiClinicalV1CashCollectionsRouteImport } from './routes/api/clinical/v1/cash.collections'
 import { Route as ApiClinicalV1CareTeamIdRouteImport } from './routes/api/clinical/v1/care-team.$id'
 import { Route as ApiClinicalV1BeneficiariesIdRouteImport } from './routes/api/clinical/v1/beneficiaries.$id'
 import { Route as ApiClinicalV1AuthRequestsRouteImport } from './routes/api/clinical/v1/auth/requests'
@@ -1224,6 +1225,12 @@ const ApiClinicalV1CashSessionsRoute =
   ApiClinicalV1CashSessionsRouteImport.update({
     id: '/api/clinical/v1/cash/sessions',
     path: '/api/clinical/v1/cash/sessions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1CashCollectionsRoute =
+  ApiClinicalV1CashCollectionsRouteImport.update({
+    id: '/api/clinical/v1/cash/collections',
+    path: '/api/clinical/v1/cash/collections',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1CareTeamIdRoute = ApiClinicalV1CareTeamIdRouteImport.update({
@@ -2293,6 +2300,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRouteWithChildren
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
+  '/api/clinical/v1/cash/collections': typeof ApiClinicalV1CashCollectionsRoute
   '/api/clinical/v1/cash/sessions': typeof ApiClinicalV1CashSessionsRouteWithChildren
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
   '/api/clinical/v1/claims-mgmt/batches': typeof ApiClinicalV1ClaimsMgmtBatchesRouteWithChildren
@@ -2615,6 +2623,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRouteWithChildren
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
+  '/api/clinical/v1/cash/collections': typeof ApiClinicalV1CashCollectionsRoute
   '/api/clinical/v1/cash/sessions': typeof ApiClinicalV1CashSessionsRouteWithChildren
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
   '/api/clinical/v1/claims-mgmt/batches': typeof ApiClinicalV1ClaimsMgmtBatchesRouteWithChildren
@@ -2941,6 +2950,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRouteWithChildren
   '/api/clinical/v1/beneficiaries/$id': typeof ApiClinicalV1BeneficiariesIdRouteWithChildren
   '/api/clinical/v1/care-team/$id': typeof ApiClinicalV1CareTeamIdRoute
+  '/api/clinical/v1/cash/collections': typeof ApiClinicalV1CashCollectionsRoute
   '/api/clinical/v1/cash/sessions': typeof ApiClinicalV1CashSessionsRouteWithChildren
   '/api/clinical/v1/catalog/search': typeof ApiClinicalV1CatalogSearchRoute
   '/api/clinical/v1/claims-mgmt/batches': typeof ApiClinicalV1ClaimsMgmtBatchesRouteWithChildren
@@ -3267,6 +3277,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/auth/requests'
     | '/api/clinical/v1/beneficiaries/$id'
     | '/api/clinical/v1/care-team/$id'
+    | '/api/clinical/v1/cash/collections'
     | '/api/clinical/v1/cash/sessions'
     | '/api/clinical/v1/catalog/search'
     | '/api/clinical/v1/claims-mgmt/batches'
@@ -3589,6 +3600,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/auth/requests'
     | '/api/clinical/v1/beneficiaries/$id'
     | '/api/clinical/v1/care-team/$id'
+    | '/api/clinical/v1/cash/collections'
     | '/api/clinical/v1/cash/sessions'
     | '/api/clinical/v1/catalog/search'
     | '/api/clinical/v1/claims-mgmt/batches'
@@ -3914,6 +3926,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/auth/requests'
     | '/api/clinical/v1/beneficiaries/$id'
     | '/api/clinical/v1/care-team/$id'
+    | '/api/clinical/v1/cash/collections'
     | '/api/clinical/v1/cash/sessions'
     | '/api/clinical/v1/catalog/search'
     | '/api/clinical/v1/claims-mgmt/batches'
@@ -4193,6 +4206,7 @@ export interface RootRouteChildren {
   ApiAdminV1UsageDailyRoute: typeof ApiAdminV1UsageDailyRoute
   ApiClinicalV1AuthRequestsRoute: typeof ApiClinicalV1AuthRequestsRouteWithChildren
   ApiClinicalV1CareTeamIdRoute: typeof ApiClinicalV1CareTeamIdRoute
+  ApiClinicalV1CashCollectionsRoute: typeof ApiClinicalV1CashCollectionsRoute
   ApiClinicalV1CashSessionsRoute: typeof ApiClinicalV1CashSessionsRouteWithChildren
   ApiClinicalV1CatalogSearchRoute: typeof ApiClinicalV1CatalogSearchRoute
   ApiClinicalV1ClaimsMgmtBatchesRoute: typeof ApiClinicalV1ClaimsMgmtBatchesRouteWithChildren
@@ -5411,6 +5425,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/cash/sessions'
       fullPath: '/api/clinical/v1/cash/sessions'
       preLoaderRoute: typeof ApiClinicalV1CashSessionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/cash/collections': {
+      id: '/api/clinical/v1/cash/collections'
+      path: '/api/clinical/v1/cash/collections'
+      fullPath: '/api/clinical/v1/cash/collections'
+      preLoaderRoute: typeof ApiClinicalV1CashCollectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/care-team/$id': {
@@ -8024,6 +8045,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1UsageDailyRoute: ApiAdminV1UsageDailyRoute,
   ApiClinicalV1AuthRequestsRoute: ApiClinicalV1AuthRequestsRouteWithChildren,
   ApiClinicalV1CareTeamIdRoute: ApiClinicalV1CareTeamIdRoute,
+  ApiClinicalV1CashCollectionsRoute: ApiClinicalV1CashCollectionsRoute,
   ApiClinicalV1CashSessionsRoute: ApiClinicalV1CashSessionsRouteWithChildren,
   ApiClinicalV1CatalogSearchRoute: ApiClinicalV1CatalogSearchRoute,
   ApiClinicalV1ClaimsMgmtBatchesRoute:
