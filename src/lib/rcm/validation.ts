@@ -16,6 +16,20 @@
 import type { ReadinessBundle } from "@/lib/mds/claim-loader";
 import type { MissingItem } from "@/lib/mds/validation";
 
+/**
+ * R7 — cash / ZATCA blockers exposed as string constants so panes and
+ * server handlers can raise the same codes.
+ */
+export const R7_BLOCKERS = {
+  EXECUTED_ONLY:                "EXECUTED_ONLY",
+  ELIGIBILITY_RECHECK_REQUIRED: "ELIGIBILITY_RECHECK_REQUIRED",
+  SAME_METHOD_REFUND:           "SAME_METHOD_REFUND",
+  VAT_REVERSAL_REQUIRED:        "VAT_REVERSAL_REQUIRED",
+  SESSION_MUST_BALANCE:         "SESSION_MUST_BALANCE",
+  ZATCA_STRUCTURE_INVALID:      "ZATCA_STRUCTURE_INVALID",
+  METHOD_DETAIL_MISSING:        "METHOD_DETAIL_MISSING",
+} as const;
+
 export type RcmReadiness = {
   ok: boolean;
   missing: MissingItem[];
