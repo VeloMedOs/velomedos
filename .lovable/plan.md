@@ -1,179 +1,152 @@
-# Step 1 — Turn 2 (CORRECTED v1.1, schema-verified @758f4bc): M14 Seeds + M15 Fixes + Code Layer
+# Step 1 — Turn 3: D5–D9 fixes first, then the deferred surface
 
-Sequence: **M14 (seeds) → M15 (function fixes) → TS/API/UI**. All SQL below is verified against the live schema — do not re-derive column names; the pre-flight queries are already done and encoded here.
+Order matters. The predicate and rule seeds ship in Part 1 before any consumer (`gate/preview`, spine components, worklists) lands in Part 2.
 
-## Verified schema facts (do not deviate)
+## Part 1 — Correctness fixes
 
-- `refund_request` has **no** `claim_id`**, no** `encounter_id` — only `deposit_id`. `deposit` carries `encounter_id` AND `admission_request_id`. Refund statuses: pending → approved → executed (plus held/rejected).
-- `cash_status` = ('draft','posted','voided') — voided cash refunds are auto-excluded by the existing `status='posted'` filter; no extra refund clause needed for cash, but the TS mirror must keep that filter.
-- `charge_status` = ('ordered','collected','in_progress','resulted','dispensed','cancelled'). The literals `performed/released/completed/executed` do not exist.
-- `encounter.class` is **text** with CHECK ('AMB','EMER','IMP','HH','VR'). Day case is NOT a class: it is `admission_request.request_type = 'day_case'` (`ip_request_type` enum: surgery, procedure, cath, medical, day_case).
-- `admission_request` has `requested_deposit_minor`, `paid_amount_minor`, `coverage_id`, `encounter_id` — but **no** `estimated_charges_minor` (M15 adds it).
-- `authorization_request.encounter_id` exists — the D3 join is valid.
-- `preauth_required` exists on **three** levels: order-item tables (resolved per order), `service_master`, and `drug_master` (catalog defaults). Order-item flag is authoritative; masters are conservative fallback.
-- `rcm_admin_config_get(_tenant uuid, _key text, _default jsonb DEFAULT NULL) RETURNS jsonb` — extract scalars with `#>> '{}'`.
-- `pricing_rule_scope` **already contains** 'referral' and 'pbm' (landed in M05). M14 must not touch the type.
+### M16 — `charge_is_billed()` cash-scope fix (SQL, function replace only)
 
----
+Replace only the `_paid_minor` cumulative-cash block inside `public.charge_is_billed()`. Everything else stays byte-for-byte identical (D1 lineage, D2 encounter-class, D3 admission gate, D4 committed-cash sum, exception short-circuit, cancelled guard).
 
-## M14 — Seeds (data only — NO type/DDL changes)
+New reducer:
 
-1. `rcm_admin_config` per-tenant defaults (loop `corporate_accounts`, `ON CONFLICT DO NOTHING`): `ip_deposit_min_percent=35`, `self_pay_release="full"`, `override_roles=["rcm"]`, `er_supply_days_max=7`, `wallet_block_scope="all_orders"`, `op_dispense_days_max=14`, `installment_policy={}`, `indication_severity_default="block"`.
-2. R-PBM1–R-PBM6 as `pricing_rule` rows `scope='pbm'` (tenant_id NULL, active=true).
-3. Referral Rules A–E as `pricing_rule` rows `scope='referral'` per Addendum 1-A payloads.
-
-Delete any "add enum values / convert to text check" pre-flight — the scope values exist; adding DDL here would violate the one-concern-per-migration rule.
-
----
-
-## M15 — Function fixes (`CREATE OR REPLACE`, preserve `SET search_path = public` + security context)
-
-### M15.0 — Schema prerequisite (same migration, ordinary ADD COLUMN — safe)
-
-```sql
-ALTER TABLE public.admission_request
-  ADD COLUMN IF NOT EXISTS estimated_charges_minor bigint NULL;
-
+```text
+SELECT COALESCE(SUM(net_collected_minor), 0) INTO _paid_minor
+  FROM public.cash_collection cc
+ WHERE cc.tenant_id = _charge.tenant_id
+   AND cc.status = 'posted'
+   AND (cc.encounter_id = _charge.encounter_id
+     OR cc.claim_id IN (SELECT c.id FROM public.claim c
+                         WHERE c.encounter_id = _charge.encounter_id));
 ```
 
-### D1 · Scoped refund re-lock in `charge_is_billed()`
+The `OR beneficiary_id = ...` branch is removed. Voided/refunded collections are already excluded by `status = 'posted'`.
 
-Remove the dead `_refunded … NULL;` block and its mis-scoped query. Replace with (deposit is the only linkage path):
+### M17 — Referral rule reseed (data-only)
 
-```sql
-IF EXISTS (
-  SELECT 1
-    FROM public.refund_request r
-    JOIN public.deposit d ON d.id = r.deposit_id
-   WHERE r.tenant_id = _charge.tenant_id
-     AND r.status IN ('approved','executed')
-     AND (
-       d.encounter_id = _charge.encounter_id
-       OR d.admission_request_id IN (
-            SELECT ar.id FROM public.admission_request ar
-             WHERE ar.encounter_id = _charge.encounter_id)
-     )
-) THEN
-  RETURN false;  -- releasing exceptions already short-circuited above
-END IF;
+The five currently-seeded `scope='referral'` rows do not match Addendum 1-A and Rule A is actively harmful (blocks the most common referral path). Delete and reseed:
 
+- `DELETE FROM public.pricing_rule WHERE tenant_id IS NULL AND scope = 'referral';`
+- Insert the five rows exactly as specified: Rule A (cross-specialty → `preauth_required + charge_mode='new_consult'`, no block), Rule B (same-specialty ≤14d → `follow_up`, no preauth), Rule C (≥15d lapse → `series_or_no_charge` resolver with `series_specialties: ["physio","rehab","dialysis"]`), Rule D (dental → `approval_before_save + class_limit_check='policy.dental_visits' + recheck_if_bill_after_visit`), Rule E (overbook → `alert_only + hard_cap_key='overbook_limit'`).
+- Priorities 10/20/30/40/50; all `active=true`; `ON CONFLICT DO NOTHING`.
+
+### TS fix 1 — `src/lib/rcm/billed-gate.ts` cash scope (mirror of M16)
+
+`BilledGateFacts.cashCollections`: replace `beneficiary_id` with `encounter_id` on the picked columns. The reducer's filter becomes `cc.encounter_id === charge.encounter_id || (cc.claim_id && claimIds.has(cc.claim_id))`. Remove every reference to `f.encounter.beneficiary_id` from the paid computation. Voided rows already excluded by `status === 'posted'`.
+
+### TS fix 2 — multi-admission refund lineage
+
+Add `admissionIdsForEncounter: string[]` to `BilledGateFacts`. In the D1 re-lock check, replace the current single-admission `Set` (built from `f.admission?.id`) with `new Set(f.admissionIdsForEncounter)`. Deposits still match by `encounter_id === charge.encounter_id` OR by `admission_request_id ∈ admissionIdsForEncounter`. `f.admission` remains for the D2 IP/day-case branch (latest is fine there).
+
+### TS fix 3 — `src/lib/mds/rules.ts` trigger folding layer
+
+Leave `evaluateTriggers()` signature untouched. Add and export:
+
+```text
+export type TriggerOutcome = {
+  preauth_required: boolean;
+  charge_mode: "new_consult" | "follow_up" | "series" | "no_charge" | null;
+  discount: number | null;
+  eligibility_check_required: boolean;
+  block_reason: string | null;
+};
+export function foldTriggerOutcome(hits: TriggerHit[]): TriggerOutcome;
 ```
 
-### D2 · Encounter-class branch + drg_bundled release
+Resolution rules:
 
-Insert before the pricing-mode branches:
+- Sort hits by `priority` ascending; ties keep input order.
+- `preauth_required = OR` across all hits' `action.preauth_required === true`.
+- `charge_mode`: first hit whose action carries `charge_mode` (string literal) wins; if only `charge_mode_resolver === 'series_or_no_charge'` is present, resolve to `series` when the caller-supplied fact `target_specialty` ∈ action.series_specialties, else `no_charge`. The resolver requires facts to be passed in — signature stays hit-only, so we read `series_specialties` from the action and defer specialty knowledge to the caller: `foldTriggerOutcome(hits, facts?)` with an optional second arg `{ target_specialty?: string }`.
+- `discount`: first hit whose action carries a numeric `discount` wins; else `null`.
+- `eligibility_check_required = OR` of `action.eligibility_check_required === true`.
+- `block_reason = null` unless a hit carries an explicit `action.block === true` **or** the caller-supplied cap check (Rule E) breaches — Rule E carries `alert_only`, so `block_reason` stays `null` inside the fold; the caller enforces the hard cap. Documented in the JSDoc so callers do not expect the fold to know config values.
 
-```sql
-SELECT class INTO _class FROM public.encounter WHERE id = _charge.encounter_id;
+### Parity fixtures — `src/lib/rcm/billed-gate.test.ts` (bun test)
 
-SELECT id, request_type INTO _adm_id, _adm_type
-  FROM public.admission_request
- WHERE encounter_id = _charge.encounter_id
-   AND status NOT IN ('cancelled','rejected')          -- use actual admission status literals
- ORDER BY created_at DESC LIMIT 1;
+Create the file with six fixtures. All use hand-rolled fact objects (no DB). Each fixture asserts `chargeIsBilled(f)` (or `foldTriggerOutcome(hits)`) against the SQL-parity expected outcome.
 
-IF _class = 'IMP' OR (_adm_id IS NOT NULL AND _adm_type = 'day_case') THEN
-  IF _adm_id IS NULL THEN RETURN false; END IF;
-  IF NOT public.admission_gate_open(_adm_id) THEN RETURN false; END IF;
+1. **IMP + drg_bundled, admission gate open** → `{ billed: true, via: 'admission_gate' }`. No auth required (drg_bundled, no per-item preauth flag).
+2. **AMB encounter with active day_case admission** → routes through admission gate; gate open, no preauth → `{ billed: true, via: 'admission_gate' }`.
+3. **Self-pay: 1 posted payment (100), 3 cash orders (100 each)** — evaluate order #1 → `{ billed: true, via: 'self_pay_cumulative' }`; evaluate order #2 with #1 already `past-gate` → `{ billed: false, reason: 'self_pay_insufficient' }`.
+4. **Approved refund on a deposit of the encounter's admission** — deposit's `admission_request_id ∈ admissionIdsForEncounter` → `{ billed: false, reason: 'refund_relock' }`.
+5. **D5 regression guard** — cash collection with `encounter_id` ≠ charge's encounter, same beneficiary, `status='posted'` → does NOT count toward `_paid_minor`; a voided collection on the correct encounter is also excluded → `{ billed: false, reason: 'self_pay_insufficient' }`.
+6. `**foldTriggerOutcome` cross-specialty** — Rule A hit (`preauth_required:true, charge_mode:'new_consult'`) → outcome `{ preauth_required: true, charge_mode: 'new_consult', discount: null, eligibility_check_required: false, block_reason: null }`.
 
-  -- Per-order auth only for auth-required items.
-  -- Authoritative: the order item's own preauth_required (resolved at ordering);
-  -- masters are conservative catalog fallback (either flag => auth required).
-  IF public._order_item_preauth_required(_tbl, _id)          -- helper below
-     OR COALESCE((SELECT preauth_required FROM public.service_master WHERE id = _charge.service_id), false)
-     OR COALESCE((SELECT preauth_required FROM public.drug_master    WHERE id = _charge.drug_id), false)
-  THEN
-    RETURN EXISTS (
-      SELECT 1 FROM public.authorization_item ai
-       WHERE ai.charge_item_id = _charge.id AND ai.decision IN ('approved','partial')
-    );
-  END IF;
-  RETURN true;  -- includes pricing_mode='drg_bundled'; admission gate governs
-END IF;
--- AMB / EMER / HH / VR continue to the per-order insured / cash branches.
+The test file is the DoD deliverable that keeps SQL/TS drift catchable.
 
-```
+## Part 2 — Deferred surface (unchanged from v1.1)
 
-Add small helper `public._order_item_preauth_required(_tbl text, _id uuid) RETURNS boolean` doing a CASE over the five order-item tables reading each row's `preauth_required` (prescription_item included). This also fixes the `drg_bundled` fall-through that always returned false.
+Ship after Part 1 typechecks and `bun test src/lib/rcm/billed-gate.test.ts` passes.
 
-### D3 · `admission_gate_open()` — full locked rule
+- `src/lib/rcm/emergency-reconcile.ts` — auth-decision → wallet delta with `sign→direction`, `source='emergency_reconcile'`, atomic `patient_wallet.balance_minor` update. Hooked in `src/routes/api/clinical/v1/auth/requests.$id.decision.ts` and `.../requests.$id.submit.ts`.
+- `src/lib/rcm/pbm-engine.ts` — R-PBM2b → 422 `INDICATION_MISSING`; `indication_override` writes an `rcm_gate_exception` row. ADT hook in `src/routes/api/clinical/v1/ip/admission-requests.$id.action.ts`.
+- API routes:
+  - `api/clinical/v1/gate/preview.ts` (GET; returns `BilledGateOutcome` — the explain-why surface).
+  - `api/clinical/v1/gate/exceptions.ts` (POST) + `.$id.reconcile.ts` (POST).
+  - `api/clinical/v1/admin-config.ts` (PATCH; superadmin scope).
+  - `api/clinical/v1/forms/{defs,instances,bindings}.ts`.
+  - `api/clinical/v1/formulary/{import,indications}.ts`.
+  - `api/clinical/v1/referrals.ts` (+ `.$id.targets.ts`).
+- `_order-factory.ts` PATCH pre-check → 403 `GATE_BILLED` when `charge_is_billed` returns false.
+- Spine components under `src/components/clinical/daylight/spine/` (registration, encounter, orders, results tabs; Vitals trend untouched).
+- Nav: `daylight/nav-config.ts` — Orders + Results tab enablement flags.
+- `src/components/clinical/daylight/RcmAdminPane.tsx` + SideNav registration (both cards visible in superadmin).
+- `src/lib/clinical-api.ts` — thin wrappers for the new endpoints.
+- `src/lib/clinical-role-matrix.ts` — add `formulary.indications.write` and `forms.instance.cosign` capabilities.
 
-Releasing-exception short-circuit unchanged; then:
+## Definition of Done
 
-```sql
--- Insured: Approval AND deposit adequacy (both required).
-IF _adm.coverage_id IS NOT NULL THEN
-  IF NOT EXISTS (
-    SELECT 1 FROM public.authorization_request ar
-      JOIN public.authorization_item ai ON ai.authorization_request_id = ar.id
-     WHERE ar.encounter_id = _adm.encounter_id
-       AND ai.decision IN ('approved','partial')
-  ) THEN RETURN false; END IF;
-END IF;
+- SQL grep: `_paid_minor` sum in `charge_is_billed()` contains no `beneficiary_id =` anywhere.
+- TS grep: `billed-gate.ts` has no `beneficiary_id` reference inside the paid reducer.
+- Five `scope='referral', tenant_id IS NULL` rows match Addendum 1-A; Rule A carries `preauth_required + charge_mode='new_consult'` and no block action.
+- `foldTriggerOutcome` exported from `rules.ts`, returns the five-field contract.
+- `src/lib/rcm/billed-gate.test.ts` exists; `bun test` runs it; all six fixtures pass.
+- `BilledGateFacts` has `admissionIdsForEncounter: string[]`; D1 re-lock uses it.
+- `GET /api/clinical/v1/gate/preview` returns `BilledGateOutcome` (billed flag + via/reason code).
+- Part-2 items complete: 403 `GATE_BILLED` on order PATCH, nav tabs enabled, `RcmAdminPane` registered, capabilities `formulary.indications.write` and `forms.instance.cosign` present.
 
--- Deposit adequacy — config-driven; the ONLY permitted '35' is the getter's default arg.
-_pct := ((public.rcm_admin_config_get(_adm.tenant_id, 'ip_deposit_min_percent', to_jsonb(35))) #>> '{}')::int;
-_required := GREATEST(
-  COALESCE(_adm.requested_deposit_minor, 0),
-  (COALESCE(_adm.estimated_charges_minor, 0) * _pct / 100)
-);
-RETURN COALESCE(_adm.paid_amount_minor, 0) >= _required;
+## Technical notes
 
-```
-
-When `estimated_charges_minor` is NULL the GREATEST degrades to `requested_deposit_minor` — acceptable until IP estimate capture ships; the column now exists for it.
-
-### D4 · Self-pay cumulative adequacy (corrected status literals)
-
-```sql
-IF _wallet_balance < 0 THEN RETURN false; END IF;
-
-SELECT COALESCE(SUM(net_minor), 0) INTO _committed
-  FROM public.charge_item
- WHERE encounter_id = _charge.encounter_id
-   AND pricing_mode = 'cash'
-   AND status <> 'cancelled'
-   AND (id = _charge.id
-        OR status IN ('collected','in_progress','resulted','dispensed'));  -- past-gate set
-
-RETURN _committed <= _paid_minor + _wallet_balance;
-
-```
-
-`_paid_minor` sum keeps `cash_collection.status = 'posted'` (voided refunds self-exclude).
-
-### v_order_item_gate
-
-Recreate excluding cancelled rows from the union; keep `security_invoker = true`. Never returns `'billed'` for cancelled items.
-
----
-
-## Code layer (bindings as previously corrected — deltas only)
-
-- `billed-gate.ts` TS mirror reflects M15 exactly: refund-via-deposit path, IMP/day-case branch (`request_type='day_case'`), three-source preauth OR, cumulative self-pay with the corrected past-gate status set, `posted`-only cash sum. Parity fixtures: (1) IMP + drg_bundled release, (2) day_case admission gating, (3) 1-payment-3-orders cumulative, (4) refund-via-deposit re-lock, (5) voided cash collection excluded.
-- `emergency-reconcile.ts`, `pbm-engine.ts`, `rules.ts` `evaluateTriggers()`, API routes, spine components, nav enablement, `RcmAdminPane.tsx` — unchanged from the v1.0 corrected prompt.
-- Role-matrix capabilities — full set (Lovable's additions kept, dropped items restored): `gate.exception.grant` (rcm/tenant_admin), `gate.exception.reconcile` (rcm/finance), `admin.config.write` (tenant_admin), `formulary.import` (tenant_admin), `formulary.indications.write` (tenant_admin/pharmacist), `forms.def.publish` (tenant_admin), `forms.instance.cosign` (physician), `referral.write`, `pbm.override` (rcm).
-- `admin-config` route uses **PATCH** (repo convention), not PUT.
-- Canonical column: `sub_category` on `service_master`.
-
-## Definition of Done (supersedes prior list where overlapping)
-
-- [ ] Refund (approved or executed) on a deposit tied to the encounter/admission re-locks the gate — SQL + TS parity.
-- [ ] IMP encounter AND AMB-class day_case admission both route via `admission_gate_open()`; plain AMB/EMER/HH/VR unaffected.
-- [ ] drg_bundled charge on a gated-open admission returns billed.
-- [ ] `admission_gate_open()` requires auth approval (insured) + config-driven % — grep: no `35` outside the `to_jsonb(35)` default argument and the M14 seed.
-- [ ] `admission_request.estimated_charges_minor` exists; formula degrades gracefully when NULL.
-- [ ] Self-pay cumulative test: paying order A does not release B/C; past-gate set uses real `charge_status` values only.
-- [ ] `_order_item_preauth_required()` helper covers all five order-item tables.
-- [ ] M14 contains zero DDL/type statements.
-- [ ] `formulary.indications.write` + `forms.instance.cosign` present in the role matrix.
-- [ ] `v_order_item_gate` excludes cancelled; `security_invoker` retained.
-- [ ] All five parity fixtures green.
-
-  
----
-
-
-|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Previous Corrections that were implemented into this prompt to be aware off [Nothing to disturb, only for your memory and understanding]: Six corrections:**C1 — D1 refund SQL references columns that don't exist.** `refund_request` has **no** `claim_id` **and no** `encounter_id` — its only linkage is `deposit_id`. The path to the encounter is `refund_request → deposit → (encounter_id | admission_request_id)`, and `deposit` carries both. Corrected clause: match refunds whose deposit resolves to this charge's encounter directly or via its admission request. Statuses `'approved','executed'` are valid (`refund-sm.ts`: pending→approved→executed, plus held/rejected — exclude those). Bonus finding: self-pay cash refunds need **no extra clause** — voided collections get `cash_status='voided'` and the D4 sum already filters `status='posted'`, so they self-exclude. The TS mirror must replicate that filter.**C2 — D2's preauth lookup is legal but incomplete.** Surprise: `service_master.preauth_required` and `drug_master.preauth_required` **do exist** (added June 29), so Lovable's SQL wouldn't error. But the authoritative per-order value is the order item's **own** `preauth_required` flag — it's resolved at ordering time from need-approval rules, which is payer-specific, while the master flag is only the catalog default. Correction: OR the sources — order-item flag primary, master flag as conservative catalog fallback (if either says auth-required, require the approval).**C2b — day-case branch condition.** `encounter.class` is text with CHECK `('AMB','EMER','IMP','HH','VR')`, and day case is **not** a class — it's `admission_request.request_type = 'day_case'` (`ip_request_type` enum). The admission-level branch must trigger on `class='IMP'` **or** an active admission request of type `day_case`; HH/VR fall through to per-order like AMB.**C3 —** `admission_request.estimated_charges_minor` **doesn't exist.** D3's `GREATEST(requested, estimated * pct/100)` formula has nothing to read. Fix: M15 adds `estimated_charges_minor bigint NULL` to `admission_request` (plain ADD COLUMN — safe in the same migration as the function), and the formula uses it when present, falling back to `requested_deposit_minor` alone when null. Config extraction: `(rcm_admin_config_get(tenant,'ip_deposit_min_percent') #>> '{}')::int` — the getter returns jsonb and already accepts a `_default jsonb` third argument, so the only permitted "35" is that default argument, never a formula literal.**C4 — D4's charge-status literals are invalid.** `'performed','released','completed','executed'` don't exist in `charge_status` (`ordered/collected/in_progress/resulted/dispensed/cancelled`). The committed set is: this charge, plus any cash charge already **past the gate** — `status IN ('collected','in_progress','resulted','dispensed')`.**C5 — M14 must not touch** `pricing_rule_scope`**.** The plan says "add enum values or convert to text check as needed" — no. Both `'referral'` and `'pbm'` already landed in M05 (verified in the post-build review), and any type change inside the seeds migration would break the R1 rule. Delete that instruction; seeds only.**C6 — restore two dropped capabilities.** Lovable's role-matrix list renamed `forms.def.write`→`forms.def.publish` (fine) and added `referral.write`/`pbm.override` (good additions), but dropped `formulary.indications.write` (tenant_admin/pharmacist) and `forms.instance.cosign` (physician). Both are load-bearing — cosign is part of the forms engine contract. |
+- SQL edit is a single `CREATE OR REPLACE FUNCTION public.charge_is_billed(...)` in M16; body copy-pasted from the current definition with only the paid-minor reducer rewritten.
+- M17 must run inside a migration (data change on a table the code compiles against) so the migration is captured in `supabase/migrations/`.
+- The TS type change to `BilledGateFacts.cashCollections` (drop `beneficiary_id`, add `encounter_id`) will ripple to any test doubles or fixture builders — the only current caller is the new test file, so the blast radius is contained.
+- `foldTriggerOutcome(hits, facts?)` — the optional facts arg keeps the fold pure; specialty/series resolution stays inside it, config-driven overbook enforcement stays outside.
+- Turn-3 Plan — Correction Addendum (append to the plan before build mode)
+  Part 1 is approved as written (M16 reducer, M17 reseed, TS fixes 1–3, six fixtures). Part 2 has four corrections that override the corresponding plan lines:
+  ## 1. RcmAdminPane location
+  `RcmAdminPane.tsx` goes in `src/components/superadmin/`, NOT `src/components/clinical/daylight/`. Register it in `src/components/superadmin/SideNav.tsx`. It contains the two cards (Formulary & Indications, Gate Config Registry), all queries tenant-scoped.
+  ## 2. Spine components — exact set
+  The spine components are exactly these four primitives under `src/components/clinical/daylight/spine/`:
+  - `BilledGate.tsx` — reads `v_order_item_gate`; disables Perform/Dispense with tooltip; badge per RCM color standard (locked=crit, released_by_exception=warn, billed=ok via `.clin-pill`).
+  - `FormsGate.tsx` — reads `forms_gate_open()`; composes ABOVE BilledGate (forms gate first).
+  - `RcmCommCard.tsx` — two-way RCM channel card (HCA-0188); red state on open reconciliation.
+  - `HimCommCard.tsx` — HIM equivalent. Do NOT build registration/encounter/orders/results panes as spine components — Registration and Encounter panes already exist; Orders and Results become enabled nav tabs consuming these primitives.
+  ## 3. Role matrix — full capability set (none have landed yet)
+  Add ALL of the following to `src/lib/clinical-role-matrix.ts`:
+  - `gate.exception.grant` → rcm, tenant_admin
+  - `gate.exception.reconcile` → rcm, finance
+  - `admin.config.write` → tenant_admin
+  - `formulary.import` → tenant_admin
+  - `formulary.indications.write` → tenant_admin, pharmacist
+  - `forms.def.publish` → tenant_admin
+  - `forms.instance.cosign` → physician
+  - `referral.write` → physician, front_office, tenant_admin
+  - `pbm.override` → rcm
+  ## 4. gate/exceptions verbs
+  `api/clinical/v1/gate/exceptions.ts`: **GET** (list open exceptions for the RCM worklist, filterable by encounter/state) + **POST** (issue). Add `gate/exceptions.$id.ts`: **PATCH** (close — writes `closed_at`; capability `gate.exception.grant`). Keep `gate/exceptions.$id.reconcile.ts` POST. Without PATCH, exceptions are un-closeable and the emergency-reconcile lifecycle cannot complete.
+  ## Wording fix
+  `admin-config.ts` is guarded by capability `admin.config.write` (tenant-scoped), not "superadmin scope".
+  ## Part 3 (new, small) — demo fixtures for visual verification
+  Extend the demo data pack (`demo-seed.functions` / SQL pack) so a fresh reset+seed demonstrates Step 1 when signing in as Tenant Admin:
+  - 4–6 orders in `ordered` state across lab/radiology/prescription with charge_items (mix `cash` and `insured`).
+  - One approved `authorization_item` on one insured charge (shows a green billed badge).
+  - One active `emergency_override` `rcm_gate_exception` on an ER encounter (shows released_by_exception).
+  - One posted `cash_collection` covering exactly one cash order (cumulative rule visible: sibling order stays locked).
+  - Confirm `rcm_admin_config` demo-tenant rows visible in the Gate Config Registry card. Idempotent, scoped to the demo tenant only, following the existing reset/seed conventions (scoped DELETE, never TRUNCATE).
+  ## Added DoD
+  - [ ] `RcmAdminPane.tsx` exists under `src/components/superadmin/` and appears in superadmin SideNav.
+  - [ ] `spine/` contains exactly the four primitives; no duplicate registration/encounter panes.
+  - [ ] All nine capabilities present in the role matrix.
+  - [ ] Exceptions can be listed (GET), issued (POST), closed (PATCH), reconciled (POST reconcile).
+  - [ ] After demo reset+seed: Tenant Admin sees Orders + Results tabs with gate badges in all three states, and the Gate Config Registry shows the demo tenant's config.
