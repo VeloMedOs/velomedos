@@ -91,6 +91,7 @@ import { Route as ApiPublicV1Business_intakeRouteImport } from './routes/api/pub
 import { Route as ApiPublicTelemetryNavClickRouteImport } from './routes/api/public/telemetry.nav-click'
 import { Route as ApiPublicLegalSlugRouteImport } from './routes/api/public/legal.$slug'
 import { Route as ApiClinicalV1TaxInvoicesRouteImport } from './routes/api/clinical/v1/tax-invoices'
+import { Route as ApiClinicalV1ReferralsRouteImport } from './routes/api/clinical/v1/referrals'
 import { Route as ApiClinicalV1PromInstrumentsRouteImport } from './routes/api/clinical/v1/prom-instruments'
 import { Route as ApiClinicalV1PromAssignmentsRouteImport } from './routes/api/clinical/v1/prom-assignments'
 import { Route as ApiClinicalV1PremResponsesRouteImport } from './routes/api/clinical/v1/prem-responses'
@@ -104,6 +105,7 @@ import { Route as ApiClinicalV1DocsRouteImport } from './routes/api/clinical/v1/
 import { Route as ApiClinicalV1DepositsRouteImport } from './routes/api/clinical/v1/deposits'
 import { Route as ApiClinicalV1ClaimsRouteImport } from './routes/api/clinical/v1/claims'
 import { Route as ApiClinicalV1BeneficiariesRouteImport } from './routes/api/clinical/v1/beneficiaries'
+import { Route as ApiClinicalV1AdminConfigRouteImport } from './routes/api/clinical/v1/admin-config'
 import { Route as ApiAdminV1TicketsRouteImport } from './routes/api/admin/v1/tickets'
 import { Route as ApiAdminV1TenantSubscriptionsRouteImport } from './routes/api/admin/v1/tenant-subscriptions'
 import { Route as ApiAdminV1SubscriptionsRouteImport } from './routes/api/admin/v1/subscriptions'
@@ -163,6 +165,13 @@ import { Route as ApiClinicalV1IpWorklistsRouteImport } from './routes/api/clini
 import { Route as ApiClinicalV1IpDepositsRouteImport } from './routes/api/clinical/v1/ip/deposits'
 import { Route as ApiClinicalV1IpAdmissionRequestsRouteImport } from './routes/api/clinical/v1/ip/admission-requests'
 import { Route as ApiClinicalV1InterfacesLogRouteImport } from './routes/api/clinical/v1/interfaces.log'
+import { Route as ApiClinicalV1GatePreviewRouteImport } from './routes/api/clinical/v1/gate/preview'
+import { Route as ApiClinicalV1GateExceptionsRouteImport } from './routes/api/clinical/v1/gate/exceptions'
+import { Route as ApiClinicalV1FormularyIndicationsRouteImport } from './routes/api/clinical/v1/formulary/indications'
+import { Route as ApiClinicalV1FormularyImportRouteImport } from './routes/api/clinical/v1/formulary/import'
+import { Route as ApiClinicalV1FormsInstancesRouteImport } from './routes/api/clinical/v1/forms/instances'
+import { Route as ApiClinicalV1FormsDefsRouteImport } from './routes/api/clinical/v1/forms/defs'
+import { Route as ApiClinicalV1FormsBindingsRouteImport } from './routes/api/clinical/v1/forms/bindings'
 import { Route as ApiClinicalV1EpisodesIdRouteImport } from './routes/api/clinical/v1/episodes.$id'
 import { Route as ApiClinicalV1EncountersIdRouteImport } from './routes/api/clinical/v1/encounters.$id'
 import { Route as ApiClinicalV1EligibilityCheckRouteImport } from './routes/api/clinical/v1/eligibility.check'
@@ -224,6 +233,7 @@ import { Route as ApiPublicV1FleetIdLocationRouteImport } from './routes/api/pub
 import { Route as ApiClinicalV1TaxInvoicesIdSubmitRouteImport } from './routes/api/clinical/v1/tax-invoices.$id.submit'
 import { Route as ApiClinicalV1TaxInvoicesIdReprintRouteImport } from './routes/api/clinical/v1/tax-invoices.$id.reprint'
 import { Route as ApiClinicalV1TaxInvoicesIdCreditNoteRouteImport } from './routes/api/clinical/v1/tax-invoices.$id.credit-note'
+import { Route as ApiClinicalV1ReferralsIdTargetsRouteImport } from './routes/api/clinical/v1/referrals.$id.targets'
 import { Route as ApiClinicalV1PromAssignmentsIdSubmitRouteImport } from './routes/api/clinical/v1/prom-assignments.$id.submit'
 import { Route as ApiClinicalV1PromAssignmentsIdRespondRouteImport } from './routes/api/clinical/v1/prom-assignments.$id.respond'
 import { Route as ApiClinicalV1PromAssignmentsIdRemindRouteImport } from './routes/api/clinical/v1/prom-assignments.$id.remind'
@@ -263,6 +273,10 @@ import { Route as ApiClinicalV1IpAdmissionRequestsIdRouteImport } from './routes
 import { Route as ApiClinicalV1InterfacesLogBulkRouteImport } from './routes/api/clinical/v1/interfaces.log.bulk'
 import { Route as ApiClinicalV1InterfacesLogIdRouteImport } from './routes/api/clinical/v1/interfaces.log.$id'
 import { Route as ApiClinicalV1InterfacesD365SummaryRouteImport } from './routes/api/clinical/v1/interfaces.d365.summary'
+import { Route as ApiClinicalV1GateExceptionsIdRouteImport } from './routes/api/clinical/v1/gate/exceptions.$id'
+import { Route as ApiClinicalV1FormularyIndicationsIdRouteImport } from './routes/api/clinical/v1/formulary/indications.$id'
+import { Route as ApiClinicalV1FormsInstancesIdRouteImport } from './routes/api/clinical/v1/forms/instances.$id'
+import { Route as ApiClinicalV1FormsDefsIdRouteImport } from './routes/api/clinical/v1/forms/defs.$id'
 import { Route as ApiClinicalV1EncountersIdVitalsRouteImport } from './routes/api/clinical/v1/encounters.$id.vitals'
 import { Route as ApiClinicalV1EncountersIdSupportingInfoRouteImport } from './routes/api/clinical/v1/encounters.$id.supporting-info'
 import { Route as ApiClinicalV1EncountersIdPrescriptionsRouteImport } from './routes/api/clinical/v1/encounters.$id.prescriptions'
@@ -331,6 +345,7 @@ import { Route as ApiClinicalV1MastersContractChangeRequestsIdApproveRouteImport
 import { Route as ApiClinicalV1MastersContractChangeRequestsIdApplyRouteImport } from './routes/api/clinical/v1/masters/contract-change-requests.$id.apply'
 import { Route as ApiClinicalV1IpAdmissionRequestsIdActionRouteImport } from './routes/api/clinical/v1/ip/admission-requests.$id.action'
 import { Route as ApiClinicalV1InterfacesLogIdRetryRouteImport } from './routes/api/clinical/v1/interfaces.log.$id.retry'
+import { Route as ApiClinicalV1GateExceptionsIdReconcileRouteImport } from './routes/api/clinical/v1/gate/exceptions.$id.reconcile'
 import { Route as ApiClinicalV1EncountersIdOrdersServiceRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.service'
 import { Route as ApiClinicalV1EncountersIdOrdersRadiologyRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.radiology'
 import { Route as ApiClinicalV1EncountersIdOrdersLabRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.lab'
@@ -775,6 +790,11 @@ const ApiClinicalV1TaxInvoicesRoute =
     path: '/api/clinical/v1/tax-invoices',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1ReferralsRoute = ApiClinicalV1ReferralsRouteImport.update({
+  id: '/api/clinical/v1/referrals',
+  path: '/api/clinical/v1/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiClinicalV1PromInstrumentsRoute =
   ApiClinicalV1PromInstrumentsRouteImport.update({
     id: '/api/clinical/v1/prom-instruments',
@@ -844,6 +864,12 @@ const ApiClinicalV1BeneficiariesRoute =
   ApiClinicalV1BeneficiariesRouteImport.update({
     id: '/api/clinical/v1/beneficiaries',
     path: '/api/clinical/v1/beneficiaries',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1AdminConfigRoute =
+  ApiClinicalV1AdminConfigRouteImport.update({
+    id: '/api/clinical/v1/admin-config',
+    path: '/api/clinical/v1/admin-config',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiAdminV1TicketsRoute = ApiAdminV1TicketsRouteImport.update({
@@ -1177,6 +1203,47 @@ const ApiClinicalV1InterfacesLogRoute =
   ApiClinicalV1InterfacesLogRouteImport.update({
     id: '/api/clinical/v1/interfaces/log',
     path: '/api/clinical/v1/interfaces/log',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1GatePreviewRoute =
+  ApiClinicalV1GatePreviewRouteImport.update({
+    id: '/api/clinical/v1/gate/preview',
+    path: '/api/clinical/v1/gate/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1GateExceptionsRoute =
+  ApiClinicalV1GateExceptionsRouteImport.update({
+    id: '/api/clinical/v1/gate/exceptions',
+    path: '/api/clinical/v1/gate/exceptions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1FormularyIndicationsRoute =
+  ApiClinicalV1FormularyIndicationsRouteImport.update({
+    id: '/api/clinical/v1/formulary/indications',
+    path: '/api/clinical/v1/formulary/indications',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1FormularyImportRoute =
+  ApiClinicalV1FormularyImportRouteImport.update({
+    id: '/api/clinical/v1/formulary/import',
+    path: '/api/clinical/v1/formulary/import',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1FormsInstancesRoute =
+  ApiClinicalV1FormsInstancesRouteImport.update({
+    id: '/api/clinical/v1/forms/instances',
+    path: '/api/clinical/v1/forms/instances',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1FormsDefsRoute = ApiClinicalV1FormsDefsRouteImport.update({
+  id: '/api/clinical/v1/forms/defs',
+  path: '/api/clinical/v1/forms/defs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiClinicalV1FormsBindingsRoute =
+  ApiClinicalV1FormsBindingsRouteImport.update({
+    id: '/api/clinical/v1/forms/bindings',
+    path: '/api/clinical/v1/forms/bindings',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1EpisodesIdRoute = ApiClinicalV1EpisodesIdRouteImport.update({
@@ -1524,6 +1591,12 @@ const ApiClinicalV1TaxInvoicesIdCreditNoteRoute =
     path: '/credit-note',
     getParentRoute: () => ApiClinicalV1TaxInvoicesIdRoute,
   } as any)
+const ApiClinicalV1ReferralsIdTargetsRoute =
+  ApiClinicalV1ReferralsIdTargetsRouteImport.update({
+    id: '/$id/targets',
+    path: '/$id/targets',
+    getParentRoute: () => ApiClinicalV1ReferralsRoute,
+  } as any)
 const ApiClinicalV1PromAssignmentsIdSubmitRoute =
   ApiClinicalV1PromAssignmentsIdSubmitRouteImport.update({
     id: '/submit',
@@ -1757,6 +1830,30 @@ const ApiClinicalV1InterfacesD365SummaryRoute =
     id: '/api/clinical/v1/interfaces/d365/summary',
     path: '/api/clinical/v1/interfaces/d365/summary',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1GateExceptionsIdRoute =
+  ApiClinicalV1GateExceptionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiClinicalV1GateExceptionsRoute,
+  } as any)
+const ApiClinicalV1FormularyIndicationsIdRoute =
+  ApiClinicalV1FormularyIndicationsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiClinicalV1FormularyIndicationsRoute,
+  } as any)
+const ApiClinicalV1FormsInstancesIdRoute =
+  ApiClinicalV1FormsInstancesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiClinicalV1FormsInstancesRoute,
+  } as any)
+const ApiClinicalV1FormsDefsIdRoute =
+  ApiClinicalV1FormsDefsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiClinicalV1FormsDefsRoute,
   } as any)
 const ApiClinicalV1EncountersIdVitalsRoute =
   ApiClinicalV1EncountersIdVitalsRouteImport.update({
@@ -2166,6 +2263,12 @@ const ApiClinicalV1InterfacesLogIdRetryRoute =
     path: '/retry',
     getParentRoute: () => ApiClinicalV1InterfacesLogIdRoute,
   } as any)
+const ApiClinicalV1GateExceptionsIdReconcileRoute =
+  ApiClinicalV1GateExceptionsIdReconcileRouteImport.update({
+    id: '/reconcile',
+    path: '/reconcile',
+    getParentRoute: () => ApiClinicalV1GateExceptionsIdRoute,
+  } as any)
 const ApiClinicalV1EncountersIdOrdersServiceRoute =
   ApiClinicalV1EncountersIdOrdersServiceRouteImport.update({
     id: '/orders/service',
@@ -2381,6 +2484,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
+  '/api/clinical/v1/admin-config': typeof ApiClinicalV1AdminConfigRoute
   '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRouteWithChildren
   '/api/clinical/v1/claims': typeof ApiClinicalV1ClaimsRouteWithChildren
   '/api/clinical/v1/deposits': typeof ApiClinicalV1DepositsRouteWithChildren
@@ -2394,6 +2498,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/prem-responses': typeof ApiClinicalV1PremResponsesRoute
   '/api/clinical/v1/prom-assignments': typeof ApiClinicalV1PromAssignmentsRouteWithChildren
   '/api/clinical/v1/prom-instruments': typeof ApiClinicalV1PromInstrumentsRoute
+  '/api/clinical/v1/referrals': typeof ApiClinicalV1ReferralsRouteWithChildren
   '/api/clinical/v1/tax-invoices': typeof ApiClinicalV1TaxInvoicesRouteWithChildren
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -2466,6 +2571,13 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/eligibility/check': typeof ApiClinicalV1EligibilityCheckRoute
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
+  '/api/clinical/v1/forms/bindings': typeof ApiClinicalV1FormsBindingsRoute
+  '/api/clinical/v1/forms/defs': typeof ApiClinicalV1FormsDefsRouteWithChildren
+  '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRouteWithChildren
+  '/api/clinical/v1/formulary/import': typeof ApiClinicalV1FormularyImportRoute
+  '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
+  '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
+  '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
   '/api/clinical/v1/ip/admission-requests': typeof ApiClinicalV1IpAdmissionRequestsRouteWithChildren
   '/api/clinical/v1/ip/deposits': typeof ApiClinicalV1IpDepositsRouteWithChildren
@@ -2561,6 +2673,10 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/encounters/$id/prescriptions': typeof ApiClinicalV1EncountersIdPrescriptionsRoute
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
+  '/api/clinical/v1/forms/defs/$id': typeof ApiClinicalV1FormsDefsIdRoute
+  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRoute
+  '/api/clinical/v1/formulary/indications/$id': typeof ApiClinicalV1FormularyIndicationsIdRoute
+  '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
   '/api/clinical/v1/interfaces/log/$id': typeof ApiClinicalV1InterfacesLogIdRouteWithChildren
   '/api/clinical/v1/interfaces/log/bulk': typeof ApiClinicalV1InterfacesLogBulkRoute
@@ -2600,6 +2716,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/prom-assignments/$id/remind': typeof ApiClinicalV1PromAssignmentsIdRemindRoute
   '/api/clinical/v1/prom-assignments/$id/respond': typeof ApiClinicalV1PromAssignmentsIdRespondRoute
   '/api/clinical/v1/prom-assignments/$id/submit': typeof ApiClinicalV1PromAssignmentsIdSubmitRoute
+  '/api/clinical/v1/referrals/$id/targets': typeof ApiClinicalV1ReferralsIdTargetsRoute
   '/api/clinical/v1/tax-invoices/$id/credit-note': typeof ApiClinicalV1TaxInvoicesIdCreditNoteRoute
   '/api/clinical/v1/tax-invoices/$id/reprint': typeof ApiClinicalV1TaxInvoicesIdReprintRoute
   '/api/clinical/v1/tax-invoices/$id/submit': typeof ApiClinicalV1TaxInvoicesIdSubmitRoute
@@ -2628,6 +2745,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
   '/api/clinical/v1/encounters/$id/orders/service': typeof ApiClinicalV1EncountersIdOrdersServiceRoute
+  '/api/clinical/v1/gate/exceptions/$id/reconcile': typeof ApiClinicalV1GateExceptionsIdReconcileRoute
   '/api/clinical/v1/interfaces/log/$id/retry': typeof ApiClinicalV1InterfacesLogIdRetryRoute
   '/api/clinical/v1/ip/admission-requests/$id/action': typeof ApiClinicalV1IpAdmissionRequestsIdActionRoute
   '/api/clinical/v1/masters/contract-change-requests/$id/apply': typeof ApiClinicalV1MastersContractChangeRequestsIdApplyRoute
@@ -2724,6 +2842,7 @@ export interface FileRoutesByTo {
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
+  '/api/clinical/v1/admin-config': typeof ApiClinicalV1AdminConfigRoute
   '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRouteWithChildren
   '/api/clinical/v1/claims': typeof ApiClinicalV1ClaimsRouteWithChildren
   '/api/clinical/v1/deposits': typeof ApiClinicalV1DepositsRouteWithChildren
@@ -2737,6 +2856,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/prem-responses': typeof ApiClinicalV1PremResponsesRoute
   '/api/clinical/v1/prom-assignments': typeof ApiClinicalV1PromAssignmentsRouteWithChildren
   '/api/clinical/v1/prom-instruments': typeof ApiClinicalV1PromInstrumentsRoute
+  '/api/clinical/v1/referrals': typeof ApiClinicalV1ReferralsRouteWithChildren
   '/api/clinical/v1/tax-invoices': typeof ApiClinicalV1TaxInvoicesRouteWithChildren
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -2809,6 +2929,13 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/eligibility/check': typeof ApiClinicalV1EligibilityCheckRoute
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
+  '/api/clinical/v1/forms/bindings': typeof ApiClinicalV1FormsBindingsRoute
+  '/api/clinical/v1/forms/defs': typeof ApiClinicalV1FormsDefsRouteWithChildren
+  '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRouteWithChildren
+  '/api/clinical/v1/formulary/import': typeof ApiClinicalV1FormularyImportRoute
+  '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
+  '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
+  '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
   '/api/clinical/v1/ip/admission-requests': typeof ApiClinicalV1IpAdmissionRequestsRouteWithChildren
   '/api/clinical/v1/ip/deposits': typeof ApiClinicalV1IpDepositsRouteWithChildren
@@ -2904,6 +3031,10 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/encounters/$id/prescriptions': typeof ApiClinicalV1EncountersIdPrescriptionsRoute
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
+  '/api/clinical/v1/forms/defs/$id': typeof ApiClinicalV1FormsDefsIdRoute
+  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRoute
+  '/api/clinical/v1/formulary/indications/$id': typeof ApiClinicalV1FormularyIndicationsIdRoute
+  '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
   '/api/clinical/v1/interfaces/log/$id': typeof ApiClinicalV1InterfacesLogIdRouteWithChildren
   '/api/clinical/v1/interfaces/log/bulk': typeof ApiClinicalV1InterfacesLogBulkRoute
@@ -2943,6 +3074,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/prom-assignments/$id/remind': typeof ApiClinicalV1PromAssignmentsIdRemindRoute
   '/api/clinical/v1/prom-assignments/$id/respond': typeof ApiClinicalV1PromAssignmentsIdRespondRoute
   '/api/clinical/v1/prom-assignments/$id/submit': typeof ApiClinicalV1PromAssignmentsIdSubmitRoute
+  '/api/clinical/v1/referrals/$id/targets': typeof ApiClinicalV1ReferralsIdTargetsRoute
   '/api/clinical/v1/tax-invoices/$id/credit-note': typeof ApiClinicalV1TaxInvoicesIdCreditNoteRoute
   '/api/clinical/v1/tax-invoices/$id/reprint': typeof ApiClinicalV1TaxInvoicesIdReprintRoute
   '/api/clinical/v1/tax-invoices/$id/submit': typeof ApiClinicalV1TaxInvoicesIdSubmitRoute
@@ -2971,6 +3103,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
   '/api/clinical/v1/encounters/$id/orders/service': typeof ApiClinicalV1EncountersIdOrdersServiceRoute
+  '/api/clinical/v1/gate/exceptions/$id/reconcile': typeof ApiClinicalV1GateExceptionsIdReconcileRoute
   '/api/clinical/v1/interfaces/log/$id/retry': typeof ApiClinicalV1InterfacesLogIdRetryRoute
   '/api/clinical/v1/ip/admission-requests/$id/action': typeof ApiClinicalV1IpAdmissionRequestsIdActionRoute
   '/api/clinical/v1/masters/contract-change-requests/$id/apply': typeof ApiClinicalV1MastersContractChangeRequestsIdApplyRoute
@@ -3071,6 +3204,7 @@ export interface FileRoutesById {
   '/api/admin/v1/subscriptions': typeof ApiAdminV1SubscriptionsRoute
   '/api/admin/v1/tenant-subscriptions': typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   '/api/admin/v1/tickets': typeof ApiAdminV1TicketsRouteWithChildren
+  '/api/clinical/v1/admin-config': typeof ApiClinicalV1AdminConfigRoute
   '/api/clinical/v1/beneficiaries': typeof ApiClinicalV1BeneficiariesRouteWithChildren
   '/api/clinical/v1/claims': typeof ApiClinicalV1ClaimsRouteWithChildren
   '/api/clinical/v1/deposits': typeof ApiClinicalV1DepositsRouteWithChildren
@@ -3084,6 +3218,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/prem-responses': typeof ApiClinicalV1PremResponsesRoute
   '/api/clinical/v1/prom-assignments': typeof ApiClinicalV1PromAssignmentsRouteWithChildren
   '/api/clinical/v1/prom-instruments': typeof ApiClinicalV1PromInstrumentsRoute
+  '/api/clinical/v1/referrals': typeof ApiClinicalV1ReferralsRouteWithChildren
   '/api/clinical/v1/tax-invoices': typeof ApiClinicalV1TaxInvoicesRouteWithChildren
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -3156,6 +3291,13 @@ export interface FileRoutesById {
   '/api/clinical/v1/eligibility/check': typeof ApiClinicalV1EligibilityCheckRoute
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
+  '/api/clinical/v1/forms/bindings': typeof ApiClinicalV1FormsBindingsRoute
+  '/api/clinical/v1/forms/defs': typeof ApiClinicalV1FormsDefsRouteWithChildren
+  '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRouteWithChildren
+  '/api/clinical/v1/formulary/import': typeof ApiClinicalV1FormularyImportRoute
+  '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
+  '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
+  '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
   '/api/clinical/v1/ip/admission-requests': typeof ApiClinicalV1IpAdmissionRequestsRouteWithChildren
   '/api/clinical/v1/ip/deposits': typeof ApiClinicalV1IpDepositsRouteWithChildren
@@ -3251,6 +3393,10 @@ export interface FileRoutesById {
   '/api/clinical/v1/encounters/$id/prescriptions': typeof ApiClinicalV1EncountersIdPrescriptionsRoute
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
+  '/api/clinical/v1/forms/defs/$id': typeof ApiClinicalV1FormsDefsIdRoute
+  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRoute
+  '/api/clinical/v1/formulary/indications/$id': typeof ApiClinicalV1FormularyIndicationsIdRoute
+  '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
   '/api/clinical/v1/interfaces/log/$id': typeof ApiClinicalV1InterfacesLogIdRouteWithChildren
   '/api/clinical/v1/interfaces/log/bulk': typeof ApiClinicalV1InterfacesLogBulkRoute
@@ -3290,6 +3436,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/prom-assignments/$id/remind': typeof ApiClinicalV1PromAssignmentsIdRemindRoute
   '/api/clinical/v1/prom-assignments/$id/respond': typeof ApiClinicalV1PromAssignmentsIdRespondRoute
   '/api/clinical/v1/prom-assignments/$id/submit': typeof ApiClinicalV1PromAssignmentsIdSubmitRoute
+  '/api/clinical/v1/referrals/$id/targets': typeof ApiClinicalV1ReferralsIdTargetsRoute
   '/api/clinical/v1/tax-invoices/$id/credit-note': typeof ApiClinicalV1TaxInvoicesIdCreditNoteRoute
   '/api/clinical/v1/tax-invoices/$id/reprint': typeof ApiClinicalV1TaxInvoicesIdReprintRoute
   '/api/clinical/v1/tax-invoices/$id/submit': typeof ApiClinicalV1TaxInvoicesIdSubmitRoute
@@ -3318,6 +3465,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
   '/api/clinical/v1/encounters/$id/orders/service': typeof ApiClinicalV1EncountersIdOrdersServiceRoute
+  '/api/clinical/v1/gate/exceptions/$id/reconcile': typeof ApiClinicalV1GateExceptionsIdReconcileRoute
   '/api/clinical/v1/interfaces/log/$id/retry': typeof ApiClinicalV1InterfacesLogIdRetryRoute
   '/api/clinical/v1/ip/admission-requests/$id/action': typeof ApiClinicalV1IpAdmissionRequestsIdActionRoute
   '/api/clinical/v1/masters/contract-change-requests/$id/apply': typeof ApiClinicalV1MastersContractChangeRequestsIdApplyRoute
@@ -3418,6 +3566,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/subscriptions'
     | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
+    | '/api/clinical/v1/admin-config'
     | '/api/clinical/v1/beneficiaries'
     | '/api/clinical/v1/claims'
     | '/api/clinical/v1/deposits'
@@ -3431,6 +3580,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prem-responses'
     | '/api/clinical/v1/prom-assignments'
     | '/api/clinical/v1/prom-instruments'
+    | '/api/clinical/v1/referrals'
     | '/api/clinical/v1/tax-invoices'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -3503,6 +3653,13 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/eligibility/check'
     | '/api/clinical/v1/encounters/$id'
     | '/api/clinical/v1/episodes/$id'
+    | '/api/clinical/v1/forms/bindings'
+    | '/api/clinical/v1/forms/defs'
+    | '/api/clinical/v1/forms/instances'
+    | '/api/clinical/v1/formulary/import'
+    | '/api/clinical/v1/formulary/indications'
+    | '/api/clinical/v1/gate/exceptions'
+    | '/api/clinical/v1/gate/preview'
     | '/api/clinical/v1/interfaces/log'
     | '/api/clinical/v1/ip/admission-requests'
     | '/api/clinical/v1/ip/deposits'
@@ -3598,6 +3755,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/prescriptions'
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
+    | '/api/clinical/v1/forms/defs/$id'
+    | '/api/clinical/v1/forms/instances/$id'
+    | '/api/clinical/v1/formulary/indications/$id'
+    | '/api/clinical/v1/gate/exceptions/$id'
     | '/api/clinical/v1/interfaces/d365/summary'
     | '/api/clinical/v1/interfaces/log/$id'
     | '/api/clinical/v1/interfaces/log/bulk'
@@ -3637,6 +3798,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prom-assignments/$id/remind'
     | '/api/clinical/v1/prom-assignments/$id/respond'
     | '/api/clinical/v1/prom-assignments/$id/submit'
+    | '/api/clinical/v1/referrals/$id/targets'
     | '/api/clinical/v1/tax-invoices/$id/credit-note'
     | '/api/clinical/v1/tax-invoices/$id/reprint'
     | '/api/clinical/v1/tax-invoices/$id/submit'
@@ -3665,6 +3827,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/encounters/$id/orders/radiology'
     | '/api/clinical/v1/encounters/$id/orders/service'
+    | '/api/clinical/v1/gate/exceptions/$id/reconcile'
     | '/api/clinical/v1/interfaces/log/$id/retry'
     | '/api/clinical/v1/ip/admission-requests/$id/action'
     | '/api/clinical/v1/masters/contract-change-requests/$id/apply'
@@ -3761,6 +3924,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/subscriptions'
     | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
+    | '/api/clinical/v1/admin-config'
     | '/api/clinical/v1/beneficiaries'
     | '/api/clinical/v1/claims'
     | '/api/clinical/v1/deposits'
@@ -3774,6 +3938,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prem-responses'
     | '/api/clinical/v1/prom-assignments'
     | '/api/clinical/v1/prom-instruments'
+    | '/api/clinical/v1/referrals'
     | '/api/clinical/v1/tax-invoices'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -3846,6 +4011,13 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/eligibility/check'
     | '/api/clinical/v1/encounters/$id'
     | '/api/clinical/v1/episodes/$id'
+    | '/api/clinical/v1/forms/bindings'
+    | '/api/clinical/v1/forms/defs'
+    | '/api/clinical/v1/forms/instances'
+    | '/api/clinical/v1/formulary/import'
+    | '/api/clinical/v1/formulary/indications'
+    | '/api/clinical/v1/gate/exceptions'
+    | '/api/clinical/v1/gate/preview'
     | '/api/clinical/v1/interfaces/log'
     | '/api/clinical/v1/ip/admission-requests'
     | '/api/clinical/v1/ip/deposits'
@@ -3941,6 +4113,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/prescriptions'
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
+    | '/api/clinical/v1/forms/defs/$id'
+    | '/api/clinical/v1/forms/instances/$id'
+    | '/api/clinical/v1/formulary/indications/$id'
+    | '/api/clinical/v1/gate/exceptions/$id'
     | '/api/clinical/v1/interfaces/d365/summary'
     | '/api/clinical/v1/interfaces/log/$id'
     | '/api/clinical/v1/interfaces/log/bulk'
@@ -3980,6 +4156,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prom-assignments/$id/remind'
     | '/api/clinical/v1/prom-assignments/$id/respond'
     | '/api/clinical/v1/prom-assignments/$id/submit'
+    | '/api/clinical/v1/referrals/$id/targets'
     | '/api/clinical/v1/tax-invoices/$id/credit-note'
     | '/api/clinical/v1/tax-invoices/$id/reprint'
     | '/api/clinical/v1/tax-invoices/$id/submit'
@@ -4008,6 +4185,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/encounters/$id/orders/radiology'
     | '/api/clinical/v1/encounters/$id/orders/service'
+    | '/api/clinical/v1/gate/exceptions/$id/reconcile'
     | '/api/clinical/v1/interfaces/log/$id/retry'
     | '/api/clinical/v1/ip/admission-requests/$id/action'
     | '/api/clinical/v1/masters/contract-change-requests/$id/apply'
@@ -4107,6 +4285,7 @@ export interface FileRouteTypes {
     | '/api/admin/v1/subscriptions'
     | '/api/admin/v1/tenant-subscriptions'
     | '/api/admin/v1/tickets'
+    | '/api/clinical/v1/admin-config'
     | '/api/clinical/v1/beneficiaries'
     | '/api/clinical/v1/claims'
     | '/api/clinical/v1/deposits'
@@ -4120,6 +4299,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prem-responses'
     | '/api/clinical/v1/prom-assignments'
     | '/api/clinical/v1/prom-instruments'
+    | '/api/clinical/v1/referrals'
     | '/api/clinical/v1/tax-invoices'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -4192,6 +4372,13 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/eligibility/check'
     | '/api/clinical/v1/encounters/$id'
     | '/api/clinical/v1/episodes/$id'
+    | '/api/clinical/v1/forms/bindings'
+    | '/api/clinical/v1/forms/defs'
+    | '/api/clinical/v1/forms/instances'
+    | '/api/clinical/v1/formulary/import'
+    | '/api/clinical/v1/formulary/indications'
+    | '/api/clinical/v1/gate/exceptions'
+    | '/api/clinical/v1/gate/preview'
     | '/api/clinical/v1/interfaces/log'
     | '/api/clinical/v1/ip/admission-requests'
     | '/api/clinical/v1/ip/deposits'
@@ -4287,6 +4474,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/prescriptions'
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
+    | '/api/clinical/v1/forms/defs/$id'
+    | '/api/clinical/v1/forms/instances/$id'
+    | '/api/clinical/v1/formulary/indications/$id'
+    | '/api/clinical/v1/gate/exceptions/$id'
     | '/api/clinical/v1/interfaces/d365/summary'
     | '/api/clinical/v1/interfaces/log/$id'
     | '/api/clinical/v1/interfaces/log/bulk'
@@ -4326,6 +4517,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prom-assignments/$id/remind'
     | '/api/clinical/v1/prom-assignments/$id/respond'
     | '/api/clinical/v1/prom-assignments/$id/submit'
+    | '/api/clinical/v1/referrals/$id/targets'
     | '/api/clinical/v1/tax-invoices/$id/credit-note'
     | '/api/clinical/v1/tax-invoices/$id/reprint'
     | '/api/clinical/v1/tax-invoices/$id/submit'
@@ -4354,6 +4546,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/encounters/$id/orders/radiology'
     | '/api/clinical/v1/encounters/$id/orders/service'
+    | '/api/clinical/v1/gate/exceptions/$id/reconcile'
     | '/api/clinical/v1/interfaces/log/$id/retry'
     | '/api/clinical/v1/ip/admission-requests/$id/action'
     | '/api/clinical/v1/masters/contract-change-requests/$id/apply'
@@ -4419,6 +4612,7 @@ export interface RootRouteChildren {
   ApiAdminV1SubscriptionsRoute: typeof ApiAdminV1SubscriptionsRoute
   ApiAdminV1TenantSubscriptionsRoute: typeof ApiAdminV1TenantSubscriptionsRouteWithChildren
   ApiAdminV1TicketsRoute: typeof ApiAdminV1TicketsRouteWithChildren
+  ApiClinicalV1AdminConfigRoute: typeof ApiClinicalV1AdminConfigRoute
   ApiClinicalV1BeneficiariesRoute: typeof ApiClinicalV1BeneficiariesRouteWithChildren
   ApiClinicalV1ClaimsRoute: typeof ApiClinicalV1ClaimsRouteWithChildren
   ApiClinicalV1DepositsRoute: typeof ApiClinicalV1DepositsRouteWithChildren
@@ -4432,6 +4626,7 @@ export interface RootRouteChildren {
   ApiClinicalV1PremResponsesRoute: typeof ApiClinicalV1PremResponsesRoute
   ApiClinicalV1PromAssignmentsRoute: typeof ApiClinicalV1PromAssignmentsRouteWithChildren
   ApiClinicalV1PromInstrumentsRoute: typeof ApiClinicalV1PromInstrumentsRoute
+  ApiClinicalV1ReferralsRoute: typeof ApiClinicalV1ReferralsRouteWithChildren
   ApiClinicalV1TaxInvoicesRoute: typeof ApiClinicalV1TaxInvoicesRouteWithChildren
   ApiPublicLegalSlugRoute: typeof ApiPublicLegalSlugRouteWithChildren
   ApiPublicTelemetryNavClickRoute: typeof ApiPublicTelemetryNavClickRoute
@@ -4481,6 +4676,13 @@ export interface RootRouteChildren {
   ApiClinicalV1ClaimsMgmtRemittancesRoute: typeof ApiClinicalV1ClaimsMgmtRemittancesRouteWithChildren
   ApiClinicalV1CoverageIdRoute: typeof ApiClinicalV1CoverageIdRoute
   ApiClinicalV1DiagnosesIdRoute: typeof ApiClinicalV1DiagnosesIdRoute
+  ApiClinicalV1FormsBindingsRoute: typeof ApiClinicalV1FormsBindingsRoute
+  ApiClinicalV1FormsDefsRoute: typeof ApiClinicalV1FormsDefsRouteWithChildren
+  ApiClinicalV1FormsInstancesRoute: typeof ApiClinicalV1FormsInstancesRouteWithChildren
+  ApiClinicalV1FormularyImportRoute: typeof ApiClinicalV1FormularyImportRoute
+  ApiClinicalV1FormularyIndicationsRoute: typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
+  ApiClinicalV1GateExceptionsRoute: typeof ApiClinicalV1GateExceptionsRouteWithChildren
+  ApiClinicalV1GatePreviewRoute: typeof ApiClinicalV1GatePreviewRoute
   ApiClinicalV1InterfacesLogRoute: typeof ApiClinicalV1InterfacesLogRouteWithChildren
   ApiClinicalV1IpAdmissionRequestsRoute: typeof ApiClinicalV1IpAdmissionRequestsRouteWithChildren
   ApiClinicalV1IpDepositsRoute: typeof ApiClinicalV1IpDepositsRouteWithChildren
@@ -5106,6 +5308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1TaxInvoicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/referrals': {
+      id: '/api/clinical/v1/referrals'
+      path: '/api/clinical/v1/referrals'
+      fullPath: '/api/clinical/v1/referrals'
+      preLoaderRoute: typeof ApiClinicalV1ReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/prom-instruments': {
       id: '/api/clinical/v1/prom-instruments'
       path: '/api/clinical/v1/prom-instruments'
@@ -5195,6 +5404,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/beneficiaries'
       fullPath: '/api/clinical/v1/beneficiaries'
       preLoaderRoute: typeof ApiClinicalV1BeneficiariesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/admin-config': {
+      id: '/api/clinical/v1/admin-config'
+      path: '/api/clinical/v1/admin-config'
+      fullPath: '/api/clinical/v1/admin-config'
+      preLoaderRoute: typeof ApiClinicalV1AdminConfigRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/v1/tickets': {
@@ -5608,6 +5824,55 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/interfaces/log'
       fullPath: '/api/clinical/v1/interfaces/log'
       preLoaderRoute: typeof ApiClinicalV1InterfacesLogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/gate/preview': {
+      id: '/api/clinical/v1/gate/preview'
+      path: '/api/clinical/v1/gate/preview'
+      fullPath: '/api/clinical/v1/gate/preview'
+      preLoaderRoute: typeof ApiClinicalV1GatePreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/gate/exceptions': {
+      id: '/api/clinical/v1/gate/exceptions'
+      path: '/api/clinical/v1/gate/exceptions'
+      fullPath: '/api/clinical/v1/gate/exceptions'
+      preLoaderRoute: typeof ApiClinicalV1GateExceptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/formulary/indications': {
+      id: '/api/clinical/v1/formulary/indications'
+      path: '/api/clinical/v1/formulary/indications'
+      fullPath: '/api/clinical/v1/formulary/indications'
+      preLoaderRoute: typeof ApiClinicalV1FormularyIndicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/formulary/import': {
+      id: '/api/clinical/v1/formulary/import'
+      path: '/api/clinical/v1/formulary/import'
+      fullPath: '/api/clinical/v1/formulary/import'
+      preLoaderRoute: typeof ApiClinicalV1FormularyImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/forms/instances': {
+      id: '/api/clinical/v1/forms/instances'
+      path: '/api/clinical/v1/forms/instances'
+      fullPath: '/api/clinical/v1/forms/instances'
+      preLoaderRoute: typeof ApiClinicalV1FormsInstancesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/forms/defs': {
+      id: '/api/clinical/v1/forms/defs'
+      path: '/api/clinical/v1/forms/defs'
+      fullPath: '/api/clinical/v1/forms/defs'
+      preLoaderRoute: typeof ApiClinicalV1FormsDefsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/forms/bindings': {
+      id: '/api/clinical/v1/forms/bindings'
+      path: '/api/clinical/v1/forms/bindings'
+      fullPath: '/api/clinical/v1/forms/bindings'
+      preLoaderRoute: typeof ApiClinicalV1FormsBindingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/episodes/$id': {
@@ -6037,6 +6302,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1TaxInvoicesIdCreditNoteRouteImport
       parentRoute: typeof ApiClinicalV1TaxInvoicesIdRoute
     }
+    '/api/clinical/v1/referrals/$id/targets': {
+      id: '/api/clinical/v1/referrals/$id/targets'
+      path: '/$id/targets'
+      fullPath: '/api/clinical/v1/referrals/$id/targets'
+      preLoaderRoute: typeof ApiClinicalV1ReferralsIdTargetsRouteImport
+      parentRoute: typeof ApiClinicalV1ReferralsRoute
+    }
     '/api/clinical/v1/prom-assignments/$id/submit': {
       id: '/api/clinical/v1/prom-assignments/$id/submit'
       path: '/submit'
@@ -6309,6 +6581,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/clinical/v1/interfaces/d365/summary'
       preLoaderRoute: typeof ApiClinicalV1InterfacesD365SummaryRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/gate/exceptions/$id': {
+      id: '/api/clinical/v1/gate/exceptions/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/gate/exceptions/$id'
+      preLoaderRoute: typeof ApiClinicalV1GateExceptionsIdRouteImport
+      parentRoute: typeof ApiClinicalV1GateExceptionsRoute
+    }
+    '/api/clinical/v1/formulary/indications/$id': {
+      id: '/api/clinical/v1/formulary/indications/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/formulary/indications/$id'
+      preLoaderRoute: typeof ApiClinicalV1FormularyIndicationsIdRouteImport
+      parentRoute: typeof ApiClinicalV1FormularyIndicationsRoute
+    }
+    '/api/clinical/v1/forms/instances/$id': {
+      id: '/api/clinical/v1/forms/instances/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/forms/instances/$id'
+      preLoaderRoute: typeof ApiClinicalV1FormsInstancesIdRouteImport
+      parentRoute: typeof ApiClinicalV1FormsInstancesRoute
+    }
+    '/api/clinical/v1/forms/defs/$id': {
+      id: '/api/clinical/v1/forms/defs/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/forms/defs/$id'
+      preLoaderRoute: typeof ApiClinicalV1FormsDefsIdRouteImport
+      parentRoute: typeof ApiClinicalV1FormsDefsRoute
     }
     '/api/clinical/v1/encounters/$id/vitals': {
       id: '/api/clinical/v1/encounters/$id/vitals'
@@ -6785,6 +7085,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/clinical/v1/interfaces/log/$id/retry'
       preLoaderRoute: typeof ApiClinicalV1InterfacesLogIdRetryRouteImport
       parentRoute: typeof ApiClinicalV1InterfacesLogIdRoute
+    }
+    '/api/clinical/v1/gate/exceptions/$id/reconcile': {
+      id: '/api/clinical/v1/gate/exceptions/$id/reconcile'
+      path: '/reconcile'
+      fullPath: '/api/clinical/v1/gate/exceptions/$id/reconcile'
+      preLoaderRoute: typeof ApiClinicalV1GateExceptionsIdReconcileRouteImport
+      parentRoute: typeof ApiClinicalV1GateExceptionsIdRoute
     }
     '/api/clinical/v1/encounters/$id/orders/service': {
       id: '/api/clinical/v1/encounters/$id/orders/service'
@@ -7666,6 +7973,20 @@ const ApiClinicalV1PromAssignmentsRouteWithChildren =
     ApiClinicalV1PromAssignmentsRouteChildren,
   )
 
+interface ApiClinicalV1ReferralsRouteChildren {
+  ApiClinicalV1ReferralsIdTargetsRoute: typeof ApiClinicalV1ReferralsIdTargetsRoute
+}
+
+const ApiClinicalV1ReferralsRouteChildren: ApiClinicalV1ReferralsRouteChildren =
+  {
+    ApiClinicalV1ReferralsIdTargetsRoute: ApiClinicalV1ReferralsIdTargetsRoute,
+  }
+
+const ApiClinicalV1ReferralsRouteWithChildren =
+  ApiClinicalV1ReferralsRoute._addFileChildren(
+    ApiClinicalV1ReferralsRouteChildren,
+  )
+
 interface ApiClinicalV1TaxInvoicesIdRouteChildren {
   ApiClinicalV1TaxInvoicesIdCreditNoteRoute: typeof ApiClinicalV1TaxInvoicesIdCreditNoteRoute
   ApiClinicalV1TaxInvoicesIdReprintRoute: typeof ApiClinicalV1TaxInvoicesIdReprintRoute
@@ -7956,6 +8277,79 @@ const ApiClinicalV1ClaimsMgmtRemittancesRouteChildren: ApiClinicalV1ClaimsMgmtRe
 const ApiClinicalV1ClaimsMgmtRemittancesRouteWithChildren =
   ApiClinicalV1ClaimsMgmtRemittancesRoute._addFileChildren(
     ApiClinicalV1ClaimsMgmtRemittancesRouteChildren,
+  )
+
+interface ApiClinicalV1FormsDefsRouteChildren {
+  ApiClinicalV1FormsDefsIdRoute: typeof ApiClinicalV1FormsDefsIdRoute
+}
+
+const ApiClinicalV1FormsDefsRouteChildren: ApiClinicalV1FormsDefsRouteChildren =
+  {
+    ApiClinicalV1FormsDefsIdRoute: ApiClinicalV1FormsDefsIdRoute,
+  }
+
+const ApiClinicalV1FormsDefsRouteWithChildren =
+  ApiClinicalV1FormsDefsRoute._addFileChildren(
+    ApiClinicalV1FormsDefsRouteChildren,
+  )
+
+interface ApiClinicalV1FormsInstancesRouteChildren {
+  ApiClinicalV1FormsInstancesIdRoute: typeof ApiClinicalV1FormsInstancesIdRoute
+}
+
+const ApiClinicalV1FormsInstancesRouteChildren: ApiClinicalV1FormsInstancesRouteChildren =
+  {
+    ApiClinicalV1FormsInstancesIdRoute: ApiClinicalV1FormsInstancesIdRoute,
+  }
+
+const ApiClinicalV1FormsInstancesRouteWithChildren =
+  ApiClinicalV1FormsInstancesRoute._addFileChildren(
+    ApiClinicalV1FormsInstancesRouteChildren,
+  )
+
+interface ApiClinicalV1FormularyIndicationsRouteChildren {
+  ApiClinicalV1FormularyIndicationsIdRoute: typeof ApiClinicalV1FormularyIndicationsIdRoute
+}
+
+const ApiClinicalV1FormularyIndicationsRouteChildren: ApiClinicalV1FormularyIndicationsRouteChildren =
+  {
+    ApiClinicalV1FormularyIndicationsIdRoute:
+      ApiClinicalV1FormularyIndicationsIdRoute,
+  }
+
+const ApiClinicalV1FormularyIndicationsRouteWithChildren =
+  ApiClinicalV1FormularyIndicationsRoute._addFileChildren(
+    ApiClinicalV1FormularyIndicationsRouteChildren,
+  )
+
+interface ApiClinicalV1GateExceptionsIdRouteChildren {
+  ApiClinicalV1GateExceptionsIdReconcileRoute: typeof ApiClinicalV1GateExceptionsIdReconcileRoute
+}
+
+const ApiClinicalV1GateExceptionsIdRouteChildren: ApiClinicalV1GateExceptionsIdRouteChildren =
+  {
+    ApiClinicalV1GateExceptionsIdReconcileRoute:
+      ApiClinicalV1GateExceptionsIdReconcileRoute,
+  }
+
+const ApiClinicalV1GateExceptionsIdRouteWithChildren =
+  ApiClinicalV1GateExceptionsIdRoute._addFileChildren(
+    ApiClinicalV1GateExceptionsIdRouteChildren,
+  )
+
+interface ApiClinicalV1GateExceptionsRouteChildren {
+  ApiClinicalV1GateExceptionsIdRoute: typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
+}
+
+const ApiClinicalV1GateExceptionsRouteChildren: ApiClinicalV1GateExceptionsRouteChildren =
+  {
+    ApiClinicalV1GateExceptionsIdRoute:
+      ApiClinicalV1GateExceptionsIdRouteWithChildren,
+  }
+
+const ApiClinicalV1GateExceptionsRouteWithChildren =
+  ApiClinicalV1GateExceptionsRoute._addFileChildren(
+    ApiClinicalV1GateExceptionsRouteChildren,
   )
 
 interface ApiClinicalV1InterfacesLogIdRouteChildren {
@@ -8511,6 +8905,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1TenantSubscriptionsRoute:
     ApiAdminV1TenantSubscriptionsRouteWithChildren,
   ApiAdminV1TicketsRoute: ApiAdminV1TicketsRouteWithChildren,
+  ApiClinicalV1AdminConfigRoute: ApiClinicalV1AdminConfigRoute,
   ApiClinicalV1BeneficiariesRoute: ApiClinicalV1BeneficiariesRouteWithChildren,
   ApiClinicalV1ClaimsRoute: ApiClinicalV1ClaimsRouteWithChildren,
   ApiClinicalV1DepositsRoute: ApiClinicalV1DepositsRouteWithChildren,
@@ -8526,6 +8921,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1PromAssignmentsRoute:
     ApiClinicalV1PromAssignmentsRouteWithChildren,
   ApiClinicalV1PromInstrumentsRoute: ApiClinicalV1PromInstrumentsRoute,
+  ApiClinicalV1ReferralsRoute: ApiClinicalV1ReferralsRouteWithChildren,
   ApiClinicalV1TaxInvoicesRoute: ApiClinicalV1TaxInvoicesRouteWithChildren,
   ApiPublicLegalSlugRoute: ApiPublicLegalSlugRouteWithChildren,
   ApiPublicTelemetryNavClickRoute: ApiPublicTelemetryNavClickRoute,
@@ -8581,6 +8977,16 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1ClaimsMgmtRemittancesRouteWithChildren,
   ApiClinicalV1CoverageIdRoute: ApiClinicalV1CoverageIdRoute,
   ApiClinicalV1DiagnosesIdRoute: ApiClinicalV1DiagnosesIdRoute,
+  ApiClinicalV1FormsBindingsRoute: ApiClinicalV1FormsBindingsRoute,
+  ApiClinicalV1FormsDefsRoute: ApiClinicalV1FormsDefsRouteWithChildren,
+  ApiClinicalV1FormsInstancesRoute:
+    ApiClinicalV1FormsInstancesRouteWithChildren,
+  ApiClinicalV1FormularyImportRoute: ApiClinicalV1FormularyImportRoute,
+  ApiClinicalV1FormularyIndicationsRoute:
+    ApiClinicalV1FormularyIndicationsRouteWithChildren,
+  ApiClinicalV1GateExceptionsRoute:
+    ApiClinicalV1GateExceptionsRouteWithChildren,
+  ApiClinicalV1GatePreviewRoute: ApiClinicalV1GatePreviewRoute,
   ApiClinicalV1InterfacesLogRoute: ApiClinicalV1InterfacesLogRouteWithChildren,
   ApiClinicalV1IpAdmissionRequestsRoute:
     ApiClinicalV1IpAdmissionRequestsRouteWithChildren,

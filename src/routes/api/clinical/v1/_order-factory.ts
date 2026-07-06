@@ -229,10 +229,32 @@ export function orderItemHandlers<TUpdate extends ZodTypeAny>(opts: {
       if (!ex || ex.tenant_id !== auth.ctx.tenantId) {
         return envelope(`${opts.table} not found`, "not_found", 404);
       }
+      // Turn-4 · pre-check the billed gate for advance-to-perform transitions.
+      // The SQL guard trigger still enforces on commit; this returns a friendly
+      // 403 GATE_BILLED so clients can render the tooltip without a DB roundtrip.
+      const advancing =
+        (parsed.data as any)?.status === "in_progress" ||
+        (parsed.data as any)?.status === "completed" ||
+        (parsed.data as any)?.dispense_status === "dispensed";
+      if (advancing) {
+        const { data: billed } = await db.rpc("charge_is_billed", {
+          _tbl: opts.table, _id: params.id,
+        });
+        if (billed === false) {
+          return envelope("billed gate: order not billable", "GATE_BILLED", 403);
+        }
+      }
       const { data, error } = await db.from(opts.table)
         .update({ ...(parsed.data as Record<string, unknown>), updated_by: auth.ctx.userId })
         .eq("id", params.id).select("*").single();
-      if (error) return envelope("database_error", "db_error", 400);
+      if (error) {
+        // Surface the SQL trigger's billed_gate signal as a 403 too.
+        const msg = (error as any)?.message ?? "";
+        if (typeof msg === "string" && msg.includes("billed_gate")) {
+          return envelope("billed gate: order not billable", "GATE_BILLED", 403);
+        }
+        return envelope("database_error", "db_error", 400);
+      }
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, `${opts.audit}.update`, opts.table, params.id);
       return jsonData({ data });
     },

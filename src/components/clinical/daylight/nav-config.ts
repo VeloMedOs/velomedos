@@ -41,8 +41,8 @@ export const NAV_SECTIONS: NavSectionDef[] = [
     items: [
       { module: "Registration & Eligibility", label: "Registration", tab: "registration", icon: UserPlus },
       { module: "Clinical",                   label: "Encounter",    tab: "encounters",   icon: Stethoscope },
-      { module: "Clinical",                   label: "Orders",       tab: "orders",       icon: ClipboardList, disabled: true },
-      { module: "Clinical",                   label: "Results",      tab: "results",      icon: FlaskConical, disabled: true },
+      { module: "Clinical",                   label: "Orders",       tab: "orders",       icon: ClipboardList },
+      { module: "Clinical",                   label: "Results",      tab: "results",      icon: FlaskConical },
       { module: "Coding & DRG",               label: "Coding · DRG", tab: "coding",       icon: Hash },
     ],
   },
