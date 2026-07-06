@@ -417,6 +417,7 @@ function Superadmin() {
       {tab === "demo"       && <DemoControlPane />}
       {tab === "cms_pages"    && <CmsPagesPane />}
       {tab === "cms_partners" && <FeaturedPartnersPane />}
+      {tab === "rcm_admin"    && <RcmAdminPane />}
 
       {identity && <IdentityPanel identity={identity} refresh={diagnose} />}
 
