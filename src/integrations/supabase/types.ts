@@ -9790,57 +9790,144 @@ export type Database = {
       service_master: {
         Row: {
           active: boolean
+          age_rule: Json | null
+          approx_perform_minutes: number | null
           body_site: string | null
+          cannot_combine_service_ids: string[] | null
+          category: string | null
+          claim_type: string | null
           created_at: string
           created_by: string | null
           description: string | null
+          gender_rule: string | null
+          general_comments: string | null
+          has_report: boolean | null
           id: string
           internal_code: string
           is_package: boolean
+          is_service_flag: boolean | null
+          max_qty_per_billing: number | null
+          max_qty_per_episode: number | null
+          max_qty_per_policy_year: number | null
+          max_qty_per_visit: number | null
           modality: string | null
           name: string
+          not_available_category: string | null
+          nphies_map_payer_ref: string | null
+          ordering_specialty_rule: Json | null
+          performer_role: string | null
+          performing_specialty_rule: Json | null
           preauth_required: boolean
+          pregnancy_rule: string | null
+          repeat_block_window_days: number | null
+          service_block: boolean | null
+          service_consent_form_id: string | null
           service_type: string
+          stat_flag: boolean | null
           sub_category: string | null
+          tat_minutes: number | null
+          temporary_unavailable: boolean | null
           tenant_id: string
+          tooth_number: string | null
           updated_at: string
           updated_by: string | null
+          validity_end: string | null
+          validity_start: string | null
+          visit_type: string | null
         }
         Insert: {
           active?: boolean
+          age_rule?: Json | null
+          approx_perform_minutes?: number | null
           body_site?: string | null
+          cannot_combine_service_ids?: string[] | null
+          category?: string | null
+          claim_type?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          gender_rule?: string | null
+          general_comments?: string | null
+          has_report?: boolean | null
           id?: string
           internal_code: string
           is_package?: boolean
+          is_service_flag?: boolean | null
+          max_qty_per_billing?: number | null
+          max_qty_per_episode?: number | null
+          max_qty_per_policy_year?: number | null
+          max_qty_per_visit?: number | null
           modality?: string | null
           name: string
+          not_available_category?: string | null
+          nphies_map_payer_ref?: string | null
+          ordering_specialty_rule?: Json | null
+          performer_role?: string | null
+          performing_specialty_rule?: Json | null
           preauth_required?: boolean
+          pregnancy_rule?: string | null
+          repeat_block_window_days?: number | null
+          service_block?: boolean | null
+          service_consent_form_id?: string | null
           service_type: string
+          stat_flag?: boolean | null
           sub_category?: string | null
+          tat_minutes?: number | null
+          temporary_unavailable?: boolean | null
           tenant_id: string
+          tooth_number?: string | null
           updated_at?: string
           updated_by?: string | null
+          validity_end?: string | null
+          validity_start?: string | null
+          visit_type?: string | null
         }
         Update: {
           active?: boolean
+          age_rule?: Json | null
+          approx_perform_minutes?: number | null
           body_site?: string | null
+          cannot_combine_service_ids?: string[] | null
+          category?: string | null
+          claim_type?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          gender_rule?: string | null
+          general_comments?: string | null
+          has_report?: boolean | null
           id?: string
           internal_code?: string
           is_package?: boolean
+          is_service_flag?: boolean | null
+          max_qty_per_billing?: number | null
+          max_qty_per_episode?: number | null
+          max_qty_per_policy_year?: number | null
+          max_qty_per_visit?: number | null
           modality?: string | null
           name?: string
+          not_available_category?: string | null
+          nphies_map_payer_ref?: string | null
+          ordering_specialty_rule?: Json | null
+          performer_role?: string | null
+          performing_specialty_rule?: Json | null
           preauth_required?: boolean
+          pregnancy_rule?: string | null
+          repeat_block_window_days?: number | null
+          service_block?: boolean | null
+          service_consent_form_id?: string | null
           service_type?: string
+          stat_flag?: boolean | null
           sub_category?: string | null
+          tat_minutes?: number | null
+          temporary_unavailable?: boolean | null
           tenant_id?: string
+          tooth_number?: string | null
           updated_at?: string
           updated_by?: string | null
+          validity_end?: string | null
+          validity_start?: string | null
+          visit_type?: string | null
         }
         Relationships: [
           {
