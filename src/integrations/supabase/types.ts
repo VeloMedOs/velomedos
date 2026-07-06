@@ -11151,6 +11151,12 @@ export type Database = {
         | "rejected"
         | "executed"
         | "cancelled"
+      booking_source:
+        | "opd"
+        | "referral"
+        | "follow_up"
+        | "call_center"
+        | "portal"
       booking_status: "requested" | "confirmed" | "completed" | "cancelled"
       business_request_source:
         | "website"
@@ -11190,6 +11196,7 @@ export type Database = {
       cash_method: "cash" | "pos" | "bank_transfer" | "cheque" | "online"
       cash_session_status: "open" | "closed" | "reconciled"
       cash_status: "draft" | "posted" | "voided"
+      charge_mode: "new_consult" | "follow_up" | "series" | "no_charge"
       charge_pricing_mode: "cash" | "insured" | "drg_bundled"
       charge_status:
         | "ordered"
@@ -11358,6 +11365,14 @@ export type Database = {
         | "ip_deposit_below_threshold"
         | "admin_manual"
       rcm_gate_state: "locked" | "released_by_exception" | "billed"
+      referral_class: "intra" | "inter_company" | "external" | "cross_encounter"
+      referral_status:
+        | "draft"
+        | "submitted"
+        | "accepted"
+        | "declined"
+        | "completed"
+        | "cancelled"
       remittance_match_status: "unmatched" | "matched" | "mismatch" | "manual"
       remittance_source: "interface" | "file_upload"
       remittance_status:
@@ -11373,6 +11388,8 @@ export type Database = {
         | "results_ready"
         | "certified"
         | "cancelled"
+      slot_status: "open" | "held" | "booked" | "blocked" | "cancelled"
+      target_kind: "specialty" | "provider" | "facility" | "service"
       tax_invoice_type:
         | "b2b_insurance"
         | "b2c_patient"
@@ -11397,6 +11414,12 @@ export type Database = {
         | "biweekly"
         | "monthly"
         | "custom"
+      visit_type:
+        | "new_consult"
+        | "follow_up"
+        | "series"
+        | "no_charge"
+        | "procedure"
       work_order_status: "open" | "in_progress" | "closed" | "cancelled"
       work_order_type: "preventive" | "corrective"
       zatca_status: "pending" | "cleared" | "reported" | "failed"
@@ -11593,6 +11616,7 @@ export const Constants = {
         "executed",
         "cancelled",
       ],
+      booking_source: ["opd", "referral", "follow_up", "call_center", "portal"],
       booking_status: ["requested", "confirmed", "completed", "cancelled"],
       business_request_source: [
         "website",
@@ -11636,6 +11660,7 @@ export const Constants = {
       cash_method: ["cash", "pos", "bank_transfer", "cheque", "online"],
       cash_session_status: ["open", "closed", "reconciled"],
       cash_status: ["draft", "posted", "voided"],
+      charge_mode: ["new_consult", "follow_up", "series", "no_charge"],
       charge_pricing_mode: ["cash", "insured", "drg_bundled"],
       charge_status: [
         "ordered",
@@ -11822,6 +11847,15 @@ export const Constants = {
         "admin_manual",
       ],
       rcm_gate_state: ["locked", "released_by_exception", "billed"],
+      referral_class: ["intra", "inter_company", "external", "cross_encounter"],
+      referral_status: [
+        "draft",
+        "submitted",
+        "accepted",
+        "declined",
+        "completed",
+        "cancelled",
+      ],
       remittance_match_status: ["unmatched", "matched", "mismatch", "manual"],
       remittance_source: ["interface", "file_upload"],
       remittance_status: [
@@ -11839,6 +11873,8 @@ export const Constants = {
         "certified",
         "cancelled",
       ],
+      slot_status: ["open", "held", "booked", "blocked", "cancelled"],
+      target_kind: ["specialty", "provider", "facility", "service"],
       tax_invoice_type: [
         "b2b_insurance",
         "b2c_patient",
@@ -11866,6 +11902,13 @@ export const Constants = {
         "biweekly",
         "monthly",
         "custom",
+      ],
+      visit_type: [
+        "new_consult",
+        "follow_up",
+        "series",
+        "no_charge",
+        "procedure",
       ],
       work_order_status: ["open", "in_progress", "closed", "cancelled"],
       work_order_type: ["preventive", "corrective"],
