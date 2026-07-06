@@ -10685,6 +10685,7 @@ export type Database = {
           direction: string
           id: string
           reason: string | null
+          related_exception_id: string | null
           source: string
           source_ref_id: string | null
           tenant_id: string
@@ -10697,6 +10698,7 @@ export type Database = {
           direction: string
           id?: string
           reason?: string | null
+          related_exception_id?: string | null
           source: string
           source_ref_id?: string | null
           tenant_id: string
@@ -10709,6 +10711,7 @@ export type Database = {
           direction?: string
           id?: string
           reason?: string | null
+          related_exception_id?: string | null
           source?: string
           source_ref_id?: string | null
           tenant_id?: string
