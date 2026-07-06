@@ -11321,6 +11321,33 @@ export type Database = {
         | "substitution"
         | "drg_outlier"
         | "out_of_network"
+      rcm_gate_exception_type:
+        | "emergency_override"
+        | "partial_deposit_override"
+        | "installment_override"
+        | "clinical_urgency"
+        | "mrp_verbal_order"
+        | "newborn_inherit"
+        | "ineligibility_workflow"
+        | "config_no_auth"
+        | "indication_override"
+        | "admin_override"
+      rcm_gate_reason_code:
+        | "ctas_1_2"
+        | "ipd_partial_deposit"
+        | "er_criticality"
+        | "installment_plan"
+        | "stat_order"
+        | "mrp_unavailable"
+        | "newborn_mother_coverage"
+        | "referral_pending"
+        | "newborn_pending"
+        | "emergency_pending"
+        | "in_network_no_auth"
+        | "pbm_indication_missing"
+        | "ip_deposit_below_threshold"
+        | "admin_manual"
+      rcm_gate_state: "locked" | "released_by_exception" | "billed"
       remittance_match_status: "unmatched" | "matched" | "mismatch" | "manual"
       remittance_source: "interface" | "file_upload"
       remittance_status:
@@ -11746,6 +11773,35 @@ export const Constants = {
         "drg_outlier",
         "out_of_network",
       ],
+      rcm_gate_exception_type: [
+        "emergency_override",
+        "partial_deposit_override",
+        "installment_override",
+        "clinical_urgency",
+        "mrp_verbal_order",
+        "newborn_inherit",
+        "ineligibility_workflow",
+        "config_no_auth",
+        "indication_override",
+        "admin_override",
+      ],
+      rcm_gate_reason_code: [
+        "ctas_1_2",
+        "ipd_partial_deposit",
+        "er_criticality",
+        "installment_plan",
+        "stat_order",
+        "mrp_unavailable",
+        "newborn_mother_coverage",
+        "referral_pending",
+        "newborn_pending",
+        "emergency_pending",
+        "in_network_no_auth",
+        "pbm_indication_missing",
+        "ip_deposit_below_threshold",
+        "admin_manual",
+      ],
+      rcm_gate_state: ["locked", "released_by_exception", "billed"],
       remittance_match_status: ["unmatched", "matched", "mismatch", "manual"],
       remittance_source: ["interface", "file_upload"],
       remittance_status: [
