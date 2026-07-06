@@ -9349,6 +9349,158 @@ export type Database = {
         }
         Relationships: []
       }
+      referral: {
+        Row: {
+          accepted_at: string | null
+          beneficiary_id: string
+          cancel_reason: string | null
+          cancelled_at: string | null
+          charge_mode: Database["public"]["Enums"]["charge_mode"] | null
+          clinical_notes: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          discount_pct: number | null
+          eligibility_check_required: boolean
+          external_facility: string | null
+          external_provider: string | null
+          id: string
+          no_charge_reason: string | null
+          preauth_required: boolean
+          priority: string | null
+          reason: string | null
+          referral_class: Database["public"]["Enums"]["referral_class"]
+          referral_no: string
+          series_id: string | null
+          source_encounter_id: string | null
+          source_provider_id: string | null
+          source_specialty: string | null
+          status: Database["public"]["Enums"]["referral_status"]
+          submitted_at: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          beneficiary_id: string
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          charge_mode?: Database["public"]["Enums"]["charge_mode"] | null
+          clinical_notes?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount_pct?: number | null
+          eligibility_check_required?: boolean
+          external_facility?: string | null
+          external_provider?: string | null
+          id?: string
+          no_charge_reason?: string | null
+          preauth_required?: boolean
+          priority?: string | null
+          reason?: string | null
+          referral_class: Database["public"]["Enums"]["referral_class"]
+          referral_no: string
+          series_id?: string | null
+          source_encounter_id?: string | null
+          source_provider_id?: string | null
+          source_specialty?: string | null
+          status?: Database["public"]["Enums"]["referral_status"]
+          submitted_at?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          beneficiary_id?: string
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          charge_mode?: Database["public"]["Enums"]["charge_mode"] | null
+          clinical_notes?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount_pct?: number | null
+          eligibility_check_required?: boolean
+          external_facility?: string | null
+          external_provider?: string | null
+          id?: string
+          no_charge_reason?: string | null
+          preauth_required?: boolean
+          priority?: string | null
+          reason?: string | null
+          referral_class?: Database["public"]["Enums"]["referral_class"]
+          referral_no?: string
+          series_id?: string | null
+          source_encounter_id?: string | null
+          source_provider_id?: string | null
+          source_specialty?: string | null
+          status?: Database["public"]["Enums"]["referral_status"]
+          submitted_at?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      referral_target: {
+        Row: {
+          booked_appointment_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          referral_id: string
+          status: Database["public"]["Enums"]["referral_status"]
+          target_facility_id: string | null
+          target_kind: Database["public"]["Enums"]["target_kind"]
+          target_provider_id: string | null
+          target_service_id: string | null
+          target_specialty: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          booked_appointment_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          referral_id: string
+          status?: Database["public"]["Enums"]["referral_status"]
+          target_facility_id?: string | null
+          target_kind: Database["public"]["Enums"]["target_kind"]
+          target_provider_id?: string | null
+          target_service_id?: string | null
+          target_specialty?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          booked_appointment_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          referral_id?: string
+          status?: Database["public"]["Enums"]["referral_status"]
+          target_facility_id?: string | null
+          target_kind?: Database["public"]["Enums"]["target_kind"]
+          target_provider_id?: string | null
+          target_service_id?: string | null
+          target_specialty?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_target_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referral"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       refund_request: {
         Row: {
           amount_minor: number
