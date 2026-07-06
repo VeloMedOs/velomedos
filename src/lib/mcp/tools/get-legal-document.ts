@@ -30,9 +30,9 @@ export default defineTool({
       .from("legal_documents")
       .select("slug, locale, title, summary, body_md, body_html, version, effective_date, published_at")
       .eq("status", "published")
-      .eq("slug", slug)
+      .eq("slug", slug as never)
       .limit(1);
-    if (locale) q = q.eq("locale", locale);
+    if (locale) q = q.eq("locale", locale as never);
     const { data, error } = await q;
     if (error) {
       return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };

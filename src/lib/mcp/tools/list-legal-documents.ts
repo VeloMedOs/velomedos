@@ -27,7 +27,7 @@ export default defineTool({
       .select("slug, locale, title, summary, version, effective_date, published_at")
       .eq("status", "published")
       .order("slug", { ascending: true });
-    if (locale) q = q.eq("locale", locale);
+    if (locale) q = q.eq("locale", locale as never);
     const { data, error } = await q;
     if (error) {
       return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
