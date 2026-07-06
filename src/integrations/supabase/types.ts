@@ -6265,6 +6265,7 @@ export type Database = {
       maternity_protocol: {
         Row: {
           active: boolean
+          class_id: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -6278,6 +6279,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          class_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -6291,6 +6293,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          class_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -6303,6 +6306,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "maternity_protocol_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_class"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "maternity_protocol_payer_id_fkey"
             columns: ["payer_id"]
