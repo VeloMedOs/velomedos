@@ -11222,6 +11222,16 @@ export type Database = {
         | "approval_officer"
         | "claims_officer"
         | "finance"
+        | "lab_doctor"
+        | "bb_technician"
+        | "bb_physician"
+        | "rad_technician"
+        | "or_nurse"
+        | "cath_nurse"
+        | "anesthetist"
+        | "labour_nurse"
+        | "nursery_nurse"
+        | "injection_staff"
       code_system_kind:
         | "diagnosis"
         | "procedure"
@@ -11660,6 +11670,16 @@ export const Constants = {
         "approval_officer",
         "claims_officer",
         "finance",
+        "lab_doctor",
+        "bb_technician",
+        "bb_physician",
+        "rad_technician",
+        "or_nurse",
+        "cath_nurse",
+        "anesthetist",
+        "labour_nurse",
+        "nursery_nurse",
+        "injection_staff",
       ],
       code_system_kind: [
         "diagnosis",
