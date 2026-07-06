@@ -38,6 +38,7 @@ const EXCLUDE_FILES = new Set([
   "his.tsx",                    // redirect-only → /launch or /auth
   "demo-login.tsx",             // sandbox demo entry — noindex
   "demo-credentials.tsx",       // sandbox roster — noindex
+  "mcp.ts",                     // MCP server endpoint — not a page
 ]);
 
 function walk(dir) {
@@ -48,6 +49,8 @@ function walk(dir) {
     if (statSync(full).isDirectory()) { out.push(...walk(full)); continue; }
     if (!/\.(tsx|ts)$/.test(name)) continue;
     if (EXCLUDE_PREFIXES.some((p) => rel.startsWith(p))) continue;
+    // Skip TanStack escaped-dot / bracketed directories (e.g. [.mcp], [.well-known])
+    if (rel.split(/[\\/]/).some((seg) => seg.startsWith("["))) continue;
     if (EXCLUDE_FILES.has(rel)) continue;
     if (name.startsWith("_")) continue;
     out.push(rel);
