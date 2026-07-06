@@ -2836,6 +2836,74 @@ export type Database = {
           },
         ]
       }
+      clinical_form_instance: {
+        Row: {
+          admission_request_id: string | null
+          answers: Json
+          assigned_role: string | null
+          cosigned_at: string | null
+          cosigned_by: string | null
+          created_at: string
+          due_at: string | null
+          encounter_id: string | null
+          form_def_id: string
+          id: string
+          order_item_id: string | null
+          order_item_table: string | null
+          status: string
+          submitted_at: string | null
+          submitted_by: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          admission_request_id?: string | null
+          answers?: Json
+          assigned_role?: string | null
+          cosigned_at?: string | null
+          cosigned_by?: string | null
+          created_at?: string
+          due_at?: string | null
+          encounter_id?: string | null
+          form_def_id: string
+          id?: string
+          order_item_id?: string | null
+          order_item_table?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          admission_request_id?: string | null
+          answers?: Json
+          assigned_role?: string | null
+          cosigned_at?: string | null
+          cosigned_by?: string | null
+          created_at?: string
+          due_at?: string | null
+          encounter_id?: string | null
+          form_def_id?: string
+          id?: string
+          order_item_id?: string | null
+          order_item_table?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_form_instance_form_def_id_fkey"
+            columns: ["form_def_id"]
+            isOneToOne: false
+            referencedRelation: "form_def"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinical_supporting_info: {
         Row: {
           beneficiary_id: string
@@ -5291,6 +5359,107 @@ export type Database = {
           vat_rate?: number | null
         }
         Relationships: []
+      }
+      form_def: {
+        Row: {
+          active: boolean
+          age_band: Json | null
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          schema: Json
+          tenant_id: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          age_band?: Json | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          schema: Json
+          tenant_id: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          age_band?: Json | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          schema?: Json
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      form_workflow_binding: {
+        Row: {
+          active: boolean
+          assignee_role: string | null
+          cosign_required: boolean
+          created_at: string
+          due_window_minutes: number | null
+          encounter_class: string | null
+          form_def_id: string
+          id: string
+          mandatory: boolean
+          module: string | null
+          tenant_id: string
+          trigger: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          assignee_role?: string | null
+          cosign_required?: boolean
+          created_at?: string
+          due_window_minutes?: number | null
+          encounter_class?: string | null
+          form_def_id: string
+          id?: string
+          mandatory?: boolean
+          module?: string | null
+          tenant_id: string
+          trigger: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          assignee_role?: string | null
+          cosign_required?: boolean
+          created_at?: string
+          due_window_minutes?: number | null
+          encounter_class?: string | null
+          form_def_id?: string
+          id?: string
+          mandatory?: boolean
+          module?: string | null
+          tenant_id?: string
+          trigger?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_workflow_binding_form_def_id_fkey"
+            columns: ["form_def_id"]
+            isOneToOne: false
+            referencedRelation: "form_def"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       incident_events: {
         Row: {
@@ -11465,6 +11634,14 @@ export type Database = {
       encounter_maybe_advance_documented: {
         Args: { _enc_id: string }
         Returns: undefined
+      }
+      forms_gate_open: {
+        Args: {
+          _encounter_id: string
+          _order_item_id?: string
+          _order_item_table?: string
+        }
+        Returns: boolean
       }
       generate_member_code: { Args: never; Returns: string }
       get_user_roles: {
