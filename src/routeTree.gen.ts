@@ -269,6 +269,7 @@ import { Route as ApiClinicalV1InterfacesLogBulkRouteImport } from './routes/api
 import { Route as ApiClinicalV1InterfacesLogIdRouteImport } from './routes/api/clinical/v1/interfaces.log.$id'
 import { Route as ApiClinicalV1InterfacesD365SummaryRouteImport } from './routes/api/clinical/v1/interfaces.d365.summary'
 import { Route as ApiClinicalV1GateExceptionsIdRouteImport } from './routes/api/clinical/v1/gate/exceptions.$id'
+import { Route as ApiClinicalV1FormsInstancesIdRouteImport } from './routes/api/clinical/v1/forms/instances.$id'
 import { Route as ApiClinicalV1FormsDefsIdRouteImport } from './routes/api/clinical/v1/forms/defs.$id'
 import { Route as ApiClinicalV1EncountersIdVitalsRouteImport } from './routes/api/clinical/v1/encounters.$id.vitals'
 import { Route as ApiClinicalV1EncountersIdSupportingInfoRouteImport } from './routes/api/clinical/v1/encounters.$id.supporting-info'
@@ -1801,6 +1802,12 @@ const ApiClinicalV1GateExceptionsIdRoute =
     path: '/$id',
     getParentRoute: () => ApiClinicalV1GateExceptionsRoute,
   } as any)
+const ApiClinicalV1FormsInstancesIdRoute =
+  ApiClinicalV1FormsInstancesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiClinicalV1FormsInstancesRoute,
+  } as any)
 const ApiClinicalV1FormsDefsIdRoute =
   ApiClinicalV1FormsDefsIdRouteImport.update({
     id: '/$id',
@@ -2523,7 +2530,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
   '/api/clinical/v1/forms/defs': typeof ApiClinicalV1FormsDefsRouteWithChildren
-  '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRoute
+  '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRouteWithChildren
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -2622,6 +2629,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/clinical/v1/forms/defs/$id': typeof ApiClinicalV1FormsDefsIdRoute
+  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRoute
   '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
   '/api/clinical/v1/interfaces/log/$id': typeof ApiClinicalV1InterfacesLogIdRouteWithChildren
@@ -2874,7 +2882,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
   '/api/clinical/v1/forms/defs': typeof ApiClinicalV1FormsDefsRouteWithChildren
-  '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRoute
+  '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRouteWithChildren
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -2973,6 +2981,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/clinical/v1/forms/defs/$id': typeof ApiClinicalV1FormsDefsIdRoute
+  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRoute
   '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
   '/api/clinical/v1/interfaces/log/$id': typeof ApiClinicalV1InterfacesLogIdRouteWithChildren
@@ -3229,7 +3238,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/encounters/$id': typeof ApiClinicalV1EncountersIdRouteWithChildren
   '/api/clinical/v1/episodes/$id': typeof ApiClinicalV1EpisodesIdRoute
   '/api/clinical/v1/forms/defs': typeof ApiClinicalV1FormsDefsRouteWithChildren
-  '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRoute
+  '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRouteWithChildren
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -3328,6 +3337,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/clinical/v1/forms/defs/$id': typeof ApiClinicalV1FormsDefsIdRoute
+  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRoute
   '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
   '/api/clinical/v1/interfaces/log/$id': typeof ApiClinicalV1InterfacesLogIdRouteWithChildren
@@ -3683,6 +3693,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
     | '/api/clinical/v1/forms/defs/$id'
+    | '/api/clinical/v1/forms/instances/$id'
     | '/api/clinical/v1/gate/exceptions/$id'
     | '/api/clinical/v1/interfaces/d365/summary'
     | '/api/clinical/v1/interfaces/log/$id'
@@ -4034,6 +4045,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
     | '/api/clinical/v1/forms/defs/$id'
+    | '/api/clinical/v1/forms/instances/$id'
     | '/api/clinical/v1/gate/exceptions/$id'
     | '/api/clinical/v1/interfaces/d365/summary'
     | '/api/clinical/v1/interfaces/log/$id'
@@ -4388,6 +4400,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/supporting-info'
     | '/api/clinical/v1/encounters/$id/vitals'
     | '/api/clinical/v1/forms/defs/$id'
+    | '/api/clinical/v1/forms/instances/$id'
     | '/api/clinical/v1/gate/exceptions/$id'
     | '/api/clinical/v1/interfaces/d365/summary'
     | '/api/clinical/v1/interfaces/log/$id'
@@ -4586,7 +4599,7 @@ export interface RootRouteChildren {
   ApiClinicalV1CoverageIdRoute: typeof ApiClinicalV1CoverageIdRoute
   ApiClinicalV1DiagnosesIdRoute: typeof ApiClinicalV1DiagnosesIdRoute
   ApiClinicalV1FormsDefsRoute: typeof ApiClinicalV1FormsDefsRouteWithChildren
-  ApiClinicalV1FormsInstancesRoute: typeof ApiClinicalV1FormsInstancesRoute
+  ApiClinicalV1FormsInstancesRoute: typeof ApiClinicalV1FormsInstancesRouteWithChildren
   ApiClinicalV1GateExceptionsRoute: typeof ApiClinicalV1GateExceptionsRouteWithChildren
   ApiClinicalV1GatePreviewRoute: typeof ApiClinicalV1GatePreviewRoute
   ApiClinicalV1InterfacesLogRoute: typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -6460,6 +6473,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1GateExceptionsIdRouteImport
       parentRoute: typeof ApiClinicalV1GateExceptionsRoute
     }
+    '/api/clinical/v1/forms/instances/$id': {
+      id: '/api/clinical/v1/forms/instances/$id'
+      path: '/$id'
+      fullPath: '/api/clinical/v1/forms/instances/$id'
+      preLoaderRoute: typeof ApiClinicalV1FormsInstancesIdRouteImport
+      parentRoute: typeof ApiClinicalV1FormsInstancesRoute
+    }
     '/api/clinical/v1/forms/defs/$id': {
       id: '/api/clinical/v1/forms/defs/$id'
       path: '/$id'
@@ -8136,6 +8156,20 @@ const ApiClinicalV1FormsDefsRouteWithChildren =
     ApiClinicalV1FormsDefsRouteChildren,
   )
 
+interface ApiClinicalV1FormsInstancesRouteChildren {
+  ApiClinicalV1FormsInstancesIdRoute: typeof ApiClinicalV1FormsInstancesIdRoute
+}
+
+const ApiClinicalV1FormsInstancesRouteChildren: ApiClinicalV1FormsInstancesRouteChildren =
+  {
+    ApiClinicalV1FormsInstancesIdRoute: ApiClinicalV1FormsInstancesIdRoute,
+  }
+
+const ApiClinicalV1FormsInstancesRouteWithChildren =
+  ApiClinicalV1FormsInstancesRoute._addFileChildren(
+    ApiClinicalV1FormsInstancesRouteChildren,
+  )
+
 interface ApiClinicalV1GateExceptionsIdRouteChildren {
   ApiClinicalV1GateExceptionsIdReconcileRoute: typeof ApiClinicalV1GateExceptionsIdReconcileRoute
 }
@@ -8791,7 +8825,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1CoverageIdRoute: ApiClinicalV1CoverageIdRoute,
   ApiClinicalV1DiagnosesIdRoute: ApiClinicalV1DiagnosesIdRoute,
   ApiClinicalV1FormsDefsRoute: ApiClinicalV1FormsDefsRouteWithChildren,
-  ApiClinicalV1FormsInstancesRoute: ApiClinicalV1FormsInstancesRoute,
+  ApiClinicalV1FormsInstancesRoute:
+    ApiClinicalV1FormsInstancesRouteWithChildren,
   ApiClinicalV1GateExceptionsRoute:
     ApiClinicalV1GateExceptionsRouteWithChildren,
   ApiClinicalV1GatePreviewRoute: ApiClinicalV1GatePreviewRoute,
