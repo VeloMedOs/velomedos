@@ -645,6 +645,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "authorization_item_charge_item_id_fkey"
+            columns: ["charge_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_item_gate"
+            referencedColumns: ["charge_item_id"]
+          },
+          {
             foreignKeyName: "authorization_item_drug_id_fkey"
             columns: ["drug_id"]
             isOneToOne: false
@@ -2331,6 +2338,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "charge_item"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_item_charge_item_id_fkey"
+            columns: ["charge_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_item_gate"
+            referencedColumns: ["charge_item_id"]
           },
           {
             foreignKeyName: "claim_item_claim_id_fkey"
@@ -8887,6 +8901,81 @@ export type Database = {
           },
         ]
       }
+      rcm_gate_exception: {
+        Row: {
+          admission_request_id: string | null
+          charge_item_id: string | null
+          closed_at: string | null
+          closed_by: string | null
+          created_at: string
+          encounter_id: string | null
+          exception_type: Database["public"]["Enums"]["rcm_gate_exception_type"]
+          expires_at: string | null
+          granted_by: string | null
+          granted_role: string | null
+          id: string
+          manual_approved_minor: number | null
+          nphies_approved_minor: number | null
+          reason_code:
+            | Database["public"]["Enums"]["rcm_gate_reason_code"]
+            | null
+          reason_text: string | null
+          reconciled_at: string | null
+          retrospective_auth_state: string | null
+          tenant_id: string
+          updated_at: string
+          wallet_delta_minor: number | null
+        }
+        Insert: {
+          admission_request_id?: string | null
+          charge_item_id?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          encounter_id?: string | null
+          exception_type: Database["public"]["Enums"]["rcm_gate_exception_type"]
+          expires_at?: string | null
+          granted_by?: string | null
+          granted_role?: string | null
+          id?: string
+          manual_approved_minor?: number | null
+          nphies_approved_minor?: number | null
+          reason_code?:
+            | Database["public"]["Enums"]["rcm_gate_reason_code"]
+            | null
+          reason_text?: string | null
+          reconciled_at?: string | null
+          retrospective_auth_state?: string | null
+          tenant_id: string
+          updated_at?: string
+          wallet_delta_minor?: number | null
+        }
+        Update: {
+          admission_request_id?: string | null
+          charge_item_id?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          encounter_id?: string | null
+          exception_type?: Database["public"]["Enums"]["rcm_gate_exception_type"]
+          expires_at?: string | null
+          granted_by?: string | null
+          granted_role?: string | null
+          id?: string
+          manual_approved_minor?: number | null
+          nphies_approved_minor?: number | null
+          reason_code?:
+            | Database["public"]["Enums"]["rcm_gate_reason_code"]
+            | null
+          reason_text?: string | null
+          reconciled_at?: string | null
+          retrospective_auth_state?: string | null
+          tenant_id?: string
+          updated_at?: string
+          wallet_delta_minor?: number | null
+        }
+        Relationships: []
+      }
       refund_request: {
         Row: {
           amount_minor: number
@@ -11042,9 +11131,41 @@ export type Database = {
         }
         Relationships: []
       }
+      v_order_item_gate: {
+        Row: {
+          charge_item_id: string | null
+          encounter_id: string | null
+          exception_id: string | null
+          gate_state: Database["public"]["Enums"]["rcm_gate_state"] | null
+          net_minor: number | null
+          order_item_id: string | null
+          order_item_table: string | null
+          pricing_mode:
+            | Database["public"]["Enums"]["charge_pricing_mode"]
+            | null
+          reason_code:
+            | Database["public"]["Enums"]["rcm_gate_reason_code"]
+            | null
+          tenant_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charge_item_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      admission_gate_open: { Args: { _admission_id: string }; Returns: boolean }
       bump_site_content_version: { Args: { _actor?: string }; Returns: number }
+      charge_is_billed: {
+        Args: { _id: string; _tbl: string }
+        Returns: boolean
+      }
       encounter_advance_journey: {
         Args: { _enc_id: string; _to: string }
         Returns: undefined
