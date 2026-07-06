@@ -5,9 +5,13 @@
  * clinician's tenant. Each row wraps its Perform/Dispense action in
  * <BilledGate>; UI disable is UX-only — SQL trigger `charge_is_billed()`
  * is the enforcing gate.
+ *
+ * Worklist convention (locked for Step 2+): join `v_order_item_gate` for
+ * every row and pass the server-side `gate_state` into <BilledGate>. Never
+ * derive gate outcome client-side from `charge_item.status`.
  */
 import { useEffect, useState } from "react";
-import { ClinicalAPI, ClinicalApiError } from "@/lib/clinical-api";
+import { ClinicalAPI, ClinicalApiError, gateApi, type GateViewRow } from "@/lib/clinical-api";
 import { BilledGate } from "@/components/clinical/daylight/spine/BilledGate";
 import { RcmCommCard } from "@/components/clinical/daylight/spine/RcmCommCard";
 import type { BilledGateOutcome } from "@/lib/rcm/billed-gate";
@@ -27,12 +31,17 @@ type ChargeRow = {
   currency: string;
 };
 
-/** Cheap outcome derivation for UI — the server view is canonical. */
-function deriveOutcome(row: ChargeRow): BilledGateOutcome {
-  if (row.status === "collected" || row.status === "in_progress" || row.status === "resulted" || row.status === "dispensed") {
+/** Map v_order_item_gate.gate_state → BilledGateOutcome (canonical). */
+function outcomeFromGate(row: ChargeRow, gate: GateViewRow | undefined): BilledGateOutcome {
+  if (!gate) return { billed: false, reason: "unknown" };
+  if (gate.gate_state === "billed") {
     return { billed: true, via: row.pricing_mode === "insured" ? "insured_auth" : "self_pay_cumulative" };
   }
-  return { billed: false, reason: "auth_missing" };
+  if (gate.gate_state === "released_by_exception") {
+    return { billed: true, via: "release" };
+  }
+  const reason = (gate.reason_code ?? "unknown") as Extract<BilledGateOutcome, { billed: false }>["reason"];
+  return { billed: false, reason };
 }
 
 function urgencyPill(u?: string | null) {
@@ -45,6 +54,7 @@ function urgencyPill(u?: string | null) {
 
 export function OrdersPane() {
   const [rows, setRows] = useState<ChargeRow[]>([]);
+  const [gate, setGate] = useState<Map<string, GateViewRow>>(new Map());
   const [encLabel, setEncLabel] = useState<string>("");
   const [status, setStatus] = useState<string>("all");
   const [urgency, setUrgency] = useState<string>("all");
@@ -57,8 +67,14 @@ export function OrdersPane() {
         const first = (encs.data as Array<{ id: string; encounter_number?: string | null }>)[0];
         if (!first) { setEncLabel("No encounters"); return; }
         setEncLabel(first.encounter_number ?? first.id.slice(0, 8));
-        const r = await ClinicalAPI.listCharges(first.id);
+        const [r, g] = await Promise.all([
+          ClinicalAPI.listCharges(first.id),
+          gateApi.view(first.id),
+        ]);
         setRows(((r.data as any)?.rows ?? r.data ?? []) as ChargeRow[]);
+        const map = new Map<string, GateViewRow>();
+        for (const row of g.data ?? []) map.set(row.charge_item_id, row);
+        setGate(map);
       } catch (e) {
         setErr(e instanceof ClinicalApiError ? e.message : "Failed to load orders");
       }
@@ -78,7 +94,8 @@ export function OrdersPane() {
           <div className="flex gap-2 mb-3 text-xs">
             <select className="clin-ctrl" value={status} onChange={(e) => setStatus(e.target.value)}>
               <option value="all">All statuses</option>
-              <option value="pending">Pending</option>
+              <option value="ordered">Ordered</option>
+              <option value="collected">Collected</option>
               <option value="in_progress">In progress</option>
               <option value="resulted">Resulted</option>
               <option value="dispensed">Dispensed</option>
@@ -113,7 +130,7 @@ export function OrdersPane() {
                   <td className="text-xs" style={{ color: "var(--clin-muted)" }}>{r.pricing_mode}</td>
                   <td className="text-right mono text-xs">{formatHalalas(r.net_minor, { currency: r.currency })}</td>
                   <td className="text-right">
-                    <BilledGate outcome={deriveOutcome(r)}>
+                    <BilledGate outcome={outcomeFromGate(r, gate.get(r.id))}>
                       <button className="clin-ctrl" style={{ padding: "4px 10px", width: "auto" }}>
                         {r.order_item_table === "prescription_item" ? "Dispense" : "Perform"}
                       </button>

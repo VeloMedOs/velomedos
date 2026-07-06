@@ -101,7 +101,25 @@ export type BilledGateOutcome =
       | "auth_missing"
       | "wallet_negative"
       | "self_pay_insufficient"
-      | "unknown_pricing_mode" };
+      | "unknown_pricing_mode"
+      // Server-side reason codes surfaced by `v_order_item_gate.reason_code`
+      // (rcm_gate_reason_code enum). Kept as a superset of the pure engine
+      // reasons so worklists can render the same badge without casting.
+      | "unknown"
+      | "ctas_1_2"
+      | "ipd_partial_deposit"
+      | "er_criticality"
+      | "installment_plan"
+      | "stat_order"
+      | "mrp_unavailable"
+      | "newborn_mother_coverage"
+      | "referral_pending"
+      | "newborn_pending"
+      | "emergency_pending"
+      | "in_network_no_auth"
+      | "pbm_indication_missing"
+      | "ip_deposit_below_threshold"
+      | "admin_manual" };
 
 function isActive(e: BilledGateFacts["exceptions"][number], now: number): boolean {
   if (e.closed_at) return false;

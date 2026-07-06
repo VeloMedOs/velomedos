@@ -560,3 +560,84 @@ export const interfaceLogApi = {
   postD365Summary: (date: string) =>
     clinicalFetch<{ data: any }>(`/api/clinical/v1/interfaces/d365/summary`, { method: "POST", body: { date } }),
 };
+
+// -----------------------------------------------------------------------------
+// R8 · Clinical spine — gate / admin-config / forms / formulary / referrals
+// -----------------------------------------------------------------------------
+
+export type GateViewRow = {
+  order_item_table: string;
+  order_item_id: string;
+  charge_item_id: string;
+  encounter_id: string;
+  pricing_mode: "insured" | "cash" | string;
+  net_minor: number;
+  gate_state: "locked" | "released_by_exception" | "billed";
+  exception_id: string | null;
+  reason_code: string | null;
+};
+
+export const gateApi = {
+  view: (encounter_id: string) =>
+    clinicalFetch<{ data: GateViewRow[] }>(`/api/clinical/v1/gate/view${qs({ encounter_id })}`),
+  preview: (charge_id: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/gate/preview${qs({ charge_id })}`),
+  listExceptions: (params?: { encounter_id?: string; charge_item_id?: string; admission_request_id?: string; open?: boolean }) =>
+    clinicalFetch<{ data: any[] }>(`/api/clinical/v1/gate/exceptions${qs(params)}`),
+  createException: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/gate/exceptions`, { method: "POST", body }),
+  patchException: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/gate/exceptions/${id}`, { method: "PATCH", body }),
+  reconcileException: (id: string, body: { nphies_approved_minor: number }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/gate/exceptions/${id}/reconcile`, { method: "POST", body }),
+};
+
+export const adminConfigApi = {
+  get: (key?: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/admin-config${qs({ key })}`),
+  set: (key: string, value: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/admin-config`, { method: "PATCH", body: { key, value } }),
+};
+
+export const formsApi = {
+  listDefs: (params?: { active?: boolean; category?: string }) =>
+    clinicalFetch<{ data: any[] }>(`/api/clinical/v1/forms/defs${qs(params)}`),
+  getDef: (id: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/forms/defs/${id}`),
+  upsertDef: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/forms/defs`, { method: "POST", body }),
+  listInstances: (params?: { encounter_id?: string; form_def_id?: string; status?: string }) =>
+    clinicalFetch<{ data: any[] }>(`/api/clinical/v1/forms/instances${qs(params)}`),
+  createInstance: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/forms/instances`, { method: "POST", body }),
+  patchInstance: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/forms/instances/${id}`, { method: "PATCH", body }),
+  listBindings: (params?: { form_def_id?: string; active?: boolean }) =>
+    clinicalFetch<{ data: any[] }>(`/api/clinical/v1/forms/bindings${qs(params)}`),
+  upsertBinding: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/forms/bindings`, { method: "POST", body }),
+};
+
+export const formularyApi = {
+  import: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/formulary/import`, { method: "POST", body }),
+  listIndications: (params?: { drug_id?: string; active?: boolean }) =>
+    clinicalFetch<{ data: any[] }>(`/api/clinical/v1/formulary/indications${qs(params)}`),
+  createIndication: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/formulary/indications`, { method: "POST", body }),
+  patchIndication: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/formulary/indications/${id}`, { method: "PATCH", body }),
+  deleteIndication: (id: string) =>
+    clinicalFetch<unknown>(`/api/clinical/v1/formulary/indications/${id}`, { method: "DELETE" }),
+};
+
+export const referralsApi = {
+  list: (params?: { encounter_id?: string; status?: string; limit?: number; offset?: number }) =>
+    clinicalFetch<{ data: any[] }>(`/api/clinical/v1/referrals${qs(params)}`),
+  create: (body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/referrals`, { method: "POST", body }),
+  patch: (id: string, body: unknown) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/referrals/${id}`, { method: "PATCH", body }),
+  listTargets: (id: string) =>
+    clinicalFetch<{ data: any[] }>(`/api/clinical/v1/referrals/${id}/targets`),
+};

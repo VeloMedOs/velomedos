@@ -25,6 +25,22 @@ import { evaluateTriggers, ensureAuthorizationForOrder, type TriggerInputItem } 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const t = (db: any, table: string) => db.from(table);
 
+/**
+ * Optional per-modality hooks. Only prescriptions wire these today (PBM
+ * validation). A hook returning a Response short-circuits the factory and
+ * returns that response to the caller.
+ */
+export type FactoryHookCtx = {
+  db: any;
+  tenantId: string;
+  userId: string;
+  encounterId: string;
+};
+export type FactoryItemHooks = {
+  preCreate?: (ctx: FactoryHookCtx, item: any) => Promise<Response | void>;
+  prePatch?: (ctx: FactoryHookCtx & { itemId: string }, patch: any) => Promise<Response | void>;
+};
+
 export type ModalityConfig<TCreate extends ZodTypeAny> = {
   headerTable: string;
   itemTable: string;
@@ -35,6 +51,7 @@ export type ModalityConfig<TCreate extends ZodTypeAny> = {
   itemToRow: (item: any) => Record<string, unknown>;
   // resolve master reference for pricing snapshot
   resolveRef: (item: any) => { source: "service" | "drug"; serviceId?: string | null; drugId?: string | null; quantity: number; bodySite?: string | null };
+  hooks?: FactoryItemHooks;
 };
 
 export function orderRouteHandlers<TCreate extends ZodTypeAny>(cfg: ModalityConfig<TCreate>) {
@@ -100,6 +117,13 @@ export function orderRouteHandlers<TCreate extends ZodTypeAny>(cfg: ModalityConf
       const itemsOut: any[] = [];
       const chargesOut: any[] = [];
       for (const it of body.items as any[]) {
+        if (cfg.hooks?.preCreate) {
+          const hookRes = await cfg.hooks.preCreate(
+            { db, tenantId: auth.ctx.tenantId, userId: auth.ctx.userId, encounterId: params.id },
+            it,
+          );
+          if (hookRes) return hookRes;
+        }
         const itemRow = {
           ...cfg.itemToRow(it),
           tenant_id: auth.ctx.tenantId,
@@ -207,6 +231,7 @@ export function orderItemHandlers<TUpdate extends ZodTypeAny>(opts: {
   audit: string;
   updateSchema: TUpdate;
   patchRoles: ClinicalRole[];
+  hooks?: FactoryItemHooks;
 }) {
   const parseUpdate = parseBody((raw) => opts.updateSchema.parse(raw));
   return {
@@ -228,6 +253,13 @@ export function orderItemHandlers<TUpdate extends ZodTypeAny>(opts: {
       const { data: ex } = await db.from(opts.table).select("id, tenant_id").eq("id", params.id).maybeSingle();
       if (!ex || ex.tenant_id !== auth.ctx.tenantId) {
         return envelope(`${opts.table} not found`, "not_found", 404);
+      }
+      if (opts.hooks?.prePatch) {
+        const hookRes = await opts.hooks.prePatch(
+          { db, tenantId: auth.ctx.tenantId, userId: auth.ctx.userId, encounterId: "", itemId: params.id },
+          parsed.data as any,
+        );
+        if (hookRes) return hookRes;
       }
       // Turn-4 · pre-check the billed gate for advance-to-perform transitions.
       // The SQL guard trigger still enforces on commit; this returns a friendly

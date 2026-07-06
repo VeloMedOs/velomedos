@@ -18,8 +18,6 @@ import { evaluateTriggers, foldTriggerOutcome, loadRules } from "@/lib/mds/rules
 export type PbmValidateInput = {
   tenantId: string;
   drugId: string | null;
-  drugGeneric?: string | null;
-  indicationIcd10?: string | null;
   override?: boolean;
   encounterId?: string | null;
   chargeItemId?: string | null;
@@ -38,28 +36,46 @@ export async function validatePrescriptionItem(
   supabase: SupabaseClient<Database>,
   input: PbmValidateInput,
 ): Promise<PbmValidateResult> {
-  const { tenantId, drugId, indicationIcd10, override, encounterId, chargeItemId, actorId } = input;
+  const { tenantId, drugId, override, encounterId, chargeItemId, actorId } = input;
 
+  // R-PBM2b: match the drug's `drug_indication_map` rows against the
+  // encounter's `encounter_diagnosis` ICD-10 codes. If the drug has active
+  // indication rows and NONE of them intersects with the encounter's
+  // diagnoses, the write is refused unless the caller supplies `override`.
   let hasIndication = true;
-  if (drugId && indicationIcd10) {
-    const { data } = await supabase
-      .from("drug_indication_map")
-      .select("id, severity, active")
+  if (drugId) {
+    // Resolve the drug's generic_name — `drug_indication_map` is keyed by
+    // generic_name (Phase-14 formulary layout), not drug_id.
+    const { data: drug } = await supabase
+      .from("drug_master")
+      .select("generic_name")
       .eq("tenant_id", tenantId)
-      .eq("active", true)
-      .ilike("icd10_code", indicationIcd10)
-      .limit(1);
-    hasIndication = !!data && data.length > 0;
-  } else if (drugId && !indicationIcd10) {
-    // R-PBM2b: an active drug_indication_map for this drug means the caller
-    // must supply an indication; if no map exists the drug is unrestricted.
-    const { data } = await supabase
-      .from("drug_indication_map")
-      .select("id")
-      .eq("tenant_id", tenantId)
-      .eq("active", true)
-      .limit(1);
-    hasIndication = !data || data.length === 0;
+      .eq("id", drugId)
+      .maybeSingle();
+    const generic = (drug as { generic_name: string | null } | null)?.generic_name ?? null;
+    if (generic) {
+      const { data: mapRows } = await supabase
+        .from("drug_indication_map")
+        .select("icd10_code")
+        .eq("tenant_id", tenantId)
+        .eq("generic_name", generic)
+        .eq("active", true);
+      const codes = ((mapRows ?? []) as Array<{ icd10_code: string | null }>)
+        .map((r) => (r.icd10_code ?? "").toLowerCase()).filter(Boolean);
+      if (codes.length > 0) {
+        let encCodes: string[] = [];
+        if (encounterId) {
+          const { data: dx } = await supabase
+            .from("encounter_diagnosis")
+            .select("code")
+            .eq("tenant_id", tenantId)
+            .eq("encounter_id", encounterId);
+          encCodes = ((dx ?? []) as Array<{ code: string | null }>)
+            .map((r) => (r.code ?? "").toLowerCase()).filter(Boolean);
+        }
+        hasIndication = codes.some((c) => encCodes.includes(c));
+      }
+    }
   }
 
   // PBM rule triggers (formulary, substitution, preauth).
