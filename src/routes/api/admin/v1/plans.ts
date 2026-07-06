@@ -9,7 +9,7 @@ export const Route = createFileRoute("/api/admin/v1/plans")({
         const auth = await requireAdmin(request, "billing:read");
         if (!auth.ok) return auth.res;
         const { data, error } = await adminDb().from("subscription_plans").select("*").order("sort_order");
-        if (error) return json({ error: error.message, code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
+        if (error) return json({ error: "database_error", code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
         return json({ plans: data ?? [] });
       },
       POST: async ({ request }) => {
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/api/admin/v1/plans")({
           cta_label: body.cta_label ?? null, cta_to: body.cta_to ?? null,
         };
         const { data, error } = await adminDb().from("subscription_plans").insert(insert).select().single();
-        if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "plan.create", "subscription_plans", data.id, { code: body.code });
         return json(data, 201);
       },

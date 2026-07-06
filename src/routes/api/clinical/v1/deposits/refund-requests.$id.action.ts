@@ -55,7 +55,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/refund-requests/
       }
       const { data: updated, error } = await db.from("refund_request").update(patch)
         .eq("id", row.id).eq("tenant_id", auth.ctx.tenantId).select("*").maybeSingle();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
 
       // On execute, drive the balance via a `refund` txn on the source deposit.
       if (parsed.data.action === "execute") {

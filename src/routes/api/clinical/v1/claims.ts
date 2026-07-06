@@ -54,7 +54,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims")({
         }
 
         const { data, error } = await q;
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         return jsonData({ data });
       },
     },

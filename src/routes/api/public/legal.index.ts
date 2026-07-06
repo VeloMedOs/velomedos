@@ -18,7 +18,7 @@ export const Route = createFileRoute("/api/public/legal/")({
         .select("slug, locale, title, summary, version, effective_date, published_at")
         .eq("status", "published")
         .order("slug", { ascending: true });
-      if (error) return json({ error: error.message }, 500);
+      if (error) return json({ error: "database_error" }, 500);
       const SLUG_TO_PATH: Record<string, string> = {
         "privacy-home":     "/Privacy/Home",
         "terms-of-service": "/Privacy/TermsOfService",

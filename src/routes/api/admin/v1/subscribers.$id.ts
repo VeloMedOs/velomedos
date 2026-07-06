@@ -30,7 +30,7 @@ export const Route = createFileRoute("/api/admin/v1/subscribers/$id")({
         if (!status) return json({ error: "missing_action_or_status", code: "validation", request_id: crypto.randomUUID() }, 400);
         const db = adminDb();
         const { data, error } = await db.from("corporate_accounts").update({ status }).eq("id", params.id).select().single();
-        if (error) return json({ error: error.message, code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, `subscriber.${body.action ?? "status"}`, "corporate_accounts", params.id, { status });
         return json(data);
       },

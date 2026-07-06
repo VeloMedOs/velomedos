@@ -37,7 +37,7 @@ export const Route = createFileRoute("/api/clinical/v1/auth/requests/bulk")({
             const { error } = await db.from("authorization_request")
               .update({ assigned_to: auth.ctx.userId, updated_by: auth.ctx.userId })
               .eq("id", id).eq("tenant_id", auth.ctx.tenantId);
-            if (error) throw new Error(error.message);
+            if (error) throw new Error("database_error");
           } else {
             const target: AuthStatus =
               action === "scrub" ? "scrubbing"
@@ -51,7 +51,7 @@ export const Route = createFileRoute("/api/clinical/v1/auth/requests/bulk")({
             const { error } = await db.from("authorization_request")
               .update({ status: target, updated_by: auth.ctx.userId })
               .eq("id", id).eq("tenant_id", auth.ctx.tenantId);
-            if (error) throw new Error(error.message);
+            if (error) throw new Error("database_error");
           }
           results.push({ id, ok: true });
         } catch (e) {

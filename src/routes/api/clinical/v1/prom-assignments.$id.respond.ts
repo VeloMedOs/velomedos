@@ -41,7 +41,7 @@ export const Route = createFileRoute("/api/clinical/v1/prom-assignments/$id/resp
           score: score as unknown,
           source: parsed.data.source,
         } as never).select("*").single();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "prom_response.create", "prom_response", data.id);
         return jsonData({ data }, 201);
       },

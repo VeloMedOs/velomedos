@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/deposits/availab
         .gt("available_minor", 0).order("created_at", { ascending: true });
       if (encounterId) sel = sel.or(`encounter_id.eq.${encounterId},encounter_id.is.null`);
       const { data, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       // Exclude caution deposits from freely-available balance projection.
       const freeAvailable = (data ?? [])
         .filter((r: any) => !r.is_caution)

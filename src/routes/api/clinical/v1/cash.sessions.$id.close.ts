@@ -34,7 +34,7 @@ export const Route = createFileRoute("/api/clinical/v1/cash/sessions/$id/close")
         counted_minor: totalCounted,
         notes: parsed.data.note ?? session.notes,
       }).eq("id", params.id).eq("tenant_id", auth.ctx.tenantId).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "cash.session.close", "cash_session", params.id, {
         counted_minor: parsed.data.counted_minor, total_counted: totalCounted,
       });

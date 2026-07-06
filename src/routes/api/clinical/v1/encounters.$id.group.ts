@@ -85,7 +85,7 @@ export const Route = createFileRoute("/api/clinical/v1/encounters/$id/group")({
           created_by: auth.ctx.userId,
           updated_by: auth.ctx.userId,
         }).select("*").single();
-        if (error) return envelope(error.message, "db_error", 400);
+        if (error) return envelope("database_error", "db_error", 400);
 
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "encounter.group", "encounter", params.id, {
           drg_code: result.drg_code, drg_version: result.drg_version, force,

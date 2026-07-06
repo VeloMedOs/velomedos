@@ -25,7 +25,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/deposits/$id/att
         kind: parsed.data.kind, url: parsed.data.url, note: parsed.data.note ?? null,
         uploaded_by: auth.ctx.userId,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "deposit.attach", "deposit", params.id, { kind: parsed.data.kind });
       return jsonData({ data }, 201);
     },

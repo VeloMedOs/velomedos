@@ -35,7 +35,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/refund-requests"
       if (status) sel = sel.eq("status", status);
       if (depId)  sel = sel.eq("deposit_id", depId);
       const { data, count, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const rows = (data ?? []).map((r: any) => ({ ...r, bucket: bucketOfRefund(r) }));
       const filtered = bucket ? rows.filter((r: any) => r.bucket === bucket) : rows;
       const { data: all } = await (serviceClient() as any).from("refund_request").select("status").eq("tenant_id", auth.ctx.tenantId);
@@ -76,7 +76,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/refund-requests"
         status: "pending",
         created_by: auth.ctx.userId, updated_by: auth.ctx.userId,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "refund.request", "refund_request", data.id);
       return jsonData({ data }, 201);
     },

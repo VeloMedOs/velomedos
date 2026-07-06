@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/admin/v1/business-requests/$id/featur
         const db = adminDb();
         const { data, error } = await db.from("business_requests")
           .update(patch).eq("id", params.id).select().single();
-        if (error) return json({ error: error.message, code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "business_request.featured", "business_requests", params.id, patch);
         return json(data);
       },

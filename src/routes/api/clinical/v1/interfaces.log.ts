@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/clinical/v1/interfaces/log")({
       if (from) sel = sel.gte("created_at", from);
       if (to)   sel = sel.lte("created_at", to);
       const { data, count, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const { data: agg } = await db.from("interface_log").select("status").eq("tenant_id", auth.ctx.tenantId);
       const counts: Record<string, number> = {};
       for (const r of (agg ?? []) as any[]) counts[r.status] = (counts[r.status] ?? 0) + 1;

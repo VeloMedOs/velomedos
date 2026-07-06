@@ -38,7 +38,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/deposits/$id")({
       const { data, error } = await db.from("deposit").update(patch)
         .eq("id", params.id).eq("tenant_id", auth.ctx.tenantId)
         .select("*").maybeSingle();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       if (!data) return envelope("Deposit not found", "not_found", 404);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "deposit.patch", "deposit", data.id, parsed.data);
       return jsonData({ data });

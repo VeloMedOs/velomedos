@@ -103,7 +103,7 @@ export const Route = createFileRoute("/api/clinical/v1/masters/price-lists/$id/i
         let inserted = 0;
         if (rows.length) {
           const { data: ins, error } = await db.from("price_list_item").insert(rows).select("id");
-          if (error) return envelope(error.message, "db_error", 400);
+          if (error) return envelope("database_error", "db_error", 400);
           inserted = (ins ?? []).length;
         }
         await clinicalAudit(auth.ctx.userId, tid, "price_list.feed", "price_list", params.id,

@@ -38,7 +38,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/remittance-li
         tenant_id: auth.ctx.tenantId,
         ...body.data,
       }).select("*").single();
-      if (ins.error) return envelope(ins.error.message, "db_error", 500);
+      if (ins.error) return envelope("database_error", "db_error", 500);
       return jsonData({ data: ins.data }, 201);
     },
   } },

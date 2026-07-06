@@ -19,7 +19,7 @@ export const Route = createFileRoute("/api/clinical/v1/interfaces/log/$id/retry"
         retry_count: (row.retry_count ?? 0) + 1,
         last_error: null,
       }).eq("id", params.id).eq("tenant_id", auth.ctx.tenantId).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "interface.retry", "interface_log", params.id, { interface: row.interface_name });
       return jsonData({ data });
     },

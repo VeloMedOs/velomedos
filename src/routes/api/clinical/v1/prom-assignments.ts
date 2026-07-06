@@ -37,7 +37,7 @@ export const Route = createFileRoute("/api/clinical/v1/prom-assignments")({
         if (episodeId) q = q.eq("episode_of_care_id", episodeId);
         if (status) q = q.eq("status", status);
         const { data, count, error } = await q;
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         return jsonData({ data: data ?? [], pagination: { limit, offset, total: count ?? 0 } });
       },
       POST: async ({ request }) => {
@@ -66,7 +66,7 @@ export const Route = createFileRoute("/api/clinical/v1/prom-assignments")({
           notes: parsed.data.notes ?? null,
           assigned_by: auth.ctx.userId,
         } as never).select("*").single();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "prom_assignment.create", "prom_assignment", data.id);
         return jsonData({ data }, 201);
       },

@@ -48,7 +48,7 @@ export async function loadOwned<T extends { tenant_id: string }>(
     .select(columns)
     .eq("id", id)
     .maybeSingle();
-  if (error) return { ok: false, res: envelope(error.message, "db_error", 500) };
+  if (error) return { ok: false, res: envelope("database_error", "db_error", 500) };
   if (!data || (data as unknown as T).tenant_id !== tenantId) {
     return { ok: false, res: envelope(`${table} not found`, "not_found", 404) };
   }

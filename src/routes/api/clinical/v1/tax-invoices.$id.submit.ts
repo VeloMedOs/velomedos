@@ -50,7 +50,7 @@ export const Route = createFileRoute("/api/clinical/v1/tax-invoices/$id/submit")
         zatca_status: sim.status,
         irn: sim.irn,
       }).eq("id", inv.id).eq("tenant_id", auth.ctx.tenantId).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await logCall({ db, tenantId: auth.ctx.tenantId, interfaceKey: "zatca.einvoice",
         direction: "outbound", trigger: "tax_invoice.submit", correlationId: inv.id,
         payload: built.submitted_payload, response: sim,

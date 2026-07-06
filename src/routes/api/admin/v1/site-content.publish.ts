@@ -67,7 +67,7 @@ export const Route = createFileRoute("/api/admin/v1/site-content/publish")({
             published_by: actor,
             updated_by: actor,
           }).eq("key", t.key).eq("locale", t.locale);
-          if (error) { results.push({ ...t, ok: false, error: error.message }); continue; }
+          if (error) { results.push({ ...t, ok: false, error: "database_error" }); continue; }
           results.push({ ...t, ok: true });
         }
 

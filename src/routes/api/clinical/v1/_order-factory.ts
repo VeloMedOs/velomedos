@@ -48,7 +48,7 @@ export function orderRouteHandlers<TCreate extends ZodTypeAny>(cfg: ModalityConf
       const { data: headers, error } = await t(db, cfg.headerTable).select("*")
         .eq("tenant_id", auth.ctx.tenantId).eq("encounter_id", params.id)
         .order("ordered_at", { ascending: false });
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const ids = (headers ?? []).map((h: any) => h.id);
       const items = ids.length
         ? (await t(db, cfg.itemTable).select("*").in("order_id", ids)).data ?? []
@@ -232,7 +232,7 @@ export function orderItemHandlers<TUpdate extends ZodTypeAny>(opts: {
       const { data, error } = await db.from(opts.table)
         .update({ ...(parsed.data as Record<string, unknown>), updated_by: auth.ctx.userId })
         .eq("id", params.id).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, `${opts.audit}.update`, opts.table, params.id);
       return jsonData({ data });
     },

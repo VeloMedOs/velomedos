@@ -26,7 +26,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/erp-posting/bulk
       for (const id of parsed.data.ids) {
         const { error } = await db.from("erp_posting_queue").update(patch)
           .eq("id", id).eq("tenant_id", auth.ctx.tenantId);
-        results.push(error ? { id, ok: false, error: error.message } : { id, ok: true });
+        results.push(error ? { id, ok: false, error: "database_error" } : { id, ok: true });
       }
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, `erp.${parsed.data.action}`, "erp_posting_queue", parsed.data.ids[0], { count: parsed.data.ids.length });
       return jsonData({ data: results });

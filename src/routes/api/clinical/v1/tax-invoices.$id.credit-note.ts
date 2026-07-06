@@ -64,7 +64,7 @@ export const Route = createFileRoute("/api/clinical/v1/tax-invoices/$id/credit-n
         issued_at: new Date().toISOString(),
         created_by: auth.ctx.userId,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       const lineRows = rollup.lines.map((l, i) => ({
         tenant_id: auth.ctx.tenantId, invoice_id: cn.id, seq: i + 1,
         description: l.description, qty: l.qty, unit_price_minor: l.unit_price_minor,

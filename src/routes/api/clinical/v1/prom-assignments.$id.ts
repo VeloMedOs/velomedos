@@ -13,7 +13,7 @@ export const Route = createFileRoute("/api/clinical/v1/prom-assignments/$id")({
         const { data: a, error } = await db.from("prom_assignment")
           .select("*, prom_instrument(*)")
           .eq("id", params.id).maybeSingle();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         if (!a || a.tenant_id !== auth.ctx.tenantId) return envelope("Not found", "not_found", 404);
         const { data: r } = await db.from("prom_response").select("*").eq("assignment_id", params.id).maybeSingle();
         return jsonData({ data: { ...a, response: r ?? null } });

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/batches/$id")
       if (!auth.ok) return auth.res;
       const db = serviceClient() as any;
       const { data, error } = await db.from("claim_batch").select("*").eq("id", params.id).maybeSingle();
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       if (!data || data.tenant_id !== auth.ctx.tenantId) return envelope("not_found", "not_found", 404);
       const { data: claims } = await db.from("claim")
         .select("id, claim_sequence_no, provider_claim_no, status, readiness_status, snapshot_locked_at, total_net_minor, total_patient_share_minor, total_payer_share_minor, currency")
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/batches/$id")
       const { error } = await db.from("claim_batch")
         .update({ status: "cancelled", cancelled_at: new Date().toISOString(), updated_by: auth.ctx.userId })
         .eq("id", params.id);
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       return jsonData({ ok: true });
     },
   } },

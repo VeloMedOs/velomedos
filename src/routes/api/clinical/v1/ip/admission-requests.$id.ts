@@ -76,7 +76,7 @@ export const Route = createFileRoute("/api/clinical/v1/ip/admission-requests/$id
       const { data, error } = await db.from("admission_request")
         .update({ ...parsed.data, updated_by: auth.ctx.userId })
         .eq("id", params.id).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "admission_request.update", "admission_request", params.id);
       return jsonData({ data });
     },

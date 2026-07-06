@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/clinical/v1/interfaces/log/bulk")({
       for (const id of parsed.data.ids) {
         const { error } = await db.from("interface_log").update({ status: target })
           .eq("id", id).eq("tenant_id", auth.ctx.tenantId);
-        results.push({ id, ok: !error, error: error?.message });
+        results.push({ id, ok: !error, error: "database_error" });
       }
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, `interface.bulk.${parsed.data.action}`, "interface_log", undefined, { count: results.length });
       return jsonData({ data: results });

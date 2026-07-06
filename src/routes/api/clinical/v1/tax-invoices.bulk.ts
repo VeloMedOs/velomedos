@@ -26,7 +26,7 @@ export const Route = createFileRoute("/api/clinical/v1/tax-invoices/bulk")({
           if (parsed.data.action === "cancel") {
             const { error } = await db.from("tax_invoice").update({ zatca_status: "cancelled" })
               .eq("id", id).eq("tenant_id", auth.ctx.tenantId);
-            results.push({ id, ok: !error, error: error?.message });
+            results.push({ id, ok: !error, error: "database_error" });
           } else {
             const path = parsed.data.action === "submit" ? "submit" : "reprint";
             const r = await fetch(new URL(`/api/clinical/v1/tax-invoices/${id}/${path}`, new URL(request.url).origin), {

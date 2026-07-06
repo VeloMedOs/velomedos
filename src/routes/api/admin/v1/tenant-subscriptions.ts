@@ -13,7 +13,7 @@ export const Route = createFileRoute("/api/admin/v1/tenant-subscriptions")({
         let q = adminDb().from("tenant_subscriptions").select("*").order("created_at", { ascending: false });
         if (tenant) q = q.eq("tenant_id", tenant);
         const { data, error } = await q;
-        if (error) return json({ error: error.message, code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
+        if (error) return json({ error: "database_error", code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
         return json({ subscriptions: data ?? [] });
       },
       POST: async ({ request }) => {
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/api/admin/v1/tenant-subscriptions")({
           assigned_by: auth.via === "session" ? auth.userId : null,
         };
         const { data, error } = await db.from("tenant_subscriptions").insert(insert).select().single();
-        if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "tenant_subscription.create", "tenant_subscriptions", data.id, { tenant_id: body.tenant_id, plan_id: body.plan_id });
         return json(data, 201);
       },

@@ -43,7 +43,7 @@ export const Route = createFileRoute("/api/clinical/v1/auth/requests/$id/decisio
         valid_to: parsed.data.valid_to ?? owned.row.valid_to,
         updated_by: auth.ctx.userId,
       }).eq("id", params.id).eq("tenant_id", auth.ctx.tenantId).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       for (const it of parsed.data.items ?? []) {
         await db.from("authorization_item").update({
           decision: it.decision ?? (parsed.data.decision === "approve" ? "approved"

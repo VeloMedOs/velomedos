@@ -11,7 +11,7 @@ export const Route = createFileRoute("/api/admin/v1/addons")({
         const auth = await requireAdmin(request, "billing:read");
         if (!auth.ok) return auth.res;
         const { data, error } = await adminDb().from("subscription_addons").select("*").order("sort_order");
-        if (error) return json({ error: error.message, code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
+        if (error) return json({ error: "database_error", code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
         return json({ addons: data ?? [] });
       },
       POST: async ({ request }) => {
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/admin/v1/addons")({
         for (const k of FIELDS) if (k in body) insert[k] = body[k as string];
         insert.code = body.code; insert.name = body.name; insert.unit_label = body.unit_label;
         const { data, error } = await adminDb().from("subscription_addons").insert(insert).select().single();
-        if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "addon.create", "subscription_addons", data.id, { code: body.code });
         return json(data, 201);
       },

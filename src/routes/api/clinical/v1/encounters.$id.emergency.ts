@@ -19,7 +19,7 @@ export const Route = createFileRoute("/api/clinical/v1/encounters/$id/emergency"
         const db = serviceClient() as any;
         const { data, error } = await db.from("encounter_emergency")
           .select("*").eq("encounter_id", params.id).maybeSingle();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         return jsonData({ data });
       },
       POST: async ({ request, params }) => {
@@ -45,7 +45,7 @@ export const Route = createFileRoute("/api/clinical/v1/encounters/$id/emergency"
             updated_by: auth.ctx.userId,
           }, { onConflict: "encounter_id" })
           .select("*").single();
-        if (error) return envelope(error.message, "db_error", 400);
+        if (error) return envelope("database_error", "db_error", 400);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "encounter.emergency.upsert", "encounter", params.id);
         return jsonData({ data });
       },

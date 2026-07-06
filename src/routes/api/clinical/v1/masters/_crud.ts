@@ -50,7 +50,7 @@ export function listCreateHandlers<TCreate extends ZodTypeAny>(opts: ListCreateO
         if (v !== null && v !== "") q = q.eq(k, v);
       }
       const { data, count, error } = await q;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       return jsonData({ data: data ?? [], pagination: { limit, offset, total: count ?? 0 } });
     },
     POST: async ({ request }: { request: Request }) => {
@@ -70,7 +70,7 @@ export function listCreateHandlers<TCreate extends ZodTypeAny>(opts: ListCreateO
       };
       const { data, error } = await t(serviceClient(), opts.table)
         .insert(insertRow).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, `${opts.audit}.create`, opts.table, data.id);
       return jsonData({ data }, 201);
     },
@@ -93,7 +93,7 @@ export function itemHandlers<TUpdate extends ZodTypeAny>(opts: ItemOpts<TUpdate>
       if (!auth.ok) return auth.res;
       const { data, error } = await t(serviceClient(), opts.table)
         .select("*").eq("id", params.id).eq("tenant_id", auth.ctx.tenantId).maybeSingle();
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       if (!data) return envelope(`${opts.table} not found`, "not_found", 404);
       return jsonData({ data });
     },
@@ -115,7 +115,7 @@ export function itemHandlers<TUpdate extends ZodTypeAny>(opts: ItemOpts<TUpdate>
       const { data, error } = await t(db, opts.table)
         .update({ ...(parsed.data as Record<string, unknown>), updated_by: auth.ctx.userId })
         .eq("id", params.id).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, `${opts.audit}.update`, opts.table, params.id);
       return jsonData({ data });
     },
@@ -129,7 +129,7 @@ export function itemHandlers<TUpdate extends ZodTypeAny>(opts: ItemOpts<TUpdate>
         return envelope(`${opts.table} not found`, "not_found", 404);
       }
       const { error } = await t(db, opts.table).delete().eq("id", params.id);
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, `${opts.audit}.delete`, opts.table, params.id);
       return new Response(null, { status: 204 });
     },
@@ -171,7 +171,7 @@ export async function childListCreate<TCreate extends ZodTypeAny>(args: {
       if (v !== null && v !== "") q = q.eq(k, v);
     }
     const { data, count, error } = await q;
-    if (error) return envelope(error.message, "db_error", 500);
+    if (error) return envelope("database_error", "db_error", 500);
     return jsonData({ data: data ?? [], pagination: { limit, offset, total: count ?? 0 } });
   }
   if (args.request.method === "POST") {
@@ -195,7 +195,7 @@ export async function childListCreate<TCreate extends ZodTypeAny>(args: {
     };
     const { data, error } = await t(serviceClient(), args.childTable)
       .insert(insertRow).select("*").single();
-    if (error) return envelope(error.message, "db_error", 400);
+    if (error) return envelope("database_error", "db_error", 400);
     await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, `${args.audit}.create`, args.childTable, data.id);
     return jsonData({ data }, 201);
   }

@@ -33,14 +33,14 @@ export const Route = createFileRoute("/api/clinical/v1/ip/admission-requests/bul
             const { error } = await db.from("admission_request")
               .update({ locked_by: auth.ctx.userId, locked_at: new Date().toISOString(), updated_by: auth.ctx.userId })
               .eq("id", id).eq("tenant_id", auth.ctx.tenantId);
-            if (error) throw new Error(error.message);
+            if (error) throw new Error("database_error");
           } else if (action === "cancel") {
             if (["discharged","cancelled"].includes(row.status)) throw new Error("terminal");
             const { error } = await db.from("admission_request").update({
               status: "cancelled", cancelled_at: new Date().toISOString(),
               cancel_reason: reason ?? "bulk cancel", updated_by: auth.ctx.userId,
             }).eq("id", id).eq("tenant_id", auth.ctx.tenantId);
-            if (error) throw new Error(error.message);
+            if (error) throw new Error("database_error");
           } else {
             const target: AdmissionStatus = action === "authorize" ? "authorized" : "lounge";
             if (!canTransitionAdmission(row.status as AdmissionStatus, target))
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/api/clinical/v1/ip/admission-requests/bul
             const { error } = await db.from("admission_request")
               .update({ status: target, updated_by: auth.ctx.userId })
               .eq("id", id).eq("tenant_id", auth.ctx.tenantId);
-            if (error) throw new Error(error.message);
+            if (error) throw new Error("database_error");
           }
           results.push({ id, ok: true });
         } catch (e) { results.push({ id, ok: false, error: (e as Error).message }); }

@@ -19,7 +19,7 @@ export const Route = createFileRoute("/api/admin/v1/legal-documents/$id/publish"
       const { data: updated, error } = await db.from("legal_documents")
         .update({ status: "published", effective_date: effective, updated_by: auth.userId } as never)
         .eq("id", id).select("id, slug, locale, version").single();
-      if (error || !updated) return json({ error: error?.message ?? "publish_failed" }, 400);
+      if (error || !updated) return json({ error: "database_error" ?? "publish_failed" }, 400);
 
       // Stamp change_note onto the version row the trigger just inserted.
       if (change_note) {

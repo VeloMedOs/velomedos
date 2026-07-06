@@ -28,7 +28,7 @@ export const Route = createFileRoute("/api/clinical/v1/prem-responses")({
           .order("collected_at", { ascending: false }).limit(limit);
         if (benId) q = q.eq("beneficiary_id", benId);
         const { data, error } = await q;
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         return jsonData({ data: data ?? [] });
       },
       POST: async ({ request }) => {
@@ -55,7 +55,7 @@ export const Route = createFileRoute("/api/clinical/v1/prem-responses")({
           score: score as unknown,
           source: parsed.data.source,
         } as never).select("*").single();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "prem_response.create", "prem_response", data.id);
         return jsonData({ data }, 201);
       },

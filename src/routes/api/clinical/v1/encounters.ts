@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/clinical/v1/encounters")({
         if (to) q = q.lte("period_start", to);
 
         const { data, count, error } = await q;
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         return jsonData({ data: data ?? [], pagination: { limit, offset, total: count ?? 0 } });
       },
       POST: async ({ request }) => {
@@ -73,7 +73,7 @@ export const Route = createFileRoute("/api/clinical/v1/encounters")({
           updated_by: auth.ctx.userId,
           encounter_number: "", // populated by encounter_set_number BEFORE INSERT trigger
         }).select("*").single();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "encounter.create", "encounter", data.id, {
           class: data.class, reimbursement_model: data.reimbursement_model,
         });

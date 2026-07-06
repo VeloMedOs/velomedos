@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/remittances")
       if (status) sel = sel.eq("status", status);
       if (q) sel = sel.or(`remittance_ref.ilike.%${q}%`);
       const { data, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const { data: all } = await db.from("remittance").select("status").eq("tenant_id", auth.ctx.tenantId);
       const counts: Record<string, number> = { staged: 0, matching: 0, matched: 0, posted: 0, reconciliation: 0, closed: 0 };
       for (const r of (all ?? []) as Array<{ status: string }>) counts[r.status] = (counts[r.status] ?? 0) + 1;
@@ -61,7 +61,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/remittances")
         created_by: auth.ctx.userId,
         updated_by: auth.ctx.userId,
       }).select("*").single();
-      if (ins.error) return envelope(ins.error.message, "db_error", 500);
+      if (ins.error) return envelope("database_error", "db_error", 500);
       return jsonData({ data: ins.data }, 201);
     },
   } },

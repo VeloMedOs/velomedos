@@ -105,9 +105,9 @@ export const Route = createFileRoute("/api/admin/v1/diagnostics/superadmin")({
           roles,
           resolved_roles,
           role_errors: {
-            user_roles: urRes.error?.message ?? null,
-            portal_role_assignments: prRes.error?.message ?? null,
-            tenant_members: tmRes.error?.message ?? null,
+            user_roles: urRes."database_error" ?? null,
+            portal_role_assignments: prRes."database_error" ?? null,
+            tenant_members: tmRes."database_error" ?? null,
           },
           tenants,
           owned_api_keys: keyCountRes.count ?? 0,

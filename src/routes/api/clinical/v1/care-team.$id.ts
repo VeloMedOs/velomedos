@@ -20,7 +20,7 @@ export const Route = createFileRoute("/api/clinical/v1/care-team/$id")({
         const { data, error } = await db.from("encounter_care_team")
           .update({ ...parsed.data, updated_by: auth.ctx.userId })
           .eq("id", params.id).select("*").single();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "encounter_care_team.update", "encounter_care_team", params.id);
         return jsonData({ data });
       },
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/clinical/v1/care-team/$id")({
         if (!owned.ok) return owned.res;
         const db = serviceClient();
         const { error } = await db.from("encounter_care_team").delete().eq("id", params.id);
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "encounter_care_team.delete", "encounter_care_team", params.id);
         return jsonData({ deleted: true });
       },

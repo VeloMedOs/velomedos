@@ -17,7 +17,7 @@ export const Route = createFileRoute("/api/admin/v1/business-requests/$id/advanc
         const { data, error } = await db.from("business_requests")
           .update({ stage: body.stage, status: body.stage === "subscribed" ? "approved" : body.stage === "rejected" ? "rejected" : "new" })
           .eq("id", params.id).select().single();
-        if (error) return json({ error: error.message, code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
         if (body.note) {
           await db.from("business_request_events").insert({
             request_id: params.id, actor_id: auth.via === "session" ? auth.userId : null,

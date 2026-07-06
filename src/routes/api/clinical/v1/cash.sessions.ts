@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/clinical/v1/cash/sessions")({
       if (status)   sel = sel.eq("status", status);
       if (openedBy) sel = sel.eq("cashier_id", openedBy);
       const { data, count, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       // Bucket counts for the header chips
       const { data: agg } = await db.from("cash_session")
         .select("status").eq("tenant_id", auth.ctx.tenantId);
@@ -62,7 +62,7 @@ export const Route = createFileRoute("/api/clinical/v1/cash/sessions")({
         notes: parsed.data.note ?? null,
         session_no: `CS-${Date.now().toString(36).toUpperCase()}`,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "cash.session.open", "cash_session", data.id, { opening_float_minor: parsed.data.opening_float_minor });
       return jsonData({ data }, 201);
     },

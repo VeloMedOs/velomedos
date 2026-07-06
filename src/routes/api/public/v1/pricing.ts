@@ -13,7 +13,7 @@ export const Route = createFileRoute("/api/public/v1/pricing")({
           db.from("subscription_plans").select("*").eq("is_active", true).eq("is_public", true).order("sort_order"),
           db.from("subscription_addons").select("*").eq("is_active", true).order("sort_order"),
         ]);
-        if (plans.error) return json({ error: plans.error.message }, 500);
+        if (plans.error) return json({ error: "database_error" }, 500);
         return json({
           plans: plans.data ?? [],
           addons: addons.data ?? [],

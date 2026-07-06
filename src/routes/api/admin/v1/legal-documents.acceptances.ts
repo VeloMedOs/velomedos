@@ -18,7 +18,7 @@ export const Route = createFileRoute("/api/admin/v1/legal-documents/acceptances"
       if (slug) q = q.eq("slug", slug as never);
       if (locale) q = q.eq("locale", locale as never);
       const { data, error } = await q;
-      if (error) return json({ error: error.message }, 500);
+      if (error) return json({ error: "database_error" }, 500);
       const rows = data ?? [];
       if (format === "csv") {
         const head = "slug,locale,version,subject_id,subject_email,ip_hash,user_agent,accepted_at";
