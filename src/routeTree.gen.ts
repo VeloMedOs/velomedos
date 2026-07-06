@@ -17,6 +17,7 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as HisRouteImport } from './routes/his'
 import { Route as DemoLoginRouteImport } from './routes/demo-login'
 import { Route as DemoCredentialsRouteImport } from './routes/demo-credentials'
@@ -65,9 +66,12 @@ import { Route as PrivacyTermsOfServiceRouteImport } from './routes/Privacy.Term
 import { Route as PrivacyPatientRightsRouteImport } from './routes/Privacy.PatientRights'
 import { Route as PrivacyHomeRouteImport } from './routes/Privacy.Home'
 import { Route as PrivacyHIPAARouteImport } from './routes/Privacy.HIPAA'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedSuperadminDocsRouteImport } from './routes/_authenticated/superadmin.docs'
 import { Route as AuthenticatedSuperadminApiDocsRouteImport } from './routes/_authenticated/superadmin.api-docs'
 import { Route as AuthenticatedPatientProfileRouteImport } from './routes/_authenticated/patient.profile'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ApiPublicLegalIndexRouteImport } from './routes/api/public/legal.index'
 import { Route as ApiPublicV1Work_ordersRouteImport } from './routes/api/public/v1/work_orders'
 import { Route as ApiPublicV1Web_intakeRouteImport } from './routes/api/public/v1/web_intake'
@@ -390,6 +394,11 @@ const PlatformRoute = PlatformRouteImport.update({
   path: '/platform',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HisRoute = HisRouteImport.update({
   id: '/his',
   path: '/his',
@@ -631,6 +640,18 @@ const PrivacyHIPAARoute = PrivacyHIPAARouteImport.update({
   path: '/HIPAA',
   getParentRoute: () => PrivacyRoute,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedSuperadminDocsRoute =
   AuthenticatedSuperadminDocsRouteImport.update({
     id: '/docs',
@@ -648,6 +669,12 @@ const AuthenticatedPatientProfileRoute =
     id: '/profile',
     path: '/profile',
     getParentRoute: () => AuthenticatedPatientRoute,
+  } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicLegalIndexRoute = ApiPublicLegalIndexRouteImport.update({
   id: '/api/public/legal/',
@@ -2284,6 +2311,7 @@ export interface FileRoutesByFullPath {
   '/demo-credentials': typeof DemoCredentialsRoute
   '/demo-login': typeof DemoLoginRoute
   '/his': typeof HisRoute
+  '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
@@ -2292,6 +2320,8 @@ export interface FileRoutesByFullPath {
   '/solutions': typeof SolutionsRouteWithChildren
   '/terms': typeof TermsRoute
   '/website': typeof WebsiteRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/Privacy/HIPAA': typeof PrivacyHIPAARoute
   '/Privacy/Home': typeof PrivacyHomeRoute
   '/Privacy/PatientRights': typeof PrivacyPatientRightsRoute
@@ -2328,6 +2358,7 @@ export interface FileRoutesByFullPath {
   '/trip/$token': typeof TripTokenRoute
   '/Privacy/': typeof PrivacyIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/superadmin/docs': typeof AuthenticatedSuperadminDocsRoute
@@ -2624,6 +2655,7 @@ export interface FileRoutesByTo {
   '/demo-credentials': typeof DemoCredentialsRoute
   '/demo-login': typeof DemoLoginRoute
   '/his': typeof HisRoute
+  '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
@@ -2631,6 +2663,8 @@ export interface FileRoutesByTo {
   '/solutions': typeof SolutionsRouteWithChildren
   '/terms': typeof TermsRoute
   '/website': typeof WebsiteRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/Privacy/HIPAA': typeof PrivacyHIPAARoute
   '/Privacy/Home': typeof PrivacyHomeRoute
   '/Privacy/PatientRights': typeof PrivacyPatientRightsRoute
@@ -2667,6 +2701,7 @@ export interface FileRoutesByTo {
   '/trip/$token': typeof TripTokenRoute
   '/Privacy': typeof PrivacyIndexRoute
   '/services': typeof ServicesIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/superadmin/docs': typeof AuthenticatedSuperadminDocsRoute
@@ -2966,6 +3001,7 @@ export interface FileRoutesById {
   '/demo-credentials': typeof DemoCredentialsRoute
   '/demo-login': typeof DemoLoginRoute
   '/his': typeof HisRoute
+  '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
@@ -2974,6 +3010,8 @@ export interface FileRoutesById {
   '/solutions': typeof SolutionsRouteWithChildren
   '/terms': typeof TermsRoute
   '/website': typeof WebsiteRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/Privacy/HIPAA': typeof PrivacyHIPAARoute
   '/Privacy/Home': typeof PrivacyHomeRoute
   '/Privacy/PatientRights': typeof PrivacyPatientRightsRoute
@@ -3010,6 +3048,7 @@ export interface FileRoutesById {
   '/trip/$token': typeof TripTokenRoute
   '/Privacy/': typeof PrivacyIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
   '/_authenticated/superadmin/docs': typeof AuthenticatedSuperadminDocsRoute
@@ -3309,6 +3348,7 @@ export interface FileRouteTypes {
     | '/demo-credentials'
     | '/demo-login'
     | '/his'
+    | '/mcp'
     | '/platform'
     | '/pricing'
     | '/resources'
@@ -3317,6 +3357,8 @@ export interface FileRouteTypes {
     | '/solutions'
     | '/terms'
     | '/website'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/Privacy/HIPAA'
     | '/Privacy/Home'
     | '/Privacy/PatientRights'
@@ -3353,6 +3395,7 @@ export interface FileRouteTypes {
     | '/trip/$token'
     | '/Privacy/'
     | '/services/'
+    | '/.mcp/invoke-tool/$tool'
     | '/patient/profile'
     | '/superadmin/api-docs'
     | '/superadmin/docs'
@@ -3649,6 +3692,7 @@ export interface FileRouteTypes {
     | '/demo-credentials'
     | '/demo-login'
     | '/his'
+    | '/mcp'
     | '/platform'
     | '/pricing'
     | '/resources'
@@ -3656,6 +3700,8 @@ export interface FileRouteTypes {
     | '/solutions'
     | '/terms'
     | '/website'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/Privacy/HIPAA'
     | '/Privacy/Home'
     | '/Privacy/PatientRights'
@@ -3692,6 +3738,7 @@ export interface FileRouteTypes {
     | '/trip/$token'
     | '/Privacy'
     | '/services'
+    | '/.mcp/invoke-tool/$tool'
     | '/patient/profile'
     | '/superadmin/api-docs'
     | '/superadmin/docs'
@@ -3990,6 +4037,7 @@ export interface FileRouteTypes {
     | '/demo-credentials'
     | '/demo-login'
     | '/his'
+    | '/mcp'
     | '/platform'
     | '/pricing'
     | '/resources'
@@ -3998,6 +4046,8 @@ export interface FileRouteTypes {
     | '/solutions'
     | '/terms'
     | '/website'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/Privacy/HIPAA'
     | '/Privacy/Home'
     | '/Privacy/PatientRights'
@@ -4034,6 +4084,7 @@ export interface FileRouteTypes {
     | '/trip/$token'
     | '/Privacy/'
     | '/services/'
+    | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/patient/profile'
     | '/_authenticated/superadmin/api-docs'
     | '/_authenticated/superadmin/docs'
@@ -4333,6 +4384,7 @@ export interface RootRouteChildren {
   DemoCredentialsRoute: typeof DemoCredentialsRoute
   DemoLoginRoute: typeof DemoLoginRoute
   HisRoute: typeof HisRoute
+  McpRoute: typeof McpRoute
   PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
   ResourcesRoute: typeof ResourcesRouteWithChildren
@@ -4341,10 +4393,13 @@ export interface RootRouteChildren {
   SolutionsRoute: typeof SolutionsRouteWithChildren
   TermsRoute: typeof TermsRoute
   WebsiteRoute: typeof WebsiteRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   PrivacySplatRoute: typeof PrivacySplatRoute
   SuperadminLoginRoute: typeof SuperadminLoginRoute
   SuperadminResetRoute: typeof SuperadminResetRoute
   TripTokenRoute: typeof TripTokenRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiAdminV1AddonsRoute: typeof ApiAdminV1AddonsRouteWithChildren
   ApiAdminV1AuditRoute: typeof ApiAdminV1AuditRoute
   ApiAdminV1BugsRoute: typeof ApiAdminV1BugsRoute
@@ -4531,6 +4586,13 @@ declare module '@tanstack/react-router' {
       path: '/platform'
       fullPath: '/platform'
       preLoaderRoute: typeof PlatformRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/his': {
@@ -4869,6 +4931,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyHIPAARouteImport
       parentRoute: typeof PrivacyRoute
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/superadmin/docs': {
       id: '/_authenticated/superadmin/docs'
       path: '/docs'
@@ -4889,6 +4965,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/patient/profile'
       preLoaderRoute: typeof AuthenticatedPatientProfileRouteImport
       parentRoute: typeof AuthenticatedPatientRoute
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/legal/': {
       id: '/api/public/legal/'
@@ -8391,6 +8474,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoCredentialsRoute: DemoCredentialsRoute,
   DemoLoginRoute: DemoLoginRoute,
   HisRoute: HisRoute,
+  McpRoute: McpRoute,
   PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
   ResourcesRoute: ResourcesRouteWithChildren,
@@ -8399,10 +8483,14 @@ const rootRouteChildren: RootRouteChildren = {
   SolutionsRoute: SolutionsRouteWithChildren,
   TermsRoute: TermsRoute,
   WebsiteRoute: WebsiteRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   PrivacySplatRoute: PrivacySplatRoute,
   SuperadminLoginRoute: SuperadminLoginRoute,
   SuperadminResetRoute: SuperadminResetRoute,
   TripTokenRoute: TripTokenRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiAdminV1AddonsRoute: ApiAdminV1AddonsRouteWithChildren,
   ApiAdminV1AuditRoute: ApiAdminV1AuditRoute,
   ApiAdminV1BugsRoute: ApiAdminV1BugsRoute,

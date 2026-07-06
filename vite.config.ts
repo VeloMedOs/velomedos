@@ -6,6 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { visualizer } from "rollup-plugin-visualizer";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 
 const ANALYZE = process.env.ANALYZE === "true" || process.env.ANALYZE === "1";
 
@@ -20,6 +21,7 @@ export default defineConfig({
     // HTML on first byte for our public routes, so crawlers still get full markup.
   },
   vite: {
+    plugins: [mcpPlugin()],
     build: {
       rollupOptions: {
         plugins: ANALYZE
