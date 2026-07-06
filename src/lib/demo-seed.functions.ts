@@ -359,6 +359,9 @@ export async function runProvisionDemoUsersFromHeader(authHeader: string) {
  * environment are wrapped in try/catch so the reset still completes.
  */
 const TRANSACTIONAL_TABLES_CHILD_FIRST = [
+  "rcm_gate_exception",
+  "authorization_item",
+  "authorization_request",
   "claim_supporting_info",
   "claim_diagnosis",
   "claim_item_link",
