@@ -30,6 +30,19 @@ export const R7_BLOCKERS = {
   METHOD_DETAIL_MISSING:        "METHOD_DETAIL_MISSING",
 } as const;
 
+/**
+ * Step 1 — Billed Gate / Forms Gate / PBM / IP blocker codes. Kept as a
+ * single source of truth so SQL error strings, API handlers, and UI
+ * mapping tables agree.
+ */
+export const GATE_BLOCKERS = {
+  GATE_BILLED:              "GATE_BILLED",
+  INDICATION_MISSING:       "INDICATION_MISSING",
+  IP_DEPOSIT_INSUFFICIENT:  "IP_DEPOSIT_INSUFFICIENT",
+  EMERGENCY_UNRECONCILED:   "EMERGENCY_UNRECONCILED",
+  FORM_REQUIRED:            "FORM_REQUIRED",
+} as const;
+
 export type RcmReadiness = {
   ok: boolean;
   missing: MissingItem[];

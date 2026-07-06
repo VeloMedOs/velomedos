@@ -38,6 +38,7 @@ export type Database = {
           edd: string | null
           eligibility_ref: string | null
           encounter_id: string
+          estimated_charges_minor: number | null
           id: string
           journey_state: string
           locked_at: string | null
@@ -83,6 +84,7 @@ export type Database = {
           edd?: string | null
           eligibility_ref?: string | null
           encounter_id: string
+          estimated_charges_minor?: number | null
           id?: string
           journey_state?: string
           locked_at?: string | null
@@ -128,6 +130,7 @@ export type Database = {
           edd?: string | null
           eligibility_ref?: string | null
           encounter_id?: string
+          estimated_charges_minor?: number | null
           id?: string
           journey_state?: string
           locked_at?: string | null
@@ -11782,6 +11785,10 @@ export type Database = {
       }
     }
     Functions: {
+      _order_item_preauth_required: {
+        Args: { _id: string; _tbl: string }
+        Returns: boolean
+      }
       admission_gate_open: { Args: { _admission_id: string }; Returns: boolean }
       bump_site_content_version: { Args: { _actor?: string }; Returns: number }
       charge_is_billed: {
