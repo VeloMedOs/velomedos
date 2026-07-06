@@ -8,7 +8,7 @@ const Body = z.object({
   beneficiary_id: z.string().uuid(),
   encounter_id: z.string().uuid().optional(),
   instrument_id: z.string().uuid(),
-  answers: z.record(z.number()),
+  answers: z.record(z.string(), z.number()),
   source: z.enum(["patient_app", "sms", "portal", "staff"]).default("portal"),
 });
 const parsePrem = parseBody((raw) => Body.parse(raw));
