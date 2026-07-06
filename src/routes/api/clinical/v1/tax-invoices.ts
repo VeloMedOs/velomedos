@@ -66,7 +66,7 @@ export const Route = createFileRoute("/api/clinical/v1/tax-invoices")({
       if (buyerId) sel = sel.eq("counterparty_id", buyerId);
       if (q)       sel = sel.or(`invoice_no.ilike.%${q}%,irn.ilike.%${q}%,zatca_uuid::text.ilike.%${q}%`);
       const { data, count, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const { data: agg } = await db.from("tax_invoice").select("zatca_status").eq("tenant_id", auth.ctx.tenantId);
       const counts: Record<string, number> = {};
       for (const r of (agg ?? []) as any[]) counts[r.zatca_status] = (counts[r.zatca_status] ?? 0) + 1;
@@ -100,7 +100,7 @@ export const Route = createFileRoute("/api/clinical/v1/tax-invoices")({
         created_by: auth.ctx.userId,
       };
       const { data: invoice, error } = await db.from("tax_invoice").insert(inv).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       const lineRows = rollup.lines.map((l, i) => ({
         tenant_id: auth.ctx.tenantId, invoice_id: invoice.id, seq: i + 1,
         description: l.description ?? null, service_code: l.service_code ?? null,

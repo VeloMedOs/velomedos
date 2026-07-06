@@ -25,7 +25,7 @@ export const Route = createFileRoute("/api/clinical/v1/coverage/$id")({
           .eq("id", params.id)
           .eq("tenant_id", auth.ctx.tenantId)
           .maybeSingle();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         if (!data) return envelope("Coverage not found", "not_found", 404);
         const { data: classes } = await db
           .from("coverage_class")
@@ -69,7 +69,7 @@ export const Route = createFileRoute("/api/clinical/v1/coverage/$id")({
           .eq("id", params.id)
           .select("*")
           .single();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "coverage.update", "coverage", params.id);
         return new Response(JSON.stringify({ data }), {
           status: 200,

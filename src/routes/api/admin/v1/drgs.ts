@@ -30,7 +30,7 @@ export const Route = createFileRoute("/api/admin/v1/drgs")({
         if (mdc) q = q.eq("mdc", mdc);
         if (active !== null) q = q.eq("active", active === "true");
         const { data, count, error } = await q;
-        if (error) return json({ error: error.message, code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
+        if (error) return json({ error: "database_error", code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
         return json({ data: data ?? [], pagination: { limit, offset, total: count ?? 0 } });
       },
       POST: async ({ request }) => {
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/admin/v1/drgs")({
           }, 400);
         }
         const { data, error } = await adminDb().from("drg").insert(parsed.data).select("*").single();
-        if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "drg.create", "drg", data.id, { drg_code: data.drg_code, version: data.version });
         return json(data, 201);
       },

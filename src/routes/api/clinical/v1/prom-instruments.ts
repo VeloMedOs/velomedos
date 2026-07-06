@@ -34,7 +34,7 @@ export const Route = createFileRoute("/api/clinical/v1/prom-instruments")({
         if (kind) q = q.eq("kind", kind);
         if (condition) q = q.eq("condition", condition);
         const { data, error } = await q;
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         return jsonData({ data: data ?? [] });
       },
       POST: async ({ request }) => {
@@ -49,7 +49,7 @@ export const Route = createFileRoute("/api/clinical/v1/prom-instruments")({
           schema: parsed.data.schema as unknown,
         } as never;
         const { data, error } = await db.from("prom_instrument").insert(insertRow).select("*").single();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "prom_instrument.create", "prom_instrument", data.id);
         return jsonData({ data }, 201);
       },

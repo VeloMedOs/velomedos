@@ -42,7 +42,7 @@ export const Route = createFileRoute("/api/clinical/v1/auth/requests")({
       if (status) q = q.eq("status", status);
       if (encounter_id) q = q.eq("encounter_id", encounter_id);
       const { data, count, error } = await q;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       return jsonData({ data: data ?? [], pagination: { limit, offset, total: count ?? 0 } });
     },
     POST: async ({ request }) => {
@@ -60,7 +60,7 @@ export const Route = createFileRoute("/api/clinical/v1/auth/requests")({
         created_by: auth.ctx.userId,
         updated_by: auth.ctx.userId,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       if (items?.length) {
         const rows = items.map((it) => ({
           ...it,

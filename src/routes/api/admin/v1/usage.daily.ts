@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/admin/v1/usage/daily")({
         let q = adminDb().from("portal_usage_daily").select("*").gte("day", since).order("day", { ascending: true });
         if (sid) q = q.eq("subscriber_id", sid);
         const { data, error } = await q;
-        if (error) return json({ error: error.message, code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
+        if (error) return json({ error: "database_error", code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
         return json({ usage: data });
       },
     },

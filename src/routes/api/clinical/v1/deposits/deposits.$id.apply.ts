@@ -50,7 +50,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/deposits/$id/app
         approved_by: dep.is_caution ? auth.ctx.userId : null,
         created_by: auth.ctx.userId,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "deposit.apply", "deposit", dep.id, {
         claim_id: parsed.data.claim_id, amount_minor: parsed.data.amount_minor,
       });

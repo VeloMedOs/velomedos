@@ -25,9 +25,9 @@ export const Route = createFileRoute("/api/public/legal/$slug")({
         .from("legal_documents").select(cols)
         .eq("slug", slug).eq("locale", locale).eq("status", "published").maybeSingle();
       let { data, error } = await read(requested);
-      if (error) return json({ error: error.message }, 500);
+      if (error) return json({ error: "database_error" }, 500);
       if (!data && requested !== "en") {
-        const fb = await read("en"); data = fb.data; if (fb.error) return json({ error: fb.error.message }, 500);
+        const fb = await read("en"); data = fb.data; if (fb.error) return json({ error: "database_error" }, 500);
       }
       if (!data) return json({ error: "not_found" }, 404);
       const etag = `"${data.slug}:${data.locale}:${data.version}"`;

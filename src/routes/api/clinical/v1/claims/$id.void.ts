@@ -28,7 +28,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/void")({
       const { data, error } = await db.from("claim").update({
         status: "closed", updated_by: auth.ctx.userId,
       }).eq("id", params.id).eq("tenant_id", auth.ctx.tenantId).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await db.from("claim_lifecycle_event").insert({
         tenant_id: auth.ctx.tenantId, claim_id: params.id,
         from_status: from, to_status: "closed", actor_id: auth.ctx.userId, reason: parsed.data.reason,

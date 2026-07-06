@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/attempts")({
           .eq("claim_id", params.id)
           .order("attempt_no", { ascending: false })
           .limit(50);
-        if (error) return envelope(error.message, "db_error", 400);
+        if (error) return envelope("database_error", "db_error", 400);
         return jsonData({ data });
       },
     },

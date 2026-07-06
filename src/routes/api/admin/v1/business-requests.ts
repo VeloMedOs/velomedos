@@ -21,7 +21,7 @@ export const Route = createFileRoute("/api/admin/v1/business-requests")({
         if (source) query = query.eq("source", source);
         if (q)      query = query.or(`company_name.ilike.%${q}%,legal_name.ilike.%${q}%,nick_name.ilike.%${q}%,vat_number.ilike.%${q}%,cr_number.ilike.%${q}%,contact_email.ilike.%${q}%`);
         const { data, error } = await query.limit(500);
-        if (error) return json({ error: error.message, code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
+        if (error) return json({ error: "database_error", code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
         return json({ requests: data ?? [] });
       },
       POST: async ({ request }) => {
@@ -49,7 +49,7 @@ export const Route = createFileRoute("/api/admin/v1/business-requests")({
           created_by: auth.via === "session" ? auth.userId : null,
         };
         const { data, error } = await db.from("business_requests").insert(insert).select().single();
-        if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "business_request.create", "business_requests", data.id, { source, stage });
         return json(data, 201);
       },

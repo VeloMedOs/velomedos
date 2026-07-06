@@ -22,7 +22,7 @@ export const Route = createFileRoute("/api/clinical/v1/beneficiaries/$id/fhir")(
           .eq("id", params.id)
           .eq("tenant_id", auth.ctx.tenantId)
           .maybeSingle();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         if (!ben) return envelope("Beneficiary not found", "not_found", 404);
 
         const { data: coverages } = await db

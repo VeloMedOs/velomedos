@@ -73,7 +73,7 @@ export const Route = createFileRoute("/api/clinical/v1/cash/refunds")({
         details: b.details ?? null,
         created_by: auth.ctx.userId,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
 
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "cash.refund.request", "refund_request", refund.id, {
         reason: b.reason_code, method: b.refund_method, amount_minor: rollup.total_minor, needs_vat_reversal: needsVatReversal,

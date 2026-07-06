@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/clinical/v1/policy-activations/$id/ac
         notify_reception_at: new Date().toISOString(),
         updated_by: auth.ctx.userId,
       }).eq("id", params.id).select("*").single();
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const moved = await applyEvent(owned.row.visit_eligibility_id,
         { kind: "activation.complete" },
         { userId: auth.ctx.userId, tenantId: auth.ctx.tenantId });

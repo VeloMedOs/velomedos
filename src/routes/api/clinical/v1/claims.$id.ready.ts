@@ -69,7 +69,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/ready")({
           .eq("id", params.id)
           .select("*")
           .single();
-        if (error) return envelope(error.message, "db_error", 400);
+        if (error) return envelope("database_error", "db_error", 400);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "claim.ready", "claim", params.id);
         return jsonData({ data });
       },

@@ -28,7 +28,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/e-claims")({
       if (q) sel = sel.or(`provider_claim_no.ilike.%${q}%,invoice_no.ilike.%${q}%,claim_sequence_no.ilike.%${q}%`);
 
       const { data, error } = await sel.limit(1000);
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
 
       const encIds = Array.from(new Set((data ?? []).map((r: any) => r.encounter_id).filter(Boolean)));
       const [encs, covs] = encIds.length

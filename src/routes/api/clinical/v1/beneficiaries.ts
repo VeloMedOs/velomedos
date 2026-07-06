@@ -35,7 +35,7 @@ export const Route = createFileRoute("/api/clinical/v1/beneficiaries")({
         if (documentId) query = query.eq("document_id", documentId);
 
         const { data, count, error } = await query;
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         return new Response(
           JSON.stringify({ data: data ?? [], pagination: { limit, offset, total: count ?? 0 } }),
           { status: 200, headers: { "content-type": "application/json" } },
@@ -62,7 +62,7 @@ export const Route = createFileRoute("/api/clinical/v1/beneficiaries")({
         if (error) {
           const dup = error.code === "23505";
           return envelope(
-            dup ? "Duplicate document_type + document_id for this tenant" : error.message,
+            dup ? "Duplicate document_type + document_id for this tenant" : "database_error",
             dup ? "duplicate_document" : "db_error",
             dup ? 409 : 500,
           );

@@ -26,7 +26,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/batches")({
         .order("updated_at", { ascending: false }).limit(limit);
       if (status && ALL_BATCH_STATUSES.includes(status as BatchStatus)) sel = sel.eq("status", status);
       const { data, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const { data: allStatus } = await db.from("claim_batch").select("status").eq("tenant_id", auth.ctx.tenantId);
       const counts: Record<string, number> = { open: 0, submitting: 0, submitted: 0, closed: 0, cancelled: 0 };
       for (const r of (allStatus ?? []) as Array<{ status: string }>) counts[r.status] = (counts[r.status] ?? 0) + 1;
@@ -49,7 +49,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/batches")({
         created_by: auth.ctx.userId,
         updated_by: auth.ctx.userId,
       }).select("*").single();
-      if (ins.error) return envelope(ins.error.message, "db_error", 500);
+      if (ins.error) return envelope("database_error", "db_error", 500);
       const errors: Array<{ id: string; error: string }> = [];
       let attached = 0;
       for (const cid of body.data.claim_ids) {
@@ -57,7 +57,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/batches")({
         if (!c || c.tenant_id !== auth.ctx.tenantId) { errors.push({ id: cid, error: "not_found" }); continue; }
         if (c.batch_id) { errors.push({ id: cid, error: "already_batched" }); continue; }
         const upd = await db.from("claim").update({ batch_id: ins.data.id, readiness_status: "ready", snapshot_locked_at: new Date().toISOString() }).eq("id", cid);
-        if (upd.error) { errors.push({ id: cid, error: upd.error.message }); continue; }
+        if (upd.error) { errors.push({ id: cid, error: "database_error" }); continue; }
         attached += 1;
       }
       if (attached > 0) {

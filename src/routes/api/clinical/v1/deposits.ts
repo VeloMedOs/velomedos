@@ -50,7 +50,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits")({
       if (eId) sel = sel.eq("encounter_id", eId);
       if (q)   sel = sel.or(`deposit_no.ilike.%${q}%,reference_no.ilike.%${q}%,pos_reference.ilike.%${q}%`);
       const { data, count, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const rows = (data ?? []).map((r: any) => ({ ...r, bucket: bucketOfDeposit(r) }));
       const filtered = bucket ? rows.filter((r: any) => r.bucket === bucket) : rows;
       // Bucket counts across the full tenant (small aggregate, not the paged slice).
@@ -97,7 +97,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits")({
         created_by: auth.ctx.userId, updated_by: auth.ctx.userId,
       };
       const { data: dep, error } = await db.from("deposit").insert(row).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       // If already collected, write a `collect` txn (drives ERP queue + running balance).
       if (dep.status === "collected") {
         await db.from("deposit_transaction").insert({

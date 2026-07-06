@@ -62,7 +62,7 @@ export const Route = createFileRoute("/api/clinical/v1/cash/collections")({
       if (claimId)   sel = sel.eq("claim_id", claimId);
       if (q)         sel = sel.or(`receipt_no.ilike.%${q}%,pos_ref.ilike.%${q}%,bank_ref.ilike.%${q}%,cheque_no.ilike.%${q}%,online_ref.ilike.%${q}%`);
       const { data, count, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const rows = (data ?? []).map((r: any) => ({ ...r, bucket: bucketOfCashCollection(r) }));
       const filtered = bucket ? rows.filter((r: any) => r.bucket === bucket) : rows;
       // Bucket counts (aggregate scan)
@@ -114,7 +114,7 @@ export const Route = createFileRoute("/api/clinical/v1/cash/collections")({
         notes: b.details?.note ?? null,
         created_by: auth.ctx.userId,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "cash.collection.draft", "cash_collection", data.id, { gross_minor: gross, method: b.method });
       return jsonData({ data: { ...data, bucket: bucketOfCashCollection(data) } }, 201);
     },

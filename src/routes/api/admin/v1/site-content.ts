@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/admin/v1/site-content")({
         if (status === "draft") q = q.not("draft_value", "is", null);
         if (status === "published") q = q.not("published_value", "is", null);
         const { data, error } = await q.order("key").order("locale");
-        if (error) return json({ error: error.message, code: "db/read_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/read_failed", request_id: crypto.randomUUID() }, 400);
         const { data: ver } = await db.from("site_content_version").select("version, bumped_at").eq("id", 1).maybeSingle();
         return json({ rows: data ?? [], version: ver ?? null });
       },
@@ -79,7 +79,7 @@ export const Route = createFileRoute("/api/admin/v1/site-content")({
           .upsert(patch, { onConflict: "key,locale" })
           .select()
           .single();
-        if (error) return json({ error: error.message, code: "db/upsert_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/upsert_failed", request_id: crypto.randomUUID() }, 400);
 
         await adminAudit(
           auth.userId,
@@ -105,7 +105,7 @@ export const Route = createFileRoute("/api/admin/v1/site-content")({
         if (!key || !locale) return json({ error: "key and locale required", code: "validation", request_id: crypto.randomUUID() }, 400);
         const db = adminDb();
         const { error } = await db.from("site_content").delete().eq("key", key).eq("locale", locale);
-        if (error) return json({ error: error.message, code: "db/delete_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/delete_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(
           auth.userId,
           "site_content.delete",

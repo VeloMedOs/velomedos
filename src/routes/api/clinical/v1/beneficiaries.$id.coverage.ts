@@ -33,7 +33,7 @@ export const Route = createFileRoute("/api/clinical/v1/beneficiaries/$id/coverag
           .eq("beneficiary_id", params.id)
           .eq("tenant_id", auth.ctx.tenantId)
           .order("created_at", { ascending: false });
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         const ids = (coverages ?? []).map((c) => c.id);
         const classesRes = ids.length
           ? await db.from("coverage_class").select("*").in("coverage_id", ids)
@@ -87,7 +87,7 @@ export const Route = createFileRoute("/api/clinical/v1/beneficiaries/$id/coverag
           })
           .select("*")
           .single();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
 
         let insertedClasses: unknown[] = [];
         if (classes && classes.length) {

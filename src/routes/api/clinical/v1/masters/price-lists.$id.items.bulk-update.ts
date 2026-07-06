@@ -37,7 +37,7 @@ export const Route = createFileRoute("/api/clinical/v1/masters/price-lists/$id/i
         let q = db.from("price_list_item").select("*").eq("price_list_id", params.id).eq("tenant_id", auth.ctx.tenantId);
         if (body.filter?.ids?.length) q = q.in("id", body.filter.ids);
         const { data: items, error } = await q;
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         let candidates = items ?? [];
 
         if (body.filter?.service_type || body.filter?.code_system) {

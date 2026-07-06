@@ -33,7 +33,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/credit-notes")({
       if (eId) sel = sel.eq("encounter_id", eId);
       if (st)  sel = sel.eq("status", st);
       const { data, count, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       return jsonData({ data: data ?? [], pagination: { total: count ?? 0, limit, offset } });
     },
     POST: async ({ request }) => {
@@ -52,7 +52,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/credit-notes")({
         status: "issued",
         created_by: auth.ctx.userId, updated_by: auth.ctx.userId,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "credit_note.issue", "credit_note", data.id);
       return jsonData({ data }, 201);
     },

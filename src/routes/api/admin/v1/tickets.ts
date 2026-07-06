@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/admin/v1/tickets")({
         if (type) q = q.eq("type", type);
         if (status) q = q.eq("status", status);
         const { data, error } = await q;
-        if (error) return json({ error: error.message, code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
+        if (error) return json({ error: "database_error", code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
         return json({ tickets: data });
       },
       POST: async ({ request }) => {
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/api/admin/v1/tickets")({
         const body = await request.json().catch(() => null) as Record<string, unknown> | null;
         if (!body?.subject || !body?.type) return json({ error: "missing_fields", code: "validation", request_id: crypto.randomUUID() }, 400);
         const { data, error } = await adminDb().from("portal_tickets").insert({ ...body, created_by: auth.userId } as never).select().single();
-        if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "ticket.create", "portal_tickets", data.id, body);
         return json(data, 201);
       },

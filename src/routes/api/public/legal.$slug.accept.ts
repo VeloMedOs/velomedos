@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/public/legal/$slug/accept")({
         slug, locale: doc.locale, version: doc.version,
         subject_email, ip_hash, user_agent,
       });
-      if (error) return json({ error: error.message }, 400);
+      if (error) return json({ error: "database_error" }, 400);
       return json({ accepted: true, version: doc.version, locale: doc.locale });
     },
   } },

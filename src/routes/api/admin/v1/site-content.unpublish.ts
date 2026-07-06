@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/admin/v1/site-content/unpublish")({
           published_by: null,
           updated_by: actor,
         }).eq("key", body.key).eq("locale", body.locale);
-        if (error) return json({ error: error.message, code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
         const { data: ver } = await db.from("site_content_version").select("version, bumped_at").eq("id", 1).maybeSingle();
         await adminAudit(auth.userId, "site_content.unpublish", "site_content", `${body.key}:${body.locale}`, {
           staff_user_id: auth.userId,

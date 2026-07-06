@@ -174,7 +174,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/submit")({
           .eq("id", params.id)
           .select("*")
           .single();
-        if (error) return envelope(error.message, "db_error", 400);
+        if (error) return envelope("database_error", "db_error", 400);
 
         await clinicalAudit(
           auth.ctx.userId,

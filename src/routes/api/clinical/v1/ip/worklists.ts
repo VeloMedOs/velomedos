@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/clinical/v1/ip/worklists")({
         .limit(limit);
       if (q) sel = sel.or(`admission_no.ilike.%${q}%,admission_serial.ilike.%${q}%`);
       const { data, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const rows = (data ?? []).map((r: any) => ({ ...r, bucket: bucketOfAdmission(r) }));
       const counts: Record<string, number> = Object.fromEntries(IP_BUCKET_ORDER.map((b) => [b, 0]));
       for (const r of rows) counts[r.bucket] = (counts[r.bucket] ?? 0) + 1;

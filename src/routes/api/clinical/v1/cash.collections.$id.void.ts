@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/clinical/v1/cash/collections/$id/void
       const { data: updated, error } = await db.from("cash_collection").update({
         status: "voided", voided_at: new Date().toISOString(), void_reason: parsed.data.reason,
       }).eq("id", params.id).eq("tenant_id", auth.ctx.tenantId).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       if (row.session_id) {
         await db.from("cash_session_txn").insert({
           tenant_id: auth.ctx.tenantId, session_id: row.session_id,

@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/clinical/v1/encounters/$id/vitals")({
           .eq("encounter_id", params.id)
           .order("recorded_at", { ascending: false })
           .range(offset, offset + limit - 1);
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         return jsonData({ data: data ?? [], pagination: { limit, offset, total: count ?? 0 } });
       },
       POST: async ({ request, params }) => {
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/clinical/v1/encounters/$id/vitals")({
           created_by: auth.ctx.userId,
           updated_by: auth.ctx.userId,
         }).select("*").single();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "vitals_observation.create", "vitals_observation", data.id);
         return jsonData({ data }, 201);
       },

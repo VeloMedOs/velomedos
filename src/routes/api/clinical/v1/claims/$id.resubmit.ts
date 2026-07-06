@@ -48,7 +48,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims/$id/resubmit")({
         created_by: auth.ctx.userId,
         updated_by: auth.ctx.userId,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
 
       for (const table of ["claim_item","claim_diagnosis","claim_care_team","claim_supporting_info","claim_item_link"] as const) {
         const { data: children } = await db.from(table).select("*").eq("claim_id", src.id);

@@ -25,7 +25,7 @@ export const Route = createFileRoute("/api/patient/v1/proms/pending")({
           .eq("status", "pending")
           .order("due_at", { ascending: true })
           .limit(50);
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         return jsonData({ data: items ?? [] });
       },
     },

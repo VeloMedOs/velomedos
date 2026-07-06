@@ -32,7 +32,7 @@ export const Route = createFileRoute("/api/clinical/v1/eligibility/$id/exception
         created_by: auth.ctx.userId,
         updated_by: auth.ctx.userId,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       const moved = await applyEvent(params.id,
         { kind: "exception.raise", exception_type: parsed.data.exception_type },
         { userId: auth.ctx.userId, tenantId: auth.ctx.tenantId });

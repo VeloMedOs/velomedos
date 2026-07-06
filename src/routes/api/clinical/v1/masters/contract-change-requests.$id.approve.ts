@@ -26,7 +26,7 @@ export const Route = createFileRoute(
         approved_at: new Date().toISOString(),
         updated_by: auth.ctx.userId,
       }).eq("id", params.id).select("*").single();
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId,
         "contract_change_request.approve", "contract_change_request", params.id);
       return jsonData({ data });

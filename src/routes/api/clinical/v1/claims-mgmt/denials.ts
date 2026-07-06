@@ -22,7 +22,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/denials")({
       if (category) sel = sel.eq("denial_category", category);
       if (q) sel = sel.or(`claim_sequence_no.ilike.%${q}%`);
       const { data, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const { data: all } = await db.from("denial_case").select("status").eq("tenant_id", auth.ctx.tenantId);
       const counts: Record<string, number> = Object.fromEntries(DENIAL_BUCKET_ORDER.map((s) => [s, 0]));
       for (const r of (all ?? []) as Array<{ status: string }>) counts[r.status] = (counts[r.status] ?? 0) + 1;

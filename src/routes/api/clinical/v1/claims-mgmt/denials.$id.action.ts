@@ -54,7 +54,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/denials/$id/a
             actor_id: auth.ctx.userId,
             body: body.data.note,
           }).select("*").single();
-          if (ins.error) return envelope(ins.error.message, "db_error", 500);
+          if (ins.error) return envelope("database_error", "db_error", 500);
           return jsonData({ data: ins.data }, 201);
         }
 
@@ -79,7 +79,7 @@ export const Route = createFileRoute("/api/clinical/v1/claims-mgmt/denials/$id/a
             readiness_status: "hold",
             replaces_claim_id: src.id,
           }).select("*").single();
-          if (clone.error) return envelope(clone.error.message, "db_error", 500);
+          if (clone.error) return envelope("database_error", "db_error", 500);
           await move("resubmitted", { replaces_claim_id: clone.data.id });
           return jsonData({ ok: true, status: "resubmitted", claim: clone.data });
         }

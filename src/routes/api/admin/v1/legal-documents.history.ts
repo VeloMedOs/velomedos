@@ -16,7 +16,7 @@ export const Route = createFileRoute("/api/admin/v1/legal-documents/history")({
         .select("version, title, summary, body_md, effective_date, status, change_note, actor_id, snapshot_at")
         .eq("slug", slug as never).eq("locale", locale as never)
         .order("version", { ascending: false });
-      if (error) return json({ error: error.message }, 500);
+      if (error) return json({ error: "database_error" }, 500);
       return json({ rows: data ?? [] });
     },
   } },

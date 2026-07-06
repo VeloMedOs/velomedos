@@ -16,7 +16,7 @@ export const Route = createFileRoute("/api/admin/v1/addons/$id")({
         for (const [k, v] of Object.entries(body)) if (FIELDS.has(k)) update[k] = v;
         if (Object.keys(update).length === 0) return json({ error: "no_fields", code: "validation", request_id: crypto.randomUUID() }, 400);
         const { data, error } = await adminDb().from("subscription_addons").update(update).eq("id", params.id).select().single();
-        if (error) return json({ error: error.message, code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "addon.update", "subscription_addons", params.id, update);
         return json(data);
       },
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/admin/v1/addons/$id")({
         const auth = await requireAdmin(request, "billing:write");
         if (!auth.ok) return auth.res;
         const { error } = await adminDb().from("subscription_addons").delete().eq("id", params.id);
-        if (error) return json({ error: error.message, code: "db/delete_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/delete_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "addon.delete", "subscription_addons", params.id, null);
         return json({ ok: true });
       },

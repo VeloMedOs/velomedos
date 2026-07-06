@@ -25,7 +25,7 @@ export const Route = createFileRoute("/api/clinical/v1/beneficiaries/$id")({
           .eq("id", params.id)
           .eq("tenant_id", auth.ctx.tenantId)
           .maybeSingle();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         if (!data) return envelope("Beneficiary not found", "not_found", 404);
         return new Response(JSON.stringify({ data }), {
           status: 200,
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/api/clinical/v1/beneficiaries/$id")({
           .eq("id", params.id)
           .select("*")
           .single();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "beneficiary.update", "beneficiary", params.id);
         return new Response(JSON.stringify({ data }), {
           status: 200,

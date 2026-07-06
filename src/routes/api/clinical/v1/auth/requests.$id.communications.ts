@@ -38,7 +38,7 @@ export const Route = createFileRoute("/api/clinical/v1/auth/requests/$id/communi
         authorization_request_id: params.id,
         author: auth.ctx.userId,
       }).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "auth_comm.create",
         "authorization_communication", data.id);
       return jsonData({ data }, 201);

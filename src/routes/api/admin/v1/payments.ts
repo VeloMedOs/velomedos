@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/admin/v1/payments")({
         let q = db.from("portal_payments").select("*").order("created_at", { ascending: false }).limit(200);
         if (status) q = q.eq("status", status);
         const { data, error } = await q;
-        if (error) return json({ error: error.message, code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
+        if (error) return json({ error: "database_error", code: "db/read_failed", request_id: crypto.randomUUID() }, 500);
         return json({ payments: data });
       },
       POST: async ({ request }) => {
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/api/admin/v1/payments")({
         const row = { ...body, status: (body.status as string) ?? "pending" };
         const db = adminDb();
         const { data, error } = await db.from("portal_payments").insert(row as never).select().single();
-        if (error) return json({ error: error.message, code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/insert_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "payment.record", "portal_payments", data.id, body);
         return json(data, 201);
       },

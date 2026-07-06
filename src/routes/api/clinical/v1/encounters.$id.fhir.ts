@@ -35,7 +35,7 @@ export const Route = createFileRoute("/api/clinical/v1/encounters/$id/fhir")({
           db.from("encounter_hospitalization").select("*").eq("encounter_id", params.id).maybeSingle(),
           db.from("encounter_emergency").select("*").eq("encounter_id", params.id).maybeSingle(),
         ]);
-        if (careTeam.error) return envelope(careTeam.error.message, "db_error", 500);
+        if (careTeam.error) return envelope("database_error", "db_error", 500);
 
         const patientRef = `Patient/${owned.row.beneficiary_id}`;
         const encounterRef = `Encounter/${owned.row.id}`;

@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/clinical/v1/episodes")({
         if (beneficiaryId) q = q.eq("beneficiary_id", beneficiaryId);
         if (status) q = q.eq("status", status);
         const { data, count, error } = await q;
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         return jsonData({ data: data ?? [], pagination: { limit, offset, total: count ?? 0 } });
       },
       POST: async ({ request }) => {
@@ -49,7 +49,7 @@ export const Route = createFileRoute("/api/clinical/v1/episodes")({
           created_by: auth.ctx.userId,
           updated_by: auth.ctx.userId,
         }).select("*").single();
-        if (error) return envelope(error.message, "db_error", 500);
+        if (error) return envelope("database_error", "db_error", 500);
         await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "episode_of_care.create", "episode_of_care", data.id);
         return jsonData({ data }, 201);
       },

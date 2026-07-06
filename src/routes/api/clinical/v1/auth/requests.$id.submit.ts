@@ -58,7 +58,7 @@ export const Route = createFileRoute("/api/clinical/v1/auth/requests/$id/submit"
         gateway_response: gw.bundle,
         updated_by: auth.ctx.userId,
       }).eq("id", params.id).eq("tenant_id", auth.ctx.tenantId).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
 
       // On sandbox auto-approvals, mark every item approved so downstream
       // AUTH_MISSING coverage checks pass immediately in demo tenants.

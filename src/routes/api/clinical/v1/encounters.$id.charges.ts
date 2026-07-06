@@ -18,7 +18,7 @@ export const Route = createFileRoute("/api/clinical/v1/encounters/$id/charges")(
         .order("ordered_at", { ascending: false });
       if (status) q = q.eq("status", status);
       const { data, error } = await q;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const rows = data ?? [];
       const totals = rows.reduce((acc: Record<string, number>, r: any) => {
         if (r.status === "cancelled") return acc;

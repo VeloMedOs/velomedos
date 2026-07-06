@@ -35,7 +35,7 @@ export const Route = createFileRoute("/api/admin/v1/business-requests/$id")({
         if (Object.keys(update).length === 0) return json({ error: "no_fields", code: "validation", request_id: crypto.randomUUID() }, 400);
         const db = adminDb();
         const { data, error } = await db.from("business_requests").update(update).eq("id", params.id).select().single();
-        if (error) return json({ error: error.message, code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "business_request.update", "business_requests", params.id, update);
         return json(data);
       },
@@ -44,7 +44,7 @@ export const Route = createFileRoute("/api/admin/v1/business-requests/$id")({
         if (!auth.ok) return auth.res;
         const db = adminDb();
         const { error } = await db.from("business_requests").delete().eq("id", params.id);
-        if (error) return json({ error: error.message, code: "db/delete_failed", request_id: crypto.randomUUID() }, 400);
+        if (error) return json({ error: "database_error", code: "db/delete_failed", request_id: crypto.randomUUID() }, 400);
         await adminAudit(auth.userId, "business_request.delete", "business_requests", params.id, null);
         return json({ ok: true });
       },

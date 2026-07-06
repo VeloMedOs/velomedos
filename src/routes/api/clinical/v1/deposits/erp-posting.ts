@@ -21,7 +21,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/erp-posting")({
       if (status) sel = sel.eq("status", status);
       if (entity) sel = sel.eq("entity_type", entity);
       const { data, count, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       const { data: all } = await (serviceClient() as any).from("erp_posting_queue").select("status").eq("tenant_id", auth.ctx.tenantId);
       const counts: Record<string, number> = {};
       for (const r of (all ?? []) as any[]) counts[r.status] = (counts[r.status] ?? 0) + 1;

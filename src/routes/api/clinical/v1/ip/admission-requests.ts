@@ -35,7 +35,7 @@ export const Route = createFileRoute("/api/clinical/v1/ip/admission-requests")({
       if (encId)  sel = sel.eq("encounter_id", encId);
       if (q)      sel = sel.or(`admission_no.ilike.%${q}%,admission_serial.ilike.%${q}%`);
       const { data, count, error } = await sel;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       return jsonData({ data: data ?? [], pagination: { limit, offset, total: count ?? 0 } });
     },
     POST: async ({ request }) => {
@@ -80,7 +80,7 @@ export const Route = createFileRoute("/api/clinical/v1/ip/admission-requests")({
         updated_by: auth.ctx.userId,
       };
       const { data, error } = await db.from("admission_request").insert(insertRow).select("*").single();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "admission_request.create", "admission_request", data.id);
       return jsonData({ data }, 201);
     },

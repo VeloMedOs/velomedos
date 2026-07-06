@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/clinical/v1/eligibility")({
         if (v !== null && v !== "") q = q.eq(k, v);
       }
       const { data, count, error } = await q;
-      if (error) return envelope(error.message, "db_error", 500);
+      if (error) return envelope("database_error", "db_error", 500);
       return jsonData({ data: data ?? [], pagination: { limit, offset, total: count ?? 0 } });
     },
   } },

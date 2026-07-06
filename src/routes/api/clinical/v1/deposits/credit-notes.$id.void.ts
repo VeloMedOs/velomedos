@@ -33,7 +33,7 @@ export const Route = createFileRoute("/api/clinical/v1/deposits/credit-notes/$id
       const { data: updated, error } = await db.from("credit_note")
         .update({ status: "void", updated_by: auth.ctx.userId })
         .eq("id", cn.id).eq("tenant_id", auth.ctx.tenantId).select("*").maybeSingle();
-      if (error) return envelope(error.message, "db_error", 400);
+      if (error) return envelope("database_error", "db_error", 400);
       await db.from("erp_posting_queue").insert({
         tenant_id: auth.ctx.tenantId, entity_type: "credit_note", entity_id: cn.id,
         payload: { action: "void", cn_no: cn.cn_no, amount_minor: cn.amount_minor, reason: parsed.data.reason },
