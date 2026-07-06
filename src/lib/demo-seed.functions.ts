@@ -291,11 +291,13 @@ async function runSeedDemo() {
   }
 
   const beneficiaries = await seedBeneficiaries(tenant.id);
+  const gate = await seedGateFixtures(tenant.id);
 
   return {
     ok: true as const,
     tenant_id: tenant.id,
     beneficiaries: Object.keys(beneficiaries.ids).length,
+    gate_fixtures: gate.ok ? "seeded" : `error:${gate.error}`,
     note:
       "Masters (payers/policies/services/drugs/DRG) and pre-built journey encounters are seeded by the SQL fixture pack in supabase/migrations/<ts>_demo_seed_masters.sql (run separately).",
   };
@@ -357,6 +359,9 @@ export async function runProvisionDemoUsersFromHeader(authHeader: string) {
  * environment are wrapped in try/catch so the reset still completes.
  */
 const TRANSACTIONAL_TABLES_CHILD_FIRST = [
+  "rcm_gate_exception",
+  "authorization_item",
+  "authorization_request",
   "claim_supporting_info",
   "claim_diagnosis",
   "claim_item_link",
@@ -435,12 +440,108 @@ async function runResetDemo(reseed: boolean) {
 
     if (reseed) {
       const seeded = await seedBeneficiaries(tenant.id);
+      const gate = await seedGateFixtures(tenant.id);
       return {
         ok: true as const,
         tenant_id: tenant.id,
         deleted,
         beneficiaries_reseeded: Object.keys(seeded.ids).length,
+        gate_fixtures: gate.ok ? "seeded" : `error:${gate.error}`,
       };
     }
     return { ok: true as const, tenant_id: tenant.id, deleted };
+}
+
+/* ============================================================== */
+/* GATE FIXTURES — three-state demo (green/amber/red) on ONE encounter */
+/* ============================================================== */
+
+/**
+ * Seed the three-state Billed-Gate demo on a single most-recent EMER
+ * encounter of the demo tenant. All rows use fixed UUIDs so re-runs are
+ * idempotent via ON CONFLICT DO NOTHING semantics.
+ *
+ *   green  — insured charge with an approved `authorization_item`
+ *   amber  — insured charge with a CHARGE-SCOPED `emergency_override`
+ *            (charge_item_id set, encounter_id NULL — an encounter-level
+ *             exception would release every row)
+ *   red    — unpaid cash charge (no matching cash_collection → locked)
+ *
+ * `OrdersPane` picks the most recent encounter and joins
+ * `v_order_item_gate` per row — this seed drives all three colors.
+ */
+async function seedGateFixtures(tenantId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const db = supabaseAdmin as any;
+  const IDS = {
+    ben:       "00000000-0000-0000-0000-0000000d0001",
+    svc:       "00000000-0000-0000-0000-0000000d0002",
+    enc:       "00000000-0000-0000-0000-0000000d0010",
+    so:        "00000000-0000-0000-0000-0000000d0020",
+    soiGreen:  "00000000-0000-0000-0000-0000000d0030",
+    soiAmber:  "00000000-0000-0000-0000-0000000d0031",
+    soiRed:    "00000000-0000-0000-0000-0000000d0032",
+    chGreen:   "00000000-0000-0000-0000-0000000d0040",
+    chAmber:   "00000000-0000-0000-0000-0000000d0041",
+    chRed:     "00000000-0000-0000-0000-0000000d0042",
+    authReq:   "00000000-0000-0000-0000-0000000d0050",
+    authItem:  "00000000-0000-0000-0000-0000000d0051",
+    exception: "00000000-0000-0000-0000-0000000d0060",
+  };
+  try {
+    await db.from("beneficiary").upsert({
+      id: IDS.ben, tenant_id: tenantId, patient_file_no: "DEMO-GATE-0001",
+      full_name: "Demo · Gate Patient", first_name: "Demo", last_name: "Gate",
+      dob: "1990-01-01", gender: "male", document_type: "national_id", document_id: "GATE00001",
+    }, { onConflict: "id", ignoreDuplicates: true });
+    await db.from("service_master").upsert({
+      id: IDS.svc, tenant_id: tenantId, internal_code: "DEMO-CONSULT",
+      name: "Demo consultation", service_type: "services",
+    }, { onConflict: "id", ignoreDuplicates: true });
+    // period_start = now() so this encounter sorts to the top of listEncounters.
+    await db.from("encounter").upsert({
+      id: IDS.enc, tenant_id: tenantId, beneficiary_id: IDS.ben,
+      encounter_number: "ENC-DEMO-GATE", class: "EMER", period_start: new Date().toISOString(),
+    }, { onConflict: "id", ignoreDuplicates: true });
+    await db.from("service_order").upsert({
+      id: IDS.so, tenant_id: tenantId, encounter_id: IDS.enc,
+    }, { onConflict: "id", ignoreDuplicates: true });
+    for (const [id, status] of [[IDS.soiGreen, "ordered"], [IDS.soiAmber, "ordered"], [IDS.soiRed, "ordered"]] as const) {
+      await db.from("service_order_item").upsert({
+        id, tenant_id: tenantId, order_id: IDS.so, service_id: IDS.svc, status,
+      }, { onConflict: "id", ignoreDuplicates: true });
+    }
+    const chargeBase = {
+      tenant_id: tenantId, encounter_id: IDS.enc, order_item_table: "service_order_item",
+      source_type: "service", service_id: IDS.svc, internal_code: "DEMO-CONSULT",
+      quantity: 1, status: "ordered",
+    };
+    await db.from("charge_item").upsert([
+      { ...chargeBase, id: IDS.chGreen, order_item_id: IDS.soiGreen, pricing_mode: "insured",
+        description: "Demo insured consult (green · billed via auth)",
+        unit_price_minor: 15000, net_minor: 15000 },
+      { ...chargeBase, id: IDS.chAmber, order_item_id: IDS.soiAmber, pricing_mode: "insured",
+        description: "Demo ER consult (amber · released by exception)",
+        unit_price_minor: 20000, net_minor: 20000 },
+      { ...chargeBase, id: IDS.chRed, order_item_id: IDS.soiRed, pricing_mode: "cash",
+        description: "Demo cash consult (red · locked)",
+        unit_price_minor: 10000, net_minor: 10000 },
+    ], { onConflict: "id", ignoreDuplicates: true });
+    await db.from("authorization_request").upsert({
+      id: IDS.authReq, tenant_id: tenantId, encounter_id: IDS.enc, status: "approved",
+    }, { onConflict: "id", ignoreDuplicates: true });
+    await db.from("authorization_item").upsert({
+      id: IDS.authItem, tenant_id: tenantId, authorization_request_id: IDS.authReq,
+      source: "service", charge_item_id: IDS.chGreen, quantity: 1, decision: "approved",
+    }, { onConflict: "id", ignoreDuplicates: true });
+    // CHARGE-SCOPED exception — encounter_id must be NULL so only the amber row is released.
+    await db.from("rcm_gate_exception").upsert({
+      id: IDS.exception, tenant_id: tenantId, encounter_id: null, charge_item_id: IDS.chAmber,
+      exception_type: "emergency_override", reason_code: "ctas_1_2",
+      reason_text: "Demo: CTAS 1-2 emergency override", manual_approved_minor: 20000,
+    }, { onConflict: "id", ignoreDuplicates: true });
+    return { ok: true };
+  } catch (e: any) {
+    return { ok: false, error: e?.message ?? "gate_fixture_failed" };
+  }
 }
