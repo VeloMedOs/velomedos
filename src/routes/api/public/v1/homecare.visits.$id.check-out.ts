@@ -1,5 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { json, preflight, requireKey, resolveTenantScope, serviceClient } from "@/lib/api-server";
+import { z } from "zod";
+
+const CheckOutBody = z.object({
+  lat: z.number().finite(),
+  lng: z.number().finite(),
+  notes: z.string().max(4000).optional(),
+  vitals: z.array(z.object({
+    type: z.string().min(1).max(100),
+    value: z.string().min(1).max(200),
+    unit: z.string().max(50).optional(),
+  })).max(50).optional(),
+  medications: z.array(z.object({
+    drug_name: z.string().min(1).max(300),
+    dose: z.string().max(200).optional(),
+    route: z.string().max(100).optional(),
+    status: z.enum(["administered", "omitted", "held"]).optional(),
+  })).max(50).optional(),
+  tasks: z.array(z.object({
+    id: z.string().uuid().optional(),
+    title: z.string().min(1).max(500),
+    completed: z.boolean(),
+  })).max(100).optional(),
+});
 
 /** POST body: { lat, lng, notes?, tasks?: [{id?, title, completed}],
  *               vitals?: [{type,value,unit?}], medications?: [{drug_name,dose?,route?,status?}] } */
@@ -12,11 +35,13 @@ export const Route = createFileRoute("/api/public/v1/homecare/visits/$id/check-o
         if (!auth.ok) return auth.res;
         const scope = await resolveTenantScope(auth.auth, request);
         if (!scope.ok) return scope.res;
-        const body = await request.json().catch(() => ({} as any));
-        const lat = Number(body.lat); const lng = Number(body.lng);
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-          return json({ error: "lat and lng required" }, 400);
+        const raw = await request.json().catch(() => null);
+        const parsed = CheckOutBody.safeParse(raw);
+        if (!parsed.success) {
+          return json({ error: "validation_failed", issues: parsed.error.issues.map(i => ({ path: i.path.join("."), message: i.message })) }, 400);
         }
+        const body = parsed.data;
+        const lat = body.lat; const lng = body.lng;
         const db = serviceClient();
         const { data: existing } = await db.from("care_visits").select("id, tenant_id").eq("id", params.id).maybeSingle();
         if (!existing) return json({ error: "not_found" }, 404);
