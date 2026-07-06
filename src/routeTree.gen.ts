@@ -91,6 +91,7 @@ import { Route as ApiPublicV1Business_intakeRouteImport } from './routes/api/pub
 import { Route as ApiPublicTelemetryNavClickRouteImport } from './routes/api/public/telemetry.nav-click'
 import { Route as ApiPublicLegalSlugRouteImport } from './routes/api/public/legal.$slug'
 import { Route as ApiClinicalV1TaxInvoicesRouteImport } from './routes/api/clinical/v1/tax-invoices'
+import { Route as ApiClinicalV1ReferralsRouteImport } from './routes/api/clinical/v1/referrals'
 import { Route as ApiClinicalV1PromInstrumentsRouteImport } from './routes/api/clinical/v1/prom-instruments'
 import { Route as ApiClinicalV1PromAssignmentsRouteImport } from './routes/api/clinical/v1/prom-assignments'
 import { Route as ApiClinicalV1PremResponsesRouteImport } from './routes/api/clinical/v1/prem-responses'
@@ -788,6 +789,11 @@ const ApiClinicalV1TaxInvoicesRoute =
     path: '/api/clinical/v1/tax-invoices',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1ReferralsRoute = ApiClinicalV1ReferralsRouteImport.update({
+  id: '/api/clinical/v1/referrals',
+  path: '/api/clinical/v1/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiClinicalV1PromInstrumentsRoute =
   ApiClinicalV1PromInstrumentsRouteImport.update({
     id: '/api/clinical/v1/prom-instruments',
@@ -2485,6 +2491,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/prem-responses': typeof ApiClinicalV1PremResponsesRoute
   '/api/clinical/v1/prom-assignments': typeof ApiClinicalV1PromAssignmentsRouteWithChildren
   '/api/clinical/v1/prom-instruments': typeof ApiClinicalV1PromInstrumentsRoute
+  '/api/clinical/v1/referrals': typeof ApiClinicalV1ReferralsRoute
   '/api/clinical/v1/tax-invoices': typeof ApiClinicalV1TaxInvoicesRouteWithChildren
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -2841,6 +2848,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/prem-responses': typeof ApiClinicalV1PremResponsesRoute
   '/api/clinical/v1/prom-assignments': typeof ApiClinicalV1PromAssignmentsRouteWithChildren
   '/api/clinical/v1/prom-instruments': typeof ApiClinicalV1PromInstrumentsRoute
+  '/api/clinical/v1/referrals': typeof ApiClinicalV1ReferralsRoute
   '/api/clinical/v1/tax-invoices': typeof ApiClinicalV1TaxInvoicesRouteWithChildren
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -3201,6 +3209,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/prem-responses': typeof ApiClinicalV1PremResponsesRoute
   '/api/clinical/v1/prom-assignments': typeof ApiClinicalV1PromAssignmentsRouteWithChildren
   '/api/clinical/v1/prom-instruments': typeof ApiClinicalV1PromInstrumentsRoute
+  '/api/clinical/v1/referrals': typeof ApiClinicalV1ReferralsRoute
   '/api/clinical/v1/tax-invoices': typeof ApiClinicalV1TaxInvoicesRouteWithChildren
   '/api/public/legal/$slug': typeof ApiPublicLegalSlugRouteWithChildren
   '/api/public/telemetry/nav-click': typeof ApiPublicTelemetryNavClickRoute
@@ -3561,6 +3570,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prem-responses'
     | '/api/clinical/v1/prom-assignments'
     | '/api/clinical/v1/prom-instruments'
+    | '/api/clinical/v1/referrals'
     | '/api/clinical/v1/tax-invoices'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -3917,6 +3927,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prem-responses'
     | '/api/clinical/v1/prom-assignments'
     | '/api/clinical/v1/prom-instruments'
+    | '/api/clinical/v1/referrals'
     | '/api/clinical/v1/tax-invoices'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -4276,6 +4287,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prem-responses'
     | '/api/clinical/v1/prom-assignments'
     | '/api/clinical/v1/prom-instruments'
+    | '/api/clinical/v1/referrals'
     | '/api/clinical/v1/tax-invoices'
     | '/api/public/legal/$slug'
     | '/api/public/telemetry/nav-click'
@@ -4601,6 +4613,7 @@ export interface RootRouteChildren {
   ApiClinicalV1PremResponsesRoute: typeof ApiClinicalV1PremResponsesRoute
   ApiClinicalV1PromAssignmentsRoute: typeof ApiClinicalV1PromAssignmentsRouteWithChildren
   ApiClinicalV1PromInstrumentsRoute: typeof ApiClinicalV1PromInstrumentsRoute
+  ApiClinicalV1ReferralsRoute: typeof ApiClinicalV1ReferralsRoute
   ApiClinicalV1TaxInvoicesRoute: typeof ApiClinicalV1TaxInvoicesRouteWithChildren
   ApiPublicLegalSlugRoute: typeof ApiPublicLegalSlugRouteWithChildren
   ApiPublicTelemetryNavClickRoute: typeof ApiPublicTelemetryNavClickRoute
@@ -5280,6 +5293,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/tax-invoices'
       fullPath: '/api/clinical/v1/tax-invoices'
       preLoaderRoute: typeof ApiClinicalV1TaxInvoicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/referrals': {
+      id: '/api/clinical/v1/referrals'
+      path: '/api/clinical/v1/referrals'
+      fullPath: '/api/clinical/v1/referrals'
+      preLoaderRoute: typeof ApiClinicalV1ReferralsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/prom-instruments': {
@@ -8867,6 +8887,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1PromAssignmentsRoute:
     ApiClinicalV1PromAssignmentsRouteWithChildren,
   ApiClinicalV1PromInstrumentsRoute: ApiClinicalV1PromInstrumentsRoute,
+  ApiClinicalV1ReferralsRoute: ApiClinicalV1ReferralsRoute,
   ApiClinicalV1TaxInvoicesRoute: ApiClinicalV1TaxInvoicesRouteWithChildren,
   ApiPublicLegalSlugRoute: ApiPublicLegalSlugRouteWithChildren,
   ApiPublicTelemetryNavClickRoute: ApiPublicTelemetryNavClickRoute,
