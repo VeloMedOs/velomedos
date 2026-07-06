@@ -1,4 +1,3 @@
-/// <reference types="bun" />
 /**
  * SQL/TS parity fixtures for public.charge_is_billed / chargeIsBilled.
  * Runs under `bun test`.
