@@ -11,6 +11,17 @@ import { describe, expect, it } from "bun:test";
 import { chargeIsBilled, type BilledGateFacts } from "./billed-gate";
 import { foldTriggerOutcome, type TriggerHit } from "@/lib/mds/rules";
 
+// Ambient module declaration — bun-types conflicts with the global fetch typing
+// used by @supabase/supabase-js in this project, so we declare just the surface
+// we need from bun's test runner.
+declare module "bun:test" {
+  export const describe: (name: string, fn: () => void) => void;
+  export const it: (name: string, fn: () => void | Promise<void>) => void;
+  export const expect: (v: unknown) => {
+    toEqual: (expected: unknown) => void;
+  };
+}
+
 const TENANT = "00000000-0000-0000-0000-000000000001";
 const ENC = "00000000-0000-0000-0000-0000000000e1";
 const ENC_OTHER = "00000000-0000-0000-0000-0000000000e2";
