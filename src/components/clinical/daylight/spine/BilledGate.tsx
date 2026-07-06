@@ -29,18 +29,17 @@ function classify(o: BilledGateOutcome | null | undefined):
 export function BilledGate({ outcome, children, className }: BilledGateProps) {
   const { tone, label, tooltip } = classify(outcome);
   const disabled = !outcome?.billed;
+  const pillTone =
+    tone === "billed"   ? "ok"
+  : tone === "released" ? "warn"
+  : tone === "locked"   ? "crit"
+  :                       "info";
   return (
     <div className={cn("inline-flex items-center gap-2", className)}>
       <span
         title={tooltip}
         data-tone={tone}
-        className={cn(
-          "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold",
-          tone === "billed"   && "bg-emerald-100 text-emerald-800",
-          tone === "released" && "bg-amber-100 text-amber-800",
-          tone === "locked"   && "bg-rose-100 text-rose-800",
-          tone === "unknown"  && "bg-slate-100 text-slate-500",
-        )}
+        className={cn("clin-pill", pillTone)}
       >
         {label}
       </span>
