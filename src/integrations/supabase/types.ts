@@ -645,6 +645,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "authorization_item_charge_item_id_fkey"
+            columns: ["charge_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_item_gate"
+            referencedColumns: ["charge_item_id"]
+          },
+          {
             foreignKeyName: "authorization_item_drug_id_fkey"
             columns: ["drug_id"]
             isOneToOne: false
@@ -1915,6 +1922,99 @@ export type Database = {
           },
         ]
       }
+      chi_formulary: {
+        Row: {
+          active: boolean
+          atc_code: string | null
+          coverage_notes: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          indication_icd10am: string[]
+          otc_flag: boolean
+          pharmaceutical_form: string | null
+          pharmaceutical_form_code_root: string | null
+          prescribing_edits: string | null
+          scientific_code_root: string
+          scientific_name: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          atc_code?: string | null
+          coverage_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          indication_icd10am?: string[]
+          otc_flag?: boolean
+          pharmaceutical_form?: string | null
+          pharmaceutical_form_code_root?: string | null
+          prescribing_edits?: string | null
+          scientific_code_root: string
+          scientific_name: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          atc_code?: string | null
+          coverage_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          indication_icd10am?: string[]
+          otc_flag?: boolean
+          pharmaceutical_form?: string | null
+          pharmaceutical_form_code_root?: string | null
+          prescribing_edits?: string | null
+          scientific_code_root?: string
+          scientific_name?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      chi_formulary_version: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          imported_at: string
+          imported_by: string | null
+          notes: string | null
+          row_count: number
+          tenant_id: string
+          version_label: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          notes?: string | null
+          row_count?: number
+          tenant_id: string
+          version_label: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          notes?: string | null
+          row_count?: number
+          tenant_id?: string
+          version_label?: string
+        }
+        Relationships: []
+      }
       claim: {
         Row: {
           adjudicated_at: string | null
@@ -2333,6 +2433,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "claim_item_charge_item_id_fkey"
+            columns: ["charge_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_order_item_gate"
+            referencedColumns: ["charge_item_id"]
+          },
+          {
             foreignKeyName: "claim_item_claim_id_fkey"
             columns: ["claim_id"]
             isOneToOne: false
@@ -2725,6 +2832,74 @@ export type Database = {
             columns: ["principal_diagnosis_id"]
             isOneToOne: false
             referencedRelation: "encounter_diagnosis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinical_form_instance: {
+        Row: {
+          admission_request_id: string | null
+          answers: Json
+          assigned_role: string | null
+          cosigned_at: string | null
+          cosigned_by: string | null
+          created_at: string
+          due_at: string | null
+          encounter_id: string | null
+          form_def_id: string
+          id: string
+          order_item_id: string | null
+          order_item_table: string | null
+          status: string
+          submitted_at: string | null
+          submitted_by: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          admission_request_id?: string | null
+          answers?: Json
+          assigned_role?: string | null
+          cosigned_at?: string | null
+          cosigned_by?: string | null
+          created_at?: string
+          due_at?: string | null
+          encounter_id?: string | null
+          form_def_id: string
+          id?: string
+          order_item_id?: string | null
+          order_item_table?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          admission_request_id?: string | null
+          answers?: Json
+          assigned_role?: string | null
+          cosigned_at?: string | null
+          cosigned_by?: string | null
+          created_at?: string
+          due_at?: string | null
+          encounter_id?: string | null
+          form_def_id?: string
+          id?: string
+          order_item_id?: string | null
+          order_item_table?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_form_instance_form_def_id_fkey"
+            columns: ["form_def_id"]
+            isOneToOne: false
+            referencedRelation: "form_def"
             referencedColumns: ["id"]
           },
         ]
@@ -4267,6 +4442,57 @@ export type Database = {
           },
         ]
       }
+      drug_indication_map: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          generic_name: string
+          icd10_code: string
+          icd10_description: string | null
+          id: string
+          internal_code: string | null
+          severity: string
+          sfda_sci_code: string | null
+          source: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          generic_name: string
+          icd10_code: string
+          icd10_description?: string | null
+          id?: string
+          internal_code?: string | null
+          severity?: string
+          sfda_sci_code?: string | null
+          source?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          generic_name?: string
+          icd10_code?: string
+          icd10_description?: string | null
+          id?: string
+          internal_code?: string | null
+          severity?: string
+          sfda_sci_code?: string | null
+          source?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       drug_master: {
         Row: {
           active: boolean
@@ -5134,6 +5360,107 @@ export type Database = {
         }
         Relationships: []
       }
+      form_def: {
+        Row: {
+          active: boolean
+          age_band: Json | null
+          code: string
+          created_at: string
+          created_by: string | null
+          id: string
+          schema: Json
+          tenant_id: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          age_band?: Json | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          schema: Json
+          tenant_id: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          age_band?: Json | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          schema?: Json
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      form_workflow_binding: {
+        Row: {
+          active: boolean
+          assignee_role: string | null
+          cosign_required: boolean
+          created_at: string
+          due_window_minutes: number | null
+          encounter_class: string | null
+          form_def_id: string
+          id: string
+          mandatory: boolean
+          module: string | null
+          tenant_id: string
+          trigger: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          assignee_role?: string | null
+          cosign_required?: boolean
+          created_at?: string
+          due_window_minutes?: number | null
+          encounter_class?: string | null
+          form_def_id: string
+          id?: string
+          mandatory?: boolean
+          module?: string | null
+          tenant_id: string
+          trigger: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          assignee_role?: string | null
+          cosign_required?: boolean
+          created_at?: string
+          due_window_minutes?: number | null
+          encounter_class?: string | null
+          form_def_id?: string
+          id?: string
+          mandatory?: boolean
+          module?: string | null
+          tenant_id?: string
+          trigger?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_workflow_binding_form_def_id_fkey"
+            columns: ["form_def_id"]
+            isOneToOne: false
+            referencedRelation: "form_def"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       incident_events: {
         Row: {
           actor_id: string | null
@@ -5938,6 +6265,7 @@ export type Database = {
       maternity_protocol: {
         Row: {
           active: boolean
+          class_id: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -5951,6 +6279,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          class_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -5964,6 +6293,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          class_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -5976,6 +6306,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "maternity_protocol_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_class"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "maternity_protocol_payer_id_fkey"
             columns: ["payer_id"]
@@ -8887,6 +9224,293 @@ export type Database = {
           },
         ]
       }
+      rcm_admin_config: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      rcm_admin_config_history: {
+        Row: {
+          actor_id: string | null
+          changed_at: string
+          id: string
+          key: string
+          new_value: Json | null
+          old_value: Json | null
+          tenant_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          changed_at?: string
+          id?: string
+          key: string
+          new_value?: Json | null
+          old_value?: Json | null
+          tenant_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          changed_at?: string
+          id?: string
+          key?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          tenant_id?: string
+        }
+        Relationships: []
+      }
+      rcm_gate_exception: {
+        Row: {
+          admission_request_id: string | null
+          charge_item_id: string | null
+          closed_at: string | null
+          closed_by: string | null
+          created_at: string
+          encounter_id: string | null
+          exception_type: Database["public"]["Enums"]["rcm_gate_exception_type"]
+          expires_at: string | null
+          granted_by: string | null
+          granted_role: string | null
+          id: string
+          manual_approved_minor: number | null
+          nphies_approved_minor: number | null
+          reason_code:
+            | Database["public"]["Enums"]["rcm_gate_reason_code"]
+            | null
+          reason_text: string | null
+          reconciled_at: string | null
+          retrospective_auth_state: string | null
+          tenant_id: string
+          updated_at: string
+          wallet_delta_minor: number | null
+        }
+        Insert: {
+          admission_request_id?: string | null
+          charge_item_id?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          encounter_id?: string | null
+          exception_type: Database["public"]["Enums"]["rcm_gate_exception_type"]
+          expires_at?: string | null
+          granted_by?: string | null
+          granted_role?: string | null
+          id?: string
+          manual_approved_minor?: number | null
+          nphies_approved_minor?: number | null
+          reason_code?:
+            | Database["public"]["Enums"]["rcm_gate_reason_code"]
+            | null
+          reason_text?: string | null
+          reconciled_at?: string | null
+          retrospective_auth_state?: string | null
+          tenant_id: string
+          updated_at?: string
+          wallet_delta_minor?: number | null
+        }
+        Update: {
+          admission_request_id?: string | null
+          charge_item_id?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          encounter_id?: string | null
+          exception_type?: Database["public"]["Enums"]["rcm_gate_exception_type"]
+          expires_at?: string | null
+          granted_by?: string | null
+          granted_role?: string | null
+          id?: string
+          manual_approved_minor?: number | null
+          nphies_approved_minor?: number | null
+          reason_code?:
+            | Database["public"]["Enums"]["rcm_gate_reason_code"]
+            | null
+          reason_text?: string | null
+          reconciled_at?: string | null
+          retrospective_auth_state?: string | null
+          tenant_id?: string
+          updated_at?: string
+          wallet_delta_minor?: number | null
+        }
+        Relationships: []
+      }
+      referral: {
+        Row: {
+          accepted_at: string | null
+          beneficiary_id: string
+          cancel_reason: string | null
+          cancelled_at: string | null
+          charge_mode: Database["public"]["Enums"]["charge_mode"] | null
+          clinical_notes: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          discount_pct: number | null
+          eligibility_check_required: boolean
+          external_facility: string | null
+          external_provider: string | null
+          id: string
+          no_charge_reason: string | null
+          preauth_required: boolean
+          priority: string | null
+          reason: string | null
+          referral_class: Database["public"]["Enums"]["referral_class"]
+          referral_no: string
+          series_id: string | null
+          source_encounter_id: string | null
+          source_provider_id: string | null
+          source_specialty: string | null
+          status: Database["public"]["Enums"]["referral_status"]
+          submitted_at: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          beneficiary_id: string
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          charge_mode?: Database["public"]["Enums"]["charge_mode"] | null
+          clinical_notes?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount_pct?: number | null
+          eligibility_check_required?: boolean
+          external_facility?: string | null
+          external_provider?: string | null
+          id?: string
+          no_charge_reason?: string | null
+          preauth_required?: boolean
+          priority?: string | null
+          reason?: string | null
+          referral_class: Database["public"]["Enums"]["referral_class"]
+          referral_no: string
+          series_id?: string | null
+          source_encounter_id?: string | null
+          source_provider_id?: string | null
+          source_specialty?: string | null
+          status?: Database["public"]["Enums"]["referral_status"]
+          submitted_at?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          beneficiary_id?: string
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          charge_mode?: Database["public"]["Enums"]["charge_mode"] | null
+          clinical_notes?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount_pct?: number | null
+          eligibility_check_required?: boolean
+          external_facility?: string | null
+          external_provider?: string | null
+          id?: string
+          no_charge_reason?: string | null
+          preauth_required?: boolean
+          priority?: string | null
+          reason?: string | null
+          referral_class?: Database["public"]["Enums"]["referral_class"]
+          referral_no?: string
+          series_id?: string | null
+          source_encounter_id?: string | null
+          source_provider_id?: string | null
+          source_specialty?: string | null
+          status?: Database["public"]["Enums"]["referral_status"]
+          submitted_at?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      referral_target: {
+        Row: {
+          booked_appointment_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          referral_id: string
+          status: Database["public"]["Enums"]["referral_status"]
+          target_facility_id: string | null
+          target_kind: Database["public"]["Enums"]["target_kind"]
+          target_provider_id: string | null
+          target_service_id: string | null
+          target_specialty: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          booked_appointment_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          referral_id: string
+          status?: Database["public"]["Enums"]["referral_status"]
+          target_facility_id?: string | null
+          target_kind: Database["public"]["Enums"]["target_kind"]
+          target_provider_id?: string | null
+          target_service_id?: string | null
+          target_specialty?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          booked_appointment_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          referral_id?: string
+          status?: Database["public"]["Enums"]["referral_status"]
+          target_facility_id?: string | null
+          target_kind?: Database["public"]["Enums"]["target_kind"]
+          target_provider_id?: string | null
+          target_service_id?: string | null
+          target_specialty?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_target_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referral"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       refund_request: {
         Row: {
           amount_minor: number
@@ -9557,57 +10181,144 @@ export type Database = {
       service_master: {
         Row: {
           active: boolean
+          age_rule: Json | null
+          approx_perform_minutes: number | null
           body_site: string | null
+          cannot_combine_service_ids: string[] | null
+          category: string | null
+          claim_type: string | null
           created_at: string
           created_by: string | null
           description: string | null
+          gender_rule: string | null
+          general_comments: string | null
+          has_report: boolean | null
           id: string
           internal_code: string
           is_package: boolean
+          is_service_flag: boolean | null
+          max_qty_per_billing: number | null
+          max_qty_per_episode: number | null
+          max_qty_per_policy_year: number | null
+          max_qty_per_visit: number | null
           modality: string | null
           name: string
+          not_available_category: string | null
+          nphies_map_payer_ref: string | null
+          ordering_specialty_rule: Json | null
+          performer_role: string | null
+          performing_specialty_rule: Json | null
           preauth_required: boolean
+          pregnancy_rule: string | null
+          repeat_block_window_days: number | null
+          service_block: boolean | null
+          service_consent_form_id: string | null
           service_type: string
+          stat_flag: boolean | null
           sub_category: string | null
+          tat_minutes: number | null
+          temporary_unavailable: boolean | null
           tenant_id: string
+          tooth_number: string | null
           updated_at: string
           updated_by: string | null
+          validity_end: string | null
+          validity_start: string | null
+          visit_type: string | null
         }
         Insert: {
           active?: boolean
+          age_rule?: Json | null
+          approx_perform_minutes?: number | null
           body_site?: string | null
+          cannot_combine_service_ids?: string[] | null
+          category?: string | null
+          claim_type?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          gender_rule?: string | null
+          general_comments?: string | null
+          has_report?: boolean | null
           id?: string
           internal_code: string
           is_package?: boolean
+          is_service_flag?: boolean | null
+          max_qty_per_billing?: number | null
+          max_qty_per_episode?: number | null
+          max_qty_per_policy_year?: number | null
+          max_qty_per_visit?: number | null
           modality?: string | null
           name: string
+          not_available_category?: string | null
+          nphies_map_payer_ref?: string | null
+          ordering_specialty_rule?: Json | null
+          performer_role?: string | null
+          performing_specialty_rule?: Json | null
           preauth_required?: boolean
+          pregnancy_rule?: string | null
+          repeat_block_window_days?: number | null
+          service_block?: boolean | null
+          service_consent_form_id?: string | null
           service_type: string
+          stat_flag?: boolean | null
           sub_category?: string | null
+          tat_minutes?: number | null
+          temporary_unavailable?: boolean | null
           tenant_id: string
+          tooth_number?: string | null
           updated_at?: string
           updated_by?: string | null
+          validity_end?: string | null
+          validity_start?: string | null
+          visit_type?: string | null
         }
         Update: {
           active?: boolean
+          age_rule?: Json | null
+          approx_perform_minutes?: number | null
           body_site?: string | null
+          cannot_combine_service_ids?: string[] | null
+          category?: string | null
+          claim_type?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          gender_rule?: string | null
+          general_comments?: string | null
+          has_report?: boolean | null
           id?: string
           internal_code?: string
           is_package?: boolean
+          is_service_flag?: boolean | null
+          max_qty_per_billing?: number | null
+          max_qty_per_episode?: number | null
+          max_qty_per_policy_year?: number | null
+          max_qty_per_visit?: number | null
           modality?: string | null
           name?: string
+          not_available_category?: string | null
+          nphies_map_payer_ref?: string | null
+          ordering_specialty_rule?: Json | null
+          performer_role?: string | null
+          performing_specialty_rule?: Json | null
           preauth_required?: boolean
+          pregnancy_rule?: string | null
+          repeat_block_window_days?: number | null
+          service_block?: boolean | null
+          service_consent_form_id?: string | null
           service_type?: string
+          stat_flag?: boolean | null
           sub_category?: string | null
+          tat_minutes?: number | null
+          temporary_unavailable?: boolean | null
           tenant_id?: string
+          tooth_number?: string | null
           updated_at?: string
           updated_by?: string | null
+          validity_end?: string | null
+          validity_start?: string | null
+          visit_type?: string | null
         }
         Relationships: [
           {
@@ -10685,6 +11396,7 @@ export type Database = {
           direction: string
           id: string
           reason: string | null
+          related_exception_id: string | null
           source: string
           source_ref_id: string | null
           tenant_id: string
@@ -10697,6 +11409,7 @@ export type Database = {
           direction: string
           id?: string
           reason?: string | null
+          related_exception_id?: string | null
           source: string
           source_ref_id?: string | null
           tenant_id: string
@@ -10709,6 +11422,7 @@ export type Database = {
           direction?: string
           id?: string
           reason?: string | null
+          related_exception_id?: string | null
           source?: string
           source_ref_id?: string | null
           tenant_id?: string
@@ -11039,9 +11753,41 @@ export type Database = {
         }
         Relationships: []
       }
+      v_order_item_gate: {
+        Row: {
+          charge_item_id: string | null
+          encounter_id: string | null
+          exception_id: string | null
+          gate_state: Database["public"]["Enums"]["rcm_gate_state"] | null
+          net_minor: number | null
+          order_item_id: string | null
+          order_item_table: string | null
+          pricing_mode:
+            | Database["public"]["Enums"]["charge_pricing_mode"]
+            | null
+          reason_code:
+            | Database["public"]["Enums"]["rcm_gate_reason_code"]
+            | null
+          tenant_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charge_item_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      admission_gate_open: { Args: { _admission_id: string }; Returns: boolean }
       bump_site_content_version: { Args: { _actor?: string }; Returns: number }
+      charge_is_billed: {
+        Args: { _id: string; _tbl: string }
+        Returns: boolean
+      }
       encounter_advance_journey: {
         Args: { _enc_id: string; _to: string }
         Returns: undefined
@@ -11050,6 +11796,14 @@ export type Database = {
       encounter_maybe_advance_documented: {
         Args: { _enc_id: string }
         Returns: undefined
+      }
+      forms_gate_open: {
+        Args: {
+          _encounter_id: string
+          _order_item_id?: string
+          _order_item_table?: string
+        }
+        Returns: boolean
       }
       generate_member_code: { Args: never; Returns: string }
       get_user_roles: {
@@ -11089,6 +11843,10 @@ export type Database = {
         }[]
       }
       profile_completeness: { Args: { _user_id: string }; Returns: number }
+      rcm_admin_config_get: {
+        Args: { _default?: Json; _key: string; _tenant: string }
+        Returns: Json
+      }
     }
     Enums: {
       admission_status:
@@ -11151,6 +11909,12 @@ export type Database = {
         | "rejected"
         | "executed"
         | "cancelled"
+      booking_source:
+        | "opd"
+        | "referral"
+        | "follow_up"
+        | "call_center"
+        | "portal"
       booking_status: "requested" | "confirmed" | "completed" | "cancelled"
       business_request_source:
         | "website"
@@ -11190,6 +11954,7 @@ export type Database = {
       cash_method: "cash" | "pos" | "bank_transfer" | "cheque" | "online"
       cash_session_status: "open" | "closed" | "reconciled"
       cash_status: "draft" | "posted" | "voided"
+      charge_mode: "new_consult" | "follow_up" | "series" | "no_charge"
       charge_pricing_mode: "cash" | "insured" | "drg_bundled"
       charge_status:
         | "ordered"
@@ -11222,6 +11987,16 @@ export type Database = {
         | "approval_officer"
         | "claims_officer"
         | "finance"
+        | "lab_doctor"
+        | "bb_technician"
+        | "bb_physician"
+        | "rad_technician"
+        | "or_nurse"
+        | "cath_nurse"
+        | "anesthetist"
+        | "labour_nurse"
+        | "nursery_nurse"
+        | "injection_staff"
       code_system_kind:
         | "diagnosis"
         | "procedure"
@@ -11321,6 +12096,43 @@ export type Database = {
         | "substitution"
         | "drg_outlier"
         | "out_of_network"
+        | "referral"
+        | "pbm"
+      rcm_gate_exception_type:
+        | "emergency_override"
+        | "partial_deposit_override"
+        | "installment_override"
+        | "clinical_urgency"
+        | "mrp_verbal_order"
+        | "newborn_inherit"
+        | "ineligibility_workflow"
+        | "config_no_auth"
+        | "indication_override"
+        | "admin_override"
+      rcm_gate_reason_code:
+        | "ctas_1_2"
+        | "ipd_partial_deposit"
+        | "er_criticality"
+        | "installment_plan"
+        | "stat_order"
+        | "mrp_unavailable"
+        | "newborn_mother_coverage"
+        | "referral_pending"
+        | "newborn_pending"
+        | "emergency_pending"
+        | "in_network_no_auth"
+        | "pbm_indication_missing"
+        | "ip_deposit_below_threshold"
+        | "admin_manual"
+      rcm_gate_state: "locked" | "released_by_exception" | "billed"
+      referral_class: "intra" | "inter_company" | "external" | "cross_encounter"
+      referral_status:
+        | "draft"
+        | "submitted"
+        | "accepted"
+        | "declined"
+        | "completed"
+        | "cancelled"
       remittance_match_status: "unmatched" | "matched" | "mismatch" | "manual"
       remittance_source: "interface" | "file_upload"
       remittance_status:
@@ -11336,6 +12148,8 @@ export type Database = {
         | "results_ready"
         | "certified"
         | "cancelled"
+      slot_status: "open" | "held" | "booked" | "blocked" | "cancelled"
+      target_kind: "specialty" | "provider" | "facility" | "service"
       tax_invoice_type:
         | "b2b_insurance"
         | "b2c_patient"
@@ -11360,6 +12174,12 @@ export type Database = {
         | "biweekly"
         | "monthly"
         | "custom"
+      visit_type:
+        | "new_consult"
+        | "follow_up"
+        | "series"
+        | "no_charge"
+        | "procedure"
       work_order_status: "open" | "in_progress" | "closed" | "cancelled"
       work_order_type: "preventive" | "corrective"
       zatca_status: "pending" | "cleared" | "reported" | "failed"
@@ -11556,6 +12376,7 @@ export const Constants = {
         "executed",
         "cancelled",
       ],
+      booking_source: ["opd", "referral", "follow_up", "call_center", "portal"],
       booking_status: ["requested", "confirmed", "completed", "cancelled"],
       business_request_source: [
         "website",
@@ -11599,6 +12420,7 @@ export const Constants = {
       cash_method: ["cash", "pos", "bank_transfer", "cheque", "online"],
       cash_session_status: ["open", "closed", "reconciled"],
       cash_status: ["draft", "posted", "voided"],
+      charge_mode: ["new_consult", "follow_up", "series", "no_charge"],
       charge_pricing_mode: ["cash", "insured", "drg_bundled"],
       charge_status: [
         "ordered",
@@ -11633,6 +12455,16 @@ export const Constants = {
         "approval_officer",
         "claims_officer",
         "finance",
+        "lab_doctor",
+        "bb_technician",
+        "bb_physician",
+        "rad_technician",
+        "or_nurse",
+        "cath_nurse",
+        "anesthetist",
+        "labour_nurse",
+        "nursery_nurse",
+        "injection_staff",
       ],
       code_system_kind: [
         "diagnosis",
@@ -11745,6 +12577,46 @@ export const Constants = {
         "substitution",
         "drg_outlier",
         "out_of_network",
+        "referral",
+        "pbm",
+      ],
+      rcm_gate_exception_type: [
+        "emergency_override",
+        "partial_deposit_override",
+        "installment_override",
+        "clinical_urgency",
+        "mrp_verbal_order",
+        "newborn_inherit",
+        "ineligibility_workflow",
+        "config_no_auth",
+        "indication_override",
+        "admin_override",
+      ],
+      rcm_gate_reason_code: [
+        "ctas_1_2",
+        "ipd_partial_deposit",
+        "er_criticality",
+        "installment_plan",
+        "stat_order",
+        "mrp_unavailable",
+        "newborn_mother_coverage",
+        "referral_pending",
+        "newborn_pending",
+        "emergency_pending",
+        "in_network_no_auth",
+        "pbm_indication_missing",
+        "ip_deposit_below_threshold",
+        "admin_manual",
+      ],
+      rcm_gate_state: ["locked", "released_by_exception", "billed"],
+      referral_class: ["intra", "inter_company", "external", "cross_encounter"],
+      referral_status: [
+        "draft",
+        "submitted",
+        "accepted",
+        "declined",
+        "completed",
+        "cancelled",
       ],
       remittance_match_status: ["unmatched", "matched", "mismatch", "manual"],
       remittance_source: ["interface", "file_upload"],
@@ -11763,6 +12635,8 @@ export const Constants = {
         "certified",
         "cancelled",
       ],
+      slot_status: ["open", "held", "booked", "blocked", "cancelled"],
+      target_kind: ["specialty", "provider", "facility", "service"],
       tax_invoice_type: [
         "b2b_insurance",
         "b2c_patient",
@@ -11790,6 +12664,13 @@ export const Constants = {
         "biweekly",
         "monthly",
         "custom",
+      ],
+      visit_type: [
+        "new_consult",
+        "follow_up",
+        "series",
+        "no_charge",
+        "procedure",
       ],
       work_order_status: ["open", "in_progress", "closed", "cancelled"],
       work_order_type: ["preventive", "corrective"],
