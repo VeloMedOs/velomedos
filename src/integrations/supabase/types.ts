@@ -9045,6 +9045,66 @@ export type Database = {
           },
         ]
       }
+      rcm_admin_config: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      rcm_admin_config_history: {
+        Row: {
+          actor_id: string | null
+          changed_at: string
+          id: string
+          key: string
+          new_value: Json | null
+          old_value: Json | null
+          tenant_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          changed_at?: string
+          id?: string
+          key: string
+          new_value?: Json | null
+          old_value?: Json | null
+          tenant_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          changed_at?: string
+          id?: string
+          key?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          tenant_id?: string
+        }
+        Relationships: []
+      }
       rcm_gate_exception: {
         Row: {
           admission_request_id: string | null
@@ -11444,6 +11504,10 @@ export type Database = {
         }[]
       }
       profile_completeness: { Args: { _user_id: string }; Returns: number }
+      rcm_admin_config_get: {
+        Args: { _default?: Json; _key: string; _tenant: string }
+        Returns: Json
+      }
     }
     Enums: {
       admission_status:
