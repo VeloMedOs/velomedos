@@ -28,6 +28,7 @@ import { DocsPane } from "@/components/superadmin/DocsPane";
 import { DemoControlPane } from "@/components/superadmin/DemoControlPane";
 import { CmsPagesPane } from "@/components/superadmin/CmsPagesPane";
 import { FeaturedPartnersPane } from "@/components/superadmin/FeaturedPartnersPane";
+import { RcmAdminPane } from "@/components/superadmin/RcmAdminPane";
 
 export const Route = createFileRoute("/_authenticated/superadmin")({
   head: () => ({ meta: [{ title: "Superadmin · VeloMed OS" }] }),
@@ -79,7 +80,8 @@ type TabId =
   | "refunds" | "tickets" | "reviews" | "chat" | "push"
   | "tests" | "audit" | "smoke" | "bugs" | "releases" | "automation"
   | "workspace" | "team" | "security" | "legal" | "docs" | "demo"
-  | "cms_pages" | "cms_partners";
+  | "cms_pages" | "cms_partners"
+  | "rcm_admin";
 
 function Superadmin() {
   const [allowed, setAllowed] = useState<boolean | null>(null);
