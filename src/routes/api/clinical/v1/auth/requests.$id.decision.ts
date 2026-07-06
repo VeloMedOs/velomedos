@@ -3,6 +3,7 @@ import { z } from "zod";
 import { clinicalAudit, preflight, requireClinicalModule, serviceClient } from "@/lib/api-clinical";
 import { envelope, jsonData, loadOwned, parseBody } from "../_helpers";
 import { canTransition, statusForDecision, type AuthStatus } from "@/lib/rcm/auth-sm";
+import { reconcileEmergencyException } from "@/lib/rcm/emergency-reconcile";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -56,6 +57,37 @@ export const Route = createFileRoute("/api/clinical/v1/auth/requests/$id/decisio
       }
       await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "auth_request.decision",
         "authorization_request", params.id, { decision: parsed.data.decision });
+
+      // B1 · Auto-reconcile emergency_override exceptions on this encounter.
+      // Never let a reconcile failure fail the decision write — the manual
+      // endpoint (POST /gate/exceptions/$id/reconcile) is the recovery path.
+      try {
+        const encounterId = (data as any)?.encounter_id ?? (owned.row as any)?.encounter_id ?? null;
+        if (encounterId && parsed.data.decision !== "reject") {
+          const { data: items } = await db.from("authorization_item").select("benefit_amount_minor")
+            .eq("authorization_request_id", params.id);
+          const approvedMinor = (items ?? []).reduce(
+            (s: number, r: any) => s + (Number(r.benefit_amount_minor) || 0), 0);
+          const { data: excs } = await db.from("rcm_gate_exception")
+            .select("id")
+            .eq("tenant_id", auth.ctx.tenantId)
+            .eq("encounter_id", encounterId)
+            .eq("exception_type", "emergency_override")
+            .is("closed_at", null)
+            .is("reconciled_at", null);
+          for (const exc of (excs ?? []) as Array<{ id: string }>) {
+            await reconcileEmergencyException(db, {
+              exceptionId: exc.id,
+              nphiesApprovedMinor: approvedMinor,
+              actorId: auth.ctx.userId,
+            });
+          }
+        }
+      } catch (err) {
+        await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "auth_request.reconcile_failed",
+          "authorization_request", params.id, { error: (err as Error)?.message ?? String(err) });
+      }
+
       return jsonData({ data });
     },
   } },
