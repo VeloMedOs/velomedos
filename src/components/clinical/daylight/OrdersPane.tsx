@@ -30,9 +30,9 @@ type ChargeRow = {
 /** Cheap outcome derivation for UI — the server view is canonical. */
 function deriveOutcome(row: ChargeRow): BilledGateOutcome {
   if (row.status === "collected" || row.status === "in_progress" || row.status === "resulted" || row.status === "dispensed") {
-    return { billed: true, via: "cash" };
+    return { billed: true, via: row.pricing_mode === "insured" ? "insured_auth" : "self_pay_cumulative" };
   }
-  return { billed: false, reason: "auth_missing" as never };
+  return { billed: false, reason: "auth_missing" };
 }
 
 function urgencyPill(u?: string | null) {
