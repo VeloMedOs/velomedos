@@ -22,6 +22,8 @@ import {
   VitalsTrendPane,
 } from "@/components/clinical/daylight/RcmStubs";
 import { IpAdmissionsPane } from "@/components/clinical/daylight/IpAdmissionsPane";
+import { OrdersPane } from "@/components/clinical/daylight/OrdersPane";
+import { ResultsPane } from "@/components/clinical/daylight/ResultsPane";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
 import { formatHalalas } from "@/lib/clinical/format-money";
 
@@ -105,8 +107,8 @@ function ClinicalWorkspace() {
       {tab === "billing"             && <BillingOpPane />}
       {tab === "admin-masters"       && <ContractsPane role={me.clinicalRole} />}
       {tab === "admin-contract-masters" && <ContractMastersPane role={me.clinicalRole} />}
-      {tab === "orders"              && <VitalsTrendPane />}
-      {tab === "results"             && <VitalsTrendPane />}
+      {tab === "orders"              && <OrdersPane />}
+      {tab === "results"             && <ResultsPane />}
       {tab === "vitals"              && <VitalsTrendPane />}
       {tab === "vbhc"                && (
         <div className="px-7 pt-6 pb-14 mx-auto" style={{ maxWidth: 1200, width: "100%" }}>

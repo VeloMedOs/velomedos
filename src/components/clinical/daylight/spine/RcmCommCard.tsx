@@ -18,16 +18,21 @@ export type RcmCommMessage = {
 
 export function RcmCommCard({ messages, className }: { messages: RcmCommMessage[]; className?: string }) {
   if (!messages.length) {
-    return <div className={cn("rounded-lg border border-dashed p-3 text-xs text-muted-foreground", className)}>No RCM communications yet.</div>;
+    return <div className={cn("clin-card p-3 text-xs", className)} style={{ color: "var(--clin-muted)" }}>No RCM communications yet.</div>;
   }
   return (
-    <ol className={cn("space-y-2", className)}>
+    <ol className={cn("clin-card p-2 space-y-2", className)}>
       {messages.map((m) => (
-        <li key={m.id} className={cn(
-          "rounded-md border px-3 py-2 text-xs",
-          m.direction === "outbound" ? "border-sky-200 bg-sky-50" : "border-slate-200 bg-slate-50",
-        )}>
-          <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+        <li
+          key={m.id}
+          className="rounded-md border px-3 py-2 text-xs"
+          style={{
+            borderColor: "var(--hairline)",
+            background: m.direction === "outbound" ? "var(--clin-info-tint)" : "var(--clin-sunken)",
+            color: "var(--clin-ink)",
+          }}
+        >
+          <div className="flex items-center justify-between gap-2 text-[10px] uppercase tracking-wide" style={{ color: "var(--clin-muted)" }}>
             <span>{m.kind} · {m.direction} · {m.channel ?? "portal"}</span>
             <time>{new Date(m.at).toLocaleString()}</time>
           </div>

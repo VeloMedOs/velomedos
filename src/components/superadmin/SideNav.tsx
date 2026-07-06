@@ -14,7 +14,8 @@ export type SuperTabId =
   | "refunds" | "tickets" | "reviews" | "chat" | "push"
   | "tests" | "audit" | "smoke" | "bugs" | "releases" | "automation"
   | "workspace" | "team" | "security" | "legal" | "docs" | "demo"
-  | "cms_pages" | "cms_partners";
+  | "cms_pages" | "cms_partners"
+  | "rcm_admin";
 
 type Item = {
   id: SuperTabId | `soon:${string}`;
@@ -101,6 +102,9 @@ export function SuperadminSideNav({
       { id: "team",      label: "Team & roles",  icon: Users },
       { id: "security",  label: "Security",      icon: Shield },
       { id: "demo",      label: "Demo environment", icon: FlaskRound },
+    ]},
+    { id: "rcm", label: "RCM", items: [
+      { id: "rcm_admin", label: "RCM Admin", icon: FlaskRound },
     ]},
   ];
 

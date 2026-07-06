@@ -11854,6 +11854,10 @@ export type Database = {
         Args: { _default?: Json; _key: string; _tenant: string }
         Returns: Json
       }
+      wallet_apply_txn: {
+        Args: { _delta_minor: number; _wallet_id: string }
+        Returns: number
+      }
     }
     Enums: {
       admission_status:

@@ -6,10 +6,12 @@
  * with the delta between the manual approved amount (recorded when the
  * exception was granted) and the payer's actual approved amount.
  *
- * This module is effectful: it posts a `wallet_txn`, updates the wallet
- * balance, and stamps the exception as reconciled — all inside a single
- * service-role call chain. Idempotent: the loop no-ops once
- * `rcm_gate_exception.reconciled_at` is set.
+ * This module is effectful: it posts a `wallet_txn`, adjusts the wallet
+ * balance via the atomic `public.wallet_apply_txn(_wallet_id, _delta_minor)`
+ * RPC (the ONLY supported write path for `patient_wallet.balance_minor`), and
+ * stamps the exception as reconciled — all inside a single service-role
+ * call chain. Idempotent: the loop no-ops once `rcm_gate_exception.reconciled_at`
+ * is set.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
@@ -75,22 +77,20 @@ export async function reconcileEmergencyException(
   let walletId: string | null = null;
   const { data: wallet } = await supabase
     .from("patient_wallet")
-    .select("id, balance_minor")
+    .select("id")
     .eq("tenant_id", exc.tenant_id)
     .eq("beneficiary_id", beneficiaryId)
     .maybeSingle();
-  let currentBalance = wallet?.balance_minor ?? 0;
   if (wallet) {
     walletId = wallet.id;
   } else {
     const { data: created, error: cErr } = await supabase
       .from("patient_wallet")
       .insert({ tenant_id: exc.tenant_id, beneficiary_id: beneficiaryId })
-      .select("id, balance_minor")
+      .select("id")
       .single();
     if (cErr || !created) return { ok: false, code: "wallet_write_failed", message: "wallet create failed" };
     walletId = created.id;
-    currentBalance = created.balance_minor ?? 0;
   }
 
   let txnId = "";
@@ -113,11 +113,14 @@ export async function reconcileEmergencyException(
     if (txnErr || !txn) return { ok: false, code: "wallet_write_failed", message: "wallet_txn insert failed" };
     txnId = txn.id;
 
-    const nextBalance = direction === "credit" ? currentBalance + amount : currentBalance - amount;
-    await supabase
-      .from("patient_wallet")
-      .update({ balance_minor: nextBalance, updated_at: new Date().toISOString() })
-      .eq("id", walletId!);
+    // Atomic adjust via the RPC — no read-modify-write of balance_minor.
+    const signedDelta = direction === "credit" ? amount : -amount;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: rpcErr } = await (supabase as any).rpc("wallet_apply_txn", {
+      _wallet_id: walletId!,
+      _delta_minor: signedDelta,
+    });
+    if (rpcErr) return { ok: false, code: "wallet_write_failed", message: "wallet_apply_txn rpc failed" };
   }
 
   await supabase

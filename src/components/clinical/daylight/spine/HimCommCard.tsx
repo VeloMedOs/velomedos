@@ -16,13 +16,17 @@ export type HimCommMessage = {
 
 export function HimCommCard({ messages, className }: { messages: HimCommMessage[]; className?: string }) {
   if (!messages.length) {
-    return <div className={cn("rounded-lg border border-dashed p-3 text-xs text-muted-foreground", className)}>No coding notes yet.</div>;
+    return <div className={cn("clin-card p-3 text-xs", className)} style={{ color: "var(--clin-muted)" }}>No coding notes yet.</div>;
   }
   return (
-    <ol className={cn("space-y-2", className)}>
+    <ol className={cn("clin-card p-2 space-y-2", className)}>
       {messages.map((m) => (
-        <li key={m.id} className="rounded-md border border-slate-200 bg-white px-3 py-2 text-xs">
-          <div className="flex items-center justify-between text-[10px] uppercase tracking-wide text-muted-foreground">
+        <li
+          key={m.id}
+          className="rounded-md border px-3 py-2 text-xs"
+          style={{ borderColor: "var(--hairline)", background: "var(--clin-raised)", color: "var(--clin-ink)" }}
+        >
+          <div className="flex items-center justify-between text-[10px] uppercase tracking-wide" style={{ color: "var(--clin-muted)" }}>
             <span>{m.author}{m.role ? ` · ${m.role}` : ""}</span>
             <time>{new Date(m.at).toLocaleString()}</time>
           </div>

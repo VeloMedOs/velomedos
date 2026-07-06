@@ -130,3 +130,10 @@ Definition of Done (base + Addendum v2)
 - Prescription POST without matching indication → 422 `INDICATION_MISSING`; with `pbm.override` cap → saved + exception row.
 - Demo amber = `emergency_override` exception (not a payment scenario); fixture uses `request_type='medical'` for the IMP green case.
 - `bun test` green; no cross-encounter `beneficiary_id` regression.
+## Step 1 · Turn 5 · Close-out (shipped)
+- B1 · Reconcile hook wired into auth decision + submit routes; failures logged to clinical audit, do not fail the decision write.
+- B3 · BilledGate / FormsGate / RcmCommCard / HimCommCard use `.clin-pill.{ok,warn,crit,info}` and `.clin-card` — no raw palette classes under `daylight/spine/`.
+- B4 · Migration adds `public.wallet_apply_txn(uuid, bigint) → bigint` (SECURITY DEFINER, service_role only). `emergency-reconcile.ts` now uses the RPC — no client-side balance RMW.
+- Superadmin SideNav registers RcmAdminPane under new `rcm` group (`rcm_admin` tab), rendered in superadmin route.
+- Real OrdersPane + ResultsPane replace VitalsTrendPane on tabs `orders` / `results`; each row wraps its action in `<BilledGate>` and includes an `<RcmCommCard>` right-rail.
+- Deferred to Step 2: `validatePrescriptionItem` wiring, ADT action hooks, extended billed-gate tests (reconcile ± / idempotency, PBM fold), Part-3 demo fixtures migration, full `clinical-api.ts` wrappers for the gate/admin-config/forms/formulary/referrals surface.
