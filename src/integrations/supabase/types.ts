@@ -11338,6 +11338,8 @@ export type Database = {
         | "substitution"
         | "drg_outlier"
         | "out_of_network"
+        | "referral"
+        | "pbm"
       rcm_gate_exception_type:
         | "emergency_override"
         | "partial_deposit_override"
@@ -11817,6 +11819,8 @@ export const Constants = {
         "substitution",
         "drg_outlier",
         "out_of_network",
+        "referral",
+        "pbm",
       ],
       rcm_gate_exception_type: [
         "emergency_override",
