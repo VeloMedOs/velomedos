@@ -12,7 +12,8 @@
 import { serviceClient } from "@/lib/api-clinical";
 
 export type RuleScope =
-  | "eligibility" | "share" | "package" | "substitution" | "drg_outlier" | "out_of_network";
+  | "eligibility" | "share" | "package" | "substitution" | "drg_outlier"
+  | "out_of_network" | "referral" | "pbm";
 
 export type RuleFacts = {
   pricing_mode: "cash" | "insured" | "drg_bundled";
@@ -83,4 +84,44 @@ export function evaluate(rules: Rule[], facts: RuleFacts): RuleOutcome {
   if (!shareDecided && facts.pricing_mode === "cash") patient_percent = 100;
 
   return { patient_percent, preauth_required, trace };
+}
+
+/* ---------------------------------------------------------------------------
+ * Step 1 · Trigger evaluator for non-share scopes (referral, pbm).
+ * evaluate() intentionally keeps its share/eligibility signature untouched;
+ * evaluateTriggers() is the extension point for gate-adjacent rules that
+ * only need to know which triggers fired and with what payload.
+ * ------------------------------------------------------------------------- */
+export type TriggerScope = Extract<RuleScope, "referral" | "pbm">;
+
+export type TriggerHit = {
+  rule_id: string;
+  name: string;
+  scope: TriggerScope;
+  priority: number;
+  action: Record<string, unknown>;
+  /** Convenience: the `code` string most rule actions carry. */
+  code?: string;
+};
+
+export function evaluateTriggers(
+  rules: Rule[],
+  facts: Record<string, unknown>,
+  scope: TriggerScope,
+): TriggerHit[] {
+  const hits: TriggerHit[] = [];
+  for (const r of rules) {
+    if (r.scope !== scope) continue;
+    if (!matches(r.condition ?? {}, facts as unknown as RuleFacts)) continue;
+    const action = (r.action ?? {}) as Record<string, unknown>;
+    hits.push({
+      rule_id: r.id,
+      name: r.name,
+      scope,
+      priority: r.priority,
+      action,
+      code: typeof action.code === "string" ? action.code : undefined,
+    });
+  }
+  return hits;
 }
