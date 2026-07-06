@@ -166,6 +166,7 @@ import { Route as ApiClinicalV1IpAdmissionRequestsRouteImport } from './routes/a
 import { Route as ApiClinicalV1InterfacesLogRouteImport } from './routes/api/clinical/v1/interfaces.log'
 import { Route as ApiClinicalV1GatePreviewRouteImport } from './routes/api/clinical/v1/gate/preview'
 import { Route as ApiClinicalV1GateExceptionsRouteImport } from './routes/api/clinical/v1/gate/exceptions'
+import { Route as ApiClinicalV1FormularyIndicationsRouteImport } from './routes/api/clinical/v1/formulary/indications'
 import { Route as ApiClinicalV1FormularyImportRouteImport } from './routes/api/clinical/v1/formulary/import'
 import { Route as ApiClinicalV1FormsInstancesRouteImport } from './routes/api/clinical/v1/forms/instances'
 import { Route as ApiClinicalV1FormsDefsRouteImport } from './routes/api/clinical/v1/forms/defs'
@@ -1206,6 +1207,12 @@ const ApiClinicalV1GateExceptionsRoute =
   ApiClinicalV1GateExceptionsRouteImport.update({
     id: '/api/clinical/v1/gate/exceptions',
     path: '/api/clinical/v1/gate/exceptions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1FormularyIndicationsRoute =
+  ApiClinicalV1FormularyIndicationsRouteImport.update({
+    id: '/api/clinical/v1/formulary/indications',
+    path: '/api/clinical/v1/formulary/indications',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1FormularyImportRoute =
@@ -2547,6 +2554,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/forms/defs': typeof ApiClinicalV1FormsDefsRouteWithChildren
   '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRouteWithChildren
   '/api/clinical/v1/formulary/import': typeof ApiClinicalV1FormularyImportRoute
+  '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRoute
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -2901,6 +2909,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/forms/defs': typeof ApiClinicalV1FormsDefsRouteWithChildren
   '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRouteWithChildren
   '/api/clinical/v1/formulary/import': typeof ApiClinicalV1FormularyImportRoute
+  '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRoute
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -3259,6 +3268,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/forms/defs': typeof ApiClinicalV1FormsDefsRouteWithChildren
   '/api/clinical/v1/forms/instances': typeof ApiClinicalV1FormsInstancesRouteWithChildren
   '/api/clinical/v1/formulary/import': typeof ApiClinicalV1FormularyImportRoute
+  '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRoute
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -3617,6 +3627,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/forms/defs'
     | '/api/clinical/v1/forms/instances'
     | '/api/clinical/v1/formulary/import'
+    | '/api/clinical/v1/formulary/indications'
     | '/api/clinical/v1/gate/exceptions'
     | '/api/clinical/v1/gate/preview'
     | '/api/clinical/v1/interfaces/log'
@@ -3971,6 +3982,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/forms/defs'
     | '/api/clinical/v1/forms/instances'
     | '/api/clinical/v1/formulary/import'
+    | '/api/clinical/v1/formulary/indications'
     | '/api/clinical/v1/gate/exceptions'
     | '/api/clinical/v1/gate/preview'
     | '/api/clinical/v1/interfaces/log'
@@ -4328,6 +4340,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/forms/defs'
     | '/api/clinical/v1/forms/instances'
     | '/api/clinical/v1/formulary/import'
+    | '/api/clinical/v1/formulary/indications'
     | '/api/clinical/v1/gate/exceptions'
     | '/api/clinical/v1/gate/preview'
     | '/api/clinical/v1/interfaces/log'
@@ -4628,6 +4641,7 @@ export interface RootRouteChildren {
   ApiClinicalV1FormsDefsRoute: typeof ApiClinicalV1FormsDefsRouteWithChildren
   ApiClinicalV1FormsInstancesRoute: typeof ApiClinicalV1FormsInstancesRouteWithChildren
   ApiClinicalV1FormularyImportRoute: typeof ApiClinicalV1FormularyImportRoute
+  ApiClinicalV1FormularyIndicationsRoute: typeof ApiClinicalV1FormularyIndicationsRoute
   ApiClinicalV1GateExceptionsRoute: typeof ApiClinicalV1GateExceptionsRouteWithChildren
   ApiClinicalV1GatePreviewRoute: typeof ApiClinicalV1GatePreviewRoute
   ApiClinicalV1InterfacesLogRoute: typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -5778,6 +5792,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/gate/exceptions'
       fullPath: '/api/clinical/v1/gate/exceptions'
       preLoaderRoute: typeof ApiClinicalV1GateExceptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/formulary/indications': {
+      id: '/api/clinical/v1/formulary/indications'
+      path: '/api/clinical/v1/formulary/indications'
+      fullPath: '/api/clinical/v1/formulary/indications'
+      preLoaderRoute: typeof ApiClinicalV1FormularyIndicationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/formulary/import': {
@@ -8871,6 +8892,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1FormsInstancesRoute:
     ApiClinicalV1FormsInstancesRouteWithChildren,
   ApiClinicalV1FormularyImportRoute: ApiClinicalV1FormularyImportRoute,
+  ApiClinicalV1FormularyIndicationsRoute:
+    ApiClinicalV1FormularyIndicationsRoute,
   ApiClinicalV1GateExceptionsRoute:
     ApiClinicalV1GateExceptionsRouteWithChildren,
   ApiClinicalV1GatePreviewRoute: ApiClinicalV1GatePreviewRoute,
