@@ -125,3 +125,63 @@ export function evaluateTriggers(
   }
   return hits;
 }
+
+/* ---------------------------------------------------------------------------
+ * foldTriggerOutcome — collapses TriggerHit[] into the Addendum 1-A contract
+ * consumed by Step 3/5 hooks. Pure: no config lookups, no side effects.
+ *
+ * Notes:
+ *  - Rule E (overbook) carries `alert_only`; block_reason stays null inside
+ *    the fold. The caller enforces the hard cap by reading the configured
+ *    `overbook_limit` and setting the reason itself.
+ *  - Rule C carries `charge_mode_resolver: 'series_or_no_charge'` — resolved
+ *    to 'series' when the caller-supplied `target_specialty` is in
+ *    action.series_specialties, else 'no_charge'.
+ * ------------------------------------------------------------------------- */
+export type TriggerOutcome = {
+  preauth_required: boolean;
+  charge_mode: "new_consult" | "follow_up" | "series" | "no_charge" | null;
+  discount: number | null;
+  eligibility_check_required: boolean;
+  block_reason: string | null;
+};
+
+const CHARGE_MODES = new Set(["new_consult", "follow_up", "series", "no_charge"]);
+
+export function foldTriggerOutcome(
+  hits: TriggerHit[],
+  facts?: { target_specialty?: string | null },
+): TriggerOutcome {
+  const sorted = [...hits].sort((a, b) => a.priority - b.priority);
+
+  let preauth_required = false;
+  let charge_mode: TriggerOutcome["charge_mode"] = null;
+  let discount: number | null = null;
+  let eligibility_check_required = false;
+  let block_reason: string | null = null;
+
+  for (const h of sorted) {
+    const a = h.action ?? {};
+    if (a.preauth_required === true) preauth_required = true;
+    if (a.eligibility_check_required === true) eligibility_check_required = true;
+    if (charge_mode === null) {
+      if (typeof a.charge_mode === "string" && CHARGE_MODES.has(a.charge_mode)) {
+        charge_mode = a.charge_mode as TriggerOutcome["charge_mode"];
+      } else if (a.charge_mode_resolver === "series_or_no_charge") {
+        const series = Array.isArray(a.series_specialties)
+          ? (a.series_specialties as unknown[]).filter((x): x is string => typeof x === "string")
+          : [];
+        const spec = facts?.target_specialty ?? null;
+        charge_mode = spec && series.includes(spec) ? "series" : "no_charge";
+      }
+    }
+    if (discount === null && typeof a.discount === "number") {
+      discount = a.discount;
+    }
+    if (block_reason === null && a.block === true) {
+      block_reason = typeof a.code === "string" ? a.code : (h.name || "blocked");
+    }
+  }
+
+  return { preauth_required, charge_mode, discount, eligibility_check_required, block_reason };
+}
