@@ -5,7 +5,7 @@ import { z } from "zod";
 import { scoreProm, validateAnswers, type InstrumentSchema, type Answers } from "@/lib/mds/prom-scoring";
 
 const Body = z.object({
-  answers: z.record(z.number()),
+  answers: z.record(z.string(), z.number()),
   source: z.enum(["patient_app", "sms", "portal", "staff"]).default("portal"),
 });
 const parseRespond = parseBody((raw) => Body.parse(raw));

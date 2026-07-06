@@ -10,7 +10,7 @@ const Create = z.object({
   condition: z.enum(["cataract", "obesity", "diabetes", "pregnancy", "other"]).nullable().optional(),
   version: z.string().default("1.0"),
   active: z.boolean().default(true),
-  schema: z.record(z.unknown()),
+  schema: z.record(z.string(), z.unknown()),
   description: z.string().optional(),
 });
 const parseCreate = parseBody((raw) => Create.parse(raw));
