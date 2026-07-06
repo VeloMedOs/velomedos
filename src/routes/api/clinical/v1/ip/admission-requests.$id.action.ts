@@ -162,6 +162,31 @@ export const Route = createFileRoute("/api/clinical/v1/ip/admission-requests/$id
               from_state: "admitted", to_state: "discharged",
               note: "IP financial discharge", actor_id: auth.ctx.userId,
             });
+            // Best-effort: reconcile any open emergency_override exceptions
+            // on this encounter. Failures are audited, never block discharge.
+            try {
+              const { data: openExcs } = await db.from("rcm_gate_exception")
+                .select("id, nphies_approved_minor, manual_approved_minor")
+                .eq("tenant_id", auth.ctx.tenantId)
+                .eq("encounter_id", row.encounter_id)
+                .eq("exception_type", "emergency_override")
+                .is("closed_at", null)
+                .is("reconciled_at", null);
+              if ((openExcs ?? []).length > 0) {
+                const { reconcileEmergencyException } = await import("@/lib/rcm/emergency-reconcile");
+                for (const e of openExcs ?? []) {
+                  const nphies = (e as any).nphies_approved_minor ?? (e as any).manual_approved_minor ?? 0;
+                  await reconcileEmergencyException(db as any, {
+                    exceptionId: (e as any).id,
+                    nphiesApprovedMinor: nphies,
+                    actorId: auth.ctx.userId,
+                  });
+                }
+              }
+            } catch (e) {
+              await clinicalAudit(auth.ctx.userId, auth.ctx.tenantId, "adt.discharge.reconcile_failed",
+                "admission_request", row.id, { error: (e as Error).message });
+            }
           }
           break;
         }

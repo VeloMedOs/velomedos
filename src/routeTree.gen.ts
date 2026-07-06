@@ -165,6 +165,7 @@ import { Route as ApiClinicalV1IpWorklistsRouteImport } from './routes/api/clini
 import { Route as ApiClinicalV1IpDepositsRouteImport } from './routes/api/clinical/v1/ip/deposits'
 import { Route as ApiClinicalV1IpAdmissionRequestsRouteImport } from './routes/api/clinical/v1/ip/admission-requests'
 import { Route as ApiClinicalV1InterfacesLogRouteImport } from './routes/api/clinical/v1/interfaces.log'
+import { Route as ApiClinicalV1GateViewRouteImport } from './routes/api/clinical/v1/gate/view'
 import { Route as ApiClinicalV1GatePreviewRouteImport } from './routes/api/clinical/v1/gate/preview'
 import { Route as ApiClinicalV1GateExceptionsRouteImport } from './routes/api/clinical/v1/gate/exceptions'
 import { Route as ApiClinicalV1FormularyIndicationsRouteImport } from './routes/api/clinical/v1/formulary/indications'
@@ -1205,6 +1206,11 @@ const ApiClinicalV1InterfacesLogRoute =
     path: '/api/clinical/v1/interfaces/log',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1GateViewRoute = ApiClinicalV1GateViewRouteImport.update({
+  id: '/api/clinical/v1/gate/view',
+  path: '/api/clinical/v1/gate/view',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiClinicalV1GatePreviewRoute =
   ApiClinicalV1GatePreviewRouteImport.update({
     id: '/api/clinical/v1/gate/preview',
@@ -2578,6 +2584,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
+  '/api/clinical/v1/gate/view': typeof ApiClinicalV1GateViewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
   '/api/clinical/v1/ip/admission-requests': typeof ApiClinicalV1IpAdmissionRequestsRouteWithChildren
   '/api/clinical/v1/ip/deposits': typeof ApiClinicalV1IpDepositsRouteWithChildren
@@ -2936,6 +2943,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
+  '/api/clinical/v1/gate/view': typeof ApiClinicalV1GateViewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
   '/api/clinical/v1/ip/admission-requests': typeof ApiClinicalV1IpAdmissionRequestsRouteWithChildren
   '/api/clinical/v1/ip/deposits': typeof ApiClinicalV1IpDepositsRouteWithChildren
@@ -3298,6 +3306,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
+  '/api/clinical/v1/gate/view': typeof ApiClinicalV1GateViewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
   '/api/clinical/v1/ip/admission-requests': typeof ApiClinicalV1IpAdmissionRequestsRouteWithChildren
   '/api/clinical/v1/ip/deposits': typeof ApiClinicalV1IpDepositsRouteWithChildren
@@ -3660,6 +3669,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/formulary/indications'
     | '/api/clinical/v1/gate/exceptions'
     | '/api/clinical/v1/gate/preview'
+    | '/api/clinical/v1/gate/view'
     | '/api/clinical/v1/interfaces/log'
     | '/api/clinical/v1/ip/admission-requests'
     | '/api/clinical/v1/ip/deposits'
@@ -4018,6 +4028,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/formulary/indications'
     | '/api/clinical/v1/gate/exceptions'
     | '/api/clinical/v1/gate/preview'
+    | '/api/clinical/v1/gate/view'
     | '/api/clinical/v1/interfaces/log'
     | '/api/clinical/v1/ip/admission-requests'
     | '/api/clinical/v1/ip/deposits'
@@ -4379,6 +4390,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/formulary/indications'
     | '/api/clinical/v1/gate/exceptions'
     | '/api/clinical/v1/gate/preview'
+    | '/api/clinical/v1/gate/view'
     | '/api/clinical/v1/interfaces/log'
     | '/api/clinical/v1/ip/admission-requests'
     | '/api/clinical/v1/ip/deposits'
@@ -4683,6 +4695,7 @@ export interface RootRouteChildren {
   ApiClinicalV1FormularyIndicationsRoute: typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
   ApiClinicalV1GateExceptionsRoute: typeof ApiClinicalV1GateExceptionsRouteWithChildren
   ApiClinicalV1GatePreviewRoute: typeof ApiClinicalV1GatePreviewRoute
+  ApiClinicalV1GateViewRoute: typeof ApiClinicalV1GateViewRoute
   ApiClinicalV1InterfacesLogRoute: typeof ApiClinicalV1InterfacesLogRouteWithChildren
   ApiClinicalV1IpAdmissionRequestsRoute: typeof ApiClinicalV1IpAdmissionRequestsRouteWithChildren
   ApiClinicalV1IpDepositsRoute: typeof ApiClinicalV1IpDepositsRouteWithChildren
@@ -5824,6 +5837,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/interfaces/log'
       fullPath: '/api/clinical/v1/interfaces/log'
       preLoaderRoute: typeof ApiClinicalV1InterfacesLogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/gate/view': {
+      id: '/api/clinical/v1/gate/view'
+      path: '/api/clinical/v1/gate/view'
+      fullPath: '/api/clinical/v1/gate/view'
+      preLoaderRoute: typeof ApiClinicalV1GateViewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/gate/preview': {
@@ -8987,6 +9007,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1GateExceptionsRoute:
     ApiClinicalV1GateExceptionsRouteWithChildren,
   ApiClinicalV1GatePreviewRoute: ApiClinicalV1GatePreviewRoute,
+  ApiClinicalV1GateViewRoute: ApiClinicalV1GateViewRoute,
   ApiClinicalV1InterfacesLogRoute: ApiClinicalV1InterfacesLogRouteWithChildren,
   ApiClinicalV1IpAdmissionRequestsRoute:
     ApiClinicalV1IpAdmissionRequestsRouteWithChildren,

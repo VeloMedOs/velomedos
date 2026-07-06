@@ -104,12 +104,17 @@ export const PrescriptionItemCreate = z.object({
   quantity_code: z.string().trim().optional().nullable(),
   selection_reason: z.string().trim().optional().nullable(),
   substitute_drug_id: uuid().optional().nullable(),
+  // R-PBM2b: prescriber-side override. When true, the server records an
+  // `rcm_gate_exception` (indication_override / pbm_indication_missing) but
+  // still saves the item; without it, a missing indication returns 422.
+  indication_override: z.boolean().optional(),
 });
 export const PrescriptionItemUpdate = z.object({
   dispense_status: z.string().optional().nullable(),
   dispensed_at: z.string().datetime().optional().nullable(),
   dispensed_by: uuid().optional().nullable(),
   status: z.enum(["ordered", "dispensed", "cancelled"]).optional(),
+  indication_override: z.boolean().optional(),
 }).partial();
 export const PrescriptionCreate = z.object({
   ...HeaderBase,
