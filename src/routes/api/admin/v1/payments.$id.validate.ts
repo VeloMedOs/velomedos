@@ -12,7 +12,7 @@ export const Route = createFileRoute("/api/admin/v1/payments/$id/validate")({
         const { data, error } = await db.from("portal_payments").update({
           status: "succeeded", validated_by: auth.userId, validated_at: new Date().toISOString(),
         }).eq("id", params.id).select().single();
-        if (error || !data) return json({ error: "database_error" ?? "not_found", code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
+        if (error || !data) return json({ error: "database_error", code: "db/update_failed", request_id: crypto.randomUUID() }, 400);
         if (data.subscription_id) {
           await db.from("portal_subscriptions").update({ status: "active", renews_at: new Date(Date.now() + 30 * 86400 * 1000).toISOString() }).eq("id", data.subscription_id);
         }
