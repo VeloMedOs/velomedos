@@ -1922,6 +1922,99 @@ export type Database = {
           },
         ]
       }
+      chi_formulary: {
+        Row: {
+          active: boolean
+          atc_code: string | null
+          coverage_notes: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          indication_icd10am: string[]
+          otc_flag: boolean
+          pharmaceutical_form: string | null
+          pharmaceutical_form_code_root: string | null
+          prescribing_edits: string | null
+          scientific_code_root: string
+          scientific_name: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          atc_code?: string | null
+          coverage_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          indication_icd10am?: string[]
+          otc_flag?: boolean
+          pharmaceutical_form?: string | null
+          pharmaceutical_form_code_root?: string | null
+          prescribing_edits?: string | null
+          scientific_code_root: string
+          scientific_name: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          atc_code?: string | null
+          coverage_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          indication_icd10am?: string[]
+          otc_flag?: boolean
+          pharmaceutical_form?: string | null
+          pharmaceutical_form_code_root?: string | null
+          prescribing_edits?: string | null
+          scientific_code_root?: string
+          scientific_name?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      chi_formulary_version: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          imported_at: string
+          imported_by: string | null
+          notes: string | null
+          row_count: number
+          tenant_id: string
+          version_label: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          notes?: string | null
+          row_count?: number
+          tenant_id: string
+          version_label: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          imported_at?: string
+          imported_by?: string | null
+          notes?: string | null
+          row_count?: number
+          tenant_id?: string
+          version_label?: string
+        }
+        Relationships: []
+      }
       claim: {
         Row: {
           adjudicated_at: string | null
@@ -4280,6 +4373,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      drug_indication_map: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          generic_name: string
+          icd10_code: string
+          icd10_description: string | null
+          id: string
+          internal_code: string | null
+          severity: string
+          sfda_sci_code: string | null
+          source: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          generic_name: string
+          icd10_code: string
+          icd10_description?: string | null
+          id?: string
+          internal_code?: string | null
+          severity?: string
+          sfda_sci_code?: string | null
+          source?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          generic_name?: string
+          icd10_code?: string
+          icd10_description?: string | null
+          id?: string
+          internal_code?: string | null
+          severity?: string
+          sfda_sci_code?: string | null
+          source?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       drug_master: {
         Row: {
