@@ -68,7 +68,9 @@ export type BilledGateFacts = {
     } | null;
   refunds: Array<Pick<RefundRequest, "id" | "tenant_id" | "status" | "deposit_id">>;
   deposits: Array<Pick<Deposit, "id" | "encounter_id" | "admission_request_id">>;
-  cashCollections: Array<Pick<CashCollection, "status" | "net_collected_minor" | "beneficiary_id" | "claim_id">>;
+  /** D5 · encounter-scoped. `beneficiary_id` intentionally excluded — the SQL
+   *  reducer filters by cc.encounter_id / cc.claim_id only. */
+  cashCollections: Array<Pick<CashCollection, "status" | "net_collected_minor" | "encounter_id" | "claim_id">>;
   chargeItemsForEncounter: Array<Pick<ChargeItem, "id" | "encounter_id" | "pricing_mode" | "status" | "net_minor">>;
   claimsForEncounter: Array<{ id: string; encounter_id: string | null }>;
   authItems: Array<Pick<AuthItem, "charge_item_id" | "decision">>;
@@ -81,6 +83,11 @@ export type BilledGateFacts = {
   serviceMasterPreauthRequired: boolean;
   drugMasterPreauthRequired: boolean;
   ipDepositMinPercent: number;
+  /** All admission_request ids belonging to this encounter (non-cancelled),
+   *  used by D1 refund-lineage re-lock. SQL matches ALL admissions of the
+   *  encounter, not just the latest — `admission` (singular) is the latest,
+   *  used for the D2 IP / day-case branch. */
+  admissionIdsForEncounter: string[];
   now?: Date;
 };
 
@@ -140,10 +147,9 @@ export function chargeIsBilled(f: BilledGateFacts): BilledGateOutcome {
   );
   if (chargeReleased) return { billed: true, via: "release" };
 
-  // D1 · Scoped refund re-lock via deposit lineage.
-  const admissionIdsForEnc = new Set(
-    (f.admission?.id && f.admission.id !== null ? [f.admission.id] : []),
-  );
+  // D1 · Scoped refund re-lock via deposit lineage. Match ALL admissions of
+  // the encounter (SQL parity), not just the latest.
+  const admissionIdsForEnc = new Set(f.admissionIdsForEncounter ?? []);
   const relockedDepositIds = new Set(
     f.deposits
       .filter((d) => d.encounter_id === c.encounter_id
@@ -195,10 +201,12 @@ export function chargeIsBilled(f: BilledGateFacts): BilledGateOutcome {
     const claimIds = new Set(
       f.claimsForEncounter.filter((cl) => cl.encounter_id === c.encounter_id).map((cl) => cl.id),
     );
+    // D5 · Encounter-scoped. The beneficiary_id branch is intentionally gone
+    // to prevent cross-encounter cash leaks.
     const paid = f.cashCollections
       .filter((cc) => cc.status === "posted"
-        && ((cc.claim_id && claimIds.has(cc.claim_id))
-          || cc.beneficiary_id === f.encounter.beneficiary_id))
+        && (cc.encounter_id === c.encounter_id
+          || (cc.claim_id != null && claimIds.has(cc.claim_id))))
       .reduce((s, cc) => s + (cc.net_collected_minor ?? 0), 0);
 
     const committed = f.chargeItemsForEncounter
