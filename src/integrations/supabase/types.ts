@@ -11836,6 +11836,10 @@ export type Database = {
         Returns: number
       }
       is_portal_staff: { Args: { _user_id: string }; Returns: boolean }
+      is_tenant_admin: {
+        Args: { _tenant: string; _user_id: string }
+        Returns: boolean
+      }
       is_tenant_member: {
         Args: { _tenant: string; _user_id: string }
         Returns: boolean
