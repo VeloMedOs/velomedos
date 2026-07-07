@@ -1067,6 +1067,44 @@ export type Database = {
           },
         ]
       }
+      booking_event: {
+        Row: {
+          at: string
+          booking_id: string
+          by_user: string | null
+          event: string
+          id: string
+          payload: Json | null
+          tenant_id: string | null
+        }
+        Insert: {
+          at?: string
+          booking_id: string
+          by_user?: string | null
+          event: string
+          id?: string
+          payload?: Json | null
+          tenant_id?: string | null
+        }
+        Update: {
+          at?: string
+          booking_id?: string
+          by_user?: string | null
+          event?: string
+          id?: string
+          payload?: Json | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_event_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "clinic_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_request_events: {
         Row: {
           actor_id: string | null
@@ -2773,39 +2811,78 @@ export type Database = {
       clinic_bookings: {
         Row: {
           clinic_id: string
+          confirmed_at: string | null
           created_at: string
+          eligibility_check_pending: boolean
+          eligibility_checked_at: string | null
+          eligibility_response: Json | null
           id: string
           kind: string
+          no_show: boolean
           origin_encounter_id: string | null
+          overbooked: boolean
           patient_id: string
+          provider_id: string | null
           reason: string | null
+          referral_target_id: string | null
+          series_id: string | null
           slot_at: string
+          slot_id: string | null
           source: Database["public"]["Enums"]["visit_source"] | null
           status: Database["public"]["Enums"]["booking_status"]
+          tenant_id: string | null
+          updated_at: string
+          visit_type: Database["public"]["Enums"]["visit_type"] | null
         }
         Insert: {
           clinic_id: string
+          confirmed_at?: string | null
           created_at?: string
+          eligibility_check_pending?: boolean
+          eligibility_checked_at?: string | null
+          eligibility_response?: Json | null
           id?: string
           kind?: string
+          no_show?: boolean
           origin_encounter_id?: string | null
+          overbooked?: boolean
           patient_id: string
+          provider_id?: string | null
           reason?: string | null
+          referral_target_id?: string | null
+          series_id?: string | null
           slot_at: string
+          slot_id?: string | null
           source?: Database["public"]["Enums"]["visit_source"] | null
           status?: Database["public"]["Enums"]["booking_status"]
+          tenant_id?: string | null
+          updated_at?: string
+          visit_type?: Database["public"]["Enums"]["visit_type"] | null
         }
         Update: {
           clinic_id?: string
+          confirmed_at?: string | null
           created_at?: string
+          eligibility_check_pending?: boolean
+          eligibility_checked_at?: string | null
+          eligibility_response?: Json | null
           id?: string
           kind?: string
+          no_show?: boolean
           origin_encounter_id?: string | null
+          overbooked?: boolean
           patient_id?: string
+          provider_id?: string | null
           reason?: string | null
+          referral_target_id?: string | null
+          series_id?: string | null
           slot_at?: string
+          slot_id?: string | null
           source?: Database["public"]["Enums"]["visit_source"] | null
           status?: Database["public"]["Enums"]["booking_status"]
+          tenant_id?: string | null
+          updated_at?: string
+          visit_type?: Database["public"]["Enums"]["visit_type"] | null
         }
         Relationships: [
           {
@@ -2842,6 +2919,175 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_nursing_workbench"
             referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "clinic_bookings_referral_target_id_fkey"
+            columns: ["referral_target_id"]
+            isOneToOne: false
+            referencedRelation: "referral_target"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_bookings_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "clinic_slot"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_bookings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinic_schedule: {
+        Row: {
+          allow_parallel_clinics: boolean
+          capacity_per_slot: number
+          clinic_id: string
+          created_at: string
+          end_time: string
+          female_clinic: boolean
+          id: string
+          overbook_allowed: boolean
+          overbook_limit: number
+          priority_rank: number
+          procedure_room: boolean
+          provider_id: string | null
+          slot_duration_min: number
+          specific_date: string | null
+          start_time: string
+          status: string
+          telemedicine_capable: boolean
+          tenant_id: string
+          updated_at: string
+          weekday: number | null
+          wheelchair_access: boolean
+        }
+        Insert: {
+          allow_parallel_clinics?: boolean
+          capacity_per_slot?: number
+          clinic_id: string
+          created_at?: string
+          end_time: string
+          female_clinic?: boolean
+          id?: string
+          overbook_allowed?: boolean
+          overbook_limit?: number
+          priority_rank?: number
+          procedure_room?: boolean
+          provider_id?: string | null
+          slot_duration_min?: number
+          specific_date?: string | null
+          start_time: string
+          status?: string
+          telemedicine_capable?: boolean
+          tenant_id: string
+          updated_at?: string
+          weekday?: number | null
+          wheelchair_access?: boolean
+        }
+        Update: {
+          allow_parallel_clinics?: boolean
+          capacity_per_slot?: number
+          clinic_id?: string
+          created_at?: string
+          end_time?: string
+          female_clinic?: boolean
+          id?: string
+          overbook_allowed?: boolean
+          overbook_limit?: number
+          priority_rank?: number
+          procedure_room?: boolean
+          provider_id?: string | null
+          slot_duration_min?: number
+          specific_date?: string | null
+          start_time?: string
+          status?: string
+          telemedicine_capable?: boolean
+          tenant_id?: string
+          updated_at?: string
+          weekday?: number | null
+          wheelchair_access?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_schedule_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_schedule_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_schedule_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinic_slot: {
+        Row: {
+          booked_count: number
+          capacity: number
+          created_at: string
+          held_until: string | null
+          id: string
+          schedule_id: string
+          slot_at: string
+          status: Database["public"]["Enums"]["slot_status"]
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          booked_count?: number
+          capacity?: number
+          created_at?: string
+          held_until?: string | null
+          id?: string
+          schedule_id: string
+          slot_at: string
+          status?: Database["public"]["Enums"]["slot_status"]
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          booked_count?: number
+          capacity?: number
+          created_at?: string
+          held_until?: string | null
+          id?: string
+          schedule_id?: string
+          slot_at?: string
+          status?: Database["public"]["Enums"]["slot_status"]
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_slot_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "clinic_schedule"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_slot_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -11041,6 +11287,73 @@ export type Database = {
         }
         Relationships: []
       }
+      slot_block: {
+        Row: {
+          blocked_by: string | null
+          created_at: string
+          ends_at: string | null
+          id: string
+          note: string | null
+          notify_stakeholders: boolean
+          reason_code: string
+          schedule_id: string | null
+          slot_id: string | null
+          starts_at: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          blocked_by?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          note?: string | null
+          notify_stakeholders?: boolean
+          reason_code: string
+          schedule_id?: string | null
+          slot_id?: string | null
+          starts_at?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          blocked_by?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          note?: string | null
+          notify_stakeholders?: boolean
+          reason_code?: string
+          schedule_id?: string | null
+          slot_id?: string | null
+          starts_at?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slot_block_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "clinic_schedule"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "slot_block_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "clinic_slot"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "slot_block_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       submission_channel: {
         Row: {
           active: boolean
@@ -12553,6 +12866,7 @@ export type Database = {
         Args: { _id: string; _tbl: string }
         Returns: boolean
       }
+      clinic_slot_release_expired_holds: { Args: never; Returns: number }
       encounter_advance_journey: {
         Args: { _enc_id: string; _to: string }
         Returns: undefined
