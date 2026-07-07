@@ -21,6 +21,7 @@ import {
 import { envelope, jsonData, parseBody, assertMasterOwnership } from "./_helpers";
 import { resolvePrice } from "@/lib/mds/pricing";
 import { evaluateTriggers, ensureAuthorizationForOrder, type TriggerInputItem } from "@/lib/rcm/auth-engine";
+import { previewFormsGate } from "./gate/forms-preview";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const t = (db: any, table: string) => db.from(table);
@@ -97,6 +98,11 @@ export function orderRouteHandlers<TCreate extends ZodTypeAny>(cfg: ModalityConf
           if (err) return err;
         }
       }
+      // Pre-flight forms gate — friendly 403 forms_gate before the DB trigger fires.
+      const gatePreview = await previewFormsGate(db, auth.ctx.tenantId, params.id, cfg.itemTable);
+      if (!gatePreview.open) {
+        return envelope("mandatory pre-order forms not submitted", "forms_gate", 403, { missing_forms: gatePreview.missing });
+      }
       // insert header
       const headerRow = {
         tenant_id: auth.ctx.tenantId,
@@ -133,7 +139,13 @@ export function orderRouteHandlers<TCreate extends ZodTypeAny>(cfg: ModalityConf
         };
         const { data: itemIns, error: iErr } = await t(db, cfg.itemTable)
           .insert(itemRow).select("*").single();
-        if (iErr) return envelope(iErr.message, "db_error", 400);
+        if (iErr) {
+          const msg = (iErr as any)?.message ?? "";
+          if (typeof msg === "string" && msg.includes("forms_gate")) {
+            return envelope("mandatory pre-order forms not submitted", "forms_gate", 403);
+          }
+          return envelope(msg || "db_error", "db_error", 400);
+        }
         itemsOut.push(itemIns);
 
         const ref = cfg.resolveRef(it);
