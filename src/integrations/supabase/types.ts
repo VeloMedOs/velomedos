@@ -12688,7 +12688,14 @@ export type Database = {
         | "follow_up"
         | "call_center"
         | "portal"
-      booking_status: "requested" | "confirmed" | "completed" | "cancelled"
+      booking_status:
+        | "requested"
+        | "confirmed"
+        | "completed"
+        | "cancelled"
+        | "arrived"
+        | "in_consult"
+        | "no_show"
       business_request_source:
         | "website"
         | "call_center"
@@ -13151,7 +13158,15 @@ export const Constants = {
         "cancelled",
       ],
       booking_source: ["opd", "referral", "follow_up", "call_center", "portal"],
-      booking_status: ["requested", "confirmed", "completed", "cancelled"],
+      booking_status: [
+        "requested",
+        "confirmed",
+        "completed",
+        "cancelled",
+        "arrived",
+        "in_consult",
+        "no_show",
+      ],
       business_request_source: [
         "website",
         "call_center",
