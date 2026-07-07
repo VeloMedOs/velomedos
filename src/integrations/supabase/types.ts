@@ -162,6 +162,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "admission_request_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
+          {
             foreignKeyName: "admission_request_class_id_fkey"
             columns: ["class_id"]
             isOneToOne: false
@@ -188,6 +195,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admission_request_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "admission_request_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "admission_request_network_id_fkey"
@@ -530,6 +551,8 @@ export type Database = {
           direction: string
           id: string
           payload: Json | null
+          read_at: string | null
+          read_by: string | null
           tenant_id: string
         }
         Insert: {
@@ -541,6 +564,8 @@ export type Database = {
           direction: string
           id?: string
           payload?: Json | null
+          read_at?: string | null
+          read_by?: string | null
           tenant_id: string
         }
         Update: {
@@ -552,6 +577,8 @@ export type Database = {
           direction?: string
           id?: string
           payload?: Json | null
+          read_at?: string | null
+          read_by?: string | null
           tenant_id?: string
         }
         Relationships: [
@@ -805,6 +832,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_request_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "authorization_request_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "authorization_request_payer_id_fkey"
@@ -1910,6 +1951,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "charge_item_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "charge_item_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
+          },
+          {
             foreignKeyName: "charge_item_price_list_id_fkey"
             columns: ["price_list_id"]
             isOneToOne: false
@@ -2170,6 +2225,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "claim_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "claim_replaces_claim_id_fkey"
@@ -2704,9 +2773,11 @@ export type Database = {
           created_at: string
           id: string
           kind: string
+          origin_encounter_id: string | null
           patient_id: string
           reason: string | null
           slot_at: string
+          source: string | null
           status: Database["public"]["Enums"]["booking_status"]
         }
         Insert: {
@@ -2714,9 +2785,11 @@ export type Database = {
           created_at?: string
           id?: string
           kind?: string
+          origin_encounter_id?: string | null
           patient_id: string
           reason?: string | null
           slot_at: string
+          source?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
         }
         Update: {
@@ -2724,9 +2797,11 @@ export type Database = {
           created_at?: string
           id?: string
           kind?: string
+          origin_encounter_id?: string | null
           patient_id?: string
           reason?: string | null
           slot_at?: string
+          source?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
         }
         Relationships: [
@@ -2743,6 +2818,27 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "clinics_public"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_bookings_origin_encounter_id_fkey"
+            columns: ["origin_encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_bookings_origin_encounter_id_fkey"
+            columns: ["origin_encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "clinic_bookings_origin_encounter_id_fkey"
+            columns: ["origin_encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
         ]
       }
@@ -2829,6 +2925,20 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinical_coding_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: true
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "clinical_coding_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: true
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "clinical_coding_principal_diagnosis_id_fkey"
@@ -2971,11 +3081,32 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "clinical_supporting_info_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
+          {
             foreignKeyName: "clinical_supporting_info_encounter_id_fkey"
             columns: ["encounter_id"]
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinical_supporting_info_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "clinical_supporting_info_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "clinical_supporting_info_tenant_id_fkey"
@@ -3385,6 +3516,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "coverage_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
+          {
             foreignKeyName: "coverage_insurance_plan_fk"
             columns: ["insurance_plan_id"]
             isOneToOne: false
@@ -3600,11 +3738,32 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "credit_note_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
+          {
             foreignKeyName: "credit_note_encounter_id_fkey"
             columns: ["encounter_id"]
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_note_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "credit_note_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "credit_note_wallet_txn_id_fkey"
@@ -3877,6 +4036,8 @@ export type Database = {
           direction: string
           id: string
           occurred_at: string
+          read_at: string | null
+          read_by: string | null
           tenant_id: string
           updated_at: string
         }
@@ -3890,6 +4051,8 @@ export type Database = {
           direction: string
           id?: string
           occurred_at?: string
+          read_at?: string | null
+          read_by?: string | null
           tenant_id: string
           updated_at?: string
         }
@@ -3903,6 +4066,8 @@ export type Database = {
           direction?: string
           id?: string
           occurred_at?: string
+          read_at?: string | null
+          read_by?: string | null
           tenant_id?: string
           updated_at?: string
         }
@@ -4023,11 +4188,32 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "deposit_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
+          {
             foreignKeyName: "deposit_encounter_id_fkey"
             columns: ["encounter_id"]
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deposit_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "deposit_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
         ]
       }
@@ -4300,6 +4486,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drg_assignment_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "drg_assignment_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
         ]
       }
@@ -4630,6 +4830,20 @@ export type Database = {
             referencedRelation: "encounter"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "electrophysiology_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "electrophysiology_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
+          },
         ]
       }
       eligibility_exception: {
@@ -4814,6 +5028,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "encounter_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
+          {
             foreignKeyName: "encounter_coverage_id_fkey"
             columns: ["coverage_id"]
             isOneToOne: false
@@ -4902,6 +5123,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "encounter_care_team_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "encounter_care_team_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
+          },
+          {
             foreignKeyName: "encounter_care_team_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
@@ -4974,6 +5209,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "encounter_diagnosis_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "encounter_diagnosis_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
+          },
+          {
             foreignKeyName: "encounter_diagnosis_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
@@ -5032,6 +5281,20 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounter_emergency_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: true
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "encounter_emergency_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: true
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "encounter_emergency_tenant_id_fkey"
@@ -5107,6 +5370,20 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encounter_hospitalization_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: true
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "encounter_hospitalization_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: true
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "encounter_hospitalization_tenant_id_fkey"
@@ -5265,6 +5542,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "beneficiary"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "episode_of_care_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
           },
           {
             foreignKeyName: "episode_of_care_tenant_id_fkey"
@@ -5975,6 +6259,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lab_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "lab_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
         ]
       }
@@ -7420,6 +7718,13 @@ export type Database = {
             referencedRelation: "beneficiary"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "patient_wallet_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
         ]
       }
       payer: {
@@ -8358,11 +8663,32 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "prem_response_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
+          {
             foreignKeyName: "prem_response_encounter_id_fkey"
             columns: ["encounter_id"]
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prem_response_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "prem_response_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "prem_response_instrument_id_fkey"
@@ -8436,6 +8762,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prescription_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "prescription_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
         ]
       }
@@ -8963,11 +9303,32 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "prom_assignment_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
+          {
             foreignKeyName: "prom_assignment_encounter_id_fkey"
             columns: ["encounter_id"]
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prom_assignment_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "prom_assignment_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "prom_assignment_episode_of_care_id_fkey"
@@ -9158,6 +9519,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radiology_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "radiology_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
         ]
       }
@@ -10193,6 +10568,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          execution_venue: string | null
           gender_rule: string | null
           general_comments: string | null
           has_report: boolean | null
@@ -10240,6 +10616,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          execution_venue?: string | null
           gender_rule?: string | null
           general_comments?: string | null
           has_report?: boolean | null
@@ -10287,6 +10664,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          execution_venue?: string | null
           gender_rule?: string | null
           general_comments?: string | null
           has_report?: boolean | null
@@ -10392,6 +10770,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "service_order_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
         ]
       }
@@ -11242,6 +11634,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "visit_eligibility_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
+          {
             foreignKeyName: "visit_eligibility_class_id_fkey"
             columns: ["class_id"]
             isOneToOne: false
@@ -11254,6 +11653,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visit_eligibility_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "visit_eligibility_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "visit_eligibility_network_id_fkey"
@@ -11376,11 +11789,32 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "vitals_observation_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
+          {
             foreignKeyName: "vitals_observation_encounter_id_fkey"
             columns: ["encounter_id"]
             isOneToOne: false
             referencedRelation: "encounter"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vitals_observation_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "vitals_observation_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
           },
           {
             foreignKeyName: "vitals_observation_tenant_id_fkey"
@@ -11756,6 +12190,99 @@ export type Database = {
         }
         Relationships: []
       }
+      v_clinical_forms_worklist: {
+        Row: {
+          assigned_role: string | null
+          class: string | null
+          classification: string | null
+          code: string | null
+          cosign_required: boolean | null
+          cosigned_at: string | null
+          created_at: string | null
+          due_at: string | null
+          encounter_id: string | null
+          form_def_id: string | null
+          gate_type: string | null
+          instance_id: string | null
+          is_overdue: boolean | null
+          mandatory: boolean | null
+          status: string | null
+          submitted_at: string | null
+          tenant_id: string | null
+          title: string | null
+          trigger_type: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_form_instance_form_def_id_fkey"
+            columns: ["form_def_id"]
+            isOneToOne: false
+            referencedRelation: "form_def"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_doctor_worklist: {
+        Row: {
+          age: number | null
+          attending_physician: string | null
+          beneficiary_id: string | null
+          billed_orders: number | null
+          class: string | null
+          encounter_id: string | null
+          encounter_number: string | null
+          gender: string | null
+          is_vip: boolean | null
+          journey_state: string | null
+          locked_orders: number | null
+          mrn: string | null
+          name: string | null
+          pending_authorizations: number | null
+          period_start: string | null
+          released_orders: number | null
+          status: string | null
+          tenant_id: string | null
+          token: string | null
+          unread_rcm_comms: number | null
+          waiting_seconds: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encounter_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_nursing_workbench: {
+        Row: {
+          assessments_due: number | null
+          bed: string | null
+          care_tasks_open: number | null
+          class: string | null
+          emar_due: number | null
+          encounter_id: string | null
+          encounter_number: string | null
+          latest_vitals_at: string | null
+          mrn: string | null
+          name: string | null
+          tenant_id: string | null
+          unread_rcm_comms: number | null
+          vitals_due: number | null
+          ward: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encounter_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v_order_item_gate: {
         Row: {
           charge_item_id: string | null
@@ -11781,7 +12308,37 @@ export type Database = {
             referencedRelation: "encounter"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "charge_item_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "charge_item_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
+          },
         ]
+      }
+      v_rcm_comm_thread: {
+        Row: {
+          author_role: string | null
+          created_at: string | null
+          direction: string | null
+          encounter_id: string | null
+          id: string | null
+          kind: string | null
+          message: string | null
+          order_item_ref: string | null
+          status_pushed: string | null
+          tenant_id: string | null
+          unread: boolean | null
+        }
+        Relationships: []
       }
     }
     Functions: {
