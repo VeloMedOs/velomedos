@@ -5714,6 +5714,7 @@ export type Database = {
         Row: {
           active: boolean
           assignee_role: string | null
+          classification: string | null
           cosign_required: boolean
           created_at: string
           due_window_minutes: number | null
@@ -5731,6 +5732,7 @@ export type Database = {
         Insert: {
           active?: boolean
           assignee_role?: string | null
+          classification?: string | null
           cosign_required?: boolean
           created_at?: string
           due_window_minutes?: number | null
@@ -5748,6 +5750,7 @@ export type Database = {
         Update: {
           active?: boolean
           assignee_role?: string | null
+          classification?: string | null
           cosign_required?: boolean
           created_at?: string
           due_window_minutes?: number | null
@@ -5776,6 +5779,100 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "service_master"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      him_communication: {
+        Row: {
+          author: string | null
+          body: string
+          channel: string | null
+          coding_row_id: string | null
+          created_at: string
+          direction: string
+          encounter_id: string
+          form_instance_id: string | null
+          id: string
+          payload: Json | null
+          read_at: string | null
+          read_by: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string | null
+          body: string
+          channel?: string | null
+          coding_row_id?: string | null
+          created_at?: string
+          direction: string
+          encounter_id: string
+          form_instance_id?: string | null
+          id?: string
+          payload?: Json | null
+          read_at?: string | null
+          read_by?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string | null
+          body?: string
+          channel?: string | null
+          coding_row_id?: string | null
+          created_at?: string
+          direction?: string
+          encounter_id?: string
+          form_instance_id?: string | null
+          id?: string
+          payload?: Json | null
+          read_at?: string | null
+          read_by?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "him_communication_coding_row_id_fkey"
+            columns: ["coding_row_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_coding"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "him_communication_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "him_communication_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "him_communication_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "him_communication_form_instance_id_fkey"
+            columns: ["form_instance_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_form_instance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "him_communication_form_instance_id_fkey"
+            columns: ["form_instance_id"]
+            isOneToOne: false
+            referencedRelation: "v_clinical_forms_worklist"
+            referencedColumns: ["instance_id"]
           },
         ]
       }
@@ -12237,6 +12334,7 @@ export type Database = {
           instance_id: string | null
           is_overdue: boolean | null
           mandatory: boolean | null
+          overdue_days: number | null
           status: string | null
           submitted_at: string | null
           tenant_id: string | null
@@ -12260,10 +12358,14 @@ export type Database = {
           beneficiary_id: string | null
           billed_orders: number | null
           class: string | null
+          discharge_disposition: string | null
+          dnr_flag: boolean | null
+          ems_status: string | null
           encounter_id: string | null
           encounter_number: string | null
           gender: string | null
           is_vip: boolean | null
+          isolation_precaution: string | null
           journey_state: string | null
           locked_orders: number | null
           mrn: string | null
@@ -12284,6 +12386,70 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "corporate_accounts"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_him_comm_thread: {
+        Row: {
+          author: string | null
+          author_name: string | null
+          body: string | null
+          channel: string | null
+          coding_row_id: string | null
+          created_at: string | null
+          direction: string | null
+          encounter_id: string | null
+          form_instance_id: string | null
+          id: string | null
+          is_read_by_me: boolean | null
+          payload: Json | null
+          read_at: string | null
+          read_by: string | null
+          tenant_id: string | null
+          unread: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "him_communication_coding_row_id_fkey"
+            columns: ["coding_row_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_coding"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "him_communication_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "him_communication_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "him_communication_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "him_communication_form_instance_id_fkey"
+            columns: ["form_instance_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_form_instance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "him_communication_form_instance_id_fkey"
+            columns: ["form_instance_id"]
+            isOneToOne: false
+            referencedRelation: "v_clinical_forms_worklist"
+            referencedColumns: ["instance_id"]
           },
         ]
       }

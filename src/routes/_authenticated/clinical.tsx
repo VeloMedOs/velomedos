@@ -30,6 +30,10 @@ import { DoctorWorklistPane } from "@/components/clinical/daylight/worklists/Doc
 import { NursingWorkbenchPane } from "@/components/clinical/daylight/worklists/NursingWorkbenchPane";
 import { ClinicalFormsWorklistPane } from "@/components/clinical/daylight/worklists/ClinicalFormsWorklistPane";
 import { RcmCommsInboxPane } from "@/components/clinical/daylight/worklists/RcmCommsInboxPane";
+import {
+  EmsPane, FrontOfficePane, AdmissionPane, FloorManagerPane, TransferDischargePane,
+  CoderPane as CoderModulePane, MrdPane, PharmacistPane, NutritionPane, SocialWorkPane,
+} from "@/components/clinical/daylight/worklists/module-panes";
 
 const TAB_VALUES = ALL_NAV_TABS as [string, ...string[]];
 
@@ -119,6 +123,16 @@ function ClinicalWorkspace() {
       {tab === "wl-nursing"          && <NursingWorkbenchPane />}
       {tab === "forms-worklist"      && <ClinicalFormsWorklistPane />}
       {tab === "rcm-comms"           && <RcmCommsInboxPane />}
+      {tab === "wl-ems"              && <EmsPane />}
+      {tab === "wl-front-office"     && <FrontOfficePane />}
+      {tab === "wl-admission"        && <AdmissionPane />}
+      {tab === "wl-floor-manager"    && <FloorManagerPane />}
+      {tab === "wl-transfer-discharge" && <TransferDischargePane />}
+      {tab === "wl-coder"            && <CoderModulePane />}
+      {tab === "wl-mrd"              && <MrdPane />}
+      {tab === "wl-pharmacist"       && <PharmacistPane />}
+      {tab === "wl-nutrition"        && <NutritionPane />}
+      {tab === "wl-social-work"      && <SocialWorkPane />}
       {tab === "vbhc"                && (
         <div className="px-7 pt-6 pb-14 mx-auto" style={{ maxWidth: 1200, width: "100%" }}>
           <OutcomesPane />

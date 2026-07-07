@@ -1,269 +1,155 @@
-# Step 2 · Turn 2 — Clinical Spine (behaviors + module worklists + forms gate)
+# Turn 2b — HIM channel + 10 module worklists (v2, addendum folded in)
 
-## Sequencing recommendation
+Builds on Turn 2a (@82fcad9). Conventions locked: reads via `ClinicalAPI → clinicalFetch → /api/clinical/v1/*` with capId; no direct supabase from panes; RLS + GRANT on every new table; cap-guarded routes; worklists are read-views only.
 
-**Split into Turn 2a + Turn 2b.** Ship 2a first.
+## Migration 1 — view recreates + classification column (no enum churn)
 
-Rationale:
+Recreate three views idempotently (`CREATE OR REPLACE VIEW`, SECURITY INVOKER, re-`GRANT SELECT` to authenticated):
 
-- Scope in one turn is ~14 new files (ClinicalForm host + subcomponents, forms-gate trigger migration, HIM table + view migration, 8 module panes, 8+ new routes, visit_source enum migration pair, 4 test fixtures). One-shot risks partial delivery and undermines the "verify behavior, not existence" DoD lesson from Turn 1.
-- 2a's correctness surface (forms gate, meaning validation, addendum-not-amend, co-sign lock) is the hardest and gates Turn 3's Form Builder — Form Builder edits the definitions 2a's host renders.
-- 2b is pattern-copy over 2a's substrate: HIM channel mirrors RCM channel (already shipped), eight module worklists are thin filters over Turn-1 views. Low risk, high volume — ideal second turn.
-- Your own note agrees; I'm confirming.
+- `**v_doctor_worklist**` — replace `false AS is_vip` residual with `COALESCE(b.is_vip, false)`; add `e.dnr_flag`, `e.isolation_precaution`, `e.journey_state`; add `discharge_disposition` from `LEFT JOIN encounter_hospitalization eh ON eh.encounter_id = e.id`; add `NULL::text AS ems_status` placeholder.
+- `**v_nursing_workbench**` — add `NULL::text AS ward`, `NULL::text AS bed`.
+- `**v_clinical_forms_worklist**` — add `overdue_days := GREATEST(0, EXTRACT(day FROM now() - due_at))::int`; expose `b.classification` (drop the `b.assignee_role AS classification` alias if present); expose `fd.cosign_required` via join to `form_def` so MrdPane can detect cosign backlog at column level.
 
-**This plan covers Turn 2a only.** Turn 2b will be planned separately after 2a lands and is verified.
-
-## Turn 2a scope — A + B + E
-
-### A. `<ClinicalForm>` host + cross-cutting behaviors (Dev Spec §5, DoD C6)
-
-New files under `src/components/clinical/daylight/forms/`:
-
-- `ClinicalForm.tsx` — host. Reads `clinical_form_instance` + `form_def` via `ClinicalAPI.getFormInstance(id)`. Renders fields per `form_def.schema` (JSON Schema shape already in Turn-1 view). Handles submit / addendum / print / co-sign flows.
-- `AlertingPopup.tsx` — chart-open modal listing allergies, DNR, isolation, VIP, pregnancy risk. Pulls from `beneficiary` + `patient_allergies` + `patient_conditions` via a new `GET /api/clinical/v1/encounters/$id/alerts` route (cap `enc.alerts.read`). Deep-linked from `EncounterPane` mount.
-- `DnrBanner.tsx` — full-width red banner, mounted in `EncounterPane` above the tab strip. All roles see it. Reads `beneficiary.dnr_flag` (add column in migration below).
-- `IsolationChip.tsx` — non-Standard precaution chip; reads `beneficiary.isolation_precaution` (nullable text, free now, enum later).
-- `PasteHighlightField.tsx` — controlled input/textarea wrapper. On `paste` event, wraps pasted range in a span with `bg-yellow-100`. Persists highlight ranges in `clinical_form_instance.paste_ranges jsonb`.
-- `AddendumEditor.tsx` — after `status='cosigned'` (or `submitted` with no cosign required), edits are forbidden. Instead, "Add Addendum" opens an appended block; original text renders with `<s>`; both blocks carry author + timestamp; addendum rows stored as `clinical_form_instance.addenda jsonb[]`.
-- `PrintEmptyForm.tsx` — renders the schema with placeholders (`___`) for unfilled mandatory fields. Uses `window.print()` on a print-only stylesheet.
-- `MapField.tsx` — MAP = (2*DBP + SBP) / 3, computed only when both present. Rejects lone value with inline error.
-- `FallRiskField.tsx` — accepts Morse OR Hendrich OR custom instrument code from `code_system` (fall-risk scale family). Never Morse-only-hardcoded.
-- `VteIcon.tsx` — small icon rendered when `encounter_diagnosis` carries a VTE risk flag (via `code_value.system='vte-risk'`).
-- `PregnancyMandatoryField.tsx` — active when `beneficiary.gender='female'` AND age ∈ [15, 55]. Required on rad order forms; blocks submit if empty.
-
-Behaviors wired at the host level (not per-field):
-
-- Copy-paste highlight: attach paste listener globally within `<ClinicalForm>`.
-- Meaning validation: on submit, walk mandatory string fields; reject values that match `/^[.\s]{1,2}$/` or `/^[^\p{L}\p{N}]+$/u` with `422 MEANING_INVALID { field }`.
-- Co-sign framework: `form_def.cosign_required` boolean → after submit, `status='pending_cosign'`. GP submits → MRP receives cosign queue entry (`v_clinical_forms_worklist` filtered by `cosign_pending_for = auth.uid()`). Post-cosign edits go through AddendumEditor only.
-- Resident discharge summary: reuse cosign framework; no special-case code path.
-
-### B. Forms-gate placement trigger + `post_order` auto-instantiation (DoD C4b)
-
-**Migration 1 (own file):** BEFORE INSERT trigger on `lab_order_item`, `radiology_order_item`, `ep_order_item`, `service_order_item`, `prescription_item`.
-
-```sql
-CREATE OR REPLACE FUNCTION public.enforce_forms_gate_on_order_item()
-RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
-DECLARE _enc_id uuid; _service_id uuid;
-BEGIN
-  -- Derive encounter_id from parent order header (per table)
-  -- Call forms_gate_open(_enc_id, TG_TABLE_NAME, NULL) — pre-placement check
-  IF NOT public.forms_gate_open(_enc_id, TG_TABLE_NAME, NULL) THEN
-    RAISE EXCEPTION 'forms_gate: mandatory pre-order forms not submitted'
-      USING ERRCODE = 'P0001';
-  END IF;
-  RETURN NEW;
-END $$;
-```
-
-Attached to all 5 tables. Trigger name: `<table>_forms_gate_before_insert`.
-
-**API layer:** extend `_order-factory.ts` POST path to call `forms_gate_open` (via existing view or a new `/api/clinical/v1/gate/forms-preview` route) BEFORE the DB write, returning `403 forms_gate` with `missing_forms: string[]`. Same shape as billed-gate. Defense in depth — trigger is the enforcer, API returns cleanly.
-
-**Migration 2 (paired):** AFTER INSERT trigger on the same 5 tables that spawns `clinical_form_instance` rows per matching `form_workflow_binding` where `trigger_type='post_order'`:
-
-```sql
-CREATE OR REPLACE FUNCTION public.instantiate_post_order_forms()
-RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
-BEGIN
-  INSERT INTO public.clinical_form_instance (tenant_id, encounter_id, form_def_id, order_item_table, order_item_id, status, due_at, ...)
-  SELECT b.tenant_id, _enc_id, b.form_def_id, TG_TABLE_NAME, NEW.id, 'pending',
-         now() + make_interval(mins => COALESCE(b.due_window_minutes, 60)), ...
-    FROM public.form_workflow_binding b
-   WHERE b.active AND b.trigger_type = 'post_order'
-     AND (b.encounter_class IS NULL OR b.encounter_class = _enc_class)
-     AND (b.order_item_table IS NULL OR b.order_item_table = TG_TABLE_NAME)
-     AND (b.service_id IS NULL OR b.service_id = NEW.service_id);
-  RETURN NEW;
-END $$;
-```
-
-**ICU acceptance test (seed as data, not code):**
-
-- Insert one `form_def` row: `code='ICU_ADMISSION_CHECKLIST'`, mandatory fields per §5A.
-- Insert one `form_workflow_binding` row: `form_def_id=<above>`, `gate_type='pre_order'`, `trigger_type='pre'`, `encounter_class='IMP'`, `service_id=<ICU admission service_master row>`, `mandatory=true`.
-- Test: POST service order-item with that service_id on an IMP encounter without submitting the form → 403 `forms_gate`. Submit the form → POST succeeds.
-- **Grep guard in DoD:** `rg -i 'ICU.*form|icu_admission_checklist' src/` returns zero code hits — the binding is data-only.
-
-### E. `visit_source` enum promotion (Turn-1 X5)
-
-**Migration 3 (own file, must land before Migration 4):**
-
-```sql
-CREATE TYPE public.visit_source AS ENUM ('walk_in','scheduled','er_referral','ip_followup');
-```
-
-**Migration 4 (paired):**
-
-```sql
-ALTER TABLE public.clinic_bookings
-  ALTER COLUMN source TYPE public.visit_source USING source::public.visit_source;
-```
-
-`booking_source` (M03) untouched. Grep `booking_source` post-migration confirms unchanged.
-
-### Tests (added to existing suites)
-
-New file `src/lib/clinical/forms-gate.test.ts` (or extend `billed-gate.test.ts` if same fixture harness):
-
-1. `forms_gate` fixture — ICU order-item without form → error; with form → pass.
-2. `post_order` fixture — successful order INSERT spawns `clinical_form_instance` rows.
-3. Meaning-validation fixture — submit `"."` in mandatory field → `MEANING_INVALID`.
-4. MAP compute fixture — lone SBP → validation error; both present → computed value.
-
-Full suite ≥ 16 green (Turn-1 was 12; +4 = 16).
-
-## Files created (Turn 2a)
-
-- `src/components/clinical/daylight/forms/ClinicalForm.tsx`
-- `src/components/clinical/daylight/forms/AlertingPopup.tsx`
-- `src/components/clinical/daylight/forms/DnrBanner.tsx`
-- `src/components/clinical/daylight/forms/IsolationChip.tsx`
-- `src/components/clinical/daylight/forms/PasteHighlightField.tsx`
-- `src/components/clinical/daylight/forms/AddendumEditor.tsx`
-- `src/components/clinical/daylight/forms/PrintEmptyForm.tsx`
-- `src/components/clinical/daylight/forms/MapField.tsx`
-- `src/components/clinical/daylight/forms/FallRiskField.tsx`
-- `src/components/clinical/daylight/forms/VteIcon.tsx`
-- `src/components/clinical/daylight/forms/PregnancyMandatoryField.tsx`
-- `src/routes/api/clinical/v1/encounters.$id.alerts.ts`
-- `src/routes/api/clinical/v1/gate/forms-preview.ts`
-- `supabase/migrations/<ts1>_forms_gate_trigger.sql`
-- `supabase/migrations/<ts2>_post_order_instantiation.sql`
-- `supabase/migrations/<ts3>_visit_source_enum.sql`
-- `supabase/migrations/<ts4>_clinic_bookings_source_promote.sql`
-- `supabase/migrations/<ts0>_clinical_form_instance_addenda.sql` — adds `paste_ranges jsonb`, `addenda jsonb[]`, `cosign_required boolean`, `cosign_pending_for uuid`, `cosigned_at timestamptz`, `cosigned_by uuid` to `clinical_form_instance`; adds `dnr_flag boolean DEFAULT false`, `isolation_precaution text` to `beneficiary`.
-- `src/lib/clinical/forms-gate.test.ts` (or extension to `billed-gate.test.ts`)
-- Seed migration for ICU form_def + form_workflow_binding row (own file, additive)
-
-## Files edited
-
-- `src/lib/clinical-api.ts` — add `getFormInstance`, `submitFormInstance`, `addFormAddendum`, `cosignFormInstance`, `getEncounterAlerts`, `previewFormsGate`.
-- `src/routes/api/clinical/v1/_order-factory.ts` — pre-flight `forms_gate_open` check; return `403 forms_gate` with `missing_forms`.
-- `src/components/clinical/daylight/EncounterPane.tsx` — mount `<AlertingPopup>` on encounter open; mount `<DnrBanner>` above tab strip.
-- `src/components/clinical/daylight/OrdersPane.tsx` — surface `forms_gate` 403 the same way as `billed_gate`.
-- `src/integrations/supabase/types.ts` — regenerated post-migration.
-
-## Definition of Done (Turn 2a subset)
-
-- All 4 migrations land in order; enum migration precedes ALTER TABLE.
-- DNR banner renders on chart open when `beneficiary.dnr_flag=true`; visible to all roles.
-- Alerting popup fires once per encounter open (session-scoped dismissal).
-- Copy-paste highlight: paste event wraps range in yellow span; persists in `paste_ranges`.
-- Addendum flow: signed form edit → forbidden; addendum → appended block, original struck-through.
-- Print empty form: `window.print()` produces printable output with placeholders.
-- Meaning validation: `"."` in mandatory field → 422 `MEANING_INVALID { field }`.
-- MAP field: lone SBP or DBP → validation error; both → computed.
-- Pregnancy-mandatory: female 15–55 rad order requires field; missing → validation error.
-- Forms-gate 403: POST ICU order-item without form → 403 `forms_gate`. Complete form → POST succeeds.
-- Trigger enforces on direct SQL INSERT (UI-independent test via psql fixture).
-- ICU rule is data-only: `rg 'ICU_ADMISSION_CHECKLIST' src/` returns zero hits.
-- Post-order instantiation: successful order INSERT spawns matching `clinical_form_instance` rows with correct `due_at`.
-- `visit_source` enum exists; `clinic_bookings.source` typed as `visit_source`; `booking_source` untouched.
-- Zero direct supabase reads under `src/components/clinical/daylight/forms/` (grep enforced).
-- Tests ≥ 16 green.
-- See also the added DoD at the end of the plan
-
-Explicit deferrals to Turn 2b
-
-- HIM channel (`him_communication` table, `v_him_comm_thread`, HimCommCard write path).
-- Eight module worklist panes (`wl-ems`, `wl-pharmacist`, `wl-admission`, `wl-transfer-discharge`, `wl-floor-manager`, `wl-coder`, `wl-mrd`, `wl-front-office`).
-
-## Confirmation needed before I ship
-
-# Step 2 · Turn 2a — Correction Addendum (append to the plan; overrides where stated)
-
-Split confirmed (2a first — proceed as planned). Six corrections; all schema facts verified against clone @ef9b3eb.
-
-## Y1 — Column names on existing tables
-
-- `form_workflow_binding` column is `trigger` (not `trigger_type`). The view aliases it. All SQL: `b.trigger = 'post_order'`; all TS: read from `trigger` column.
-- `clinical_form_instance` already has `cosigned_at`, `cosigned_by` — do not re-add. The plan's other new columns (`paste_ranges jsonb`, `addenda jsonb[]`, `cosign_required boolean`, `cosign_pending_for uuid`) are legitimately new; `cosign_required` may already effectively live on `form_def` — check before duplicating.
-
-## Y2 — Order-item → encounter helper (avoid duplicating the 5-way CASE)
-
-Ship one SQL helper (own migration, before the triggers):
-
-```sql
-CREATE OR REPLACE FUNCTION public._order_item_encounter(_tbl text, _order_id uuid)
-RETURNS uuid LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
-  SELECT CASE _tbl
-    WHEN 'lab_order_item'       THEN (SELECT encounter_id FROM public.lab_order            WHERE id = _order_id)
-    WHEN 'radiology_order_item' THEN (SELECT encounter_id FROM public.radiology_order      WHERE id = _order_id)
-    WHEN 'service_order_item'   THEN (SELECT encounter_id FROM public.service_order        WHERE id = _order_id)
-    WHEN 'ep_order_item'        THEN (SELECT encounter_id FROM public.electrophysiology_order WHERE id = _order_id)
-    WHEN 'prescription_item'    THEN (SELECT encounter_id FROM public.prescription         WHERE id = _order_id)
-  END
-$$;
-
-```
-
-Both triggers call `public._order_item_encounter(TG_TABLE_NAME, NEW.order_id)`. Note `ep_order_item`'s parent is `electrophysiology_order`, NOT `ep_order`.
-
-## Y3 — Binding table extensions (own migration, before the post-order trigger)
-
-`form_workflow_binding` currently lacks `order_item_table` and `service_id` — plan filters by both.
+`**form_workflow_binding.classification**` (W2 — backfill from `assignee_role`, not phantom form codes; `form_def` has no `category` column):
 
 ```sql
 ALTER TABLE public.form_workflow_binding
-  ADD COLUMN IF NOT EXISTS order_item_table text NULL,
-  ADD COLUMN IF NOT EXISTS service_id uuid NULL REFERENCES public.service_master(id);
-
+  ADD COLUMN IF NOT EXISTS classification text
+  CHECK (classification IN ('nurse','care_team','counter','specialty'));
+UPDATE public.form_workflow_binding SET classification = CASE assignee_role
+  WHEN 'nurse' THEN 'nurse'
+  WHEN 'physician' THEN 'care_team'
+  WHEN 'front_office' THEN 'counter'
+  ELSE 'specialty' END
+WHERE classification IS NULL;
 ```
 
-NULL semantics = "any" in the filter. Turn 3's Form Builder must expose these in the binding editor (log as Turn 3 dependency).
+## Migration 2 — HIM communication channel
 
-## Y4 — Clinical flag columns: right home, not `beneficiary`
-
-- `dnr_flag boolean DEFAULT false` and `isolation_precaution text NULL` go on `encounter` (encounter-scoped clinical state, not demographic). DoctorWorklist join updates: `e.dnr_flag`, `e.isolation_precaution`.
-- `is_vip boolean DEFAULT false` on `beneficiary` (patient-scoped — this one is fine on beneficiary).
-- Schema comment on `encounter.dnr_flag`: "Stub for DNR display; full clinical-attestation model deferred to Batch C. Do not use for clinical decisions without attestation."
-- DoctorWorklist literal `false AS is_vip` → `b.is_vip` (grep-checkable).
-- `DnrBanner` reads from encounter, not beneficiary. `IsolationChip` reads from encounter.
-
-## Y5 — Alerts route: split display sections
-
-`GET /api/clinical/v1/encounters/$id/alerts` returns:
-
-```
-{
-  patient: { allergies: [...], conditions_flags: [...], is_vip: boolean },
-  encounter: { dnr_flag: boolean, isolation_precaution: string|null }
-}
-
-```
-
-`AlertingPopup` renders "Patient background" section and "This encounter" section distinctly. Each row carries its own id so HIM comm deep-links resolve.
-
-## Y6 — Consolidate field renderers under ClinicalForm
-
-Keep as top-level under `daylight/forms/`: `ClinicalForm.tsx`, `AlertingPopup.tsx`, `DnrBanner.tsx`, `IsolationChip.tsx`, `PasteHighlightField.tsx`, `AddendumEditor.tsx`, `PrintEmptyForm.tsx`.
-
-Move under `daylight/forms/fields/` with a single field-type dispatcher: `MapField.tsx`, `FallRiskField.tsx`, `VteIcon.tsx`, `PregnancyMandatoryField.tsx`. `ClinicalForm` reads `form_def.schema` field types and dispatches via a `FIELD_RENDERERS` map. Rationale: Turn 3's Form Builder edits `form_def.schema`; if field renderers scatter, the Builder's field-type dropdown drifts from what actually renders. One registry, one source of truth.
-
-## Environment portability — ICU seed by code, not UUID
-
-Seed the ICU binding using `service_master.code`:
+Shape matches the RCM pattern (`authorization_communication` / `denial_communication`), **not** a bespoke shape:
 
 ```sql
-INSERT INTO public.form_workflow_binding (..., service_id, ...)
-SELECT ..., sm.id, ...
-FROM public.service_master sm
-WHERE sm.code = 'ICU_ADMISSION' AND sm.tenant_id = <demo>
-ON CONFLICT DO NOTHING;
-
+CREATE TABLE public.him_communication (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  encounter_id uuid NOT NULL REFERENCES public.encounter(id),
+  form_instance_id uuid NULL REFERENCES public.clinical_form_instance(id),
+  coding_row_id uuid NULL REFERENCES public.clinical_coding(id),
+  direction text NOT NULL CHECK (direction IN ('inbound','outbound')),
+  channel text,
+  author uuid REFERENCES auth.users(id),
+  body text NOT NULL,
+  payload jsonb,
+  read_at timestamptz NULL,
+  read_by uuid NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
 ```
 
-Seeds run against different UUIDs per environment; symbolic lookup at seed time preserves the binding. Requires `service_master.code` to be stable for ICU admission — if the code doesn't exist yet in the seeded catalog, seed the service_master row first (own migration).
+No `subject`, no `uuid[]` on `read_by`, no `author_role`. GRANT SELECT/INSERT/UPDATE to authenticated; ALL to service_role. RLS tenant-scoped via `is_tenant_member(auth.uid(), tenant_id)`; INSERT `WITH CHECK` sets `author = auth.uid()` and forces `direction = 'outbound'`. `updated_at` trigger via existing `touch_updated_at`.
 
-## Added DoD
+Mark-read idempotent:
 
-- [ ] Grep: `trigger_type` appears ONLY in Turn-1's view alias (`b.trigger AS trigger_type`), never in new SQL or new TS reading bindings.
-- [ ] `_order_item_encounter()` helper exists and is called by both triggers (grep confirms 2 call sites, no inline CASE).
-- [ ] `form_workflow_binding.order_item_table` and `service_id` columns exist before the post-order trigger references them.
-- [ ] `encounter.dnr_flag` + `encounter.isolation_precaution` present; `beneficiary.is_vip` present; DoctorWorklist view aliases updated (grep `false AS is_vip` returns 0).
-- [ ] `AlertingPopup` renders patient/encounter sections separately.
-- [ ] `daylight/forms/fields/` directory with dispatcher exists; 4 field renderers live there; `ClinicalForm` uses the FIELD_RENDERERS registry.
-- [ ] ICU seed uses `service_master.code = 'ICU_ADMISSION'`; the service_master row exists (either pre-existing or seeded in this turn).
-- [ ] Grep confirms `ICU_ADMISSION_CHECKLIST` appears only in seed SQL, zero hits in `src/`.
+```sql
+UPDATE him_communication
+   SET read_at = COALESCE(read_at, now()), read_by = COALESCE(read_by, auth.uid())
+ WHERE id = $1 AND read_at IS NULL;
+```
+
+`**public.v_him_comm_thread**` (SECURITY INVOKER) — joins `him_communication` + `profiles` (author name) + computes `is_read_by_me := read_at IS NOT NULL AND read_by = auth.uid()`. GRANT SELECT to authenticated.
+
+## Capabilities (`src/lib/clinical-role-matrix.ts`)
+
+- `wl.him_comm.read` → coder, med_records, physician, nurse, tenant_admin
+- `wl.him_comm.write` → coder, med_records, physician, nurse, tenant_admin
+- Per-worklist caps for the 10 new panes (see W1 list).
+
+## Server routes
+
+**HIM (3):**
+
+- `GET /api/clinical/v1/worklists/him-comms.ts?encounterId=` — cap `wl.him_comm.read`, reads `v_him_comm_thread`
+- `POST /api/clinical/v1/him-communications.ts` — cap `wl.him_comm.write`, Zod-validated insert
+- `PATCH /api/clinical/v1/him-communications/$id/read.ts` — cap `wl.him_comm.read`, idempotent mark-read
+
+**10 module worklist routes** under `src/routes/api/clinical/v1/worklists/`, all cap-guarded, all thin filters over `v_doctor_worklist`, `v_nursing_workbench`, `v_clinical_forms_worklist`, `**v_rcm_comm_thread**` (correct name — W4), plus `v_order_item_gate` for locked rows:
+
+
+| Tab id                  | Cap                     | Roles                                         |
+| ----------------------- | ----------------------- | --------------------------------------------- |
+| `wl-ems`                | `wl.ems.read`           | ambulance_ems, physician, nurse               |
+| `wl-front-office`       | `wl.front_office.read`  | front_office, tenant_admin                    |
+| `wl-admission`          | `wl.admission.read`     | nurse, physician, floor_manager, tenant_admin |
+| `wl-floor-manager`      | `wl.floor_manager.read` | floor_manager                                 |
+| `wl-transfer-discharge` | `wl.discharge.read`     | physician, nurse, case_manager, floor_manager |
+| `wl-coder`              | `wl.coder.read`         | coder, med_records                            |
+| `wl-mrd`                | `wl.mrd.read`           | med_records, coder                            |
+| `wl-pharmacist`         | `wl.pharmacist.read`    | pharmacist, physician                         |
+| `wl-nutrition`          | `wl.nutrition.read`     | nutritionist, physician, nurse                |
+| `wl-social-work`        | `wl.social_work.read`   | social_worker, physician, case_manager        |
+
+
+**Not shipping:** extended Physician/Nursing/Billing/RCM (Turn 1), Lab/Radiology (Batch C scope), Coder-as-extension (own pane above).
+
+Missing roles (`nutritionist`, `social_worker`, `ambulance_ems`, `med_records`, `floor_manager`) added to `clinical-role-matrix.ts` if not already present.
+
+**Filter specifics:**
+
+- **CoderPane** — `encounter.status = 'finished' AND journey_state = 'discharged'` (W8).
+- **MrdPane** — `is_overdue = true OR (status = 'submitted' AND cosign_required = true AND cosigned_at IS NULL)` (W9). Reads `cosign_required` from the extended `v_clinical_forms_worklist`.
+
+## Client
+
+`**clinical-api.ts**` — extend `worklistsApi` with `himComms(encounterId)`, `postHimComm(payload)`, `markHimCommRead(id)`, and one method per new worklist route.
+
+`**HimCommCard.tsx**` — rewrite: read `v_him_comm_thread` via `worklistsApi.himComms`; compose via `postHimComm`; mark unread on view. No reads from `clinical_audit` / `clinical_coding`. Deep-link row actions: `form_instance_id` → `?tab=forms-worklist&instance=<id>`; `coding_row_id` → `?tab=coding&row=<id>`.
+
+**Embed HimCommCard on rails of:** `DoctorWorklistPane`, `NursingWorkbenchPane`, `ClinicalFormsWorklistPane` (W6). **Not** EncounterPane / CodingPane / ClaimsWorklistPane — those are RCM surfaces and keep RcmCommCard.
+
+`**FormsMiniCard**` — new standalone component:
+
+```
+props: { encounterId: string; classification: 'nurse'|'care_team'|'counter'|'specialty'; maxRows?: number }
+```
+
+Reads `v_clinical_forms_worklist` filtered by `classification` + `encounterId`. Renders count + open forms list; click opens the ClinicalForm host.
+
+**Pane → classification mapping (W7):**
+
+- Nursing Workbench, Admission, Transfer/Discharge, Floor-Manager → `nurse`
+- Doctor WL, Pharmacist, EMS → `care_team`
+- Front Office → `counter`
+- Nutrition, Social-work → `specialty`
+- Coder, MRD → no FormsMiniCard (they use the full Forms WL)
+
+**10 panes** under `src/components/clinical/daylight/worklists/` copying the `DoctorWorklistPane` shape, using `WorklistFilters` + `ClassSwitcher`, embedding `FormsMiniCard` per mapping. No direct `.from(...)` — reads only via the four views + `v_order_item_gate`.
+
+Add `wl-ems`, `wl-front-office`, `wl-admission`, `wl-floor-manager`, `wl-transfer-discharge`, `wl-coder`, `wl-mrd`, `wl-pharmacist`, `wl-nutrition`, `wl-social-work` to `NavTabId`, `NAV_SECTIONS` (Worklists group), and the tab switch in `clinical.tsx`.
+
+## Tests
+
+- Per-pane filter fixtures (≥1 per module, ≥3 assertions each) → ≥32 green.
+- Deep-link resolution for each new `tab=wl-*`.
+- HIM round-trip: post → list → mark-read → `is_read_by_me = true`; second mark-read is a no-op (idempotency).
+- Grep asserts: `false AS is_vip` = 0 hits; `v_rcm_comms_inbox` = 0 hits; `HimCommCard` does not import `clinical_audit`.
+- Deep-link from HimCommCard row (form_instance_id / coding_row_id) resolves to expected `?tab=...` search params.
+
+## DoD
+
+- Part-0 view residual fixed (`false AS is_vip` grep = 0)
+- `form_workflow_binding.classification` has CHECK on the four values; backfill row count > 0
+- `him_communication` shape matches RCM pattern (no `subject`, `read_by` scalar uuid, has `direction`/`channel`/`payload`/`form_instance_id`/`coding_row_id`)
+- `v_him_comm_thread` + `v_rcm_comm_thread` referenced correctly (0 hits for `v_rcm_comms_inbox`)
+- 3 HIM routes cap-guarded; RLS + GRANTs in place
+- `HimCommCard` reads only `v_him_comm_thread`; embedded on Doctor / Nursing / Forms-WL panes only
+- `FormsMiniCard` typed to the 4 classification values; classification-filtered reads
+- Exactly the 10 panes above land — grep in `daylight/worklists/` matches list
+- CoderPane filter uses `status='finished' AND journey_state='discharged'`
+- MrdPane cosign filter uses column-level `cosign_required=true AND cosigned_at IS NULL`
+- `wl-nutrition` + `wl-social-work` present in nav + routes + tab switch
+- Tests ≥32 green
+- **Remove the "expose cosign_required via join to form_def" clause** from the v_clinical_forms_worklist recreate (`cosign_required` already lives on `form_workflow_binding` and is already exposed via `b.cosign_required` at line 151). Zero work — just delete that sentence so Lovable doesn't try to add a form_def column that isn't needed.
+- **HimCommCard "mark unread on view" needs bounding.** As written, opening the card marks every unread row as read on mount — that will race with the composer (post a new comm → immediately marked read by the poster in the same second), and produces bad audit optics. Bound it: only mark rows read where `direction = 'inbound'` AND `author != auth.uid()`. Same pattern the eventual RCM parity fix will need.  
+  
+Plan approved. Two amendments: (a) remove the "expose cosign_required via join to form_def" clause from v_clinical_forms_worklist — the column already lives on form_workflow_binding and is already exposed as b.cosign_required, so no view change needed for MrdPane's filter; (b) HimCommCard mark-read on view must filter to direction='inbound' AND author != auth.uid() to avoid the poster auto-marking their own outbound message as read. Proceed with build.
