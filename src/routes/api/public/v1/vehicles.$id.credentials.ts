@@ -15,7 +15,20 @@ export const Route = createFileRoute("/api/public/v1/vehicles/$id/credentials")(
             .eq("subject_ambulance_id", params.id),
           db.from("ambulances").select("driver_id").eq("id", params.id).maybeSingle(),
         ]);
-        const crewIds = [crew.data?.driver_id].filter(Boolean) as string[];
+        let crewIds = [crew.data?.driver_id].filter(Boolean) as string[];
+        // Scope crew credentials to the caller's tenant to prevent cross-tenant
+        // user enumeration via the compliance:read scope.
+        if (crewIds.length && auth.tenantId) {
+          const { data: members } = await db
+            .from("tenant_members")
+            .select("user_id")
+            .eq("tenant_id", auth.tenantId)
+            .in("user_id", crewIds);
+          crewIds = (members ?? []).map((m) => m.user_id as string);
+        } else if (crewIds.length && !auth.tenantId) {
+          // Portal-wide keys have no tenant binding; do not expose per-user PII.
+          crewIds = [];
+        }
         const crewCreds = crewIds.length
           ? (await db.from("credentials")
               .select("id,kind,reference,issuer,issued_on,expires_on,subject_user_id,subject_ambulance_id")
