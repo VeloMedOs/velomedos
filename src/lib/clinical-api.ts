@@ -129,6 +129,28 @@ export const ClinicalAPI = {
     clinicalFetch<{ data: any }>(`/api/clinical/v1/encounters/${encId}/group`, { method: "POST", body: {} }),
   placeLabOrder: (encId: string, body: unknown) =>
     clinicalFetch<{ data: any }>(`/api/clinical/v1/encounters/${encId}/orders/lab`, { method: "POST", body }),
+  // Turn 2a — ClinicalForm host + forms-gate preview.
+  getEncounterAlerts: (encId: string) =>
+    clinicalFetch<{ data: { patient: { allergies: any[]; conditions_flags: any[]; is_vip: boolean }; encounter: { dnr_flag: boolean; isolation_precaution: string | null } } }>(
+      `/api/clinical/v1/encounters/${encId}/alerts`,
+    ),
+  previewFormsGate: (encId: string, orderItemTable?: string) => {
+    const q = new URLSearchParams({ encounter_id: encId });
+    if (orderItemTable) q.set("order_item_table", orderItemTable);
+    return clinicalFetch<{ data: { open: boolean; missing: Array<{ form_def_id: string; code: string; title: string }> } }>(
+      `/api/clinical/v1/gate/forms-preview?${q.toString()}`,
+    );
+  },
+  getFormInstance: (id: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/forms/instances/${id}`),
+  submitFormInstance: (id: string, body: { answers: Record<string, unknown>; paste_ranges?: unknown[] }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/forms/instances/${id}`, { method: "PATCH", body: { ...body, status: "submitted" } }),
+  saveFormInstanceDraft: (id: string, body: { answers: Record<string, unknown>; paste_ranges?: unknown[] }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/forms/instances/${id}`, { method: "PATCH", body }),
+  appendFormAddendum: (id: string, body: { body: string }) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/forms/instances/${id}/addendum`, { method: "POST", body }),
+  cosignFormInstance: (id: string) =>
+    clinicalFetch<{ data: any }>(`/api/clinical/v1/forms/instances/${id}`, { method: "PATCH", body: { status: "cosigned" } }),
 
   // Claims
   assembleClaim: (encId: string, body: unknown = {}) =>

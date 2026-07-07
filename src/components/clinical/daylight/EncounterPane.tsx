@@ -7,6 +7,7 @@ import { PatientBanner, type BannerPatient } from "./PatientBanner";
 import { DiagnosisRail, type DxRow } from "./DiagnosisRail";
 import { VitalsLegend } from "./VitalsLegend";
 import { DischargePanel } from "./DischargePanel";
+import { AlertingPopup } from "./forms/AlertingPopup";
 import { classify, worstTone, type Tone } from "@/lib/clinical/vital-ranges";
 import { CC_TEMPLATES } from "@/lib/clinical/cc-templates";
 
@@ -196,6 +197,7 @@ export function EncounterPane() {
 
       {/* CENTER */}
       <div className="min-w-0">
+        <AlertingPopup encounterId={enc?.id ?? null} />
         {banner && <PatientBanner p={banner} />}
 
         {!enc ? (

@@ -965,6 +965,7 @@ export type Database = {
           full_name: string
           gender: string
           id: string
+          is_vip: boolean
           journey_state: string
           last_name: string | null
           marital_status: string | null
@@ -1002,6 +1003,7 @@ export type Database = {
           full_name: string
           gender: string
           id?: string
+          is_vip?: boolean
           journey_state?: string
           last_name?: string | null
           marital_status?: string | null
@@ -1039,6 +1041,7 @@ export type Database = {
           full_name?: string
           gender?: string
           id?: string
+          is_vip?: boolean
           journey_state?: string
           last_name?: string | null
           marital_status?: string | null
@@ -2777,7 +2780,7 @@ export type Database = {
           patient_id: string
           reason: string | null
           slot_at: string
-          source: string | null
+          source: Database["public"]["Enums"]["visit_source"] | null
           status: Database["public"]["Enums"]["booking_status"]
         }
         Insert: {
@@ -2789,7 +2792,7 @@ export type Database = {
           patient_id: string
           reason?: string | null
           slot_at: string
-          source?: string | null
+          source?: Database["public"]["Enums"]["visit_source"] | null
           status?: Database["public"]["Enums"]["booking_status"]
         }
         Update: {
@@ -2801,7 +2804,7 @@ export type Database = {
           patient_id?: string
           reason?: string | null
           slot_at?: string
-          source?: string | null
+          source?: Database["public"]["Enums"]["visit_source"] | null
           status?: Database["public"]["Enums"]["booking_status"]
         }
         Relationships: [
@@ -2951,9 +2954,11 @@ export type Database = {
       }
       clinical_form_instance: {
         Row: {
+          addenda: Json
           admission_request_id: string | null
           answers: Json
           assigned_role: string | null
+          cosign_pending_for: string | null
           cosigned_at: string | null
           cosigned_by: string | null
           created_at: string
@@ -2963,6 +2968,7 @@ export type Database = {
           id: string
           order_item_id: string | null
           order_item_table: string | null
+          paste_ranges: Json
           status: string
           submitted_at: string | null
           submitted_by: string | null
@@ -2970,9 +2976,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          addenda?: Json
           admission_request_id?: string | null
           answers?: Json
           assigned_role?: string | null
+          cosign_pending_for?: string | null
           cosigned_at?: string | null
           cosigned_by?: string | null
           created_at?: string
@@ -2982,6 +2990,7 @@ export type Database = {
           id?: string
           order_item_id?: string | null
           order_item_table?: string | null
+          paste_ranges?: Json
           status?: string
           submitted_at?: string | null
           submitted_by?: string | null
@@ -2989,9 +2998,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          addenda?: Json
           admission_request_id?: string | null
           answers?: Json
           assigned_role?: string | null
+          cosign_pending_for?: string | null
           cosigned_at?: string | null
           cosigned_by?: string | null
           created_at?: string
@@ -3001,6 +3012,7 @@ export type Database = {
           id?: string
           order_item_id?: string | null
           order_item_table?: string | null
+          paste_ranges?: Json
           status?: string
           submitted_at?: string | null
           submitted_by?: string | null
@@ -4943,9 +4955,11 @@ export type Database = {
           coverage_id: string | null
           created_at: string
           created_by: string | null
+          dnr_flag: boolean
           encounter_number: string
           episode_of_care_id: string | null
           id: string
+          isolation_precaution: string | null
           journey_state: string
           location_id: string | null
           mechanical_ventilation_hours: number | null
@@ -4971,9 +4985,11 @@ export type Database = {
           coverage_id?: string | null
           created_at?: string
           created_by?: string | null
+          dnr_flag?: boolean
           encounter_number: string
           episode_of_care_id?: string | null
           id?: string
+          isolation_precaution?: string | null
           journey_state?: string
           location_id?: string | null
           mechanical_ventilation_hours?: number | null
@@ -4999,9 +5015,11 @@ export type Database = {
           coverage_id?: string | null
           created_at?: string
           created_by?: string | null
+          dnr_flag?: boolean
           encounter_number?: string
           episode_of_care_id?: string | null
           id?: string
+          isolation_precaution?: string | null
           journey_state?: string
           location_id?: string | null
           mechanical_ventilation_hours?: number | null
@@ -5704,6 +5722,8 @@ export type Database = {
           id: string
           mandatory: boolean
           module: string | null
+          order_item_table: string | null
+          service_id: string | null
           tenant_id: string
           trigger: string
           updated_at: string
@@ -5719,6 +5739,8 @@ export type Database = {
           id?: string
           mandatory?: boolean
           module?: string | null
+          order_item_table?: string | null
+          service_id?: string | null
           tenant_id: string
           trigger: string
           updated_at?: string
@@ -5734,6 +5756,8 @@ export type Database = {
           id?: string
           mandatory?: boolean
           module?: string | null
+          order_item_table?: string | null
+          service_id?: string | null
           tenant_id?: string
           trigger?: string
           updated_at?: string
@@ -5744,6 +5768,13 @@ export type Database = {
             columns: ["form_def_id"]
             isOneToOne: false
             referencedRelation: "form_def"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_workflow_binding_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_master"
             referencedColumns: ["id"]
           },
         ]
@@ -12342,6 +12373,10 @@ export type Database = {
       }
     }
     Functions: {
+      _order_item_encounter: {
+        Args: { _order_id: string; _tbl: string }
+        Returns: string
+      }
       _order_item_preauth_required: {
         Args: { _id: string; _tbl: string }
         Returns: boolean
@@ -12746,6 +12781,7 @@ export type Database = {
         | "biweekly"
         | "monthly"
         | "custom"
+      visit_source: "walk_in" | "scheduled" | "er_referral" | "ip_followup"
       visit_type:
         | "new_consult"
         | "follow_up"
@@ -13237,6 +13273,7 @@ export const Constants = {
         "monthly",
         "custom",
       ],
+      visit_source: ["walk_in", "scheduled", "er_referral", "ip_followup"],
       visit_type: [
         "new_consult",
         "follow_up",
