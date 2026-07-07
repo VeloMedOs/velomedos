@@ -37,7 +37,10 @@ export function ClassSwitcher() {
             type="button"
             onClick={() => nav({
               to: "/clinical",
-              search: (prev) => ({ ...prev, class: c.id === "ALL" ? undefined : c.id }),
+              search: (prev: Record<string, unknown>) => ({
+                ...prev,
+                class: c.id === "ALL" ? undefined : c.id,
+              }),
             })}
             className="px-2.5 h-6 rounded-md transition-colors"
             style={{
