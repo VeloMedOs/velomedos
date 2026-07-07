@@ -1,0 +1,1 @@
+export type EncounterClass = "AMB" | "EMER" | "IMP" | "HH" | "VR";

@@ -641,3 +641,64 @@ export const referralsApi = {
   listTargets: (id: string) =>
     clinicalFetch<{ data: any[] }>(`/api/clinical/v1/referrals/${id}/targets`),
 };
+
+// -----------------------------------------------------------------------------
+// Batch B Spine Turn-1 · Worklist views (doctor / nursing / forms / rcm-comms)
+// -----------------------------------------------------------------------------
+
+export type EncounterClass = "AMB" | "EMER" | "IMP" | "HH" | "VR";
+
+export type DoctorWorklistRow = {
+  tenant_id: string; encounter_id: string; class: EncounterClass;
+  encounter_number: string | null; status: string; journey_state: string;
+  period_start: string; waiting_seconds: number;
+  beneficiary_id: string; mrn: string | null; name: string | null;
+  age: number | null; gender: string | null;
+  token: string | null; is_vip: boolean;
+  billed_orders: number; released_orders: number; locked_orders: number;
+  pending_authorizations: number; unread_rcm_comms: number;
+  attending_physician: string | null;
+};
+
+export type NursingWorkbenchRow = {
+  tenant_id: string; encounter_id: string; class: EncounterClass;
+  encounter_number: string | null; mrn: string | null; name: string | null;
+  ward: string | null; bed: string | null;
+  latest_vitals_at: string | null;
+  vitals_due: number; assessments_due: number; emar_due: number; care_tasks_open: number;
+  unread_rcm_comms: number;
+};
+
+export type FormsWorklistRow = {
+  tenant_id: string; instance_id: string; encounter_id: string | null;
+  class: EncounterClass | null;
+  form_def_id: string; code: string; title: string;
+  trigger_type: "pre" | "post" | "manual" | null;
+  gate_type: "pre_order" | "post_order" | "standalone";
+  classification: string | null; assigned_role: string | null;
+  status: string; due_at: string | null; is_overdue: boolean;
+  mandatory: boolean | null; cosign_required: boolean | null;
+  submitted_at: string | null; cosigned_at: string | null; created_at: string;
+};
+
+export type RcmCommRow = {
+  id: string; tenant_id: string; encounter_id: string | null;
+  order_item_ref: string | null; direction: "inbound" | "outbound";
+  message: string | null; status_pushed: string | null;
+  author_role: string | null; unread: boolean;
+  kind: "authorization" | "denial" | "exception_escalation";
+  created_at: string;
+};
+
+export const worklistsApi = {
+  doctor: (params?: { class?: EncounterClass }) =>
+    clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/doctor${qs(params)}`),
+  nursing: (params?: { class?: EncounterClass }) =>
+    clinicalFetch<{ data: NursingWorkbenchRow[] }>(`/api/clinical/v1/worklists/nursing${qs(params)}`),
+  forms: (params?: { class?: EncounterClass; classification?: string; gate_type?: string }) =>
+    clinicalFetch<{ data: FormsWorklistRow[] }>(`/api/clinical/v1/worklists/forms${qs(params)}`),
+  rcmComms: (params?: { encounter_id?: string; kind?: string; unread?: boolean }) =>
+    clinicalFetch<{ data: RcmCommRow[] }>(`/api/clinical/v1/worklists/rcm-comms${qs(
+      params ? { ...params, unread: params.unread ? "true" : undefined } : undefined,
+    )}`),
+};

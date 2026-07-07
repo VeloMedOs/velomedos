@@ -29,13 +29,20 @@ export type ClinicalRole =
   | "biller"
   | "claims_officer"
   | "finance"
+  | "nutritionist"
+  | "social_worker"
+  | "ambulance_ems"
+  | "med_records"
+  | "floor_manager"
   | "read_only";
 
 export const CLINICAL_ROLE_ORDER: ClinicalRole[] = [
   "tenant_admin", "registrar", "front_office", "physician", "nurse",
   "lab_tech", "radiologist", "pharmacist", "coder", "case_manager",
   "rcm", "approval_officer", "cashier", "biller", "claims_officer",
-  "finance", "read_only",
+  "finance",
+  "nutritionist", "social_worker", "ambulance_ems", "med_records", "floor_manager",
+  "read_only",
 ];
 
 export const READ_ONLY_ROLE: ClinicalRole = "read_only";
@@ -65,6 +72,11 @@ export const CLINICAL_ROLE_META: Record<ClinicalRole, ClinicalRoleMeta> = {
   biller:          { role: "biller",          label: "Biller",            group: "finance",      tone: "bg-action/20 text-action",          blurb: "Bill allocation, claim assembly & submission." },
   claims_officer:  { role: "claims_officer",  label: "Claims Officer",    group: "rcm",          tone: "bg-action/20 text-action",          blurb: "Batching, e-claims, remittance matching, denial management & resubmission." },
   finance:         { role: "finance",         label: "Finance",           group: "finance",      tone: "bg-emergency/20 text-emergency",    blurb: "Remittance posting, refund/write-off approval, ZATCA & D365 reconciliation." },
+  nutritionist:    { role: "nutritionist",    label: "Nutritionist",      group: "clinical",     tone: "bg-stable/20 text-stable",          blurb: "Nutrition assessments, dietary care-plan tasks and counter worklists." },
+  social_worker:   { role: "social_worker",   label: "Social Worker",     group: "clinical",     tone: "bg-stable/20 text-stable",          blurb: "Social assessments, discharge-planning support, case-manager collaboration." },
+  ambulance_ems:   { role: "ambulance_ems",   label: "Ambulance / EMS",   group: "clinical",     tone: "bg-emergency/20 text-emergency",    blurb: "Pre-hospital handoff, EMS bring-in, ER handshake." },
+  med_records:     { role: "med_records",     label: "Medical Records",   group: "coding",       tone: "bg-panel-elevated text-foreground", blurb: "HIM completeness monitoring, delinquency reports, coder↔physician relay." },
+  floor_manager:   { role: "floor_manager",   label: "Floor Manager",     group: "clinical",     tone: "bg-action/20 text-action",          blurb: "Bed-flow, ward assignment, ADT coordination across IP floors." },
   read_only:       { role: "read_only",       label: "Read Only",         group: "clinical",     tone: "bg-muted text-muted-foreground",    blurb: "View-only across every permitted HIS module; cannot perform actions." },
 };
 
@@ -164,6 +176,13 @@ export const CLINICAL_CAPABILITIES: ClinicalCapability[] = [
   { id: "forms.instance.cosign",    module: "Clinical",             apiNamespace: "/api/clinical/v1/forms/instances/*",       label: "Co-sign form instance",        description: "Attending co-signature on a submitted form.", roles: ["tenant_admin","physician"] },
   { id: "referral.write",           module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/referrals",        label: "Create referral",              description: "Raise an outbound referral & targets.", roles: ["tenant_admin","physician","front_office"] },
   { id: "pbm.override",             module: "Clinical",             apiNamespace: "/api/clinical/v1/orders/prescription-items", label: "PBM indication override",    description: "Save a prescription despite a missing R-PBM2b indication (writes exception row).", roles: ["tenant_admin","rcm"] },
+
+  // ── Batch B Spine Turn-1 · Worklists ────────────────────────────────────
+  // HCA-0174/0175/0186/0123/0188-C — spec 05 §2/§3/§4/§5A.
+  { id: "wl.doctor.read",   module: "Clinical", apiNamespace: "/api/clinical/v1/worklists/doctor",    label: "Read Doctor Worklist",       description: "Read v_doctor_worklist for the tenant, optionally filtered by encounter class.",   roles: ["tenant_admin","physician","nurse","case_manager","med_records","floor_manager","rcm"] },
+  { id: "wl.nursing.read",  module: "Clinical", apiNamespace: "/api/clinical/v1/worklists/nursing",   label: "Read Nursing Workbench",     description: "Read v_nursing_workbench for the tenant, optionally filtered by encounter class.", roles: ["tenant_admin","physician","nurse","case_manager","med_records","floor_manager"] },
+  { id: "wl.forms.read",    module: "Clinical", apiNamespace: "/api/clinical/v1/worklists/forms",     label: "Read Clinical Forms WL",     description: "Read v_clinical_forms_worklist across the tenant.",                                 roles: ["tenant_admin","physician","nurse","case_manager","med_records","coder","pharmacist","nutritionist","social_worker","floor_manager"] },
+  { id: "wl.rcm_comm.read", module: "Clinical", apiNamespace: "/api/clinical/v1/worklists/rcm-comms", label: "Read RCM Communication",     description: "Read v_rcm_comm_thread across the tenant.",                                         roles: ["tenant_admin","rcm","biller","claims_officer","physician","nurse","case_manager","approval_officer"] },
 ];
 
 export const CLINICAL_MODULES: string[] = [

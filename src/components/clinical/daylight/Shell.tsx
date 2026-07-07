@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { NAV_SECTIONS, type NavTabId } from "./nav-config";
 import { canViewModule, isReadOnly, type ClinicalRole } from "@/lib/clinical-role-matrix";
+import { ClassSwitcher } from "./ClassSwitcher";
 
 export type TabId = NavTabId;
 
@@ -76,6 +77,7 @@ export function DaylightShell({
               <Search className="size-4" />
               <input placeholder="Search patient by MRN, National ID or name…" className="bg-transparent outline-none w-full text-sm" style={{ color: "var(--clin-ink)" }} />
             </label>
+            <ClassSwitcher />
             <div className="flex-1" />
             <span className="mono text-[11px] px-2.5 py-1.5 rounded-md cursor-pointer" style={{ color: "var(--clin-muted)", border: "1px solid var(--clin-line-strong)" }}>ع · EN</span>
             {viewOnly && (

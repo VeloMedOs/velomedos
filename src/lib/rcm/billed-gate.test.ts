@@ -150,4 +150,23 @@ describe("foldTriggerOutcome — Rule A", () => {
       block_reason: null,
     });
   });
+
+  it("7 · scope='pbm' hit with preauth_required folds to the five-field contract", () => {
+    // X6 · Part-0 leftover — PBM fold parity fixture (spec 05 §5A tie-in).
+    const hits: TriggerHit[] = [{
+      rule_id: "rulePBM",
+      name: "R-PBM2b · indication required",
+      scope: "pbm",
+      priority: 20,
+      action: { preauth_required: true, code: "PBM_INDICATION_REQUIRED" },
+      code: "PBM_INDICATION_REQUIRED",
+    }];
+    expect(foldTriggerOutcome(hits)).toEqual({
+      preauth_required: true,
+      charge_mode: null,
+      discount: null,
+      eligibility_check_required: false,
+      block_reason: null,
+    });
+  });
 });

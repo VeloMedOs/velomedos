@@ -11,7 +11,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   UserPlus, Stethoscope, FileText, Hash, ShieldCheck, BadgeCheck, Receipt,
   Wallet, BedDouble, PiggyBank, Banknote, Settings, HeartPulse, ClipboardList,
-  FlaskConical, Activity,
+  FlaskConical, Activity, Users, ClipboardCheck, Megaphone, FormInput,
 } from "lucide-react";
 
 export type NavTabId =
@@ -20,7 +20,9 @@ export type NavTabId =
   | "rcm" | "rcm-eligibility" | "rcm-activation" | "rcm-authorization" | "rcm-claims"
   | "finance-billing-op" | "finance-billing-ip" | "finance-deposits" | "finance-cash"
   | "admin-masters" | "admin-contract-masters"
-  | "vbhc" | "vitals" | "billing" | "claims";
+  | "vbhc" | "vitals" | "billing" | "claims"
+  // Batch-B spine Turn-1
+  | "wl-doctor" | "wl-nursing" | "forms-worklist" | "rcm-comms";
 
 export type NavItemDef = {
   module: string;
@@ -44,6 +46,16 @@ export const NAV_SECTIONS: NavSectionDef[] = [
       { module: "Clinical",                   label: "Orders",       tab: "orders",       icon: ClipboardList },
       { module: "Clinical",                   label: "Results",      tab: "results",      icon: FlaskConical },
       { module: "Coding & DRG",               label: "Coding · DRG", tab: "coding",       icon: Hash },
+    ],
+  },
+  {
+    group: "Worklists",
+    items: [
+      // Batch-B spine Turn-1 · HCA-0174/0175/0186/0123
+      { module: "Clinical", label: "Doctor Worklist",         tab: "wl-doctor",       icon: Users },
+      { module: "Clinical", label: "Nursing Workbench",       tab: "wl-nursing",      icon: ClipboardCheck },
+      { module: "Clinical", label: "Clinical Forms Worklist", tab: "forms-worklist",  icon: FormInput },
+      { module: "Clinical", label: "RCM Communication",       tab: "rcm-comms",       icon: Megaphone },
     ],
   },
   {
