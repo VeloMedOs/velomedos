@@ -176,6 +176,13 @@ export const CLINICAL_CAPABILITIES: ClinicalCapability[] = [
   { id: "forms.instance.cosign",    module: "Clinical",             apiNamespace: "/api/clinical/v1/forms/instances/*",       label: "Co-sign form instance",        description: "Attending co-signature on a submitted form.", roles: ["tenant_admin","physician"] },
   { id: "referral.write",           module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/referrals",        label: "Create referral",              description: "Raise an outbound referral & targets.", roles: ["tenant_admin","physician","front_office"] },
   { id: "pbm.override",             module: "Clinical",             apiNamespace: "/api/clinical/v1/orders/prescription-items", label: "PBM indication override",    description: "Save a prescription despite a missing R-PBM2b indication (writes exception row).", roles: ["tenant_admin","rcm"] },
+
+  // ── Batch B Spine Turn-1 · Worklists ────────────────────────────────────
+  // HCA-0174/0175/0186/0123/0188-C — spec 05 §2/§3/§4/§5A.
+  { id: "wl.doctor.read",   module: "Clinical", apiNamespace: "/api/clinical/v1/worklists/doctor",    label: "Read Doctor Worklist",       description: "Read v_doctor_worklist for the tenant, optionally filtered by encounter class.",   roles: ["tenant_admin","physician","nurse","case_manager","med_records","floor_manager","rcm"] },
+  { id: "wl.nursing.read",  module: "Clinical", apiNamespace: "/api/clinical/v1/worklists/nursing",   label: "Read Nursing Workbench",     description: "Read v_nursing_workbench for the tenant, optionally filtered by encounter class.", roles: ["tenant_admin","physician","nurse","case_manager","med_records","floor_manager"] },
+  { id: "wl.forms.read",    module: "Clinical", apiNamespace: "/api/clinical/v1/worklists/forms",     label: "Read Clinical Forms WL",     description: "Read v_clinical_forms_worklist across the tenant.",                                 roles: ["tenant_admin","physician","nurse","case_manager","med_records","coder","pharmacist","nutritionist","social_worker","floor_manager"] },
+  { id: "wl.rcm_comm.read", module: "Clinical", apiNamespace: "/api/clinical/v1/worklists/rcm-comms", label: "Read RCM Communication",     description: "Read v_rcm_comm_thread across the tenant.",                                         roles: ["tenant_admin","rcm","biller","claims_officer","physician","nurse","case_manager","approval_officer"] },
 ];
 
 export const CLINICAL_MODULES: string[] = [
