@@ -20,6 +20,17 @@ export type RuleFacts = {
   covered: boolean;
   in_network: boolean | null;
   plan_copay_percent?: number | null;
+  /* --- Step 3 referral additions (AA3 · all optional; other-scope callers unaffected) --- */
+  referral_class?: "intra" | "inter_company" | "external" | "cross_encounter";
+  source_specialty?: string;
+  target_specialty?: string;
+  target_specialty_differs?: boolean;
+  days_since_last_visit?: number;
+  service_id?: string;
+  sub_category?: string;
+  coverage_id?: string;
+  category?: string;
+  overbook?: boolean;
 };
 
 export type RuleOutcome = {
@@ -34,9 +45,39 @@ type Rule = {
   tenant_id: string | null; active: boolean;
 };
 
+/**
+ * Step 3 · AA2 — matches() supports flat equality AND {op, value} operator shapes.
+ * Backward-compat: any existing rule payload using flat equality is unchanged.
+ * Operator shapes: {op:'lte'|'gte'|'lt'|'gt'|'in', value: number|unknown[]}.
+ * Fails closed when a rule references a fact key the caller did not populate.
+ */
 function matches(cond: Record<string, unknown>, facts: RuleFacts): boolean {
   for (const [k, v] of Object.entries(cond ?? {})) {
-    if ((facts as Record<string, unknown>)[k] !== v) return false;
+    const factVal = (facts as Record<string, unknown>)[k];
+    if (v !== null && typeof v === "object" && !Array.isArray(v) && "op" in (v as object)) {
+      const { op, value } = v as { op: string; value: unknown };
+      switch (op) {
+        case "lte":
+          if (!(typeof factVal === "number" && factVal <= (value as number))) return false;
+          break;
+        case "gte":
+          if (!(typeof factVal === "number" && factVal >= (value as number))) return false;
+          break;
+        case "lt":
+          if (!(typeof factVal === "number" && factVal < (value as number))) return false;
+          break;
+        case "gt":
+          if (!(typeof factVal === "number" && factVal > (value as number))) return false;
+          break;
+        case "in":
+          if (!(Array.isArray(value) && (value as unknown[]).includes(factVal))) return false;
+          break;
+        default:
+          return false;
+      }
+    } else if (factVal !== v) {
+      return false;
+    }
   }
   return true;
 }
@@ -150,7 +191,7 @@ const CHARGE_MODES = new Set(["new_consult", "follow_up", "series", "no_charge"]
 
 export function foldTriggerOutcome(
   hits: TriggerHit[],
-  facts?: { target_specialty?: string | null },
+  facts?: { target_specialty?: string | null; sub_category?: string | null },
 ): TriggerOutcome {
   const sorted = [...hits].sort((a, b) => a.priority - b.priority);
 
@@ -168,11 +209,13 @@ export function foldTriggerOutcome(
       if (typeof a.charge_mode === "string" && CHARGE_MODES.has(a.charge_mode)) {
         charge_mode = a.charge_mode as TriggerOutcome["charge_mode"];
       } else if (a.charge_mode_resolver === "series_or_no_charge") {
-        const series = Array.isArray(a.series_specialties)
-          ? (a.series_specialties as unknown[]).filter((x): x is string => typeof x === "string")
-          : [];
-        const spec = facts?.target_specialty ?? null;
-        charge_mode = spec && series.includes(spec) ? "series" : "no_charge";
+        // BB2 · Rule C series branch keys off service_master.sub_category
+        // (populated by Batch-C service catalog), not a hard-coded specialty list.
+        const flag =
+          typeof a.series_sub_category === "string"
+            ? (a.series_sub_category as string)
+            : "series_therapy";
+        charge_mode = facts?.sub_category === flag ? "series" : "no_charge";
       }
     }
     if (discount === null && typeof a.discount === "number") {
