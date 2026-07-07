@@ -171,6 +171,7 @@ import { Route as ApiClinicalV1IpAdmissionRequestsRouteImport } from './routes/a
 import { Route as ApiClinicalV1InterfacesLogRouteImport } from './routes/api/clinical/v1/interfaces.log'
 import { Route as ApiClinicalV1GateViewRouteImport } from './routes/api/clinical/v1/gate/view'
 import { Route as ApiClinicalV1GatePreviewRouteImport } from './routes/api/clinical/v1/gate/preview'
+import { Route as ApiClinicalV1GateFormsPreviewRouteImport } from './routes/api/clinical/v1/gate/forms-preview'
 import { Route as ApiClinicalV1GateExceptionsRouteImport } from './routes/api/clinical/v1/gate/exceptions'
 import { Route as ApiClinicalV1FormularyIndicationsRouteImport } from './routes/api/clinical/v1/formulary/indications'
 import { Route as ApiClinicalV1FormularyImportRouteImport } from './routes/api/clinical/v1/formulary/import'
@@ -1244,6 +1245,12 @@ const ApiClinicalV1GatePreviewRoute =
   ApiClinicalV1GatePreviewRouteImport.update({
     id: '/api/clinical/v1/gate/preview',
     path: '/api/clinical/v1/gate/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1GateFormsPreviewRoute =
+  ApiClinicalV1GateFormsPreviewRouteImport.update({
+    id: '/api/clinical/v1/gate/forms-preview',
+    path: '/api/clinical/v1/gate/forms-preview',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1GateExceptionsRoute =
@@ -2618,6 +2625,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/formulary/import': typeof ApiClinicalV1FormularyImportRoute
   '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
+  '/api/clinical/v1/gate/forms-preview': typeof ApiClinicalV1GateFormsPreviewRoute
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/gate/view': typeof ApiClinicalV1GateViewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -2982,6 +2990,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/formulary/import': typeof ApiClinicalV1FormularyImportRoute
   '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
+  '/api/clinical/v1/gate/forms-preview': typeof ApiClinicalV1GateFormsPreviewRoute
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/gate/view': typeof ApiClinicalV1GateViewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -3350,6 +3359,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/formulary/import': typeof ApiClinicalV1FormularyImportRoute
   '/api/clinical/v1/formulary/indications': typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
   '/api/clinical/v1/gate/exceptions': typeof ApiClinicalV1GateExceptionsRouteWithChildren
+  '/api/clinical/v1/gate/forms-preview': typeof ApiClinicalV1GateFormsPreviewRoute
   '/api/clinical/v1/gate/preview': typeof ApiClinicalV1GatePreviewRoute
   '/api/clinical/v1/gate/view': typeof ApiClinicalV1GateViewRoute
   '/api/clinical/v1/interfaces/log': typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -3718,6 +3728,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/formulary/import'
     | '/api/clinical/v1/formulary/indications'
     | '/api/clinical/v1/gate/exceptions'
+    | '/api/clinical/v1/gate/forms-preview'
     | '/api/clinical/v1/gate/preview'
     | '/api/clinical/v1/gate/view'
     | '/api/clinical/v1/interfaces/log'
@@ -4082,6 +4093,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/formulary/import'
     | '/api/clinical/v1/formulary/indications'
     | '/api/clinical/v1/gate/exceptions'
+    | '/api/clinical/v1/gate/forms-preview'
     | '/api/clinical/v1/gate/preview'
     | '/api/clinical/v1/gate/view'
     | '/api/clinical/v1/interfaces/log'
@@ -4449,6 +4461,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/formulary/import'
     | '/api/clinical/v1/formulary/indications'
     | '/api/clinical/v1/gate/exceptions'
+    | '/api/clinical/v1/gate/forms-preview'
     | '/api/clinical/v1/gate/preview'
     | '/api/clinical/v1/gate/view'
     | '/api/clinical/v1/interfaces/log'
@@ -4759,6 +4772,7 @@ export interface RootRouteChildren {
   ApiClinicalV1FormularyImportRoute: typeof ApiClinicalV1FormularyImportRoute
   ApiClinicalV1FormularyIndicationsRoute: typeof ApiClinicalV1FormularyIndicationsRouteWithChildren
   ApiClinicalV1GateExceptionsRoute: typeof ApiClinicalV1GateExceptionsRouteWithChildren
+  ApiClinicalV1GateFormsPreviewRoute: typeof ApiClinicalV1GateFormsPreviewRoute
   ApiClinicalV1GatePreviewRoute: typeof ApiClinicalV1GatePreviewRoute
   ApiClinicalV1GateViewRoute: typeof ApiClinicalV1GateViewRoute
   ApiClinicalV1InterfacesLogRoute: typeof ApiClinicalV1InterfacesLogRouteWithChildren
@@ -5948,6 +5962,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/gate/preview'
       fullPath: '/api/clinical/v1/gate/preview'
       preLoaderRoute: typeof ApiClinicalV1GatePreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/gate/forms-preview': {
+      id: '/api/clinical/v1/gate/forms-preview'
+      path: '/api/clinical/v1/gate/forms-preview'
+      fullPath: '/api/clinical/v1/gate/forms-preview'
+      preLoaderRoute: typeof ApiClinicalV1GateFormsPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/gate/exceptions': {
@@ -9112,6 +9133,7 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1FormularyIndicationsRouteWithChildren,
   ApiClinicalV1GateExceptionsRoute:
     ApiClinicalV1GateExceptionsRouteWithChildren,
+  ApiClinicalV1GateFormsPreviewRoute: ApiClinicalV1GateFormsPreviewRoute,
   ApiClinicalV1GatePreviewRoute: ApiClinicalV1GatePreviewRoute,
   ApiClinicalV1GateViewRoute: ApiClinicalV1GateViewRoute,
   ApiClinicalV1InterfacesLogRoute: ApiClinicalV1InterfacesLogRouteWithChildren,
