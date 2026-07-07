@@ -134,6 +134,7 @@ import { Route as ApiPublicV1DemoCredentialsRouteImport } from './routes/api/pub
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiPublicLegalSlugAcceptRouteImport } from './routes/api/public/legal.$slug.accept'
 import { Route as ApiPatientV1PromsPendingRouteImport } from './routes/api/patient/v1/proms.pending'
+import { Route as ApiClinicalV1WorklistsNursingRouteImport } from './routes/api/clinical/v1/worklists/nursing'
 import { Route as ApiClinicalV1WorklistsDoctorRouteImport } from './routes/api/clinical/v1/worklists/doctor'
 import { Route as ApiClinicalV1VitalsIdRouteImport } from './routes/api/clinical/v1/vitals.$id'
 import { Route as ApiClinicalV1TaxInvoicesBulkRouteImport } from './routes/api/clinical/v1/tax-invoices.bulk'
@@ -1021,6 +1022,12 @@ const ApiPatientV1PromsPendingRoute =
   ApiPatientV1PromsPendingRouteImport.update({
     id: '/api/patient/v1/proms/pending',
     path: '/api/patient/v1/proms/pending',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1WorklistsNursingRoute =
+  ApiClinicalV1WorklistsNursingRouteImport.update({
+    id: '/api/clinical/v1/worklists/nursing',
+    path: '/api/clinical/v1/worklists/nursing',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1WorklistsDoctorRoute =
@@ -2624,6 +2631,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
   '/api/clinical/v1/worklists/doctor': typeof ApiClinicalV1WorklistsDoctorRoute
+  '/api/clinical/v1/worklists/nursing': typeof ApiClinicalV1WorklistsNursingRoute
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -2984,6 +2992,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
   '/api/clinical/v1/worklists/doctor': typeof ApiClinicalV1WorklistsDoctorRoute
+  '/api/clinical/v1/worklists/nursing': typeof ApiClinicalV1WorklistsNursingRoute
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -3348,6 +3357,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
   '/api/clinical/v1/worklists/doctor': typeof ApiClinicalV1WorklistsDoctorRoute
+  '/api/clinical/v1/worklists/nursing': typeof ApiClinicalV1WorklistsNursingRoute
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -3712,6 +3722,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/tax-invoices/bulk'
     | '/api/clinical/v1/vitals/$id'
     | '/api/clinical/v1/worklists/doctor'
+    | '/api/clinical/v1/worklists/nursing'
     | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
@@ -4072,6 +4083,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/tax-invoices/bulk'
     | '/api/clinical/v1/vitals/$id'
     | '/api/clinical/v1/worklists/doctor'
+    | '/api/clinical/v1/worklists/nursing'
     | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
@@ -4435,6 +4447,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/tax-invoices/bulk'
     | '/api/clinical/v1/vitals/$id'
     | '/api/clinical/v1/worklists/doctor'
+    | '/api/clinical/v1/worklists/nursing'
     | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
@@ -4737,6 +4750,7 @@ export interface RootRouteChildren {
   ApiClinicalV1SupportingInfoIdRoute: typeof ApiClinicalV1SupportingInfoIdRoute
   ApiClinicalV1VitalsIdRoute: typeof ApiClinicalV1VitalsIdRoute
   ApiClinicalV1WorklistsDoctorRoute: typeof ApiClinicalV1WorklistsDoctorRoute
+  ApiClinicalV1WorklistsNursingRoute: typeof ApiClinicalV1WorklistsNursingRoute
   ApiPatientV1PromsPendingRoute: typeof ApiPatientV1PromsPendingRoute
   ApiPublicV1DebugEventsRoute: typeof ApiPublicV1DebugEventsRoute
   ApiPublicV1DemoCredentialsRoute: typeof ApiPublicV1DemoCredentialsRoute
@@ -5634,6 +5648,13 @@ declare module '@tanstack/react-router' {
       path: '/api/patient/v1/proms/pending'
       fullPath: '/api/patient/v1/proms/pending'
       preLoaderRoute: typeof ApiPatientV1PromsPendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/worklists/nursing': {
+      id: '/api/clinical/v1/worklists/nursing'
+      path: '/api/clinical/v1/worklists/nursing'
+      fullPath: '/api/clinical/v1/worklists/nursing'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsNursingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/worklists/doctor': {
@@ -9075,6 +9096,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1SupportingInfoIdRoute: ApiClinicalV1SupportingInfoIdRoute,
   ApiClinicalV1VitalsIdRoute: ApiClinicalV1VitalsIdRoute,
   ApiClinicalV1WorklistsDoctorRoute: ApiClinicalV1WorklistsDoctorRoute,
+  ApiClinicalV1WorklistsNursingRoute: ApiClinicalV1WorklistsNursingRoute,
   ApiPatientV1PromsPendingRoute: ApiPatientV1PromsPendingRoute,
   ApiPublicV1DebugEventsRoute: ApiPublicV1DebugEventsRoute,
   ApiPublicV1DemoCredentialsRoute: ApiPublicV1DemoCredentialsRoute,
