@@ -39,7 +39,7 @@ export async function previewFormsGate(
   });
   if (applicable.length === 0) return { open: true, missing: [] };
 
-  const defIds = Array.from(new Set(applicable.map((b: any) => b.form_def_id)));
+  const defIds: string[] = Array.from(new Set(applicable.map((b: any) => b.form_def_id as string)));
   const [{ data: defs }, { data: instances }] = await Promise.all([
     db.from("form_def").select("id, code, title").in("id", defIds),
     db.from("clinical_form_instance").select("form_def_id, status, order_item_table, order_item_id")
@@ -49,7 +49,7 @@ export async function previewFormsGate(
   ]);
   const submitted = new Set<string>();
   for (const row of instances ?? []) {
-    if (row.status === "submitted" || row.status === "cosigned") submitted.add(row.form_def_id);
+    if (row.status === "submitted" || row.status === "cosigned") submitted.add(row.form_def_id as string);
   }
   const missing: Array<{ form_def_id: string; code: string; title: string }> = [];
   const defMap = new Map<string, any>();
@@ -57,7 +57,7 @@ export async function previewFormsGate(
   for (const id of defIds) {
     if (!submitted.has(id)) {
       const d = defMap.get(id);
-      missing.push({ form_def_id: id, code: d?.code ?? "", title: d?.title ?? "" });
+      missing.push({ form_def_id: id as string, code: (d?.code as string) ?? "", title: (d?.title as string) ?? "" });
     }
   }
   return { open: missing.length === 0, missing };
