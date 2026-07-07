@@ -2780,7 +2780,7 @@ export type Database = {
           patient_id: string
           reason: string | null
           slot_at: string
-          source: string | null
+          source: Database["public"]["Enums"]["visit_source"] | null
           status: Database["public"]["Enums"]["booking_status"]
         }
         Insert: {
@@ -2792,7 +2792,7 @@ export type Database = {
           patient_id: string
           reason?: string | null
           slot_at: string
-          source?: string | null
+          source?: Database["public"]["Enums"]["visit_source"] | null
           status?: Database["public"]["Enums"]["booking_status"]
         }
         Update: {
@@ -2804,7 +2804,7 @@ export type Database = {
           patient_id?: string
           reason?: string | null
           slot_at?: string
-          source?: string | null
+          source?: Database["public"]["Enums"]["visit_source"] | null
           status?: Database["public"]["Enums"]["booking_status"]
         }
         Relationships: [
