@@ -98,6 +98,7 @@ import { Route as ApiClinicalV1PremResponsesRouteImport } from './routes/api/cli
 import { Route as ApiClinicalV1PolicyActivationsRouteImport } from './routes/api/clinical/v1/policy-activations'
 import { Route as ApiClinicalV1OpenapiRouteImport } from './routes/api/clinical/v1/openapi'
 import { Route as ApiClinicalV1MeRouteImport } from './routes/api/clinical/v1/me'
+import { Route as ApiClinicalV1HimCommunicationsRouteImport } from './routes/api/clinical/v1/him-communications'
 import { Route as ApiClinicalV1EpisodesRouteImport } from './routes/api/clinical/v1/episodes'
 import { Route as ApiClinicalV1EncountersRouteImport } from './routes/api/clinical/v1/encounters'
 import { Route as ApiClinicalV1EligibilityRouteImport } from './routes/api/clinical/v1/eligibility'
@@ -136,6 +137,7 @@ import { Route as ApiPublicLegalSlugAcceptRouteImport } from './routes/api/publi
 import { Route as ApiPatientV1PromsPendingRouteImport } from './routes/api/patient/v1/proms.pending'
 import { Route as ApiClinicalV1WorklistsRcmCommsRouteImport } from './routes/api/clinical/v1/worklists/rcm-comms'
 import { Route as ApiClinicalV1WorklistsNursingRouteImport } from './routes/api/clinical/v1/worklists/nursing'
+import { Route as ApiClinicalV1WorklistsHimCommsRouteImport } from './routes/api/clinical/v1/worklists/him-comms'
 import { Route as ApiClinicalV1WorklistsFormsRouteImport } from './routes/api/clinical/v1/worklists/forms'
 import { Route as ApiClinicalV1WorklistsDoctorRouteImport } from './routes/api/clinical/v1/worklists/doctor'
 import { Route as ApiClinicalV1VitalsIdRouteImport } from './routes/api/clinical/v1/vitals.$id'
@@ -279,6 +281,7 @@ import { Route as ApiClinicalV1IpAdmissionRequestsIdRouteImport } from './routes
 import { Route as ApiClinicalV1InterfacesLogBulkRouteImport } from './routes/api/clinical/v1/interfaces.log.bulk'
 import { Route as ApiClinicalV1InterfacesLogIdRouteImport } from './routes/api/clinical/v1/interfaces.log.$id'
 import { Route as ApiClinicalV1InterfacesD365SummaryRouteImport } from './routes/api/clinical/v1/interfaces.d365.summary'
+import { Route as ApiClinicalV1HimCommunicationsIdReadRouteImport } from './routes/api/clinical/v1/him-communications.$id.read'
 import { Route as ApiClinicalV1GateExceptionsIdRouteImport } from './routes/api/clinical/v1/gate/exceptions.$id'
 import { Route as ApiClinicalV1FormularyIndicationsIdRouteImport } from './routes/api/clinical/v1/formulary/indications.$id'
 import { Route as ApiClinicalV1FormsInstancesIdRouteImport } from './routes/api/clinical/v1/forms/instances.$id'
@@ -837,6 +840,12 @@ const ApiClinicalV1MeRoute = ApiClinicalV1MeRouteImport.update({
   path: '/api/clinical/v1/me',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiClinicalV1HimCommunicationsRoute =
+  ApiClinicalV1HimCommunicationsRouteImport.update({
+    id: '/api/clinical/v1/him-communications',
+    path: '/api/clinical/v1/him-communications',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1EpisodesRoute = ApiClinicalV1EpisodesRouteImport.update({
   id: '/api/clinical/v1/episodes',
   path: '/api/clinical/v1/episodes',
@@ -1039,6 +1048,12 @@ const ApiClinicalV1WorklistsNursingRoute =
   ApiClinicalV1WorklistsNursingRouteImport.update({
     id: '/api/clinical/v1/worklists/nursing',
     path: '/api/clinical/v1/worklists/nursing',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1WorklistsHimCommsRoute =
+  ApiClinicalV1WorklistsHimCommsRouteImport.update({
+    id: '/api/clinical/v1/worklists/him-comms',
+    path: '/api/clinical/v1/worklists/him-comms',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1WorklistsFormsRoute =
@@ -1874,6 +1889,12 @@ const ApiClinicalV1InterfacesD365SummaryRoute =
     path: '/api/clinical/v1/interfaces/d365/summary',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1HimCommunicationsIdReadRoute =
+  ApiClinicalV1HimCommunicationsIdReadRouteImport.update({
+    id: '/$id/read',
+    path: '/$id/read',
+    getParentRoute: () => ApiClinicalV1HimCommunicationsRoute,
+  } as any)
 const ApiClinicalV1GateExceptionsIdRoute =
   ApiClinicalV1GateExceptionsIdRouteImport.update({
     id: '/$id',
@@ -2547,6 +2568,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/eligibility': typeof ApiClinicalV1EligibilityRouteWithChildren
   '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
+  '/api/clinical/v1/him-communications': typeof ApiClinicalV1HimCommunicationsRouteWithChildren
   '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/clinical/v1/policy-activations': typeof ApiClinicalV1PolicyActivationsRouteWithChildren
@@ -2668,6 +2690,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
   '/api/clinical/v1/worklists/doctor': typeof ApiClinicalV1WorklistsDoctorRoute
   '/api/clinical/v1/worklists/forms': typeof ApiClinicalV1WorklistsFormsRoute
+  '/api/clinical/v1/worklists/him-comms': typeof ApiClinicalV1WorklistsHimCommsRoute
   '/api/clinical/v1/worklists/nursing': typeof ApiClinicalV1WorklistsNursingRoute
   '/api/clinical/v1/worklists/rcm-comms': typeof ApiClinicalV1WorklistsRcmCommsRoute
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
@@ -2739,6 +2762,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRouteWithChildren
   '/api/clinical/v1/formulary/indications/$id': typeof ApiClinicalV1FormularyIndicationsIdRoute
   '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
+  '/api/clinical/v1/him-communications/$id/read': typeof ApiClinicalV1HimCommunicationsIdReadRoute
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
   '/api/clinical/v1/interfaces/log/$id': typeof ApiClinicalV1InterfacesLogIdRouteWithChildren
   '/api/clinical/v1/interfaces/log/bulk': typeof ApiClinicalV1InterfacesLogBulkRoute
@@ -2913,6 +2937,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/eligibility': typeof ApiClinicalV1EligibilityRouteWithChildren
   '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
+  '/api/clinical/v1/him-communications': typeof ApiClinicalV1HimCommunicationsRouteWithChildren
   '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/clinical/v1/policy-activations': typeof ApiClinicalV1PolicyActivationsRouteWithChildren
@@ -3034,6 +3059,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
   '/api/clinical/v1/worklists/doctor': typeof ApiClinicalV1WorklistsDoctorRoute
   '/api/clinical/v1/worklists/forms': typeof ApiClinicalV1WorklistsFormsRoute
+  '/api/clinical/v1/worklists/him-comms': typeof ApiClinicalV1WorklistsHimCommsRoute
   '/api/clinical/v1/worklists/nursing': typeof ApiClinicalV1WorklistsNursingRoute
   '/api/clinical/v1/worklists/rcm-comms': typeof ApiClinicalV1WorklistsRcmCommsRoute
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
@@ -3105,6 +3131,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRouteWithChildren
   '/api/clinical/v1/formulary/indications/$id': typeof ApiClinicalV1FormularyIndicationsIdRoute
   '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
+  '/api/clinical/v1/him-communications/$id/read': typeof ApiClinicalV1HimCommunicationsIdReadRoute
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
   '/api/clinical/v1/interfaces/log/$id': typeof ApiClinicalV1InterfacesLogIdRouteWithChildren
   '/api/clinical/v1/interfaces/log/bulk': typeof ApiClinicalV1InterfacesLogBulkRoute
@@ -3283,6 +3310,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/eligibility': typeof ApiClinicalV1EligibilityRouteWithChildren
   '/api/clinical/v1/encounters': typeof ApiClinicalV1EncountersRouteWithChildren
   '/api/clinical/v1/episodes': typeof ApiClinicalV1EpisodesRouteWithChildren
+  '/api/clinical/v1/him-communications': typeof ApiClinicalV1HimCommunicationsRouteWithChildren
   '/api/clinical/v1/me': typeof ApiClinicalV1MeRoute
   '/api/clinical/v1/openapi': typeof ApiClinicalV1OpenapiRoute
   '/api/clinical/v1/policy-activations': typeof ApiClinicalV1PolicyActivationsRouteWithChildren
@@ -3404,6 +3432,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
   '/api/clinical/v1/worklists/doctor': typeof ApiClinicalV1WorklistsDoctorRoute
   '/api/clinical/v1/worklists/forms': typeof ApiClinicalV1WorklistsFormsRoute
+  '/api/clinical/v1/worklists/him-comms': typeof ApiClinicalV1WorklistsHimCommsRoute
   '/api/clinical/v1/worklists/nursing': typeof ApiClinicalV1WorklistsNursingRoute
   '/api/clinical/v1/worklists/rcm-comms': typeof ApiClinicalV1WorklistsRcmCommsRoute
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
@@ -3475,6 +3504,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRouteWithChildren
   '/api/clinical/v1/formulary/indications/$id': typeof ApiClinicalV1FormularyIndicationsIdRoute
   '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
+  '/api/clinical/v1/him-communications/$id/read': typeof ApiClinicalV1HimCommunicationsIdReadRoute
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
   '/api/clinical/v1/interfaces/log/$id': typeof ApiClinicalV1InterfacesLogIdRouteWithChildren
   '/api/clinical/v1/interfaces/log/bulk': typeof ApiClinicalV1InterfacesLogBulkRoute
@@ -3653,6 +3683,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/eligibility'
     | '/api/clinical/v1/encounters'
     | '/api/clinical/v1/episodes'
+    | '/api/clinical/v1/him-communications'
     | '/api/clinical/v1/me'
     | '/api/clinical/v1/openapi'
     | '/api/clinical/v1/policy-activations'
@@ -3774,6 +3805,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/vitals/$id'
     | '/api/clinical/v1/worklists/doctor'
     | '/api/clinical/v1/worklists/forms'
+    | '/api/clinical/v1/worklists/him-comms'
     | '/api/clinical/v1/worklists/nursing'
     | '/api/clinical/v1/worklists/rcm-comms'
     | '/api/patient/v1/proms/pending'
@@ -3845,6 +3877,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/forms/instances/$id'
     | '/api/clinical/v1/formulary/indications/$id'
     | '/api/clinical/v1/gate/exceptions/$id'
+    | '/api/clinical/v1/him-communications/$id/read'
     | '/api/clinical/v1/interfaces/d365/summary'
     | '/api/clinical/v1/interfaces/log/$id'
     | '/api/clinical/v1/interfaces/log/bulk'
@@ -4019,6 +4052,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/eligibility'
     | '/api/clinical/v1/encounters'
     | '/api/clinical/v1/episodes'
+    | '/api/clinical/v1/him-communications'
     | '/api/clinical/v1/me'
     | '/api/clinical/v1/openapi'
     | '/api/clinical/v1/policy-activations'
@@ -4140,6 +4174,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/vitals/$id'
     | '/api/clinical/v1/worklists/doctor'
     | '/api/clinical/v1/worklists/forms'
+    | '/api/clinical/v1/worklists/him-comms'
     | '/api/clinical/v1/worklists/nursing'
     | '/api/clinical/v1/worklists/rcm-comms'
     | '/api/patient/v1/proms/pending'
@@ -4211,6 +4246,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/forms/instances/$id'
     | '/api/clinical/v1/formulary/indications/$id'
     | '/api/clinical/v1/gate/exceptions/$id'
+    | '/api/clinical/v1/him-communications/$id/read'
     | '/api/clinical/v1/interfaces/d365/summary'
     | '/api/clinical/v1/interfaces/log/$id'
     | '/api/clinical/v1/interfaces/log/bulk'
@@ -4388,6 +4424,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/eligibility'
     | '/api/clinical/v1/encounters'
     | '/api/clinical/v1/episodes'
+    | '/api/clinical/v1/him-communications'
     | '/api/clinical/v1/me'
     | '/api/clinical/v1/openapi'
     | '/api/clinical/v1/policy-activations'
@@ -4509,6 +4546,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/vitals/$id'
     | '/api/clinical/v1/worklists/doctor'
     | '/api/clinical/v1/worklists/forms'
+    | '/api/clinical/v1/worklists/him-comms'
     | '/api/clinical/v1/worklists/nursing'
     | '/api/clinical/v1/worklists/rcm-comms'
     | '/api/patient/v1/proms/pending'
@@ -4580,6 +4618,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/forms/instances/$id'
     | '/api/clinical/v1/formulary/indications/$id'
     | '/api/clinical/v1/gate/exceptions/$id'
+    | '/api/clinical/v1/him-communications/$id/read'
     | '/api/clinical/v1/interfaces/d365/summary'
     | '/api/clinical/v1/interfaces/log/$id'
     | '/api/clinical/v1/interfaces/log/bulk'
@@ -4723,6 +4762,7 @@ export interface RootRouteChildren {
   ApiClinicalV1EligibilityRoute: typeof ApiClinicalV1EligibilityRouteWithChildren
   ApiClinicalV1EncountersRoute: typeof ApiClinicalV1EncountersRouteWithChildren
   ApiClinicalV1EpisodesRoute: typeof ApiClinicalV1EpisodesRouteWithChildren
+  ApiClinicalV1HimCommunicationsRoute: typeof ApiClinicalV1HimCommunicationsRouteWithChildren
   ApiClinicalV1MeRoute: typeof ApiClinicalV1MeRoute
   ApiClinicalV1OpenapiRoute: typeof ApiClinicalV1OpenapiRoute
   ApiClinicalV1PolicyActivationsRoute: typeof ApiClinicalV1PolicyActivationsRouteWithChildren
@@ -4817,6 +4857,7 @@ export interface RootRouteChildren {
   ApiClinicalV1VitalsIdRoute: typeof ApiClinicalV1VitalsIdRoute
   ApiClinicalV1WorklistsDoctorRoute: typeof ApiClinicalV1WorklistsDoctorRoute
   ApiClinicalV1WorklistsFormsRoute: typeof ApiClinicalV1WorklistsFormsRoute
+  ApiClinicalV1WorklistsHimCommsRoute: typeof ApiClinicalV1WorklistsHimCommsRoute
   ApiClinicalV1WorklistsNursingRoute: typeof ApiClinicalV1WorklistsNursingRoute
   ApiClinicalV1WorklistsRcmCommsRoute: typeof ApiClinicalV1WorklistsRcmCommsRoute
   ApiPatientV1PromsPendingRoute: typeof ApiPatientV1PromsPendingRoute
@@ -5466,6 +5507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1MeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/him-communications': {
+      id: '/api/clinical/v1/him-communications'
+      path: '/api/clinical/v1/him-communications'
+      fullPath: '/api/clinical/v1/him-communications'
+      preLoaderRoute: typeof ApiClinicalV1HimCommunicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/episodes': {
       id: '/api/clinical/v1/episodes'
       path: '/api/clinical/v1/episodes'
@@ -5730,6 +5778,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/worklists/nursing'
       fullPath: '/api/clinical/v1/worklists/nursing'
       preLoaderRoute: typeof ApiClinicalV1WorklistsNursingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/worklists/him-comms': {
+      id: '/api/clinical/v1/worklists/him-comms'
+      path: '/api/clinical/v1/worklists/him-comms'
+      fullPath: '/api/clinical/v1/worklists/him-comms'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsHimCommsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/worklists/forms': {
@@ -6732,6 +6787,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/clinical/v1/interfaces/d365/summary'
       preLoaderRoute: typeof ApiClinicalV1InterfacesD365SummaryRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/him-communications/$id/read': {
+      id: '/api/clinical/v1/him-communications/$id/read'
+      path: '/$id/read'
+      fullPath: '/api/clinical/v1/him-communications/$id/read'
+      preLoaderRoute: typeof ApiClinicalV1HimCommunicationsIdReadRouteImport
+      parentRoute: typeof ApiClinicalV1HimCommunicationsRoute
     }
     '/api/clinical/v1/gate/exceptions/$id': {
       id: '/api/clinical/v1/gate/exceptions/$id'
@@ -8074,6 +8136,21 @@ const ApiClinicalV1EpisodesRouteWithChildren =
     ApiClinicalV1EpisodesRouteChildren,
   )
 
+interface ApiClinicalV1HimCommunicationsRouteChildren {
+  ApiClinicalV1HimCommunicationsIdReadRoute: typeof ApiClinicalV1HimCommunicationsIdReadRoute
+}
+
+const ApiClinicalV1HimCommunicationsRouteChildren: ApiClinicalV1HimCommunicationsRouteChildren =
+  {
+    ApiClinicalV1HimCommunicationsIdReadRoute:
+      ApiClinicalV1HimCommunicationsIdReadRoute,
+  }
+
+const ApiClinicalV1HimCommunicationsRouteWithChildren =
+  ApiClinicalV1HimCommunicationsRoute._addFileChildren(
+    ApiClinicalV1HimCommunicationsRouteChildren,
+  )
+
 interface ApiClinicalV1PolicyActivationsIdRouteChildren {
   ApiClinicalV1PolicyActivationsIdActivateRoute: typeof ApiClinicalV1PolicyActivationsIdActivateRoute
 }
@@ -9096,6 +9173,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1EligibilityRoute: ApiClinicalV1EligibilityRouteWithChildren,
   ApiClinicalV1EncountersRoute: ApiClinicalV1EncountersRouteWithChildren,
   ApiClinicalV1EpisodesRoute: ApiClinicalV1EpisodesRouteWithChildren,
+  ApiClinicalV1HimCommunicationsRoute:
+    ApiClinicalV1HimCommunicationsRouteWithChildren,
   ApiClinicalV1MeRoute: ApiClinicalV1MeRoute,
   ApiClinicalV1OpenapiRoute: ApiClinicalV1OpenapiRoute,
   ApiClinicalV1PolicyActivationsRoute:
@@ -9219,6 +9298,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1VitalsIdRoute: ApiClinicalV1VitalsIdRoute,
   ApiClinicalV1WorklistsDoctorRoute: ApiClinicalV1WorklistsDoctorRoute,
   ApiClinicalV1WorklistsFormsRoute: ApiClinicalV1WorklistsFormsRoute,
+  ApiClinicalV1WorklistsHimCommsRoute: ApiClinicalV1WorklistsHimCommsRoute,
   ApiClinicalV1WorklistsNursingRoute: ApiClinicalV1WorklistsNursingRoute,
   ApiClinicalV1WorklistsRcmCommsRoute: ApiClinicalV1WorklistsRcmCommsRoute,
   ApiPatientV1PromsPendingRoute: ApiPatientV1PromsPendingRoute,

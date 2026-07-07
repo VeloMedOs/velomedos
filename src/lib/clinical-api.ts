@@ -677,6 +677,10 @@ export type DoctorWorklistRow = {
   beneficiary_id: string; mrn: string | null; name: string | null;
   age: number | null; gender: string | null;
   token: string | null; is_vip: boolean;
+  dnr_flag: boolean | null;
+  isolation_precaution: string | null;
+  discharge_disposition: string | null;
+  ems_status: string | null;
   billed_orders: number; released_orders: number; locked_orders: number;
   pending_authorizations: number; unread_rcm_comms: number;
   attending_physician: string | null;
@@ -697,8 +701,10 @@ export type FormsWorklistRow = {
   form_def_id: string; code: string; title: string;
   trigger_type: "pre" | "post" | "manual" | null;
   gate_type: "pre_order" | "post_order" | "standalone";
-  classification: string | null; assigned_role: string | null;
+  classification: "nurse" | "care_team" | "counter" | "specialty" | null;
+  assigned_role: string | null;
   status: string; due_at: string | null; is_overdue: boolean;
+  overdue_days: number;
   mandatory: boolean | null; cosign_required: boolean | null;
   submitted_at: string | null; cosigned_at: string | null; created_at: string;
 };
@@ -712,15 +718,77 @@ export type RcmCommRow = {
   created_at: string;
 };
 
+export type FormClassification = "nurse" | "care_team" | "counter" | "specialty";
+
+export type HimCommRow = {
+  id: string; tenant_id: string;
+  encounter_id: string;
+  form_instance_id: string | null;
+  coding_row_id: string | null;
+  direction: "inbound" | "outbound";
+  channel: string | null;
+  author: string | null;
+  author_name: string | null;
+  body: string;
+  payload: Record<string, unknown> | null;
+  read_at: string | null;
+  read_by: string | null;
+  created_at: string;
+  is_read_by_me: boolean;
+  unread: boolean;
+};
+
 export const worklistsApi = {
   doctor: (params?: { class?: EncounterClass }) =>
     clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/doctor${qs(params)}`),
   nursing: (params?: { class?: EncounterClass }) =>
     clinicalFetch<{ data: NursingWorkbenchRow[] }>(`/api/clinical/v1/worklists/nursing${qs(params)}`),
-  forms: (params?: { class?: EncounterClass; classification?: string; gate_type?: string }) =>
+  forms: (params?: { class?: EncounterClass; classification?: FormClassification; gate_type?: string; encounter_id?: string }) =>
     clinicalFetch<{ data: FormsWorklistRow[] }>(`/api/clinical/v1/worklists/forms${qs(params)}`),
   rcmComms: (params?: { encounter_id?: string; kind?: string; unread?: boolean }) =>
     clinicalFetch<{ data: RcmCommRow[] }>(`/api/clinical/v1/worklists/rcm-comms${qs(
       params ? { ...params, unread: params.unread ? "true" : undefined } : undefined,
     )}`),
+
+  // Turn 2b · HIM communication channel + 10 module worklists.
+  himComms: (params?: { encounter_id?: string; unread?: boolean }) =>
+    clinicalFetch<{ data: HimCommRow[] }>(`/api/clinical/v1/worklists/him-comms${qs(
+      params ? { ...params, unread: params.unread ? "true" : undefined } : undefined,
+    )}`),
+  postHimComm: (body: {
+    encounter_id: string;
+    body: string;
+    channel?: string | null;
+    form_instance_id?: string | null;
+    coding_row_id?: string | null;
+    payload?: Record<string, unknown> | null;
+  }) =>
+    clinicalFetch<{ data: HimCommRow }>(`/api/clinical/v1/him-communications`, { method: "POST", body }),
+  markHimCommRead: (id: string) =>
+    clinicalFetch<{ data: { id: string; read_at: string | null } }>(
+      `/api/clinical/v1/him-communications/${id}/read`, { method: "PATCH", body: {} },
+    ),
+
+  // 10 module worklist thin filters (each returns doctor-worklist-shaped rows
+  // unless otherwise noted).
+  ems:             (params?: { class?: EncounterClass }) =>
+    clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/ems${qs(params)}`),
+  frontOffice:     (params?: { class?: EncounterClass }) =>
+    clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/front-office${qs(params)}`),
+  admission:       (params?: { class?: EncounterClass }) =>
+    clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/admission${qs(params)}`),
+  floorManager:    (params?: { class?: EncounterClass }) =>
+    clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/floor-manager${qs(params)}`),
+  transferDischarge: (params?: { class?: EncounterClass }) =>
+    clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/transfer-discharge${qs(params)}`),
+  coder:           (params?: { class?: EncounterClass }) =>
+    clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/coder${qs(params)}`),
+  mrd:             () =>
+    clinicalFetch<{ data: FormsWorklistRow[] }>(`/api/clinical/v1/worklists/mrd`),
+  pharmacist:      (params?: { class?: EncounterClass }) =>
+    clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/pharmacist${qs(params)}`),
+  nutrition:       (params?: { class?: EncounterClass }) =>
+    clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/nutrition${qs(params)}`),
+  socialWork:      (params?: { class?: EncounterClass }) =>
+    clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/social-work${qs(params)}`),
 };
