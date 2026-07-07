@@ -26,12 +26,17 @@ import { OrdersPane } from "@/components/clinical/daylight/OrdersPane";
 import { ResultsPane } from "@/components/clinical/daylight/ResultsPane";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
 import { formatHalalas } from "@/lib/clinical/format-money";
+import { DoctorWorklistPane } from "@/components/clinical/daylight/worklists/DoctorWorklistPane";
+import { NursingWorkbenchPane } from "@/components/clinical/daylight/worklists/NursingWorkbenchPane";
+import { ClinicalFormsWorklistPane } from "@/components/clinical/daylight/worklists/ClinicalFormsWorklistPane";
+import { RcmCommsInboxPane } from "@/components/clinical/daylight/worklists/RcmCommsInboxPane";
 
 const TAB_VALUES = ALL_NAV_TABS as [string, ...string[]];
 
 export const Route = createFileRoute("/_authenticated/clinical")({
   validateSearch: z.object({
     tab: z.enum(TAB_VALUES).optional(),
+    class: z.enum(["AMB", "EMER", "IMP", "HH", "VR"]).optional(),
   }),
   head: () => ({ meta: [{ title: "Clinical Workspace · VeloMed OS" }] }),
   component: ClinicalWorkspace,
@@ -110,6 +115,10 @@ function ClinicalWorkspace() {
       {tab === "orders"              && <OrdersPane />}
       {tab === "results"             && <ResultsPane />}
       {tab === "vitals"              && <VitalsTrendPane />}
+      {tab === "wl-doctor"           && <DoctorWorklistPane />}
+      {tab === "wl-nursing"          && <NursingWorkbenchPane />}
+      {tab === "forms-worklist"      && <ClinicalFormsWorklistPane />}
+      {tab === "rcm-comms"           && <RcmCommsInboxPane />}
       {tab === "vbhc"                && (
         <div className="px-7 pt-6 pb-14 mx-auto" style={{ maxWidth: 1200, width: "100%" }}>
           <OutcomesPane />
