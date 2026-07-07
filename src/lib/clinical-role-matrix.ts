@@ -29,13 +29,20 @@ export type ClinicalRole =
   | "biller"
   | "claims_officer"
   | "finance"
+  | "nutritionist"
+  | "social_worker"
+  | "ambulance_ems"
+  | "med_records"
+  | "floor_manager"
   | "read_only";
 
 export const CLINICAL_ROLE_ORDER: ClinicalRole[] = [
   "tenant_admin", "registrar", "front_office", "physician", "nurse",
   "lab_tech", "radiologist", "pharmacist", "coder", "case_manager",
   "rcm", "approval_officer", "cashier", "biller", "claims_officer",
-  "finance", "read_only",
+  "finance",
+  "nutritionist", "social_worker", "ambulance_ems", "med_records", "floor_manager",
+  "read_only",
 ];
 
 export const READ_ONLY_ROLE: ClinicalRole = "read_only";
@@ -65,6 +72,11 @@ export const CLINICAL_ROLE_META: Record<ClinicalRole, ClinicalRoleMeta> = {
   biller:          { role: "biller",          label: "Biller",            group: "finance",      tone: "bg-action/20 text-action",          blurb: "Bill allocation, claim assembly & submission." },
   claims_officer:  { role: "claims_officer",  label: "Claims Officer",    group: "rcm",          tone: "bg-action/20 text-action",          blurb: "Batching, e-claims, remittance matching, denial management & resubmission." },
   finance:         { role: "finance",         label: "Finance",           group: "finance",      tone: "bg-emergency/20 text-emergency",    blurb: "Remittance posting, refund/write-off approval, ZATCA & D365 reconciliation." },
+  nutritionist:    { role: "nutritionist",    label: "Nutritionist",      group: "clinical",     tone: "bg-stable/20 text-stable",          blurb: "Nutrition assessments, dietary care-plan tasks and counter worklists." },
+  social_worker:   { role: "social_worker",   label: "Social Worker",     group: "clinical",     tone: "bg-stable/20 text-stable",          blurb: "Social assessments, discharge-planning support, case-manager collaboration." },
+  ambulance_ems:   { role: "ambulance_ems",   label: "Ambulance / EMS",   group: "clinical",     tone: "bg-emergency/20 text-emergency",    blurb: "Pre-hospital handoff, EMS bring-in, ER handshake." },
+  med_records:     { role: "med_records",     label: "Medical Records",   group: "coding",       tone: "bg-panel-elevated text-foreground", blurb: "HIM completeness monitoring, delinquency reports, coder↔physician relay." },
+  floor_manager:   { role: "floor_manager",   label: "Floor Manager",     group: "clinical",     tone: "bg-action/20 text-action",          blurb: "Bed-flow, ward assignment, ADT coordination across IP floors." },
   read_only:       { role: "read_only",       label: "Read Only",         group: "clinical",     tone: "bg-muted text-muted-foreground",    blurb: "View-only across every permitted HIS module; cannot perform actions." },
 };
 
