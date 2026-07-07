@@ -12,6 +12,7 @@ import { worklistsApi, type DoctorWorklistRow, type RcmCommRow } from "@/lib/cli
 import { ClinicalApiError } from "@/lib/clinical-api";
 import { DCard } from "@/components/clinical/daylight/Primitives";
 import { RcmCommCard, type RcmCommMessage } from "@/components/clinical/daylight/spine/RcmCommCard";
+import { HimCommCard } from "@/components/clinical/daylight/spine/HimCommCard";
 import {
   UrgencyChips, RcmStatusChips, formatWait, waitTone,
   type Urgency, type RcmStatus,
@@ -181,6 +182,7 @@ export function DoctorWorklistPane() {
           </div>
           <RcmCommCard messages={comms.slice(0, 6).map(toCommMessage)} />
         </div>
+        <HimCommCard encounterId={filtered[0]?.encounter_id ?? null} />
       </aside>
     </div>
   );
