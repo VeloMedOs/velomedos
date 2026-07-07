@@ -135,11 +135,21 @@ import { Route as ApiPublicV1DemoCredentialsRouteImport } from './routes/api/pub
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiPublicLegalSlugAcceptRouteImport } from './routes/api/public/legal.$slug.accept'
 import { Route as ApiPatientV1PromsPendingRouteImport } from './routes/api/patient/v1/proms.pending'
+import { Route as ApiClinicalV1WorklistsTransferDischargeRouteImport } from './routes/api/clinical/v1/worklists/transfer-discharge'
+import { Route as ApiClinicalV1WorklistsSocialWorkRouteImport } from './routes/api/clinical/v1/worklists/social-work'
 import { Route as ApiClinicalV1WorklistsRcmCommsRouteImport } from './routes/api/clinical/v1/worklists/rcm-comms'
+import { Route as ApiClinicalV1WorklistsPharmacistRouteImport } from './routes/api/clinical/v1/worklists/pharmacist'
+import { Route as ApiClinicalV1WorklistsNutritionRouteImport } from './routes/api/clinical/v1/worklists/nutrition'
 import { Route as ApiClinicalV1WorklistsNursingRouteImport } from './routes/api/clinical/v1/worklists/nursing'
+import { Route as ApiClinicalV1WorklistsMrdRouteImport } from './routes/api/clinical/v1/worklists/mrd'
 import { Route as ApiClinicalV1WorklistsHimCommsRouteImport } from './routes/api/clinical/v1/worklists/him-comms'
+import { Route as ApiClinicalV1WorklistsFrontOfficeRouteImport } from './routes/api/clinical/v1/worklists/front-office'
 import { Route as ApiClinicalV1WorklistsFormsRouteImport } from './routes/api/clinical/v1/worklists/forms'
+import { Route as ApiClinicalV1WorklistsFloorManagerRouteImport } from './routes/api/clinical/v1/worklists/floor-manager'
+import { Route as ApiClinicalV1WorklistsEmsRouteImport } from './routes/api/clinical/v1/worklists/ems'
 import { Route as ApiClinicalV1WorklistsDoctorRouteImport } from './routes/api/clinical/v1/worklists/doctor'
+import { Route as ApiClinicalV1WorklistsCoderRouteImport } from './routes/api/clinical/v1/worklists/coder'
+import { Route as ApiClinicalV1WorklistsAdmissionRouteImport } from './routes/api/clinical/v1/worklists/admission'
 import { Route as ApiClinicalV1VitalsIdRouteImport } from './routes/api/clinical/v1/vitals.$id'
 import { Route as ApiClinicalV1TaxInvoicesBulkRouteImport } from './routes/api/clinical/v1/tax-invoices.bulk'
 import { Route as ApiClinicalV1TaxInvoicesIdRouteImport } from './routes/api/clinical/v1/tax-invoices.$id'
@@ -1038,10 +1048,34 @@ const ApiPatientV1PromsPendingRoute =
     path: '/api/patient/v1/proms/pending',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1WorklistsTransferDischargeRoute =
+  ApiClinicalV1WorklistsTransferDischargeRouteImport.update({
+    id: '/api/clinical/v1/worklists/transfer-discharge',
+    path: '/api/clinical/v1/worklists/transfer-discharge',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1WorklistsSocialWorkRoute =
+  ApiClinicalV1WorklistsSocialWorkRouteImport.update({
+    id: '/api/clinical/v1/worklists/social-work',
+    path: '/api/clinical/v1/worklists/social-work',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1WorklistsRcmCommsRoute =
   ApiClinicalV1WorklistsRcmCommsRouteImport.update({
     id: '/api/clinical/v1/worklists/rcm-comms',
     path: '/api/clinical/v1/worklists/rcm-comms',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1WorklistsPharmacistRoute =
+  ApiClinicalV1WorklistsPharmacistRouteImport.update({
+    id: '/api/clinical/v1/worklists/pharmacist',
+    path: '/api/clinical/v1/worklists/pharmacist',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1WorklistsNutritionRoute =
+  ApiClinicalV1WorklistsNutritionRouteImport.update({
+    id: '/api/clinical/v1/worklists/nutrition',
+    path: '/api/clinical/v1/worklists/nutrition',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1WorklistsNursingRoute =
@@ -1050,10 +1084,22 @@ const ApiClinicalV1WorklistsNursingRoute =
     path: '/api/clinical/v1/worklists/nursing',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1WorklistsMrdRoute =
+  ApiClinicalV1WorklistsMrdRouteImport.update({
+    id: '/api/clinical/v1/worklists/mrd',
+    path: '/api/clinical/v1/worklists/mrd',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1WorklistsHimCommsRoute =
   ApiClinicalV1WorklistsHimCommsRouteImport.update({
     id: '/api/clinical/v1/worklists/him-comms',
     path: '/api/clinical/v1/worklists/him-comms',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1WorklistsFrontOfficeRoute =
+  ApiClinicalV1WorklistsFrontOfficeRouteImport.update({
+    id: '/api/clinical/v1/worklists/front-office',
+    path: '/api/clinical/v1/worklists/front-office',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1WorklistsFormsRoute =
@@ -1062,10 +1108,34 @@ const ApiClinicalV1WorklistsFormsRoute =
     path: '/api/clinical/v1/worklists/forms',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1WorklistsFloorManagerRoute =
+  ApiClinicalV1WorklistsFloorManagerRouteImport.update({
+    id: '/api/clinical/v1/worklists/floor-manager',
+    path: '/api/clinical/v1/worklists/floor-manager',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1WorklistsEmsRoute =
+  ApiClinicalV1WorklistsEmsRouteImport.update({
+    id: '/api/clinical/v1/worklists/ems',
+    path: '/api/clinical/v1/worklists/ems',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1WorklistsDoctorRoute =
   ApiClinicalV1WorklistsDoctorRouteImport.update({
     id: '/api/clinical/v1/worklists/doctor',
     path: '/api/clinical/v1/worklists/doctor',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1WorklistsCoderRoute =
+  ApiClinicalV1WorklistsCoderRouteImport.update({
+    id: '/api/clinical/v1/worklists/coder',
+    path: '/api/clinical/v1/worklists/coder',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1WorklistsAdmissionRoute =
+  ApiClinicalV1WorklistsAdmissionRouteImport.update({
+    id: '/api/clinical/v1/worklists/admission',
+    path: '/api/clinical/v1/worklists/admission',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1VitalsIdRoute = ApiClinicalV1VitalsIdRouteImport.update({
@@ -2688,11 +2758,21 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/tax-invoices/$id': typeof ApiClinicalV1TaxInvoicesIdRouteWithChildren
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
+  '/api/clinical/v1/worklists/admission': typeof ApiClinicalV1WorklistsAdmissionRoute
+  '/api/clinical/v1/worklists/coder': typeof ApiClinicalV1WorklistsCoderRoute
   '/api/clinical/v1/worklists/doctor': typeof ApiClinicalV1WorklistsDoctorRoute
+  '/api/clinical/v1/worklists/ems': typeof ApiClinicalV1WorklistsEmsRoute
+  '/api/clinical/v1/worklists/floor-manager': typeof ApiClinicalV1WorklistsFloorManagerRoute
   '/api/clinical/v1/worklists/forms': typeof ApiClinicalV1WorklistsFormsRoute
+  '/api/clinical/v1/worklists/front-office': typeof ApiClinicalV1WorklistsFrontOfficeRoute
   '/api/clinical/v1/worklists/him-comms': typeof ApiClinicalV1WorklistsHimCommsRoute
+  '/api/clinical/v1/worklists/mrd': typeof ApiClinicalV1WorklistsMrdRoute
   '/api/clinical/v1/worklists/nursing': typeof ApiClinicalV1WorklistsNursingRoute
+  '/api/clinical/v1/worklists/nutrition': typeof ApiClinicalV1WorklistsNutritionRoute
+  '/api/clinical/v1/worklists/pharmacist': typeof ApiClinicalV1WorklistsPharmacistRoute
   '/api/clinical/v1/worklists/rcm-comms': typeof ApiClinicalV1WorklistsRcmCommsRoute
+  '/api/clinical/v1/worklists/social-work': typeof ApiClinicalV1WorklistsSocialWorkRoute
+  '/api/clinical/v1/worklists/transfer-discharge': typeof ApiClinicalV1WorklistsTransferDischargeRoute
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -3057,11 +3137,21 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/tax-invoices/$id': typeof ApiClinicalV1TaxInvoicesIdRouteWithChildren
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
+  '/api/clinical/v1/worklists/admission': typeof ApiClinicalV1WorklistsAdmissionRoute
+  '/api/clinical/v1/worklists/coder': typeof ApiClinicalV1WorklistsCoderRoute
   '/api/clinical/v1/worklists/doctor': typeof ApiClinicalV1WorklistsDoctorRoute
+  '/api/clinical/v1/worklists/ems': typeof ApiClinicalV1WorklistsEmsRoute
+  '/api/clinical/v1/worklists/floor-manager': typeof ApiClinicalV1WorklistsFloorManagerRoute
   '/api/clinical/v1/worklists/forms': typeof ApiClinicalV1WorklistsFormsRoute
+  '/api/clinical/v1/worklists/front-office': typeof ApiClinicalV1WorklistsFrontOfficeRoute
   '/api/clinical/v1/worklists/him-comms': typeof ApiClinicalV1WorklistsHimCommsRoute
+  '/api/clinical/v1/worklists/mrd': typeof ApiClinicalV1WorklistsMrdRoute
   '/api/clinical/v1/worklists/nursing': typeof ApiClinicalV1WorklistsNursingRoute
+  '/api/clinical/v1/worklists/nutrition': typeof ApiClinicalV1WorklistsNutritionRoute
+  '/api/clinical/v1/worklists/pharmacist': typeof ApiClinicalV1WorklistsPharmacistRoute
   '/api/clinical/v1/worklists/rcm-comms': typeof ApiClinicalV1WorklistsRcmCommsRoute
+  '/api/clinical/v1/worklists/social-work': typeof ApiClinicalV1WorklistsSocialWorkRoute
+  '/api/clinical/v1/worklists/transfer-discharge': typeof ApiClinicalV1WorklistsTransferDischargeRoute
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -3430,11 +3520,21 @@ export interface FileRoutesById {
   '/api/clinical/v1/tax-invoices/$id': typeof ApiClinicalV1TaxInvoicesIdRouteWithChildren
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
   '/api/clinical/v1/vitals/$id': typeof ApiClinicalV1VitalsIdRoute
+  '/api/clinical/v1/worklists/admission': typeof ApiClinicalV1WorklistsAdmissionRoute
+  '/api/clinical/v1/worklists/coder': typeof ApiClinicalV1WorklistsCoderRoute
   '/api/clinical/v1/worklists/doctor': typeof ApiClinicalV1WorklistsDoctorRoute
+  '/api/clinical/v1/worklists/ems': typeof ApiClinicalV1WorklistsEmsRoute
+  '/api/clinical/v1/worklists/floor-manager': typeof ApiClinicalV1WorklistsFloorManagerRoute
   '/api/clinical/v1/worklists/forms': typeof ApiClinicalV1WorklistsFormsRoute
+  '/api/clinical/v1/worklists/front-office': typeof ApiClinicalV1WorklistsFrontOfficeRoute
   '/api/clinical/v1/worklists/him-comms': typeof ApiClinicalV1WorklistsHimCommsRoute
+  '/api/clinical/v1/worklists/mrd': typeof ApiClinicalV1WorklistsMrdRoute
   '/api/clinical/v1/worklists/nursing': typeof ApiClinicalV1WorklistsNursingRoute
+  '/api/clinical/v1/worklists/nutrition': typeof ApiClinicalV1WorklistsNutritionRoute
+  '/api/clinical/v1/worklists/pharmacist': typeof ApiClinicalV1WorklistsPharmacistRoute
   '/api/clinical/v1/worklists/rcm-comms': typeof ApiClinicalV1WorklistsRcmCommsRoute
+  '/api/clinical/v1/worklists/social-work': typeof ApiClinicalV1WorklistsSocialWorkRoute
+  '/api/clinical/v1/worklists/transfer-discharge': typeof ApiClinicalV1WorklistsTransferDischargeRoute
   '/api/patient/v1/proms/pending': typeof ApiPatientV1PromsPendingRoute
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
@@ -3803,11 +3903,21 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/tax-invoices/$id'
     | '/api/clinical/v1/tax-invoices/bulk'
     | '/api/clinical/v1/vitals/$id'
+    | '/api/clinical/v1/worklists/admission'
+    | '/api/clinical/v1/worklists/coder'
     | '/api/clinical/v1/worklists/doctor'
+    | '/api/clinical/v1/worklists/ems'
+    | '/api/clinical/v1/worklists/floor-manager'
     | '/api/clinical/v1/worklists/forms'
+    | '/api/clinical/v1/worklists/front-office'
     | '/api/clinical/v1/worklists/him-comms'
+    | '/api/clinical/v1/worklists/mrd'
     | '/api/clinical/v1/worklists/nursing'
+    | '/api/clinical/v1/worklists/nutrition'
+    | '/api/clinical/v1/worklists/pharmacist'
     | '/api/clinical/v1/worklists/rcm-comms'
+    | '/api/clinical/v1/worklists/social-work'
+    | '/api/clinical/v1/worklists/transfer-discharge'
     | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
@@ -4172,11 +4282,21 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/tax-invoices/$id'
     | '/api/clinical/v1/tax-invoices/bulk'
     | '/api/clinical/v1/vitals/$id'
+    | '/api/clinical/v1/worklists/admission'
+    | '/api/clinical/v1/worklists/coder'
     | '/api/clinical/v1/worklists/doctor'
+    | '/api/clinical/v1/worklists/ems'
+    | '/api/clinical/v1/worklists/floor-manager'
     | '/api/clinical/v1/worklists/forms'
+    | '/api/clinical/v1/worklists/front-office'
     | '/api/clinical/v1/worklists/him-comms'
+    | '/api/clinical/v1/worklists/mrd'
     | '/api/clinical/v1/worklists/nursing'
+    | '/api/clinical/v1/worklists/nutrition'
+    | '/api/clinical/v1/worklists/pharmacist'
     | '/api/clinical/v1/worklists/rcm-comms'
+    | '/api/clinical/v1/worklists/social-work'
+    | '/api/clinical/v1/worklists/transfer-discharge'
     | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
@@ -4544,11 +4664,21 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/tax-invoices/$id'
     | '/api/clinical/v1/tax-invoices/bulk'
     | '/api/clinical/v1/vitals/$id'
+    | '/api/clinical/v1/worklists/admission'
+    | '/api/clinical/v1/worklists/coder'
     | '/api/clinical/v1/worklists/doctor'
+    | '/api/clinical/v1/worklists/ems'
+    | '/api/clinical/v1/worklists/floor-manager'
     | '/api/clinical/v1/worklists/forms'
+    | '/api/clinical/v1/worklists/front-office'
     | '/api/clinical/v1/worklists/him-comms'
+    | '/api/clinical/v1/worklists/mrd'
     | '/api/clinical/v1/worklists/nursing'
+    | '/api/clinical/v1/worklists/nutrition'
+    | '/api/clinical/v1/worklists/pharmacist'
     | '/api/clinical/v1/worklists/rcm-comms'
+    | '/api/clinical/v1/worklists/social-work'
+    | '/api/clinical/v1/worklists/transfer-discharge'
     | '/api/patient/v1/proms/pending'
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
@@ -4855,11 +4985,21 @@ export interface RootRouteChildren {
   ApiClinicalV1OutcomesSummaryRoute: typeof ApiClinicalV1OutcomesSummaryRoute
   ApiClinicalV1SupportingInfoIdRoute: typeof ApiClinicalV1SupportingInfoIdRoute
   ApiClinicalV1VitalsIdRoute: typeof ApiClinicalV1VitalsIdRoute
+  ApiClinicalV1WorklistsAdmissionRoute: typeof ApiClinicalV1WorklistsAdmissionRoute
+  ApiClinicalV1WorklistsCoderRoute: typeof ApiClinicalV1WorklistsCoderRoute
   ApiClinicalV1WorklistsDoctorRoute: typeof ApiClinicalV1WorklistsDoctorRoute
+  ApiClinicalV1WorklistsEmsRoute: typeof ApiClinicalV1WorklistsEmsRoute
+  ApiClinicalV1WorklistsFloorManagerRoute: typeof ApiClinicalV1WorklistsFloorManagerRoute
   ApiClinicalV1WorklistsFormsRoute: typeof ApiClinicalV1WorklistsFormsRoute
+  ApiClinicalV1WorklistsFrontOfficeRoute: typeof ApiClinicalV1WorklistsFrontOfficeRoute
   ApiClinicalV1WorklistsHimCommsRoute: typeof ApiClinicalV1WorklistsHimCommsRoute
+  ApiClinicalV1WorklistsMrdRoute: typeof ApiClinicalV1WorklistsMrdRoute
   ApiClinicalV1WorklistsNursingRoute: typeof ApiClinicalV1WorklistsNursingRoute
+  ApiClinicalV1WorklistsNutritionRoute: typeof ApiClinicalV1WorklistsNutritionRoute
+  ApiClinicalV1WorklistsPharmacistRoute: typeof ApiClinicalV1WorklistsPharmacistRoute
   ApiClinicalV1WorklistsRcmCommsRoute: typeof ApiClinicalV1WorklistsRcmCommsRoute
+  ApiClinicalV1WorklistsSocialWorkRoute: typeof ApiClinicalV1WorklistsSocialWorkRoute
+  ApiClinicalV1WorklistsTransferDischargeRoute: typeof ApiClinicalV1WorklistsTransferDischargeRoute
   ApiPatientV1PromsPendingRoute: typeof ApiPatientV1PromsPendingRoute
   ApiPublicV1DebugEventsRoute: typeof ApiPublicV1DebugEventsRoute
   ApiPublicV1DemoCredentialsRoute: typeof ApiPublicV1DemoCredentialsRoute
@@ -5766,11 +5906,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPatientV1PromsPendingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/worklists/transfer-discharge': {
+      id: '/api/clinical/v1/worklists/transfer-discharge'
+      path: '/api/clinical/v1/worklists/transfer-discharge'
+      fullPath: '/api/clinical/v1/worklists/transfer-discharge'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsTransferDischargeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/worklists/social-work': {
+      id: '/api/clinical/v1/worklists/social-work'
+      path: '/api/clinical/v1/worklists/social-work'
+      fullPath: '/api/clinical/v1/worklists/social-work'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsSocialWorkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/worklists/rcm-comms': {
       id: '/api/clinical/v1/worklists/rcm-comms'
       path: '/api/clinical/v1/worklists/rcm-comms'
       fullPath: '/api/clinical/v1/worklists/rcm-comms'
       preLoaderRoute: typeof ApiClinicalV1WorklistsRcmCommsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/worklists/pharmacist': {
+      id: '/api/clinical/v1/worklists/pharmacist'
+      path: '/api/clinical/v1/worklists/pharmacist'
+      fullPath: '/api/clinical/v1/worklists/pharmacist'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsPharmacistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/worklists/nutrition': {
+      id: '/api/clinical/v1/worklists/nutrition'
+      path: '/api/clinical/v1/worklists/nutrition'
+      fullPath: '/api/clinical/v1/worklists/nutrition'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsNutritionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/worklists/nursing': {
@@ -5780,11 +5948,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1WorklistsNursingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/worklists/mrd': {
+      id: '/api/clinical/v1/worklists/mrd'
+      path: '/api/clinical/v1/worklists/mrd'
+      fullPath: '/api/clinical/v1/worklists/mrd'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsMrdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/worklists/him-comms': {
       id: '/api/clinical/v1/worklists/him-comms'
       path: '/api/clinical/v1/worklists/him-comms'
       fullPath: '/api/clinical/v1/worklists/him-comms'
       preLoaderRoute: typeof ApiClinicalV1WorklistsHimCommsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/worklists/front-office': {
+      id: '/api/clinical/v1/worklists/front-office'
+      path: '/api/clinical/v1/worklists/front-office'
+      fullPath: '/api/clinical/v1/worklists/front-office'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsFrontOfficeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/worklists/forms': {
@@ -5794,11 +5976,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1WorklistsFormsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/worklists/floor-manager': {
+      id: '/api/clinical/v1/worklists/floor-manager'
+      path: '/api/clinical/v1/worklists/floor-manager'
+      fullPath: '/api/clinical/v1/worklists/floor-manager'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsFloorManagerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/worklists/ems': {
+      id: '/api/clinical/v1/worklists/ems'
+      path: '/api/clinical/v1/worklists/ems'
+      fullPath: '/api/clinical/v1/worklists/ems'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsEmsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/worklists/doctor': {
       id: '/api/clinical/v1/worklists/doctor'
       path: '/api/clinical/v1/worklists/doctor'
       fullPath: '/api/clinical/v1/worklists/doctor'
       preLoaderRoute: typeof ApiClinicalV1WorklistsDoctorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/worklists/coder': {
+      id: '/api/clinical/v1/worklists/coder'
+      path: '/api/clinical/v1/worklists/coder'
+      fullPath: '/api/clinical/v1/worklists/coder'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsCoderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/worklists/admission': {
+      id: '/api/clinical/v1/worklists/admission'
+      path: '/api/clinical/v1/worklists/admission'
+      fullPath: '/api/clinical/v1/worklists/admission'
+      preLoaderRoute: typeof ApiClinicalV1WorklistsAdmissionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/vitals/$id': {
@@ -9296,11 +9506,24 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1OutcomesSummaryRoute: ApiClinicalV1OutcomesSummaryRoute,
   ApiClinicalV1SupportingInfoIdRoute: ApiClinicalV1SupportingInfoIdRoute,
   ApiClinicalV1VitalsIdRoute: ApiClinicalV1VitalsIdRoute,
+  ApiClinicalV1WorklistsAdmissionRoute: ApiClinicalV1WorklistsAdmissionRoute,
+  ApiClinicalV1WorklistsCoderRoute: ApiClinicalV1WorklistsCoderRoute,
   ApiClinicalV1WorklistsDoctorRoute: ApiClinicalV1WorklistsDoctorRoute,
+  ApiClinicalV1WorklistsEmsRoute: ApiClinicalV1WorklistsEmsRoute,
+  ApiClinicalV1WorklistsFloorManagerRoute:
+    ApiClinicalV1WorklistsFloorManagerRoute,
   ApiClinicalV1WorklistsFormsRoute: ApiClinicalV1WorklistsFormsRoute,
+  ApiClinicalV1WorklistsFrontOfficeRoute:
+    ApiClinicalV1WorklistsFrontOfficeRoute,
   ApiClinicalV1WorklistsHimCommsRoute: ApiClinicalV1WorklistsHimCommsRoute,
+  ApiClinicalV1WorklistsMrdRoute: ApiClinicalV1WorklistsMrdRoute,
   ApiClinicalV1WorklistsNursingRoute: ApiClinicalV1WorklistsNursingRoute,
+  ApiClinicalV1WorklistsNutritionRoute: ApiClinicalV1WorklistsNutritionRoute,
+  ApiClinicalV1WorklistsPharmacistRoute: ApiClinicalV1WorklistsPharmacistRoute,
   ApiClinicalV1WorklistsRcmCommsRoute: ApiClinicalV1WorklistsRcmCommsRoute,
+  ApiClinicalV1WorklistsSocialWorkRoute: ApiClinicalV1WorklistsSocialWorkRoute,
+  ApiClinicalV1WorklistsTransferDischargeRoute:
+    ApiClinicalV1WorklistsTransferDischargeRoute,
   ApiPatientV1PromsPendingRoute: ApiPatientV1PromsPendingRoute,
   ApiPublicV1DebugEventsRoute: ApiPublicV1DebugEventsRoute,
   ApiPublicV1DemoCredentialsRoute: ApiPublicV1DemoCredentialsRoute,

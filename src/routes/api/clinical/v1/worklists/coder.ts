@@ -44,7 +44,7 @@ export const Route = createFileRoute("/api/clinical/v1/worklists/coder")({
           waiting_seconds: Math.max(0, Math.floor((Date.now() - new Date(r.period_start).getTime()) / 1000)),
           beneficiary_id: b.id ?? null,
           mrn: b.patient_file_no ?? null,
-          name: b.full_name ?? [b.first_name, b.middle_name, b.last_name].filter(Boolean).join(" ") || null,
+          name: b.full_name ?? ([b.first_name, b.middle_name, b.last_name].filter(Boolean).join(" ") || null),
           age: b.dob ? Math.floor((Date.now() - new Date(b.dob).getTime()) / (1000 * 60 * 60 * 24 * 365.25)) : null,
           gender: b.gender ?? null,
           token: null,
