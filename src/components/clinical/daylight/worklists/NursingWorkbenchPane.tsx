@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearch } from "@tanstack/react-router";
 import { worklistsApi, ClinicalApiError, type NursingWorkbenchRow } from "@/lib/clinical-api";
 import { DCard } from "@/components/clinical/daylight/Primitives";
+import { HimCommCard } from "@/components/clinical/daylight/spine/HimCommCard";
 import type { EncounterClass } from "./types";
 
 export function NursingWorkbenchPane() {
@@ -38,7 +39,11 @@ export function NursingWorkbenchPane() {
   }), [rows]);
 
   return (
-    <div className="px-7 pt-6 pb-14 mx-auto" style={{ maxWidth: 1400, width: "100%" }}>
+    <div
+      className="px-7 pt-6 pb-14 mx-auto grid gap-4"
+      style={{ maxWidth: 1400, width: "100%", gridTemplateColumns: "minmax(0,1fr) 320px" }}
+    >
+      <div>
       <div className="flex flex-wrap gap-2 mb-4">
         <Counter label="Vitals due"    value={totals.vitalsDue} tone="crit" />
         <Counter label="Assess due"    value={totals.assessDue} tone="warn" />
@@ -86,6 +91,10 @@ export function NursingWorkbenchPane() {
           </tbody>
         </table>
       </DCard>
+      </div>
+      <aside className="space-y-3">
+        <HimCommCard encounterId={rows[0]?.encounter_id ?? null} />
+      </aside>
     </div>
   );
 }
