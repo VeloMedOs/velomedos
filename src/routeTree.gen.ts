@@ -353,6 +353,7 @@ import { Route as ApiClinicalV1MastersContractChangeRequestsIdApplyRouteImport }
 import { Route as ApiClinicalV1IpAdmissionRequestsIdActionRouteImport } from './routes/api/clinical/v1/ip/admission-requests.$id.action'
 import { Route as ApiClinicalV1InterfacesLogIdRetryRouteImport } from './routes/api/clinical/v1/interfaces.log.$id.retry'
 import { Route as ApiClinicalV1GateExceptionsIdReconcileRouteImport } from './routes/api/clinical/v1/gate/exceptions.$id.reconcile'
+import { Route as ApiClinicalV1FormsInstancesIdAddendumRouteImport } from './routes/api/clinical/v1/forms/instances.$id.addendum'
 import { Route as ApiClinicalV1EncountersIdOrdersServiceRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.service'
 import { Route as ApiClinicalV1EncountersIdOrdersRadiologyRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.radiology'
 import { Route as ApiClinicalV1EncountersIdOrdersLabRouteImport } from './routes/api/clinical/v1/encounters.$id.orders.lab'
@@ -2317,6 +2318,12 @@ const ApiClinicalV1GateExceptionsIdReconcileRoute =
     path: '/reconcile',
     getParentRoute: () => ApiClinicalV1GateExceptionsIdRoute,
   } as any)
+const ApiClinicalV1FormsInstancesIdAddendumRoute =
+  ApiClinicalV1FormsInstancesIdAddendumRouteImport.update({
+    id: '/addendum',
+    path: '/addendum',
+    getParentRoute: () => ApiClinicalV1FormsInstancesIdRoute,
+  } as any)
 const ApiClinicalV1EncountersIdOrdersServiceRoute =
   ApiClinicalV1EncountersIdOrdersServiceRouteImport.update({
     id: '/orders/service',
@@ -2729,7 +2736,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/clinical/v1/forms/defs/$id': typeof ApiClinicalV1FormsDefsIdRoute
-  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRoute
+  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRouteWithChildren
   '/api/clinical/v1/formulary/indications/$id': typeof ApiClinicalV1FormularyIndicationsIdRoute
   '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
@@ -2800,6 +2807,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
   '/api/clinical/v1/encounters/$id/orders/service': typeof ApiClinicalV1EncountersIdOrdersServiceRoute
+  '/api/clinical/v1/forms/instances/$id/addendum': typeof ApiClinicalV1FormsInstancesIdAddendumRoute
   '/api/clinical/v1/gate/exceptions/$id/reconcile': typeof ApiClinicalV1GateExceptionsIdReconcileRoute
   '/api/clinical/v1/interfaces/log/$id/retry': typeof ApiClinicalV1InterfacesLogIdRetryRoute
   '/api/clinical/v1/ip/admission-requests/$id/action': typeof ApiClinicalV1IpAdmissionRequestsIdActionRoute
@@ -3094,7 +3102,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/clinical/v1/forms/defs/$id': typeof ApiClinicalV1FormsDefsIdRoute
-  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRoute
+  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRouteWithChildren
   '/api/clinical/v1/formulary/indications/$id': typeof ApiClinicalV1FormularyIndicationsIdRoute
   '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
@@ -3165,6 +3173,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
   '/api/clinical/v1/encounters/$id/orders/service': typeof ApiClinicalV1EncountersIdOrdersServiceRoute
+  '/api/clinical/v1/forms/instances/$id/addendum': typeof ApiClinicalV1FormsInstancesIdAddendumRoute
   '/api/clinical/v1/gate/exceptions/$id/reconcile': typeof ApiClinicalV1GateExceptionsIdReconcileRoute
   '/api/clinical/v1/interfaces/log/$id/retry': typeof ApiClinicalV1InterfacesLogIdRetryRoute
   '/api/clinical/v1/ip/admission-requests/$id/action': typeof ApiClinicalV1IpAdmissionRequestsIdActionRoute
@@ -3463,7 +3472,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/encounters/$id/supporting-info': typeof ApiClinicalV1EncountersIdSupportingInfoRoute
   '/api/clinical/v1/encounters/$id/vitals': typeof ApiClinicalV1EncountersIdVitalsRoute
   '/api/clinical/v1/forms/defs/$id': typeof ApiClinicalV1FormsDefsIdRoute
-  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRoute
+  '/api/clinical/v1/forms/instances/$id': typeof ApiClinicalV1FormsInstancesIdRouteWithChildren
   '/api/clinical/v1/formulary/indications/$id': typeof ApiClinicalV1FormularyIndicationsIdRoute
   '/api/clinical/v1/gate/exceptions/$id': typeof ApiClinicalV1GateExceptionsIdRouteWithChildren
   '/api/clinical/v1/interfaces/d365/summary': typeof ApiClinicalV1InterfacesD365SummaryRoute
@@ -3534,6 +3543,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/encounters/$id/orders/lab': typeof ApiClinicalV1EncountersIdOrdersLabRoute
   '/api/clinical/v1/encounters/$id/orders/radiology': typeof ApiClinicalV1EncountersIdOrdersRadiologyRoute
   '/api/clinical/v1/encounters/$id/orders/service': typeof ApiClinicalV1EncountersIdOrdersServiceRoute
+  '/api/clinical/v1/forms/instances/$id/addendum': typeof ApiClinicalV1FormsInstancesIdAddendumRoute
   '/api/clinical/v1/gate/exceptions/$id/reconcile': typeof ApiClinicalV1GateExceptionsIdReconcileRoute
   '/api/clinical/v1/interfaces/log/$id/retry': typeof ApiClinicalV1InterfacesLogIdRetryRoute
   '/api/clinical/v1/ip/admission-requests/$id/action': typeof ApiClinicalV1IpAdmissionRequestsIdActionRoute
@@ -3903,6 +3913,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/encounters/$id/orders/radiology'
     | '/api/clinical/v1/encounters/$id/orders/service'
+    | '/api/clinical/v1/forms/instances/$id/addendum'
     | '/api/clinical/v1/gate/exceptions/$id/reconcile'
     | '/api/clinical/v1/interfaces/log/$id/retry'
     | '/api/clinical/v1/ip/admission-requests/$id/action'
@@ -4268,6 +4279,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/encounters/$id/orders/radiology'
     | '/api/clinical/v1/encounters/$id/orders/service'
+    | '/api/clinical/v1/forms/instances/$id/addendum'
     | '/api/clinical/v1/gate/exceptions/$id/reconcile'
     | '/api/clinical/v1/interfaces/log/$id/retry'
     | '/api/clinical/v1/ip/admission-requests/$id/action'
@@ -4636,6 +4648,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/encounters/$id/orders/lab'
     | '/api/clinical/v1/encounters/$id/orders/radiology'
     | '/api/clinical/v1/encounters/$id/orders/service'
+    | '/api/clinical/v1/forms/instances/$id/addendum'
     | '/api/clinical/v1/gate/exceptions/$id/reconcile'
     | '/api/clinical/v1/interfaces/log/$id/retry'
     | '/api/clinical/v1/ip/admission-requests/$id/action'
@@ -7238,6 +7251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1GateExceptionsIdReconcileRouteImport
       parentRoute: typeof ApiClinicalV1GateExceptionsIdRoute
     }
+    '/api/clinical/v1/forms/instances/$id/addendum': {
+      id: '/api/clinical/v1/forms/instances/$id/addendum'
+      path: '/addendum'
+      fullPath: '/api/clinical/v1/forms/instances/$id/addendum'
+      preLoaderRoute: typeof ApiClinicalV1FormsInstancesIdAddendumRouteImport
+      parentRoute: typeof ApiClinicalV1FormsInstancesIdRoute
+    }
     '/api/clinical/v1/encounters/$id/orders/service': {
       id: '/api/clinical/v1/encounters/$id/orders/service'
       path: '/orders/service'
@@ -8440,13 +8460,29 @@ const ApiClinicalV1FormsDefsRouteWithChildren =
     ApiClinicalV1FormsDefsRouteChildren,
   )
 
+interface ApiClinicalV1FormsInstancesIdRouteChildren {
+  ApiClinicalV1FormsInstancesIdAddendumRoute: typeof ApiClinicalV1FormsInstancesIdAddendumRoute
+}
+
+const ApiClinicalV1FormsInstancesIdRouteChildren: ApiClinicalV1FormsInstancesIdRouteChildren =
+  {
+    ApiClinicalV1FormsInstancesIdAddendumRoute:
+      ApiClinicalV1FormsInstancesIdAddendumRoute,
+  }
+
+const ApiClinicalV1FormsInstancesIdRouteWithChildren =
+  ApiClinicalV1FormsInstancesIdRoute._addFileChildren(
+    ApiClinicalV1FormsInstancesIdRouteChildren,
+  )
+
 interface ApiClinicalV1FormsInstancesRouteChildren {
-  ApiClinicalV1FormsInstancesIdRoute: typeof ApiClinicalV1FormsInstancesIdRoute
+  ApiClinicalV1FormsInstancesIdRoute: typeof ApiClinicalV1FormsInstancesIdRouteWithChildren
 }
 
 const ApiClinicalV1FormsInstancesRouteChildren: ApiClinicalV1FormsInstancesRouteChildren =
   {
-    ApiClinicalV1FormsInstancesIdRoute: ApiClinicalV1FormsInstancesIdRoute,
+    ApiClinicalV1FormsInstancesIdRoute:
+      ApiClinicalV1FormsInstancesIdRouteWithChildren,
   }
 
 const ApiClinicalV1FormsInstancesRouteWithChildren =
