@@ -105,7 +105,7 @@ export const Route = createFileRoute("/api/clinical/v1/scheduler/validate-drop")
 
       // 5. Rules B/C — DISPLAY-only charge_mode. Never bounces.
       let charge_mode: "new_consult" | "follow_up" | "series" | "no_charge" | null = null;
-      const { data: rules } = await db.from("approval_rule")
+      const { data: rules } = await db.from("pricing_rule")
         .select("id, name, scope, priority, condition, action, tenant_id, active")
         .eq("scope", "referral")
         .eq("active", true)
@@ -171,7 +171,7 @@ export const Route = createFileRoute("/api/clinical/v1/scheduler/validate-drop")
           kind: "in_person",
           status: "requested",
         })
-        .select("id, slot_id, held_until:slot_id")
+        .select("id")
         .single();
       if (bErr || !booking) {
         // Best-effort release the hold if insert failed.
