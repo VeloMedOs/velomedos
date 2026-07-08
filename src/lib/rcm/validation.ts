@@ -43,6 +43,27 @@ export const GATE_BLOCKERS = {
   FORM_REQUIRED:            "FORM_REQUIRED",
 } as const;
 
+/**
+ * Step 3 · Turn 2 — Scheduler bounce codes.
+ *
+ * 9 codes. `SLOT_REPEAT_BLOCK_14D` is intentionally absent: the 14-day
+ * rule (Rules B/C) is DISPLAY-only and populates `clinic_bookings.charge_mode`,
+ * it never bounces a drop. Same-patient double-book is not in scope this turn.
+ */
+export const SCHEDULER_ERROR = {
+  SLOT_JUST_TAKEN:                     { code: "slot_just_taken",                     http: 409 },
+  SLOT_UNAVAILABLE:                    { code: "SLOT_UNAVAILABLE",                    http: 409 },
+  SLOT_CAPACITY_FULL:                  { code: "slot_capacity_full",                  http: 422 },
+  SLOT_VISIT_DURATION_EXCEEDS:         { code: "slot_visit_duration_exceeds",         http: 422 },
+  SLOT_OR_RESTRICTED:                  { code: "slot_or_restricted",                  http: 422 },
+  SLOT_GENDER_MISMATCH:                { code: "slot_gender_mismatch",                http: 422 },
+  SLOT_AGE_OUT_OF_RANGE:               { code: "slot_age_out_of_range",               http: 422 },
+  BOOKING_CONFIRM_ELIGIBILITY_PENDING: { code: "booking_confirm_eligibility_pending", http: 409 },
+  NO_COVERAGE_FOR_ELIGIBILITY:         { code: "no_coverage_for_eligibility",         http: 422 },
+} as const;
+
+export type SchedulerErrorKey = keyof typeof SCHEDULER_ERROR;
+
 export type RcmReadiness = {
   ok: boolean;
   missing: MissingItem[];
