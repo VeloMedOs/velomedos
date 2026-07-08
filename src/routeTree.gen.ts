@@ -358,6 +358,7 @@ import { Route as ApiAdminV1BusinessRequestsIdAdvanceRouteImport } from './route
 import { Route as ApiPublicV1HomecareVisitsIdEvvRouteImport } from './routes/api/public/v1/homecare.visits.$id.evv'
 import { Route as ApiPublicV1HomecareVisitsIdCheckOutRouteImport } from './routes/api/public/v1/homecare.visits.$id.check-out'
 import { Route as ApiPublicV1HomecareVisitsIdCheckInRouteImport } from './routes/api/public/v1/homecare.visits.$id.check-in'
+import { Route as ApiClinicalV1SchedulerBookingsIdBookRouteImport } from './routes/api/clinical/v1/scheduler.bookings.$id.book'
 import { Route as ApiClinicalV1MastersServicesIdCodesRouteImport } from './routes/api/clinical/v1/masters/services.$id.codes'
 import { Route as ApiClinicalV1MastersPriceListsIdReplicateRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.replicate'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items'
@@ -2364,6 +2365,12 @@ const ApiPublicV1HomecareVisitsIdCheckInRoute =
     path: '/check-in',
     getParentRoute: () => ApiPublicV1HomecareVisitsIdRoute,
   } as any)
+const ApiClinicalV1SchedulerBookingsIdBookRoute =
+  ApiClinicalV1SchedulerBookingsIdBookRouteImport.update({
+    id: '/api/clinical/v1/scheduler/bookings/$id/book',
+    path: '/api/clinical/v1/scheduler/bookings/$id/book',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1MastersServicesIdCodesRoute =
   ApiClinicalV1MastersServicesIdCodesRouteImport.update({
     id: '/codes',
@@ -2947,6 +2954,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRouteWithChildren
   '/api/clinical/v1/masters/price-lists/$id/replicate': typeof ApiClinicalV1MastersPriceListsIdReplicateRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
+  '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/public/v1/homecare/visits/$id/check-in': typeof ApiPublicV1HomecareVisitsIdCheckInRoute
   '/api/public/v1/homecare/visits/$id/check-out': typeof ApiPublicV1HomecareVisitsIdCheckOutRoute
   '/api/public/v1/homecare/visits/$id/evv': typeof ApiPublicV1HomecareVisitsIdEvvRoute
@@ -3329,6 +3337,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRouteWithChildren
   '/api/clinical/v1/masters/price-lists/$id/replicate': typeof ApiClinicalV1MastersPriceListsIdReplicateRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
+  '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/public/v1/homecare/visits/$id/check-in': typeof ApiPublicV1HomecareVisitsIdCheckInRoute
   '/api/public/v1/homecare/visits/$id/check-out': typeof ApiPublicV1HomecareVisitsIdCheckOutRoute
   '/api/public/v1/homecare/visits/$id/evv': typeof ApiPublicV1HomecareVisitsIdEvvRoute
@@ -3715,6 +3724,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRouteWithChildren
   '/api/clinical/v1/masters/price-lists/$id/replicate': typeof ApiClinicalV1MastersPriceListsIdReplicateRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
+  '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/public/v1/homecare/visits/$id/check-in': typeof ApiPublicV1HomecareVisitsIdCheckInRoute
   '/api/public/v1/homecare/visits/$id/check-out': typeof ApiPublicV1HomecareVisitsIdCheckOutRoute
   '/api/public/v1/homecare/visits/$id/evv': typeof ApiPublicV1HomecareVisitsIdEvvRoute
@@ -4101,6 +4111,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/price-lists/$id/replicate'
     | '/api/clinical/v1/masters/services/$id/codes'
+    | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/public/v1/homecare/visits/$id/check-in'
     | '/api/public/v1/homecare/visits/$id/check-out'
     | '/api/public/v1/homecare/visits/$id/evv'
@@ -4483,6 +4494,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/price-lists/$id/replicate'
     | '/api/clinical/v1/masters/services/$id/codes'
+    | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/public/v1/homecare/visits/$id/check-in'
     | '/api/public/v1/homecare/visits/$id/check-out'
     | '/api/public/v1/homecare/visits/$id/evv'
@@ -4868,6 +4880,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/price-lists/$id/replicate'
     | '/api/clinical/v1/masters/services/$id/codes'
+    | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/public/v1/homecare/visits/$id/check-in'
     | '/api/public/v1/homecare/visits/$id/check-out'
     | '/api/public/v1/homecare/visits/$id/evv'
@@ -5062,6 +5075,7 @@ export interface RootRouteChildren {
   ApiPublicV1VehiclesIdCredentialsRoute: typeof ApiPublicV1VehiclesIdCredentialsRoute
   ApiPublicV1VehiclesIdDefectsRoute: typeof ApiPublicV1VehiclesIdDefectsRoute
   ApiPublicV1VehiclesIdWork_ordersRoute: typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  ApiClinicalV1SchedulerBookingsIdBookRoute: typeof ApiClinicalV1SchedulerBookingsIdBookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -7509,6 +7523,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1HomecareVisitsIdCheckInRouteImport
       parentRoute: typeof ApiPublicV1HomecareVisitsIdRoute
     }
+    '/api/clinical/v1/scheduler/bookings/$id/book': {
+      id: '/api/clinical/v1/scheduler/bookings/$id/book'
+      path: '/api/clinical/v1/scheduler/bookings/$id/book'
+      fullPath: '/api/clinical/v1/scheduler/bookings/$id/book'
+      preLoaderRoute: typeof ApiClinicalV1SchedulerBookingsIdBookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/masters/services/$id/codes': {
       id: '/api/clinical/v1/masters/services/$id/codes'
       path: '/codes'
@@ -9620,6 +9641,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1VehiclesIdCredentialsRoute: ApiPublicV1VehiclesIdCredentialsRoute,
   ApiPublicV1VehiclesIdDefectsRoute: ApiPublicV1VehiclesIdDefectsRoute,
   ApiPublicV1VehiclesIdWork_ordersRoute: ApiPublicV1VehiclesIdWork_ordersRoute,
+  ApiClinicalV1SchedulerBookingsIdBookRoute:
+    ApiClinicalV1SchedulerBookingsIdBookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
