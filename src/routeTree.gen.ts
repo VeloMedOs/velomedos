@@ -154,6 +154,9 @@ import { Route as ApiClinicalV1VitalsIdRouteImport } from './routes/api/clinical
 import { Route as ApiClinicalV1TaxInvoicesBulkRouteImport } from './routes/api/clinical/v1/tax-invoices.bulk'
 import { Route as ApiClinicalV1TaxInvoicesIdRouteImport } from './routes/api/clinical/v1/tax-invoices.$id'
 import { Route as ApiClinicalV1SupportingInfoIdRouteImport } from './routes/api/clinical/v1/supporting-info.$id'
+import { Route as ApiClinicalV1SchedulerValidateDropRouteImport } from './routes/api/clinical/v1/scheduler.validate-drop'
+import { Route as ApiClinicalV1SchedulerBookingRequestsRouteImport } from './routes/api/clinical/v1/scheduler.booking-requests'
+import { Route as ApiClinicalV1SchedulerBoardRouteImport } from './routes/api/clinical/v1/scheduler.board'
 import { Route as ApiClinicalV1PromAssignmentsIdRouteImport } from './routes/api/clinical/v1/prom-assignments.$id'
 import { Route as ApiClinicalV1PolicyActivationsIdRouteImport } from './routes/api/clinical/v1/policy-activations.$id'
 import { Route as ApiClinicalV1OutcomesSummaryRouteImport } from './routes/api/clinical/v1/outcomes.summary'
@@ -1159,6 +1162,24 @@ const ApiClinicalV1SupportingInfoIdRoute =
   ApiClinicalV1SupportingInfoIdRouteImport.update({
     id: '/api/clinical/v1/supporting-info/$id',
     path: '/api/clinical/v1/supporting-info/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1SchedulerValidateDropRoute =
+  ApiClinicalV1SchedulerValidateDropRouteImport.update({
+    id: '/api/clinical/v1/scheduler/validate-drop',
+    path: '/api/clinical/v1/scheduler/validate-drop',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1SchedulerBookingRequestsRoute =
+  ApiClinicalV1SchedulerBookingRequestsRouteImport.update({
+    id: '/api/clinical/v1/scheduler/booking-requests',
+    path: '/api/clinical/v1/scheduler/booking-requests',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1SchedulerBoardRoute =
+  ApiClinicalV1SchedulerBoardRouteImport.update({
+    id: '/api/clinical/v1/scheduler/board',
+    path: '/api/clinical/v1/scheduler/board',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1PromAssignmentsIdRoute =
@@ -2754,6 +2775,9 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/outcomes/summary': typeof ApiClinicalV1OutcomesSummaryRoute
   '/api/clinical/v1/policy-activations/$id': typeof ApiClinicalV1PolicyActivationsIdRouteWithChildren
   '/api/clinical/v1/prom-assignments/$id': typeof ApiClinicalV1PromAssignmentsIdRouteWithChildren
+  '/api/clinical/v1/scheduler/board': typeof ApiClinicalV1SchedulerBoardRoute
+  '/api/clinical/v1/scheduler/booking-requests': typeof ApiClinicalV1SchedulerBookingRequestsRoute
+  '/api/clinical/v1/scheduler/validate-drop': typeof ApiClinicalV1SchedulerValidateDropRoute
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
   '/api/clinical/v1/tax-invoices/$id': typeof ApiClinicalV1TaxInvoicesIdRouteWithChildren
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
@@ -3133,6 +3157,9 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/outcomes/summary': typeof ApiClinicalV1OutcomesSummaryRoute
   '/api/clinical/v1/policy-activations/$id': typeof ApiClinicalV1PolicyActivationsIdRouteWithChildren
   '/api/clinical/v1/prom-assignments/$id': typeof ApiClinicalV1PromAssignmentsIdRouteWithChildren
+  '/api/clinical/v1/scheduler/board': typeof ApiClinicalV1SchedulerBoardRoute
+  '/api/clinical/v1/scheduler/booking-requests': typeof ApiClinicalV1SchedulerBookingRequestsRoute
+  '/api/clinical/v1/scheduler/validate-drop': typeof ApiClinicalV1SchedulerValidateDropRoute
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
   '/api/clinical/v1/tax-invoices/$id': typeof ApiClinicalV1TaxInvoicesIdRouteWithChildren
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
@@ -3516,6 +3543,9 @@ export interface FileRoutesById {
   '/api/clinical/v1/outcomes/summary': typeof ApiClinicalV1OutcomesSummaryRoute
   '/api/clinical/v1/policy-activations/$id': typeof ApiClinicalV1PolicyActivationsIdRouteWithChildren
   '/api/clinical/v1/prom-assignments/$id': typeof ApiClinicalV1PromAssignmentsIdRouteWithChildren
+  '/api/clinical/v1/scheduler/board': typeof ApiClinicalV1SchedulerBoardRoute
+  '/api/clinical/v1/scheduler/booking-requests': typeof ApiClinicalV1SchedulerBookingRequestsRoute
+  '/api/clinical/v1/scheduler/validate-drop': typeof ApiClinicalV1SchedulerValidateDropRoute
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
   '/api/clinical/v1/tax-invoices/$id': typeof ApiClinicalV1TaxInvoicesIdRouteWithChildren
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
@@ -3899,6 +3929,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/outcomes/summary'
     | '/api/clinical/v1/policy-activations/$id'
     | '/api/clinical/v1/prom-assignments/$id'
+    | '/api/clinical/v1/scheduler/board'
+    | '/api/clinical/v1/scheduler/booking-requests'
+    | '/api/clinical/v1/scheduler/validate-drop'
     | '/api/clinical/v1/supporting-info/$id'
     | '/api/clinical/v1/tax-invoices/$id'
     | '/api/clinical/v1/tax-invoices/bulk'
@@ -4278,6 +4311,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/outcomes/summary'
     | '/api/clinical/v1/policy-activations/$id'
     | '/api/clinical/v1/prom-assignments/$id'
+    | '/api/clinical/v1/scheduler/board'
+    | '/api/clinical/v1/scheduler/booking-requests'
+    | '/api/clinical/v1/scheduler/validate-drop'
     | '/api/clinical/v1/supporting-info/$id'
     | '/api/clinical/v1/tax-invoices/$id'
     | '/api/clinical/v1/tax-invoices/bulk'
@@ -4660,6 +4696,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/outcomes/summary'
     | '/api/clinical/v1/policy-activations/$id'
     | '/api/clinical/v1/prom-assignments/$id'
+    | '/api/clinical/v1/scheduler/board'
+    | '/api/clinical/v1/scheduler/booking-requests'
+    | '/api/clinical/v1/scheduler/validate-drop'
     | '/api/clinical/v1/supporting-info/$id'
     | '/api/clinical/v1/tax-invoices/$id'
     | '/api/clinical/v1/tax-invoices/bulk'
@@ -4983,6 +5022,9 @@ export interface RootRouteChildren {
   ApiClinicalV1MastersServicesRoute: typeof ApiClinicalV1MastersServicesRouteWithChildren
   ApiClinicalV1MastersTpasRoute: typeof ApiClinicalV1MastersTpasRouteWithChildren
   ApiClinicalV1OutcomesSummaryRoute: typeof ApiClinicalV1OutcomesSummaryRoute
+  ApiClinicalV1SchedulerBoardRoute: typeof ApiClinicalV1SchedulerBoardRoute
+  ApiClinicalV1SchedulerBookingRequestsRoute: typeof ApiClinicalV1SchedulerBookingRequestsRoute
+  ApiClinicalV1SchedulerValidateDropRoute: typeof ApiClinicalV1SchedulerValidateDropRoute
   ApiClinicalV1SupportingInfoIdRoute: typeof ApiClinicalV1SupportingInfoIdRoute
   ApiClinicalV1VitalsIdRoute: typeof ApiClinicalV1VitalsIdRoute
   ApiClinicalV1WorklistsAdmissionRoute: typeof ApiClinicalV1WorklistsAdmissionRoute
@@ -6037,6 +6079,27 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/supporting-info/$id'
       fullPath: '/api/clinical/v1/supporting-info/$id'
       preLoaderRoute: typeof ApiClinicalV1SupportingInfoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/scheduler/validate-drop': {
+      id: '/api/clinical/v1/scheduler/validate-drop'
+      path: '/api/clinical/v1/scheduler/validate-drop'
+      fullPath: '/api/clinical/v1/scheduler/validate-drop'
+      preLoaderRoute: typeof ApiClinicalV1SchedulerValidateDropRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/scheduler/booking-requests': {
+      id: '/api/clinical/v1/scheduler/booking-requests'
+      path: '/api/clinical/v1/scheduler/booking-requests'
+      fullPath: '/api/clinical/v1/scheduler/booking-requests'
+      preLoaderRoute: typeof ApiClinicalV1SchedulerBookingRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/scheduler/board': {
+      id: '/api/clinical/v1/scheduler/board'
+      path: '/api/clinical/v1/scheduler/board'
+      fullPath: '/api/clinical/v1/scheduler/board'
+      preLoaderRoute: typeof ApiClinicalV1SchedulerBoardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/prom-assignments/$id': {
@@ -9504,6 +9567,11 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1MastersServicesRouteWithChildren,
   ApiClinicalV1MastersTpasRoute: ApiClinicalV1MastersTpasRouteWithChildren,
   ApiClinicalV1OutcomesSummaryRoute: ApiClinicalV1OutcomesSummaryRoute,
+  ApiClinicalV1SchedulerBoardRoute: ApiClinicalV1SchedulerBoardRoute,
+  ApiClinicalV1SchedulerBookingRequestsRoute:
+    ApiClinicalV1SchedulerBookingRequestsRoute,
+  ApiClinicalV1SchedulerValidateDropRoute:
+    ApiClinicalV1SchedulerValidateDropRoute,
   ApiClinicalV1SupportingInfoIdRoute: ApiClinicalV1SupportingInfoIdRoute,
   ApiClinicalV1VitalsIdRoute: ApiClinicalV1VitalsIdRoute,
   ApiClinicalV1WorklistsAdmissionRoute: ApiClinicalV1WorklistsAdmissionRoute,

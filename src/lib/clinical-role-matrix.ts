@@ -199,6 +199,19 @@ export const CLINICAL_CAPABILITIES: ClinicalCapability[] = [
   { id: "wl.social_work.read",    module: "Clinical", apiNamespace: "/api/clinical/v1/worklists/social-work",       label: "Read Social-Work WL",      description: "Encounters flagged for social-work follow-up.",                      roles: ["tenant_admin","social_worker","physician","case_manager"] },
 ];
 
+// ── Step 3 Turn 2 · Scheduler capabilities ──────────────────────────────
+// Six new capIds gating the Clinic Day Board, Schedule Setup, drop-validate,
+// booking, status, eligibility-check and block server routes. Registered
+// under the "Clinical" module (Day Board lives inside the OPD nav group).
+CLINICAL_CAPABILITIES.push(
+  { id: "scheduler.board.read",       module: "Clinical", apiNamespace: "/api/clinical/v1/scheduler/board",           label: "Read Clinic Day Board",     description: "Read scheduler day-board rows + booking-request rail.",         roles: ["tenant_admin","front_office","physician","nurse","floor_manager"] },
+  { id: "scheduler.book.write",       module: "Clinical", apiNamespace: "/api/clinical/v1/scheduler/validate-drop",   label: "Book & drop-validate",      description: "Drop-validate + book slot + status transitions.",                roles: ["tenant_admin","front_office"] },
+  { id: "scheduler.overbook",         module: "Clinical", apiNamespace: "/api/clinical/v1/scheduler/validate-drop",   label: "Overbook privilege",        description: "Book past nominal capacity within overbook_limit (HCA-0778).",  roles: ["tenant_admin","front_office"] },
+  { id: "scheduler.block.write",      module: "Clinical", apiNamespace: "/api/clinical/v1/scheduler/blocks",          label: "Block clinic slots",        description: "Block/unblock slots with reason (HCA-0046/0049).",              roles: ["tenant_admin","front_office","floor_manager"] },
+  { id: "scheduler.eligibility.run",  module: "Clinical", apiNamespace: "/api/clinical/v1/scheduler/bookings/*/eligibility-check", label: "Run post-book eligibility", description: "Post-book NPHIES check (only scheduling caller).",             roles: ["tenant_admin","front_office","nurse"] },
+  { id: "scheduler.disruption.write", module: "Clinical", apiNamespace: "/api/clinical/v1/scheduler/blocks",          label: "Bulk clinic disruption",    description: "Bulk cancel/reschedule/reassign on doctor unavailability.",     roles: ["tenant_admin","floor_manager"] },
+);
+
 export const CLINICAL_MODULES: string[] = [
   ...new Set(CLINICAL_CAPABILITIES.map((c) => c.module)),
 ];

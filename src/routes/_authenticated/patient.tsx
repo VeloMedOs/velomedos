@@ -478,8 +478,11 @@ function BookTelehealth({ clinics, onBooked, me }: { clinics: Clinic[]; onBooked
     if (!clinicId) return toast.error("Pick a clinic");
     setBusy(true);
     try {
+      const { data: clinicRow, error: clinicErr } = await supabase
+        .from("clinics").select("tenant_id").eq("id", clinicId).single();
+      if (clinicErr || !clinicRow?.tenant_id) throw clinicErr ?? new Error("Clinic tenant not found");
       const { data: b, error } = await supabase.from("clinic_bookings")
-        .insert({ patient_id: me, clinic_id: clinicId, slot_at: new Date(slot).toISOString(), reason: reason || null, kind: "telehealth" })
+        .insert({ tenant_id: clinicRow.tenant_id, patient_id: me, clinic_id: clinicId, slot_at: new Date(slot).toISOString(), reason: reason || null, kind: "telehealth" })
         .select("id").single();
       if (error) throw error;
       const room = `vm-${b!.id.slice(0, 8)}`;
@@ -530,8 +533,11 @@ function InPersonBooking({ clinics, onBooked }: { clinics: Clinic[]; onBooked: (
   async function book() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user || !clinicId) return;
+    const { data: clinicRow, error: clinicErr } = await supabase
+      .from("clinics").select("tenant_id").eq("id", clinicId).single();
+    if (clinicErr || !clinicRow?.tenant_id) return toast.error(clinicErr?.message ?? "Clinic tenant not found");
     const { error } = await supabase.from("clinic_bookings").insert({
-      patient_id: user.id, clinic_id: clinicId, slot_at: new Date(slot).toISOString(), reason: reason || null, kind: "in_person",
+      tenant_id: clinicRow.tenant_id, patient_id: user.id, clinic_id: clinicId, slot_at: new Date(slot).toISOString(), reason: reason || null, kind: "in_person",
     });
     if (error) return toast.error(error.message);
     toast.success("Visit requested");

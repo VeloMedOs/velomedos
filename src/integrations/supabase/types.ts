@@ -2810,8 +2810,12 @@ export type Database = {
       }
       clinic_bookings: {
         Row: {
+          beneficiary_id: string | null
+          cancelled_at: string | null
+          charge_mode: Database["public"]["Enums"]["charge_mode"] | null
           clinic_id: string
           confirmed_at: string | null
+          coverage_id: string | null
           created_at: string
           eligibility_check_pending: boolean
           eligibility_checked_at: string | null
@@ -2821,22 +2825,28 @@ export type Database = {
           no_show: boolean
           origin_encounter_id: string | null
           overbooked: boolean
-          patient_id: string
+          patient_id: string | null
           provider_id: string | null
           reason: string | null
+          rebook_request: boolean
           referral_target_id: string | null
+          schedule_id: string | null
           series_id: string | null
           slot_at: string
           slot_id: string | null
           source: Database["public"]["Enums"]["visit_source"] | null
           status: Database["public"]["Enums"]["booking_status"]
-          tenant_id: string | null
+          tenant_id: string
           updated_at: string
           visit_type: Database["public"]["Enums"]["visit_type"] | null
         }
         Insert: {
+          beneficiary_id?: string | null
+          cancelled_at?: string | null
+          charge_mode?: Database["public"]["Enums"]["charge_mode"] | null
           clinic_id: string
           confirmed_at?: string | null
+          coverage_id?: string | null
           created_at?: string
           eligibility_check_pending?: boolean
           eligibility_checked_at?: string | null
@@ -2846,22 +2856,28 @@ export type Database = {
           no_show?: boolean
           origin_encounter_id?: string | null
           overbooked?: boolean
-          patient_id: string
+          patient_id?: string | null
           provider_id?: string | null
           reason?: string | null
+          rebook_request?: boolean
           referral_target_id?: string | null
+          schedule_id?: string | null
           series_id?: string | null
           slot_at: string
           slot_id?: string | null
           source?: Database["public"]["Enums"]["visit_source"] | null
           status?: Database["public"]["Enums"]["booking_status"]
-          tenant_id?: string | null
+          tenant_id: string
           updated_at?: string
           visit_type?: Database["public"]["Enums"]["visit_type"] | null
         }
         Update: {
+          beneficiary_id?: string | null
+          cancelled_at?: string | null
+          charge_mode?: Database["public"]["Enums"]["charge_mode"] | null
           clinic_id?: string
           confirmed_at?: string | null
+          coverage_id?: string | null
           created_at?: string
           eligibility_check_pending?: boolean
           eligibility_checked_at?: string | null
@@ -2871,20 +2887,36 @@ export type Database = {
           no_show?: boolean
           origin_encounter_id?: string | null
           overbooked?: boolean
-          patient_id?: string
+          patient_id?: string | null
           provider_id?: string | null
           reason?: string | null
+          rebook_request?: boolean
           referral_target_id?: string | null
+          schedule_id?: string | null
           series_id?: string | null
           slot_at?: string
           slot_id?: string | null
           source?: Database["public"]["Enums"]["visit_source"] | null
           status?: Database["public"]["Enums"]["booking_status"]
-          tenant_id?: string | null
+          tenant_id?: string
           updated_at?: string
           visit_type?: Database["public"]["Enums"]["visit_type"] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "clinic_bookings_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_bookings_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["beneficiary_id"]
+          },
           {
             foreignKeyName: "clinic_bookings_clinic_id_fkey"
             columns: ["clinic_id"]
@@ -2897,6 +2929,13 @@ export type Database = {
             columns: ["clinic_id"]
             isOneToOne: false
             referencedRelation: "clinics_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_bookings_coverage_id_fkey"
+            columns: ["coverage_id"]
+            isOneToOne: false
+            referencedRelation: "coverage"
             referencedColumns: ["id"]
           },
           {
@@ -2925,6 +2964,13 @@ export type Database = {
             columns: ["referral_target_id"]
             isOneToOne: false
             referencedRelation: "referral_target"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_bookings_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "clinic_schedule"
             referencedColumns: ["id"]
           },
           {
@@ -2958,6 +3004,7 @@ export type Database = {
           procedure_room: boolean
           provider_id: string | null
           slot_duration_min: number
+          specialty: string | null
           specific_date: string | null
           start_time: string
           status: string
@@ -2981,6 +3028,7 @@ export type Database = {
           procedure_room?: boolean
           provider_id?: string | null
           slot_duration_min?: number
+          specialty?: string | null
           specific_date?: string | null
           start_time: string
           status?: string
@@ -3004,6 +3052,7 @@ export type Database = {
           procedure_room?: boolean
           provider_id?: string | null
           slot_duration_min?: number
+          specialty?: string | null
           specific_date?: string | null
           start_time?: string
           status?: string
@@ -9834,6 +9883,39 @@ export type Database = {
           },
         ]
       }
+      providers: {
+        Row: {
+          auth_user_id: string | null
+          created_at: string
+          display_name: string
+          id: string
+          seniority_rank: number | null
+          specialty: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id?: string | null
+          created_at?: string
+          display_name: string
+          id?: string
+          seniority_rank?: number | null
+          specialty?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          seniority_rank?: number | null
+          specialty?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       radiology_order: {
         Row: {
           created_at: string
@@ -13268,7 +13350,14 @@ export type Database = {
         | "biweekly"
         | "monthly"
         | "custom"
-      visit_source: "walk_in" | "scheduled" | "er_referral" | "ip_followup"
+      visit_source:
+        | "walk_in"
+        | "scheduled"
+        | "er_referral"
+        | "ip_followup"
+        | "referral"
+        | "external"
+        | "marketing"
       visit_type:
         | "new_consult"
         | "follow_up"
@@ -13768,7 +13857,15 @@ export const Constants = {
         "monthly",
         "custom",
       ],
-      visit_source: ["walk_in", "scheduled", "er_referral", "ip_followup"],
+      visit_source: [
+        "walk_in",
+        "scheduled",
+        "er_referral",
+        "ip_followup",
+        "referral",
+        "external",
+        "marketing",
+      ],
       visit_type: [
         "new_consult",
         "follow_up",
