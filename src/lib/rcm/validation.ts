@@ -60,6 +60,9 @@ export const SCHEDULER_ERROR = {
   SLOT_AGE_OUT_OF_RANGE:               { code: "slot_age_out_of_range",               http: 422 },
   BOOKING_CONFIRM_ELIGIBILITY_PENDING: { code: "booking_confirm_eligibility_pending", http: 409 },
   NO_COVERAGE_FOR_ELIGIBILITY:         { code: "no_coverage_for_eligibility",         http: 422 },
+  INVALID_BLOCK_REASON:                { code: "invalid_block_reason",                http: 422 },
+  NOT_FOUND:                           { code: "not_found",                           http: 404 },
+  INVALID_STATUS_TRANSITION:           { code: "invalid_status_transition",           http: 409 },
 } as const;
 
 export type SchedulerErrorKey = keyof typeof SCHEDULER_ERROR;
