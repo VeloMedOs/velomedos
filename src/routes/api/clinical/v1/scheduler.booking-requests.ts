@@ -35,12 +35,13 @@ export const Route = createFileRoute("/api/clinical/v1/scheduler/booking-request
         gender: string | null;
       }> = [];
 
-      // (a) Referrals awaiting appointment.
+      // (a) Referrals awaiting appointment (submitted or accepted, not yet booked).
       const { data: refs, error: rErr } = await db
         .from("referral_target")
         .select("id, referral_id, target_kind, target_specialty, status, referral:referral_id ( id, source_encounter_id, encounter:source_encounter_id ( beneficiary_id, beneficiary:beneficiary_id ( patient_file_no, full_name, contact_number, dob, gender ) ) )")
         .eq("tenant_id", auth.ctx.tenantId)
-        .eq("status", "requested")
+        .in("status", ["submitted", "accepted"])
+        .is("booked_appointment_id", null)
         .eq("target_kind", "specialty");
       if (rErr) return envelope("database_error", "db_error", 500);
       for (const rt of (refs ?? []) as unknown as Array<{
