@@ -25,7 +25,7 @@ export const Route = createFileRoute("/api/clinical/v1/scheduler/bookings/$id/bo
       const { data: booking } = await db.from("clinic_bookings")
         .select("id, slot_id, tenant_id")
         .eq("id", params.id).maybeSingle();
-      if (!booking || booking.tenant_id !== auth.ctx.tenantId) return bounce("NOT_FOUND");
+      if (!booking || booking.tenant_id !== auth.ctx.tenantId || !booking.slot_id) return bounce("NOT_FOUND");
 
       const nowIso = new Date().toISOString();
       const { data: claimed } = await db.from("clinic_slot")
