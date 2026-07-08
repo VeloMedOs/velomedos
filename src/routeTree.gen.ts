@@ -154,6 +154,7 @@ import { Route as ApiClinicalV1VitalsIdRouteImport } from './routes/api/clinical
 import { Route as ApiClinicalV1TaxInvoicesBulkRouteImport } from './routes/api/clinical/v1/tax-invoices.bulk'
 import { Route as ApiClinicalV1TaxInvoicesIdRouteImport } from './routes/api/clinical/v1/tax-invoices.$id'
 import { Route as ApiClinicalV1SupportingInfoIdRouteImport } from './routes/api/clinical/v1/supporting-info.$id'
+import { Route as ApiClinicalV1SchedulerValidateDropRouteImport } from './routes/api/clinical/v1/scheduler.validate-drop'
 import { Route as ApiClinicalV1SchedulerBookingRequestsRouteImport } from './routes/api/clinical/v1/scheduler.booking-requests'
 import { Route as ApiClinicalV1SchedulerBoardRouteImport } from './routes/api/clinical/v1/scheduler.board'
 import { Route as ApiClinicalV1PromAssignmentsIdRouteImport } from './routes/api/clinical/v1/prom-assignments.$id'
@@ -1161,6 +1162,12 @@ const ApiClinicalV1SupportingInfoIdRoute =
   ApiClinicalV1SupportingInfoIdRouteImport.update({
     id: '/api/clinical/v1/supporting-info/$id',
     path: '/api/clinical/v1/supporting-info/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1SchedulerValidateDropRoute =
+  ApiClinicalV1SchedulerValidateDropRouteImport.update({
+    id: '/api/clinical/v1/scheduler/validate-drop',
+    path: '/api/clinical/v1/scheduler/validate-drop',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1SchedulerBookingRequestsRoute =
@@ -2770,6 +2777,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/prom-assignments/$id': typeof ApiClinicalV1PromAssignmentsIdRouteWithChildren
   '/api/clinical/v1/scheduler/board': typeof ApiClinicalV1SchedulerBoardRoute
   '/api/clinical/v1/scheduler/booking-requests': typeof ApiClinicalV1SchedulerBookingRequestsRoute
+  '/api/clinical/v1/scheduler/validate-drop': typeof ApiClinicalV1SchedulerValidateDropRoute
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
   '/api/clinical/v1/tax-invoices/$id': typeof ApiClinicalV1TaxInvoicesIdRouteWithChildren
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
@@ -3151,6 +3159,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/prom-assignments/$id': typeof ApiClinicalV1PromAssignmentsIdRouteWithChildren
   '/api/clinical/v1/scheduler/board': typeof ApiClinicalV1SchedulerBoardRoute
   '/api/clinical/v1/scheduler/booking-requests': typeof ApiClinicalV1SchedulerBookingRequestsRoute
+  '/api/clinical/v1/scheduler/validate-drop': typeof ApiClinicalV1SchedulerValidateDropRoute
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
   '/api/clinical/v1/tax-invoices/$id': typeof ApiClinicalV1TaxInvoicesIdRouteWithChildren
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
@@ -3536,6 +3545,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/prom-assignments/$id': typeof ApiClinicalV1PromAssignmentsIdRouteWithChildren
   '/api/clinical/v1/scheduler/board': typeof ApiClinicalV1SchedulerBoardRoute
   '/api/clinical/v1/scheduler/booking-requests': typeof ApiClinicalV1SchedulerBookingRequestsRoute
+  '/api/clinical/v1/scheduler/validate-drop': typeof ApiClinicalV1SchedulerValidateDropRoute
   '/api/clinical/v1/supporting-info/$id': typeof ApiClinicalV1SupportingInfoIdRoute
   '/api/clinical/v1/tax-invoices/$id': typeof ApiClinicalV1TaxInvoicesIdRouteWithChildren
   '/api/clinical/v1/tax-invoices/bulk': typeof ApiClinicalV1TaxInvoicesBulkRoute
@@ -3921,6 +3931,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prom-assignments/$id'
     | '/api/clinical/v1/scheduler/board'
     | '/api/clinical/v1/scheduler/booking-requests'
+    | '/api/clinical/v1/scheduler/validate-drop'
     | '/api/clinical/v1/supporting-info/$id'
     | '/api/clinical/v1/tax-invoices/$id'
     | '/api/clinical/v1/tax-invoices/bulk'
@@ -4302,6 +4313,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prom-assignments/$id'
     | '/api/clinical/v1/scheduler/board'
     | '/api/clinical/v1/scheduler/booking-requests'
+    | '/api/clinical/v1/scheduler/validate-drop'
     | '/api/clinical/v1/supporting-info/$id'
     | '/api/clinical/v1/tax-invoices/$id'
     | '/api/clinical/v1/tax-invoices/bulk'
@@ -4686,6 +4698,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/prom-assignments/$id'
     | '/api/clinical/v1/scheduler/board'
     | '/api/clinical/v1/scheduler/booking-requests'
+    | '/api/clinical/v1/scheduler/validate-drop'
     | '/api/clinical/v1/supporting-info/$id'
     | '/api/clinical/v1/tax-invoices/$id'
     | '/api/clinical/v1/tax-invoices/bulk'
@@ -5011,6 +5024,7 @@ export interface RootRouteChildren {
   ApiClinicalV1OutcomesSummaryRoute: typeof ApiClinicalV1OutcomesSummaryRoute
   ApiClinicalV1SchedulerBoardRoute: typeof ApiClinicalV1SchedulerBoardRoute
   ApiClinicalV1SchedulerBookingRequestsRoute: typeof ApiClinicalV1SchedulerBookingRequestsRoute
+  ApiClinicalV1SchedulerValidateDropRoute: typeof ApiClinicalV1SchedulerValidateDropRoute
   ApiClinicalV1SupportingInfoIdRoute: typeof ApiClinicalV1SupportingInfoIdRoute
   ApiClinicalV1VitalsIdRoute: typeof ApiClinicalV1VitalsIdRoute
   ApiClinicalV1WorklistsAdmissionRoute: typeof ApiClinicalV1WorklistsAdmissionRoute
@@ -6065,6 +6079,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/supporting-info/$id'
       fullPath: '/api/clinical/v1/supporting-info/$id'
       preLoaderRoute: typeof ApiClinicalV1SupportingInfoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/scheduler/validate-drop': {
+      id: '/api/clinical/v1/scheduler/validate-drop'
+      path: '/api/clinical/v1/scheduler/validate-drop'
+      fullPath: '/api/clinical/v1/scheduler/validate-drop'
+      preLoaderRoute: typeof ApiClinicalV1SchedulerValidateDropRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/scheduler/booking-requests': {
@@ -9549,6 +9570,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiClinicalV1SchedulerBoardRoute: ApiClinicalV1SchedulerBoardRoute,
   ApiClinicalV1SchedulerBookingRequestsRoute:
     ApiClinicalV1SchedulerBookingRequestsRoute,
+  ApiClinicalV1SchedulerValidateDropRoute:
+    ApiClinicalV1SchedulerValidateDropRoute,
   ApiClinicalV1SupportingInfoIdRoute: ApiClinicalV1SupportingInfoIdRoute,
   ApiClinicalV1VitalsIdRoute: ApiClinicalV1VitalsIdRoute,
   ApiClinicalV1WorklistsAdmissionRoute: ApiClinicalV1WorklistsAdmissionRoute,
