@@ -266,3 +266,12 @@ Docs: `docs/his-technical-manual.md` — Scheduling + Referral section (data mod
 ## Sequencing
 
 Turn 1 (data + `rules.ts` extensions) → Turn 2 (board + setup + atomic held-slot claim + post-book eligibility endpoint) → Turn 3 (referral wiring + tests + docs). Each turn ships its own migration set + grep-verifiable DoD subset.
+
+## Turn 3 debt rows (Step 3 close-out)
+
+- **#18** — Rule C series branch dormant until Batch C seeds `service_master.sub_category='series_therapy'`.
+- **#19** — BRS to confirm `approx_perform_minutes` vs `tat_minutes` semantics for OPD visit duration. `opdVisitDurationMin` reads `approx_perform_minutes` first with `slot_duration_min` fallback.
+- **#20** — visit_type spec-vs-code naming divergence (`new` ↔ `new_consult`); repo values `no_charge`/`procedure` additive-correct.
+- **#21** — `maternity_protocol.next_anc_due_at` column missing; the ANC clause of the booking-requests UNION returns empty until Batch C Maternity.
+- **#22** — `referral_network` lookup table required before Step 5 external referral flow.
+- **#23** — Portal-patient self-booking compat layer pending review; new writes are tenant-scoped, portal writes stay user-scoped via server route.
