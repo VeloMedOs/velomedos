@@ -49,26 +49,20 @@ export const Route = createFileRoute("/api/clinical/v1/scheduler/blocks")({
         slotIds = (slots ?? []).map((s) => s.id);
       }
 
-      const rows = slotIds.length
-        ? slotIds.map((slot_id) => ({
-            tenant_id: auth.ctx.tenantId,
-            schedule_id: body.schedule_id,
-            slot_id,
-            reason_code: body.reason_code,
-            note: body.note ?? null,
-            blocked_by: auth.ctx.userId,
-            notify_stakeholders: !!body.notify_stakeholders,
-          }))
-        : [{
-            tenant_id: auth.ctx.tenantId,
-            schedule_id: body.schedule_id,
-            slot_id: null,
-            reason_code: body.reason_code,
-            note: body.note ?? null,
-            blocked_by: auth.ctx.userId,
-            notify_stakeholders: !!body.notify_stakeholders,
-          }];
-      const { data: inserted, error: iErr } = await db.from("slot_block").insert(rows).select("id, slot_id");
+      const base = {
+        tenant_id: auth.ctx.tenantId,
+        schedule_id: body.schedule_id,
+        reason_code: body.reason_code,
+        note: body.note ?? null,
+        blocked_by: auth.ctx.userId,
+        notify_stakeholders: !!body.notify_stakeholders,
+      };
+      const rows: Array<Record<string, unknown>> = slotIds.length
+        ? slotIds.map((slot_id) => ({ ...base, slot_id }))
+        : [{ ...base }];
+      const { data: inserted, error: iErr } = await (db.from("slot_block") as unknown as {
+        insert: (r: unknown) => { select: (c: string) => Promise<{ data: Array<{ id: string; slot_id: string | null }> | null; error: { message: string } | null }> };
+      }).insert(rows).select("id, slot_id");
       if (iErr) return envelope("database_error", "db_error", 500, { detail: iErr.message });
 
       if (slotIds.length) {
