@@ -13,7 +13,7 @@ import {
   Wallet, BedDouble, PiggyBank, Banknote, Settings, HeartPulse, ClipboardList,
   FlaskConical, Activity, Users, ClipboardCheck, Megaphone, FormInput,
   Ambulance, DoorOpen, LogIn, LayoutGrid, LogOut, FileEdit,
-  Pill, Apple, HandHeart,
+  Pill, Apple, HandHeart, CalendarDays, CalendarCog,
 } from "lucide-react";
 
 export type NavTabId =
@@ -51,6 +51,8 @@ export const NAV_SECTIONS: NavSectionDef[] = [
     items: [
       { module: "Registration & Eligibility", label: "Registration", tab: "registration", icon: UserPlus },
       { module: "Clinical",                   label: "Encounter",    tab: "encounters",   icon: Stethoscope },
+      { module: "Clinical",                   label: "OPD Day Board", tab: "opd-day-board",     icon: CalendarDays },
+      { module: "Clinical",                   label: "Schedule Setup", tab: "opd-schedule-setup", icon: CalendarCog },
       { module: "Clinical",                   label: "Orders",       tab: "orders",       icon: ClipboardList },
       { module: "Clinical",                   label: "Results",      tab: "results",      icon: FlaskConical },
       { module: "Coding & DRG",               label: "Coding · DRG", tab: "coding",       icon: Hash },
