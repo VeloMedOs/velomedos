@@ -182,7 +182,7 @@ export const Route = createFileRoute("/api/clinical/v1/scheduler/validate-drop")
 
       await db.from("booking_event").insert({
         tenant_id: auth.ctx.tenantId, booking_id: booking.id, event: "requested",
-        by: auth.ctx.userId, at: new Date().toISOString(),
+        by_user: auth.ctx.userId, at: new Date().toISOString(),
       });
 
       return jsonData({
