@@ -83,3 +83,85 @@ UI role-gating in `clinical.tsx` and disabled buttons in `clinical-masters.tsx` 
 
 ### New endpoint
 - `GET /api/clinical/v1/me` → `{ data: { user_id, tenant_id, role, clinical_role } }`. Requires bearer; otherwise standard envelope.
+
+## Clinic Day Board (Batch C_10 pattern)
+
+Step 3 · Turn 2/3 ships the OPD Clinic Day Board as the primary booking
+surface. It is built on a **generic** `<DayBoard />` component
+(`src/components/clinical/daylight/scheduling/DayBoard.tsx`) which Batch C
+OR/Cath will re-configure — no OPD literals live in the component.
+
+### `SuiteConfig<TSlot, TBooking>` contract
+
+| Field | Purpose |
+|-------|---------|
+| `suite` | Identity string; rendered as `data-suite` and aria-label. |
+| `columns` | Session metadata (provider × room × badges). |
+| `timeTicks` | ISO instants used as row axis (default 20-min grid). |
+| `slotsBySession` | Slot rows keyed by `session_id`. |
+| `bookingsBySlot` | Booking keyed by `slot_id` (nullable). |
+| `columnSort` | Comparator — OPD uses `columnSort` from `src/lib/rcm/scheduler.ts`. |
+| `columnBadges` | Chips displayed in the session header. |
+| `slotColor` | Maps slot + booking → one of 8 state tones. |
+| `renderSlot` (optional) | Renders the slot cell body; charge_mode chip lives here. |
+
+### HCA-0050 column ordering
+
+Columns sort by `priority_rank ASC NULLS LAST`, then
+`providers.display_name ASC` (locale-aware). The comparator is exported
+from `src/lib/rcm/scheduler.ts` and covered by `scheduler.test.ts`. Any
+pane using the board **must** cite HCA-0050 in a comment above the call
+site — the sort is user-visible spec behaviour, not implementation
+detail.
+
+### Atomic held-slot claim
+
+`validate-drop` and `bookings/:id/book` both use `UPDATE … WHERE
+status='held' AND held_until > now() RETURNING id` in a single statement
+instead of a `SELECT` followed by `UPDATE`. Postgres executes the
+`UPDATE` under row lock, so exactly one concurrent caller sees a
+non-empty `RETURNING`; the loser bounces with `SLOT_UNAVAILABLE` (or
+`SLOT_JUST_TAKEN` during hold acquisition). Never split this into two
+statements — the race window between `SELECT` and `UPDATE` is where
+double-books were born.
+
+### Post-book eligibility flow (DD6)
+
+1. `validate-drop` writes `eligibility_check_pending = booking.coverage_id IS NOT NULL`.
+2. `book` commits the held slot; the booking is `requested`.
+3. `bookings/:id/eligibility-check` is the **only** scheduling caller of
+   the NPHIES eligibility engine. It clears
+   `eligibility_check_pending`.
+4. `bookings/:id/status` refuses `status='confirmed'` while
+   `eligibility_check_pending=true` and returns
+   `BOOKING_CONFIRM_ELIGIBILITY_PENDING` (409) — mirrors the DB trigger
+   for a clean UI error.
+
+### DD4 — Rule B/C is DISPLAY-only
+
+The 14-day repeat rule (Rules B/C) **does not bounce** a drop. Instead,
+`evaluateTriggers` runs during `validate-drop` and its outcome is
+folded into `clinic_bookings.charge_mode`. The UI renders it as a
+yellow `.clin-pill.warn` chip. `SLOT_REPEAT_BLOCK_14D` is intentionally
+absent from `SCHEDULER_ERROR`.
+
+### DD5 — overbook two paths
+
+| Situation | Response |
+|-----------|----------|
+| below `capacity` | `{ok:true, overbook_warning:false}` |
+| at capacity but below `capacity+overbook_limit`, `overbook_allowed`, caller has `scheduler.overbook` | `{ok:true, overbook_warning:true}` + booking stamped `overbooked=true`; UI shows yellow ⚠ ribbon |
+| past `capacity+overbook_limit`, or missing the privilege, or the schedule disallows overbook | `bounce('SLOT_CAPACITY_FULL')` (422) |
+
+### Visual test updates ritual
+
+1. Run `bun run test:e2e:update` **only** after a screenshot regression
+   you can explain (spec change, token change, new chip). Never blanket
+   the whole suite.
+2. Review the pixel diff in `git diff --stat 'tests/**/*.png'`. The diff
+   must match the source change — a text edit should not move a
+   sidebar.
+3. Commit the new baseline in the **same** PR as the source change so
+   reviewers can verify the intent.
+4. **Never** update snapshots to hide a regression. If the diff surprises
+   you, roll back the source change instead.

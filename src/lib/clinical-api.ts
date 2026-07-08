@@ -792,3 +792,95 @@ export const worklistsApi = {
   socialWork:      (params?: { class?: EncounterClass }) =>
     clinicalFetch<{ data: DoctorWorklistRow[] }>(`/api/clinical/v1/worklists/social-work${qs(params)}`),
 };
+
+/* ─────────────────────────────────────────────────────────────────────
+ * Step 3 · Turn 3 — Scheduler API wrappers.
+ * Envelope: { ok:true, data, ...extras } | { error, code, request_id }.
+ * ────────────────────────────────────────────────────────────────────*/
+
+export type BoardColumnDTO = {
+  session_id: string; provider_display_name: string; specialty: string | null;
+  room: string | null; priority_rank: number | null; capacity: number;
+  booked_count: number; overbook_limit: number; overbook_allowed: boolean;
+  telemedicine_capable?: boolean; procedure_room?: boolean;
+  wheelchair_access?: boolean; female_clinic?: boolean;
+};
+export type BoardResponse = {
+  columns: BoardColumnDTO[];
+  time_ticks: string[];
+  slots_by_session: Record<string, Array<{ slot_at: string; slot: unknown }>>;
+  bookings_by_slot: Record<string, unknown>;
+};
+export type BookingRequestRow = {
+  request_id: string | null;
+  kind: "referral" | "anc_followup" | "rebook" | "portal";
+  target_specialty: string | null;
+  referral_id: string | null;
+  mrn: string | null;
+  full_name: string | null;
+  contact_number: string | null;
+  dob: string | null;
+  gender: string | null;
+};
+export type DropValidationPayload = {
+  session_id: string;
+  slot_id: string;
+  beneficiary_id: string;
+  visit_type?: "new_consult" | "follow_up" | "series" | "no_charge" | "procedure";
+  service_id?: string;
+  coverage_id?: string | null;
+  source?: "walk_in" | "scheduled" | "er_referral" | "ip_followup" | "referral" | "external" | "marketing";
+  referral_target_id?: string | null;
+};
+export type DropValidationResponse = {
+  ok: boolean;
+  data?: { booking_id: string; slot_id: string; held_until: string; charge_mode: string | null; eligibility_check_pending: boolean };
+  overbook_warning?: boolean;
+  error?: string; code?: string;
+};
+export type BookingStatus = "confirmed" | "arrived" | "in_consult" | "completed" | "no_show" | "cancelled";
+
+function qsObj(params?: Record<string, string | undefined>): string {
+  if (!params) return "";
+  const u = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (v != null && v !== "") u.set(k, v);
+  const s = u.toString();
+  return s ? `?${s}` : "";
+}
+
+export const schedulerApi = {
+  board: (filters: { date?: string; clinic_id?: string }) =>
+    clinicalFetch<{ ok: true; data: BoardResponse }>(
+      `/api/clinical/v1/scheduler/board${qsObj(filters)}`,
+    ),
+  bookingRequests: (filters?: { day?: string; specialty?: string; doctor?: string; mrn?: string; phone?: string }) =>
+    clinicalFetch<{ ok: true; data: { rows: BookingRequestRow[] } }>(
+      `/api/clinical/v1/scheduler/booking-requests${qsObj(filters)}`,
+    ),
+  validateDrop: (body: DropValidationPayload) =>
+    clinicalFetch<DropValidationResponse>(
+      `/api/clinical/v1/scheduler/validate-drop`, { method: "POST", body },
+    ),
+  book: (bookingId: string, holdToken: string) =>
+    clinicalFetch<{ ok: true; data: { booking_id: string; slot_id: string } }>(
+      `/api/clinical/v1/scheduler/bookings/${bookingId}/book`,
+      { method: "POST", body: { hold_token: holdToken } },
+    ),
+  setStatus: (bookingId: string, status: BookingStatus, reason?: string) =>
+    clinicalFetch<{ ok: true; data: unknown }>(
+      `/api/clinical/v1/scheduler/bookings/${bookingId}/status`,
+      { method: "PATCH", body: { status, reason } },
+    ),
+  runEligibility: (bookingId: string) =>
+    clinicalFetch<{ ok: true; data: { eligibility_response: unknown } }>(
+      `/api/clinical/v1/scheduler/bookings/${bookingId}/eligibility-check`,
+      { method: "POST", body: {} },
+    ),
+  block: (body: {
+    schedule_id: string; slot_ids?: string[]; all_day?: boolean;
+    reason_code: string; note?: string; notify_stakeholders?: boolean;
+  }) =>
+    clinicalFetch<{ ok: true; data: { blocks: Array<{ id: string; slot_id: string | null }> } }>(
+      `/api/clinical/v1/scheduler/blocks`, { method: "POST", body },
+    ),
+};

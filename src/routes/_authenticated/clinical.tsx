@@ -24,6 +24,8 @@ import {
 import { IpAdmissionsPane } from "@/components/clinical/daylight/IpAdmissionsPane";
 import { OrdersPane } from "@/components/clinical/daylight/OrdersPane";
 import { ResultsPane } from "@/components/clinical/daylight/ResultsPane";
+import { ClinicDayBoardPane } from "@/components/clinical/daylight/scheduling/ClinicDayBoardPane";
+import { ScheduleSetupPane } from "@/components/clinical/daylight/scheduling/ScheduleSetupPane";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
 import { formatHalalas } from "@/lib/clinical/format-money";
 import { DoctorWorklistPane } from "@/components/clinical/daylight/worklists/DoctorWorklistPane";
@@ -118,6 +120,8 @@ function ClinicalWorkspace() {
       {tab === "admin-contract-masters" && <ContractMastersPane role={me.clinicalRole} />}
       {tab === "orders"              && <OrdersPane />}
       {tab === "results"             && <ResultsPane />}
+      {tab === "opd-day-board"       && <ClinicDayBoardPane />}
+      {tab === "opd-schedule-setup"  && <ScheduleSetupPane />}
       {tab === "vitals"              && <VitalsTrendPane />}
       {tab === "wl-doctor"           && <DoctorWorklistPane />}
       {tab === "wl-nursing"          && <NursingWorkbenchPane />}
