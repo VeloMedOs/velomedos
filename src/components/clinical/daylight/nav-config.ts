@@ -28,7 +28,9 @@ export type NavTabId =
   // Batch-B spine Turn-2b · 10 module worklists
   | "wl-ems" | "wl-front-office" | "wl-admission" | "wl-floor-manager"
   | "wl-transfer-discharge" | "wl-coder" | "wl-mrd" | "wl-pharmacist"
-  | "wl-nutrition" | "wl-social-work";
+  | "wl-nutrition" | "wl-social-work"
+  // Step 3 · Turn 3 — OPD Scheduling
+  | "opd-day-board" | "opd-schedule-setup";
 
 export type NavItemDef = {
   module: string;
