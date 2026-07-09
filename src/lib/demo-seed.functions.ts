@@ -292,12 +292,14 @@ async function runSeedDemo() {
 
   const beneficiaries = await seedBeneficiaries(tenant.id);
   const gate = await seedGateFixtures(tenant.id);
+  const scheduler = await seedSchedulerFixtures(tenant.id, beneficiaries.ids);
 
   return {
     ok: true as const,
     tenant_id: tenant.id,
     beneficiaries: Object.keys(beneficiaries.ids).length,
     gate_fixtures: gate.ok ? "seeded" : `error:${gate.error}`,
+    scheduler_fixtures: scheduler.ok ? "seeded" : `error:${scheduler.error}`,
     note:
       "Masters (payers/policies/services/drugs/DRG) and pre-built journey encounters are seeded by the SQL fixture pack in supabase/migrations/<ts>_demo_seed_masters.sql (run separately).",
   };
