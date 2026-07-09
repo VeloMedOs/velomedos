@@ -127,6 +127,7 @@ import { Route as ApiAdminV1BugsRouteImport } from './routes/api/admin/v1/bugs'
 import { Route as ApiAdminV1AuditRouteImport } from './routes/api/admin/v1/audit'
 import { Route as ApiAdminV1AddonsRouteImport } from './routes/api/admin/v1/addons'
 import { Route as ApiPublicV1ShareTokenRouteImport } from './routes/api/public/v1/share.$token'
+import { Route as ApiPublicV1PreauthMidBoardRouteImport } from './routes/api/public/v1/preauth-mid.board'
 import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/v1/incidents.$id'
 import { Route as ApiPublicV1HomecareVisitsRouteImport } from './routes/api/public/v1/homecare.visits'
 import { Route as ApiPublicV1HomecareRecipientsRouteImport } from './routes/api/public/v1/homecare.recipients'
@@ -1022,6 +1023,12 @@ const ApiPublicV1ShareTokenRoute = ApiPublicV1ShareTokenRouteImport.update({
   path: '/api/public/v1/share/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicV1PreauthMidBoardRoute =
+  ApiPublicV1PreauthMidBoardRouteImport.update({
+    id: '/api/public/v1/preauth-mid/board',
+    path: '/api/public/v1/preauth-mid/board',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1IncidentsIdRoute = ApiPublicV1IncidentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -2925,6 +2932,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/preauth-mid/board': typeof ApiPublicV1PreauthMidBoardRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/clinical/v1/opd/opd/routing': typeof ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren
   '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
@@ -3324,6 +3332,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/preauth-mid/board': typeof ApiPublicV1PreauthMidBoardRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/clinical/v1/opd/opd/routing': typeof ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren
   '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
@@ -3727,6 +3736,7 @@ export interface FileRoutesById {
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
+  '/api/public/v1/preauth-mid/board': typeof ApiPublicV1PreauthMidBoardRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
   '/api/clinical/v1/opd/opd/routing': typeof ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren
   '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
@@ -4130,6 +4140,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/homecare/visits'
     | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/preauth-mid/board'
     | '/api/public/v1/share/$token'
     | '/api/clinical/v1/opd/opd/routing'
     | '/api/admin/v1/business-requests/$id/advance'
@@ -4529,6 +4540,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/homecare/visits'
     | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/preauth-mid/board'
     | '/api/public/v1/share/$token'
     | '/api/clinical/v1/opd/opd/routing'
     | '/api/admin/v1/business-requests/$id/advance'
@@ -4931,6 +4943,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/homecare/visits'
     | '/api/public/v1/incidents/$id'
+    | '/api/public/v1/preauth-mid/board'
     | '/api/public/v1/share/$token'
     | '/api/clinical/v1/opd/opd/routing'
     | '/api/admin/v1/business-requests/$id/advance'
@@ -5270,6 +5283,7 @@ export interface RootRouteChildren {
   ApiPublicV1HomecareCarePlansRoute: typeof ApiPublicV1HomecareCarePlansRoute
   ApiPublicV1HomecareRecipientsRoute: typeof ApiPublicV1HomecareRecipientsRoute
   ApiPublicV1HomecareVisitsRoute: typeof ApiPublicV1HomecareVisitsRouteWithChildren
+  ApiPublicV1PreauthMidBoardRoute: typeof ApiPublicV1PreauthMidBoardRoute
   ApiPublicV1ShareTokenRoute: typeof ApiPublicV1ShareTokenRoute
   ApiClinicalV1OpdOpdRoutingRouteRoute: typeof ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren
   ApiAdminV1ConfigEffectiveSubscriberIdRoute: typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
@@ -6127,6 +6141,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/v1/share/$token'
       fullPath: '/api/public/v1/share/$token'
       preLoaderRoute: typeof ApiPublicV1ShareTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/preauth-mid/board': {
+      id: '/api/public/v1/preauth-mid/board'
+      path: '/api/public/v1/preauth-mid/board'
+      fullPath: '/api/public/v1/preauth-mid/board'
+      preLoaderRoute: typeof ApiPublicV1PreauthMidBoardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/incidents/$id': {
@@ -9969,6 +9990,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1HomecareCarePlansRoute: ApiPublicV1HomecareCarePlansRoute,
   ApiPublicV1HomecareRecipientsRoute: ApiPublicV1HomecareRecipientsRoute,
   ApiPublicV1HomecareVisitsRoute: ApiPublicV1HomecareVisitsRouteWithChildren,
+  ApiPublicV1PreauthMidBoardRoute: ApiPublicV1PreauthMidBoardRoute,
   ApiPublicV1ShareTokenRoute: ApiPublicV1ShareTokenRoute,
   ApiClinicalV1OpdOpdRoutingRouteRoute:
     ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren,
