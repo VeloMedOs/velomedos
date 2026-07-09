@@ -693,6 +693,27 @@ export const opdApi = {
         `/api/clinical/v1/opd/routing`, { method: "POST", body },
       ),
   },
+  treatmentRoom: {
+    worklist: (params?: { clinic_id?: string | null }) =>
+      clinicalFetch<{ ok: true; data: { rows: any[] } }>(
+        `/api/clinical/v1/opd/treatment-room/worklist${qs(params)}`,
+      ),
+    perform: (body: { order_item_table: string; order_item_id: string }) =>
+      clinicalFetch<{ ok: true; data: { row: any } }>(
+        `/api/clinical/v1/opd/treatment-room/perform`, { method: "POST", body },
+      ),
+  },
+  vaccineClinic: {
+    enable: () =>
+      clinicalFetch<{ ok: true; data: { clinic_id: string } }>(
+        `/api/clinical/v1/opd/vaccine-clinic/enable`, { method: "POST", body: {} },
+      ),
+  },
+  preauthMid: {
+    board: (tenant: string) =>
+      fetch(`/api/public/v1/preauth-mid/board?tenant=${encodeURIComponent(tenant)}`)
+        .then((r) => r.json() as Promise<{ rows: any[]; generated_at: string }>),
+  },
 };
 
 export const adminConfigApi = {
