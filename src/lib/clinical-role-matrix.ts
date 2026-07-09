@@ -233,6 +233,13 @@ CLINICAL_CAPABILITIES.push(
   { id: "opd.vaccine_clinic.admin", module: "Clinical",  apiNamespace: "/api/clinical/v1/opd/vaccine-clinic/enable",   label: "Enable Vaccine Clinic",         description: "Seed a vaccination-specialty clinic + default schedule (HCA-0231).",                        roles: ["tenant_admin"] },
 );
 
+// ── Step 4 Turn 4 · Maternity OPD deltas + Nutrition auto-referral ────────
+CLINICAL_CAPABILITIES.push(
+  { id: "opd.maternity.read",  module: "Clinical", apiNamespace: "/api/clinical/v1/opd/maternity/*",        label: "Read maternity banner",   description: "Active pregnancy episode, EDD, cadence, resolved payer protocol (D2/D4/D6/D7).", roles: ["tenant_admin","physician","nurse","front_office","case_manager"] },
+  { id: "opd.maternity.close", module: "Clinical", apiNamespace: "/api/clinical/v1/opd/maternity/delivery-close", label: "Close pregnancy episode", description: "Mark pregnancy episode delivered on chart-close (OBS&GYN).",                     roles: ["tenant_admin","physician"] },
+  { id: "opd.nutrition.read",  module: "Clinical", apiNamespace: "/api/clinical/v1/opd/nutrition/referrals/pending", label: "Read nutrition referrals", description: "Auto-generated draft nutrition referrals (HCA-0255).",                            roles: ["tenant_admin","physician","nurse","case_manager"] },
+);
+
 export const CLINICAL_MODULES: string[] = [
   ...new Set(CLINICAL_CAPABILITIES.map((c) => c.module)),
 ];

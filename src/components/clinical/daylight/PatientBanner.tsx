@@ -12,6 +12,12 @@ export type BannerPatient = {
   encounter_label?: string | null;       // e.g. "OP · Cardiology · today"
   mds_pct?: number;                       // 0-100
   is_pregnant?: boolean;                  // HCA-0240 — active pregnancy episode
+  /** Step 4 · Turn 4 · D6 — ANC cadence chip (Q4W/Q2W/Q1W). */
+  anc_cadence?: "Q4W" | "Q2W" | "Q1W" | null;
+  /** D2 hyperlink target — protocol resolved for encounter. */
+  maternity_protocol_id?: string | null;
+  /** D4 counter — sibling encounters within this tenant. */
+  cross_facility_visits_count?: number;
 };
 
 /**
@@ -63,6 +69,24 @@ export function PatientBanner({ p, sticky = true }: { p: BannerPatient; sticky?:
         {p.is_pregnant && (
           <span className="clin-pill warn animate-pulse" data-testid="banner-pregnancy" title="Active pregnancy episode">
             <Baby className="size-3" />PREGNANT
+          </span>
+        )}
+        {p.is_pregnant && p.anc_cadence && (
+          <span className="clin-pill info" data-testid="banner-anc-cadence" title="Antenatal cadence">
+            ANC · {p.anc_cadence}
+          </span>
+        )}
+        {p.is_pregnant && p.maternity_protocol_id && (
+          <a
+            href={`#maternity-protocol/${p.maternity_protocol_id}`}
+            className="clin-pill info hover:underline"
+            data-testid="banner-maternity-protocol"
+            title="Open maternity protocol"
+          >Protocol</a>
+        )}
+        {p.is_pregnant && typeof p.cross_facility_visits_count === "number" && p.cross_facility_visits_count > 0 && (
+          <span className="clin-pill muted" data-testid="banner-cross-facility" title="Sibling encounters in this tenant">
+            +{p.cross_facility_visits_count} visits
           </span>
         )}
         {p.coverage_label && (

@@ -714,6 +714,39 @@ export const opdApi = {
       fetch(`/api/public/v1/preauth-mid/board?tenant=${encodeURIComponent(tenant)}`)
         .then((r) => r.json() as Promise<{ rows: any[]; generated_at: string }>),
   },
+  maternity: {
+    banner: (encounter_id: string) =>
+      clinicalFetch<{ ok: true; data: {
+        pregnancy_active: boolean;
+        edd_computed: string | null;
+        weeks_gestation: number | null;
+        cadence_band: "Q4W" | "Q2W" | "Q1W" | null;
+        next_anc_suggested_at: string | null;
+        protocol_id: string | null;
+        protocol_summary: string | null;
+        cross_facility_visits: Array<{ encounter_id: string; period_start: string | null; facility: string | null }>;
+      } }>(
+        `/api/clinical/v1/opd/maternity/banner${qs({ encounter_id })}`,
+      ),
+    protocol: (encounter_id: string) =>
+      clinicalFetch<{ ok: true; data: { protocol_id: string | null; name: string | null; rules: Record<string, unknown> | null } }>(
+        `/api/clinical/v1/opd/maternity/protocol${qs({ encounter_id })}`,
+      ),
+    deliveryClose: (body: { episode_id: string; end_date?: string }) =>
+      clinicalFetch<{ ok: true; data: { episode_id: string; status: string; end_date: string } }>(
+        `/api/clinical/v1/opd/maternity/delivery-close`, { method: "POST", body },
+      ),
+  },
+  nutrition: {
+    pendingReferrals: (params?: { encounter_id?: string }) =>
+      clinicalFetch<{ ok: true; data: { rows: Array<{
+        id: string; referral_no: string; source_encounter_id: string | null;
+        beneficiary_id: string; status: string; reason: string | null;
+        source_key: string | null; created_at: string;
+      }> } }>(
+        `/api/clinical/v1/opd/nutrition/referrals/pending${qs(params)}`,
+      ),
+  },
 };
 
 export const adminConfigApi = {

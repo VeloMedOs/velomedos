@@ -1,8 +1,8 @@
-# Step 4 · Turn 2 — status
+# Step 4 · Turn 4 — status
 
-Turn 2 shipped: E14 Cashier UI, E15 Routing Board, wallet-negative OPD order gate. Suite 123 pass / 0 fail across 23 files. Client wrappers on `opdApi.cashier.*`, `opdApi.routing.*`, `opdApi.orders.walletGate`. Panes read only through `opdApi`; zero direct `patient_wallet` updates in touched code; no `bill`/`bill_item` references.
+Turn 4 shipped: Maternity D2/D4/D6 banner deltas (protocol resolver, EDD/cadence chip, cross-facility stub) and Nutrition auto-referral (HCA-0255) driven by nursing screening form completion. New SQL: `referral.source_key` + unique index, `v_pregnancy_episode_active`, `resolve_maternity_protocol()`, `ensure_nutrition_screening_form()`, `v_opd_nutrition_referral_candidate`, `tg_encounter_nutrition_referral`, `NUTRITION_CONSULT` seed. Client wrappers on `opdApi.maternity.*` and `opdApi.nutrition.pendingReferrals`.
 
-Turn 3 unlocked: #31 Pre-Auth MID pane, #32 Treatment Room worklist, #33 Vaccine Clinic.
+Turn 5 owns: #38 bulk-cancel body, #40 E2b full order-profile. #35 (QMS batch) and #36 (Step 5) stay parked.
 
 ## Debt Register
 
@@ -10,22 +10,22 @@ Open:
 - #18 — Rule C dormant until `series_therapy` seeded.
 - #19 — `approx_perform_minutes` vs `tat_minutes` BRS reconciliation.
 - #20 — `visit_type` naming divergence across schema and UI.
-- #21 — `maternity_protocol.next_anc_due_at` column missing.
+- #21 — `maternity_protocol.next_anc_due_at` column missing. Turn 4 uses literal `start_date + 280d` cadence bands (Q4W/Q2W/Q1W) as an interim; remains open until protocol-driven cadence lands.
 - #22 — `referral_network` table (needed before Step 5).
 - #23 — Portal self-booking compat (spec alignment).
 - #31 — Pre-Auth MID pane (Turn 3). RESOLVED — public kiosk `/preauth-mid` + `v_preauth_mid` + `preauth_mid_board`.
 - #32 — Treatment Room worklist (Turn 3). RESOLVED — `v_treatment_room_worklist` + perform route + `TreatmentRoomPane`.
 - #33 — Vaccine Clinic (Turn 3). RESOLVED — `seed_vaccine_clinic` + enable route + Schedule Setup card.
 - #42 — Bilingual SMS gateway wiring: stub at `src/lib/interface/sms-gateway.ts`; call-site hooks at `submitted_at`/`decision_at` transitions deferred.
-- #34 — Maternity D2/D4/D6/D7 flows.
-- #35 — QMS token spine.
-- #36 — Referral cockpit.
+- #34 — Maternity D2/D4/D6/D7 flows. RESOLVED — `v_pregnancy_episode_active` + `resolve_maternity_protocol` + banner deltas + `MaternityProtocolPanel` + `CrossFacilityVisitsSheet` (view-only stub) + `DeliveryOutcomeDialog`. D6 cadence chip renders from view; D7 form bindings deferred to Turn 5.
+- #35 — QMS token spine. Owner: QMS batch (parked).
+- #36 — Referral cockpit. Owner: Step 5 (parked).
 - #38 — Bulk-cancel body (skeleton only today).
-- #39 — Nutrition auto-referral.
+- #39 — Nutrition auto-referral. RESOLVED — `v_opd_nutrition_referral_candidate` view + `tg_encounter_nutrition_referral` trigger + `opd.nutrition.referrals.pending` route + `NutritionReferralCard`. Trigger primary source is nursing screening form score (moderate/high); idempotent via `source_key` UNIQUE index.
 - #40 — E2b full order-profile.
 - #41 — ZATCA credit-note linkage for pre-invoice cancellations. OP tax invoices cut at claim assembly; credit-note route cancels charge_item + order_item + auth request and writes wallet credit via `wallet_apply_txn`, but no `tax_invoice` linkage exists yet because no invoice exists pre-claim. Defer to claim-assembly / VAT engine turn.
 
-Resolved this step: #29 (E14 Cashier UI), #30 (E15 Routing Board), #37 (wallet-negative OPD order gate).
+Resolved this step: #29 (E14 Cashier UI), #30 (E15 Routing Board), #37 (wallet-negative OPD order gate), #31/#32/#33 (Turn 3), #34/#39 (Turn 4).
 
 Archived: #24–#28 (Step 3 Turn 5 closeout).
 

@@ -373,6 +373,9 @@ import { Route as ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport } f
 import { Route as ApiClinicalV1OpdOpdPregnancyEpisodeLinkRouteImport } from './routes/api/clinical/v1/opd/opd.pregnancy-episode.link'
 import { Route as ApiClinicalV1OpdOpdOrdersWalletGateRouteImport } from './routes/api/clinical/v1/opd/opd.orders.wallet-gate'
 import { Route as ApiClinicalV1OpdOpdOrdersBilledStatusRouteImport } from './routes/api/clinical/v1/opd/opd.orders.billed-status'
+import { Route as ApiClinicalV1OpdOpdMaternityProtocolRouteImport } from './routes/api/clinical/v1/opd/opd.maternity.protocol'
+import { Route as ApiClinicalV1OpdOpdMaternityDeliveryCloseRouteImport } from './routes/api/clinical/v1/opd/opd.maternity.delivery-close'
+import { Route as ApiClinicalV1OpdOpdMaternityBannerRouteImport } from './routes/api/clinical/v1/opd/opd.maternity.banner'
 import { Route as ApiClinicalV1OpdOpdCashierWorklistRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.worklist'
 import { Route as ApiClinicalV1OpdOpdCashierRaisePreauthRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.raise-preauth'
 import { Route as ApiClinicalV1OpdOpdCashierEligibilityFreshnessRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.eligibility-freshness'
@@ -412,6 +415,7 @@ import { Route as ApiClinicalV1AuthRequestsIdSubmitRouteImport } from './routes/
 import { Route as ApiClinicalV1AuthRequestsIdDecisionRouteImport } from './routes/api/clinical/v1/auth/requests.$id.decision'
 import { Route as ApiClinicalV1AuthRequestsIdCommunicationsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.communications'
 import { Route as ApiClinicalV1AuthRequestsIdAttachmentsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.attachments'
+import { Route as ApiClinicalV1OpdOpdNutritionReferralsPendingRouteImport } from './routes/api/clinical/v1/opd/opd.nutrition.referrals.pending'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsFeedRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.feed'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.bulk-update'
 
@@ -2475,6 +2479,24 @@ const ApiClinicalV1OpdOpdOrdersBilledStatusRoute =
     path: '/api/clinical/v1/opd/opd/orders/billed-status',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1OpdOpdMaternityProtocolRoute =
+  ApiClinicalV1OpdOpdMaternityProtocolRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/maternity/protocol',
+    path: '/api/clinical/v1/opd/opd/maternity/protocol',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute =
+  ApiClinicalV1OpdOpdMaternityDeliveryCloseRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/maternity/delivery-close',
+    path: '/api/clinical/v1/opd/opd/maternity/delivery-close',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdMaternityBannerRoute =
+  ApiClinicalV1OpdOpdMaternityBannerRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/maternity/banner',
+    path: '/api/clinical/v1/opd/opd/maternity/banner',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1OpdOpdCashierWorklistRoute =
   ApiClinicalV1OpdOpdCashierWorklistRouteImport.update({
     id: '/api/clinical/v1/opd/opd/cashier/worklist',
@@ -2708,6 +2730,12 @@ const ApiClinicalV1AuthRequestsIdAttachmentsRoute =
     id: '/attachments',
     path: '/attachments',
     getParentRoute: () => ApiClinicalV1AuthRequestsIdRoute,
+  } as any)
+const ApiClinicalV1OpdOpdNutritionReferralsPendingRoute =
+  ApiClinicalV1OpdOpdNutritionReferralsPendingRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/nutrition/referrals/pending',
+    path: '/api/clinical/v1/opd/opd/nutrition/referrals/pending',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1MastersPriceListsIdItemsFeedRoute =
   ApiClinicalV1MastersPriceListsIdItemsFeedRouteImport.update({
@@ -3111,6 +3139,9 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/opd/opd/cashier/eligibility-freshness': typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
   '/api/clinical/v1/opd/opd/cashier/raise-preauth': typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
   '/api/clinical/v1/opd/opd/cashier/worklist': typeof ApiClinicalV1OpdOpdCashierWorklistRoute
+  '/api/clinical/v1/opd/opd/maternity/banner': typeof ApiClinicalV1OpdOpdMaternityBannerRoute
+  '/api/clinical/v1/opd/opd/maternity/delivery-close': typeof ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute
+  '/api/clinical/v1/opd/opd/maternity/protocol': typeof ApiClinicalV1OpdOpdMaternityProtocolRoute
   '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
   '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
@@ -3127,6 +3158,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/homecare/visits/$id/evv': typeof ApiPublicV1HomecareVisitsIdEvvRoute
   '/api/clinical/v1/masters/price-lists/$id/items/bulk-update': typeof ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRoute
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
+  '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -3515,6 +3547,9 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/opd/opd/cashier/eligibility-freshness': typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
   '/api/clinical/v1/opd/opd/cashier/raise-preauth': typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
   '/api/clinical/v1/opd/opd/cashier/worklist': typeof ApiClinicalV1OpdOpdCashierWorklistRoute
+  '/api/clinical/v1/opd/opd/maternity/banner': typeof ApiClinicalV1OpdOpdMaternityBannerRoute
+  '/api/clinical/v1/opd/opd/maternity/delivery-close': typeof ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute
+  '/api/clinical/v1/opd/opd/maternity/protocol': typeof ApiClinicalV1OpdOpdMaternityProtocolRoute
   '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
   '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
@@ -3531,6 +3566,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/homecare/visits/$id/evv': typeof ApiPublicV1HomecareVisitsIdEvvRoute
   '/api/clinical/v1/masters/price-lists/$id/items/bulk-update': typeof ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRoute
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
+  '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -3923,6 +3959,9 @@ export interface FileRoutesById {
   '/api/clinical/v1/opd/opd/cashier/eligibility-freshness': typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
   '/api/clinical/v1/opd/opd/cashier/raise-preauth': typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
   '/api/clinical/v1/opd/opd/cashier/worklist': typeof ApiClinicalV1OpdOpdCashierWorklistRoute
+  '/api/clinical/v1/opd/opd/maternity/banner': typeof ApiClinicalV1OpdOpdMaternityBannerRoute
+  '/api/clinical/v1/opd/opd/maternity/delivery-close': typeof ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute
+  '/api/clinical/v1/opd/opd/maternity/protocol': typeof ApiClinicalV1OpdOpdMaternityProtocolRoute
   '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
   '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
@@ -3939,6 +3978,7 @@ export interface FileRoutesById {
   '/api/public/v1/homecare/visits/$id/evv': typeof ApiPublicV1HomecareVisitsIdEvvRoute
   '/api/clinical/v1/masters/price-lists/$id/items/bulk-update': typeof ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRoute
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
+  '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -4331,6 +4371,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
     | '/api/clinical/v1/opd/opd/cashier/raise-preauth'
     | '/api/clinical/v1/opd/opd/cashier/worklist'
+    | '/api/clinical/v1/opd/opd/maternity/banner'
+    | '/api/clinical/v1/opd/opd/maternity/delivery-close'
+    | '/api/clinical/v1/opd/opd/maternity/protocol'
     | '/api/clinical/v1/opd/opd/orders/billed-status'
     | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
@@ -4347,6 +4390,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/visits/$id/evv'
     | '/api/clinical/v1/masters/price-lists/$id/items/bulk-update'
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
+    | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -4735,6 +4779,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
     | '/api/clinical/v1/opd/opd/cashier/raise-preauth'
     | '/api/clinical/v1/opd/opd/cashier/worklist'
+    | '/api/clinical/v1/opd/opd/maternity/banner'
+    | '/api/clinical/v1/opd/opd/maternity/delivery-close'
+    | '/api/clinical/v1/opd/opd/maternity/protocol'
     | '/api/clinical/v1/opd/opd/orders/billed-status'
     | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
@@ -4751,6 +4798,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/visits/$id/evv'
     | '/api/clinical/v1/masters/price-lists/$id/items/bulk-update'
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
+    | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
   id:
     | '__root__'
     | '/'
@@ -5142,6 +5190,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
     | '/api/clinical/v1/opd/opd/cashier/raise-preauth'
     | '/api/clinical/v1/opd/opd/cashier/worklist'
+    | '/api/clinical/v1/opd/opd/maternity/banner'
+    | '/api/clinical/v1/opd/opd/maternity/delivery-close'
+    | '/api/clinical/v1/opd/opd/maternity/protocol'
     | '/api/clinical/v1/opd/opd/orders/billed-status'
     | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
@@ -5158,6 +5209,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/visits/$id/evv'
     | '/api/clinical/v1/masters/price-lists/$id/items/bulk-update'
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
+    | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -5358,6 +5410,9 @@ export interface RootRouteChildren {
   ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute: typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
   ApiClinicalV1OpdOpdCashierRaisePreauthRoute: typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
   ApiClinicalV1OpdOpdCashierWorklistRoute: typeof ApiClinicalV1OpdOpdCashierWorklistRoute
+  ApiClinicalV1OpdOpdMaternityBannerRoute: typeof ApiClinicalV1OpdOpdMaternityBannerRoute
+  ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute: typeof ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute
+  ApiClinicalV1OpdOpdMaternityProtocolRoute: typeof ApiClinicalV1OpdOpdMaternityProtocolRoute
   ApiClinicalV1OpdOpdOrdersBilledStatusRoute: typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
   ApiClinicalV1OpdOpdOrdersWalletGateRoute: typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute: typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
@@ -5368,6 +5423,7 @@ export interface RootRouteChildren {
   ApiClinicalV1SchedulerBookingsIdBookRoute: typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute: typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   ApiClinicalV1SchedulerBookingsIdStatusRoute: typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
+  ApiClinicalV1OpdOpdNutritionReferralsPendingRoute: typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -7920,6 +7976,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1OpdOpdOrdersBilledStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/opd/opd/maternity/protocol': {
+      id: '/api/clinical/v1/opd/opd/maternity/protocol'
+      path: '/api/clinical/v1/opd/opd/maternity/protocol'
+      fullPath: '/api/clinical/v1/opd/opd/maternity/protocol'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdMaternityProtocolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/maternity/delivery-close': {
+      id: '/api/clinical/v1/opd/opd/maternity/delivery-close'
+      path: '/api/clinical/v1/opd/opd/maternity/delivery-close'
+      fullPath: '/api/clinical/v1/opd/opd/maternity/delivery-close'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdMaternityDeliveryCloseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/maternity/banner': {
+      id: '/api/clinical/v1/opd/opd/maternity/banner'
+      path: '/api/clinical/v1/opd/opd/maternity/banner'
+      fullPath: '/api/clinical/v1/opd/opd/maternity/banner'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdMaternityBannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/opd/opd/cashier/worklist': {
       id: '/api/clinical/v1/opd/opd/cashier/worklist'
       path: '/api/clinical/v1/opd/opd/cashier/worklist'
@@ -8192,6 +8269,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/clinical/v1/auth/requests/$id/attachments'
       preLoaderRoute: typeof ApiClinicalV1AuthRequestsIdAttachmentsRouteImport
       parentRoute: typeof ApiClinicalV1AuthRequestsIdRoute
+    }
+    '/api/clinical/v1/opd/opd/nutrition/referrals/pending': {
+      id: '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
+      path: '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
+      fullPath: '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/masters/price-lists/$id/items/feed': {
       id: '/api/clinical/v1/masters/price-lists/$id/items/feed'
@@ -10113,6 +10197,12 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1OpdOpdCashierRaisePreauthRoute,
   ApiClinicalV1OpdOpdCashierWorklistRoute:
     ApiClinicalV1OpdOpdCashierWorklistRoute,
+  ApiClinicalV1OpdOpdMaternityBannerRoute:
+    ApiClinicalV1OpdOpdMaternityBannerRoute,
+  ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute:
+    ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute,
+  ApiClinicalV1OpdOpdMaternityProtocolRoute:
+    ApiClinicalV1OpdOpdMaternityProtocolRoute,
   ApiClinicalV1OpdOpdOrdersBilledStatusRoute:
     ApiClinicalV1OpdOpdOrdersBilledStatusRoute,
   ApiClinicalV1OpdOpdOrdersWalletGateRoute:
@@ -10133,6 +10223,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute,
   ApiClinicalV1SchedulerBookingsIdStatusRoute:
     ApiClinicalV1SchedulerBookingsIdStatusRoute,
+  ApiClinicalV1OpdOpdNutritionReferralsPendingRoute:
+    ApiClinicalV1OpdOpdNutritionReferralsPendingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
