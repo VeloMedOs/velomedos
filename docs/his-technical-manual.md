@@ -216,3 +216,16 @@ gate, use `/opd/registration/eligibility-first` (self-pay is decided by
 | `episode_of_care` | `care_type`, `end_date` | `type`, `expected_end` |
 | `clinic_bookings` | `origin_encounter_id` (already exists) | `parent_encounter_id` |
 | `service_master` | `execution_venue` (now CHECK-constrained) | `venue` |
+
+## Maternity OPD banner deltas (D2/D4/D6/D7) — Step 4 · Turn 4
+
+- **Active pregnancy view** — `v_pregnancy_episode_active` projects `edd_computed = start_date + 280`, `weeks_gestation`, and `cadence_band ∈ {Q4W,Q2W,Q1W}` (thresholds: <196d, <252d, else). Literal cadence pending debt #21 (`maternity_protocol.next_anc_due_at`).
+- **Protocol resolver** — `resolve_maternity_protocol(_tenant, _encounter)` joins `encounter → coverage → maternity_protocol` on `payer_id` and (when configured) `policy_id`, preferring the policy-specific match. `coverage` has no `class_id`; class-based scoping deferred.
+- **Banner deltas** — `PatientBanner` renders D2 protocol hyperlink chip, D6 ANC cadence chip, D4 sibling-visit counter (tenant-local only — no cross-tenant surface).
+- **D7 chart close** — `DeliveryOutcomeDialog` → `opd.maternity.deliveryClose` sets `episode_of_care.status='delivered' + end_date`. Idempotent.
+
+## Nutrition auto-referral (HCA-0255) — Step 4 · Turn 4
+
+- **Primary trigger is nursing screening form score**, not vitals. `v_opd_nutrition_referral_candidate` picks encounters with an active pregnancy episode + submitted `NUTRITION_SCREEN_ANC` form whose `answers ->> 'risk_score' IN ('moderate','high')`.
+- `tg_encounter_nutrition_referral` fires `AFTER INSERT OR UPDATE OF journey_state ... WHEN (NEW.journey_state='encounter_open')`, inserts a `referral` row (`status='draft'`, `reason='nutrition_high_risk_pregnancy'`, `source_specialty='nutrition'`), and dedupes via `source_key='nutrition_screen:<encounter_uuid>'` unique index. Referral routing (target selection) stays with the Step 5 cockpit.
+- Seed `NUTRITION_CONSULT` service_master (`service_type='services'`, `billing_type='on_raising'`).
