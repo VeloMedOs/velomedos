@@ -26,7 +26,7 @@ const ORDER_TABLES = [
 
 const Body = z.object({
   order_item_table: z.enum(ORDER_TABLES),
-  order_item_id: z.string().uuid(),
+  order_item_id: z.string().min(1),
 });
 export type RouteBody = z.infer<typeof Body>;
 
