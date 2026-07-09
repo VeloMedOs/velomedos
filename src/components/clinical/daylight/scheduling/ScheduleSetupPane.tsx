@@ -7,7 +7,7 @@
  */
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { schedulerApi } from "@/lib/clinical-api";
+import { schedulerApi, opdApi } from "@/lib/clinical-api";
 import { ClinicalApiError } from "@/lib/clinical-api";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -25,6 +25,8 @@ type ScheduleRow = {
 export function ScheduleSetupPane() {
   const [rows, setRows] = useState<ScheduleRow[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
+  const [seeding, setSeeding] = useState(false);
+  const hasVaccine = rows.some((r) => r.specialty === "vaccination");
 
   async function refresh() {
     const { data, error } = await supabase.from("clinic_schedule").select("*").order("priority_rank", { ascending: true, nullsFirst: false });
@@ -32,6 +34,17 @@ export function ScheduleSetupPane() {
     setRows(((data ?? []) as unknown) as ScheduleRow[]);
   }
   useEffect(() => { refresh(); }, []);
+
+  async function enableVaccineClinic() {
+    setSeeding(true);
+    try {
+      await opdApi.vaccineClinic.enable();
+      toast.success("Vaccine Clinic ready.");
+      await refresh();
+    } catch (e) {
+      if (e instanceof ClinicalApiError) toast.error(e.message);
+    } finally { setSeeding(false); }
+  }
 
   async function blockAllDay(row: ScheduleRow) {
     setBusy(row.id);
@@ -121,6 +134,22 @@ export function ScheduleSetupPane() {
           The reschedule / reassign / cancel wizard skeleton is stubbed. Batch C fills the body
           (HCA-0732 / 0918). Delete-with-future-bookings is refused until the wizard is live.
         </p>
+      </div>
+
+      <div className="mt-4 clin-card p-3" data-testid="vaccine-clinic-card">
+        <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Vaccine Clinic (HCA-0231)</div>
+        {hasVaccine ? (
+          <p className="text-xs text-muted-foreground">Vaccine Clinic is enabled for this tenant.</p>
+        ) : (
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground">Seed a vaccination-specialty clinic and default weekly schedule.</p>
+            <button
+              className="mono text-[10px] uppercase tracking-widest px-2 py-1 rounded border border-hairline hover:bg-panel-elevated disabled:opacity-50"
+              onClick={enableVaccineClinic}
+              disabled={seeding}
+            >Enable Vaccine Clinic</button>
+          </div>
+        )}
       </div>
     </div>
   );
