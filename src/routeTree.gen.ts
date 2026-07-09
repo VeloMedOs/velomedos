@@ -16,6 +16,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PreauthMidRouteImport } from './routes/preauth-mid'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as HisRouteImport } from './routes/his'
@@ -447,6 +448,11 @@ const ResourcesRoute = ResourcesRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreauthMidRoute = PreauthMidRouteImport.update({
+  id: '/preauth-mid',
+  path: '/preauth-mid',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlatformRoute = PlatformRouteImport.update({
@@ -2730,6 +2736,7 @@ export interface FileRoutesByFullPath {
   '/his': typeof HisRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
+  '/preauth-mid': typeof PreauthMidRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
@@ -3134,6 +3141,7 @@ export interface FileRoutesByTo {
   '/his': typeof HisRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
+  '/preauth-mid': typeof PreauthMidRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -3540,6 +3548,7 @@ export interface FileRoutesById {
   '/his': typeof HisRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
+  '/preauth-mid': typeof PreauthMidRoute
   '/pricing': typeof PricingRoute
   '/resources': typeof ResourcesRouteWithChildren
   '/services': typeof ServicesRouteWithChildren
@@ -3947,6 +3956,7 @@ export interface FileRouteTypes {
     | '/his'
     | '/mcp'
     | '/platform'
+    | '/preauth-mid'
     | '/pricing'
     | '/resources'
     | '/services'
@@ -4351,6 +4361,7 @@ export interface FileRouteTypes {
     | '/his'
     | '/mcp'
     | '/platform'
+    | '/preauth-mid'
     | '/pricing'
     | '/resources'
     | '/sitemap.xml'
@@ -4756,6 +4767,7 @@ export interface FileRouteTypes {
     | '/his'
     | '/mcp'
     | '/platform'
+    | '/preauth-mid'
     | '/pricing'
     | '/resources'
     | '/services'
@@ -5163,6 +5175,7 @@ export interface RootRouteChildren {
   HisRoute: typeof HisRoute
   McpRoute: typeof McpRoute
   PlatformRoute: typeof PlatformRoute
+  PreauthMidRoute: typeof PreauthMidRoute
   PricingRoute: typeof PricingRoute
   ResourcesRoute: typeof ResourcesRouteWithChildren
   ServicesRoute: typeof ServicesRouteWithChildren
@@ -5406,6 +5419,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preauth-mid': {
+      id: '/preauth-mid'
+      path: '/preauth-mid'
+      fullPath: '/preauth-mid'
+      preLoaderRoute: typeof PreauthMidRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/platform': {
@@ -9857,6 +9877,7 @@ const rootRouteChildren: RootRouteChildren = {
   HisRoute: HisRoute,
   McpRoute: McpRoute,
   PlatformRoute: PlatformRoute,
+  PreauthMidRoute: PreauthMidRoute,
   PricingRoute: PricingRoute,
   ResourcesRoute: ResourcesRouteWithChildren,
   ServicesRoute: ServicesRouteWithChildren,
