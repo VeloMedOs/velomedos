@@ -126,6 +126,7 @@ function ClinicalWorkspace() {
       {tab === "results"             && <ResultsPane />}
       {tab === "opd-day-board"       && <ClinicDayBoardPane />}
       {tab === "opd-schedule-setup"  && <ScheduleSetupPane />}
+      {tab === "opd-treatment-room"  && <TreatmentRoomPane />}
       {tab === "vitals"              && <VitalsTrendPane />}
       {tab === "wl-doctor"           && <DoctorWorklistPane />}
       {tab === "wl-nursing"          && <NursingWorkbenchPane />}
