@@ -18,6 +18,7 @@ export type SeedOverrides = {
   service?: Record<string, unknown> | null;
   slot_block?: Array<Record<string, unknown>>;
   prior_bookings?: Array<Record<string, unknown>>;
+  pricing_rules?: Array<Record<string, unknown>>;
 };
 
 export function seedForValidateDrop(over: SeedOverrides = {}) {
@@ -41,7 +42,7 @@ export function seedForValidateDrop(over: SeedOverrides = {}) {
     }],
     service_master: over.service ? [{ id: "svc1", ...over.service }] : [],
     slot_block: over.slot_block ?? [],
-    pricing_rule: [],
+    pricing_rule: over.pricing_rules ?? [],
     clinic_bookings: over.prior_bookings ?? [],
     booking_event: [],
   };
