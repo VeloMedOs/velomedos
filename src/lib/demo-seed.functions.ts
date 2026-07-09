@@ -547,3 +547,171 @@ async function seedGateFixtures(tenantId: string): Promise<{ ok: true } | { ok: 
     return { ok: false, error: e?.message ?? "gate_fixture_failed" };
   }
 }
+
+/**
+ * Step 3 · Turn 5 — Clinic Day Board scheduler fixtures.
+ *
+ * Seeds 4 clinic_schedule sessions today at 08:00 with distinct priority ranks
+ * (Endocrine, OBS&GYN, Surgery, Treatment), 8 clinic_slot rows per session,
+ * 1 referral_target waiting on OBS&GYN, and 8 clinic_bookings across S1/S4
+ * covering every booking state. One S1 booking carries overbooked=true; one
+ * S3 slot is blocked via slot_block(reason_code='or_case'). Fixed UUIDs +
+ * ignoreDuplicates: re-running is idempotent.
+ *
+ * Consumed by:
+ *  - Clinic Day Board (`?tab=opd-day-board`) so demo users see 4 columns,
+ *    all 8 slot-color states, the referral rail card, and the overbook ribbon.
+ *  - Playwright `tests/e2e/day-board.spec.ts`.
+ */
+async function seedSchedulerFixtures(
+  tenantId: string,
+  beneficiaryIds: Record<string, string>,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const db = supabaseAdmin as any;
+  const IDS = {
+    clinic:    "00000000-0000-0000-0000-0000000e0001",
+    // Sessions
+    s1:        "00000000-0000-0000-0000-0000000e0010",
+    s2:        "00000000-0000-0000-0000-0000000e0011",
+    s3:        "00000000-0000-0000-0000-0000000e0012",
+    s4:        "00000000-0000-0000-0000-0000000e0013",
+    // Slots S1 (indexes 0..7)
+    slotS1_0:  "00000000-0000-0000-0000-0000000e0100",
+    slotS1_1:  "00000000-0000-0000-0000-0000000e0101",
+    slotS1_2:  "00000000-0000-0000-0000-0000000e0102",
+    slotS1_3:  "00000000-0000-0000-0000-0000000e0103",
+    slotS1_4:  "00000000-0000-0000-0000-0000000e0104",
+    slotS1_5:  "00000000-0000-0000-0000-0000000e0105",
+    slotS1_6:  "00000000-0000-0000-0000-0000000e0106",
+    slotS1_7:  "00000000-0000-0000-0000-0000000e0107",
+    // Slots S4 (index 0 used for blocked demo of S4 has no bookings; use S4-1..)
+    slotS4_0:  "00000000-0000-0000-0000-0000000e0130",
+    // Slot S3 (blocked)
+    slotS3_0:  "00000000-0000-0000-0000-0000000e0120",
+    // Referral chain
+    ben:       "00000000-0000-0000-0000-0000000e0200",
+    enc:       "00000000-0000-0000-0000-0000000e0201",
+    ref:       "00000000-0000-0000-0000-0000000e0202",
+    rtarget:   "00000000-0000-0000-0000-0000000e0203",
+    // Bookings
+    bkBooked:      "00000000-0000-0000-0000-0000000e0300",
+    bkConfirmed:   "00000000-0000-0000-0000-0000000e0301",
+    bkArrived:     "00000000-0000-0000-0000-0000000e0302",
+    bkInConsult:   "00000000-0000-0000-0000-0000000e0303",
+    bkCompleted:   "00000000-0000-0000-0000-0000000e0304",
+    bkNoShow:      "00000000-0000-0000-0000-0000000e0305",
+    bkOverbook:    "00000000-0000-0000-0000-0000000e0306",
+    // slot_block for S3
+    blockRow:      "00000000-0000-0000-0000-0000000e0400",
+  };
+
+  try {
+    // Anchor to today 08:00 local so the board renders sessions on ?tab=opd-day-board.
+    const today = new Date();
+    today.setHours(8, 0, 0, 0);
+    const ts = (idx: number) => {
+      const d = new Date(today.getTime() + idx * 20 * 60_000);
+      return d.toISOString();
+    };
+
+    // 1. Clinic.
+    await db.from("clinics").upsert({
+      id: IDS.clinic, tenant_id: tenantId, name: "Demo OPD Clinic",
+    }, { onConflict: "id", ignoreDuplicates: true });
+
+    // 2. Four sessions.
+    const sessions: Array<{ id: string; specialty: string; priority_rank: number;
+      overbook_allowed?: boolean; overbook_limit?: number; female_clinic?: boolean;
+      procedure_room?: boolean }> = [
+      { id: IDS.s1, specialty: "endocrine",        priority_rank: 1, overbook_allowed: true, overbook_limit: 2 },
+      { id: IDS.s2, specialty: "OBS&GYN",          priority_rank: 2, female_clinic: true },
+      { id: IDS.s3, specialty: "surgery consult",  priority_rank: 3 },
+      { id: IDS.s4, specialty: "treatment room",   priority_rank: 4, procedure_room: true },
+    ];
+    for (const s of sessions) {
+      await db.from("clinic_schedule").upsert({
+        id: s.id, tenant_id: tenantId, clinic_id: IDS.clinic,
+        start_time: "08:00", end_time: "12:00",
+        slot_duration_min: 20, capacity_per_slot: 1,
+        overbook_allowed: s.overbook_allowed ?? false, overbook_limit: s.overbook_limit ?? 0,
+        priority_rank: s.priority_rank, specialty: s.specialty,
+        female_clinic: !!s.female_clinic, procedure_room: !!s.procedure_room,
+      }, { onConflict: "id", ignoreDuplicates: true });
+    }
+
+    // 3. Slots — 8 S1 slots + 1 S4 slot + 1 S3 blocked slot.
+    const slotRows: Array<{ id: string; schedule_id: string; slot_at: string; status?: string }> = [
+      { id: IDS.slotS1_0, schedule_id: IDS.s1, slot_at: ts(0), status: "open" },
+      { id: IDS.slotS1_1, schedule_id: IDS.s1, slot_at: ts(1), status: "booked" },
+      { id: IDS.slotS1_2, schedule_id: IDS.s1, slot_at: ts(2), status: "booked" },
+      { id: IDS.slotS1_3, schedule_id: IDS.s1, slot_at: ts(3), status: "booked" },
+      { id: IDS.slotS1_4, schedule_id: IDS.s1, slot_at: ts(4), status: "booked" },
+      { id: IDS.slotS1_5, schedule_id: IDS.s1, slot_at: ts(5), status: "booked" },
+      { id: IDS.slotS1_6, schedule_id: IDS.s1, slot_at: ts(6), status: "booked" },
+      { id: IDS.slotS1_7, schedule_id: IDS.s1, slot_at: ts(7), status: "booked" },
+      { id: IDS.slotS4_0, schedule_id: IDS.s4, slot_at: ts(0), status: "open" },
+      { id: IDS.slotS3_0, schedule_id: IDS.s3, slot_at: ts(0), status: "blocked" },
+    ];
+    for (const r of slotRows) {
+      await db.from("clinic_slot").upsert({
+        id: r.id, tenant_id: tenantId, schedule_id: r.schedule_id,
+        slot_at: r.slot_at, capacity: 1, booked_count: 0, status: r.status ?? "open",
+      }, { onConflict: "id", ignoreDuplicates: true });
+    }
+
+    // 4. S3 slot_block reason_code='or_case' — feeds the OR/Cath colored indication.
+    await db.from("slot_block").upsert({
+      id: IDS.blockRow, tenant_id: tenantId, schedule_id: IDS.s3, slot_id: IDS.slotS3_0,
+      reason_code: "or_case", note: "Demo OR case",
+    }, { onConflict: "id", ignoreDuplicates: true });
+
+    // 5. Referral chain — surfaces one card in the booking-request rail for OBS&GYN.
+    const referralBen = beneficiaryIds["DEMO-OP-001"] ?? IDS.ben;
+    if (referralBen === IDS.ben) {
+      await db.from("beneficiary").upsert({
+        id: IDS.ben, tenant_id: tenantId, patient_file_no: "DEMO-REF-001",
+        full_name: "Demo · Referral Patient", first_name: "Demo", last_name: "Referral",
+        dob: "1988-06-15", gender: "female", document_type: "national_id", document_id: "REF00001",
+      }, { onConflict: "id", ignoreDuplicates: true });
+    }
+    await db.from("encounter").upsert({
+      id: IDS.enc, tenant_id: tenantId, beneficiary_id: referralBen,
+      encounter_number: "ENC-DEMO-REF", class: "AMB",
+    }, { onConflict: "id", ignoreDuplicates: true });
+    await db.from("referral").upsert({
+      id: IDS.ref, tenant_id: tenantId, referral_no: "REF-DEMO-001",
+      beneficiary_id: referralBen, source_encounter_id: IDS.enc,
+      referral_class: "intra", status: "submitted",
+    }, { onConflict: "id", ignoreDuplicates: true });
+    await db.from("referral_target").upsert({
+      id: IDS.rtarget, tenant_id: tenantId, referral_id: IDS.ref,
+      target_kind: "specialty", target_specialty: "OBS&GYN",
+      status: "submitted", booked_appointment_id: null,
+    }, { onConflict: "id", ignoreDuplicates: true });
+
+    // 6. Bookings — one per lifecycle state on S1; overbook flagged on the last.
+    const bookingSeed: Array<{ id: string; slot_id: string; status: string; overbooked?: boolean; no_show?: boolean }> = [
+      { id: IDS.bkBooked,    slot_id: IDS.slotS1_1, status: "requested" },
+      { id: IDS.bkConfirmed, slot_id: IDS.slotS1_2, status: "confirmed" },
+      { id: IDS.bkArrived,   slot_id: IDS.slotS1_3, status: "arrived" },
+      { id: IDS.bkInConsult, slot_id: IDS.slotS1_4, status: "in_consult" },
+      { id: IDS.bkCompleted, slot_id: IDS.slotS1_5, status: "completed" },
+      { id: IDS.bkNoShow,    slot_id: IDS.slotS1_6, status: "no_show", no_show: true },
+      { id: IDS.bkOverbook,  slot_id: IDS.slotS1_7, status: "confirmed", overbooked: true },
+    ];
+    for (const b of bookingSeed) {
+      const slotAt = slotRows.find((r) => r.id === b.slot_id)?.slot_at ?? ts(0);
+      await db.from("clinic_bookings").upsert({
+        id: b.id, tenant_id: tenantId, clinic_id: IDS.clinic, schedule_id: IDS.s1,
+        slot_id: b.slot_id, slot_at: slotAt, status: b.status,
+        beneficiary_id: referralBen, source: "opd",
+        overbooked: !!b.overbooked, no_show: !!b.no_show, eligibility_check_pending: false,
+        rebook_request: false, kind: "in_person",
+      }, { onConflict: "id", ignoreDuplicates: true });
+    }
+    return { ok: true };
+  } catch (e: any) {
+    return { ok: false, error: e?.message ?? "scheduler_fixture_failed" };
+  }
+}
