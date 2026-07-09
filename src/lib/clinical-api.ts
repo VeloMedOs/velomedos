@@ -614,6 +614,43 @@ export const gateApi = {
     clinicalFetch<{ data: any }>(`/api/clinical/v1/gate/exceptions/${id}/reconcile`, { method: "POST", body }),
 };
 
+// -----------------------------------------------------------------------------
+// R9 · OPD foundation (Step 4 Turn 1) — HCA-0065 / HCA-0240 / HCA-0250
+// -----------------------------------------------------------------------------
+
+export type OpdEligibilityFirstInput = {
+  beneficiary_id: string;
+  visit_type: "walk_in" | "scheduled" | "referral" | "emergency" | "newborn" | "ip_followup" | "external" | "marketing";
+  financial_type: "insured" | "self_pay";
+  coverage_id?: string | null;
+};
+
+export type OpdEligibilityFirstResult =
+  | { ok: true; data: { path: "self_pay" | "insured"; eligibility_ref?: string | null } | { path: "exception"; exception: string; payer_detail?: unknown } }
+  | { ok: false; error: string; code: string };
+
+export const opdApi = {
+  registration: {
+    eligibilityFirst: (input: OpdEligibilityFirstInput) =>
+      clinicalFetch<OpdEligibilityFirstResult>(`/api/clinical/v1/opd/registration/eligibility-first`, {
+        method: "POST", body: input,
+      }),
+  },
+  pregnancyEpisode: {
+    link: (input: { encounter_id: string; specialty?: string | null }) =>
+      clinicalFetch<{ ok: true; data: { linked: boolean; episode_of_care_id?: string; end_date?: string; reason?: string } }>(
+        `/api/clinical/v1/opd/pregnancy-episode/link`,
+        { method: "POST", body: input },
+      ),
+  },
+  orders: {
+    billedStatus: (encounter_id: string) =>
+      clinicalFetch<{ ok: true; data: { rows: GateViewRow[]; grouped: Record<string, GateViewRow[]> } }>(
+        `/api/clinical/v1/opd/orders/billed-status${qs({ encounter_id })}`,
+      ),
+  },
+};
+
 export const adminConfigApi = {
   get: (key?: string) =>
     clinicalFetch<{ data: any }>(`/api/clinical/v1/admin-config${qs({ key })}`),

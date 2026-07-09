@@ -212,6 +212,15 @@ CLINICAL_CAPABILITIES.push(
   { id: "scheduler.disruption.write", module: "Clinical", apiNamespace: "/api/clinical/v1/scheduler/blocks",          label: "Bulk clinic disruption",    description: "Bulk cancel/reschedule/reassign on doctor unavailability.",     roles: ["tenant_admin","floor_manager"] },
 );
 
+// ── Step 4 Turn 1 · OPD foundation capabilities ──────────────────────────
+// Three capIds gating registration eligibility-first, pregnancy-episode
+// linking, and the Order Profile billed-status readout.
+CLINICAL_CAPABILITIES.push(
+  { id: "opd.registration",       module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/opd/registration/eligibility-first", label: "Eligibility-first registration", description: "HCA-0065 gate before visit creation (self-pay / insured / exception).", roles: ["tenant_admin","front_office"] },
+  { id: "opd.pregnancy_episode",  module: "Clinical",                   apiNamespace: "/api/clinical/v1/opd/pregnancy-episode/link",         label: "Link pregnancy episode",         description: "Attach active pregnancy episode to an OBS&GYN encounter (HCA-0240).", roles: ["tenant_admin","front_office","physician","nurse"] },
+  { id: "opd.orders.read",        module: "Clinical",                   apiNamespace: "/api/clinical/v1/opd/orders/billed-status",           label: "Read Order billed status",       description: "Order Profile 'Billed Status' column readout from v_order_item_gate.", roles: ["tenant_admin","physician","nurse","front_office","case_manager","coder","pharmacist"] },
+);
+
 export const CLINICAL_MODULES: string[] = [
   ...new Set(CLINICAL_CAPABILITIES.map((c) => c.module)),
 ];

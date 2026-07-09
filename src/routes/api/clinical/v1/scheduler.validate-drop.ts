@@ -130,6 +130,38 @@ export async function handlePOST(args: {
   // 6. Eligibility gating (post-book only).
   const eligibility_check_pending = !!body.coverage_id;
 
+  // 6b. ANC cadence suggestion (JJ2 · advisory display fact — never bounces).
+  // Attached when beneficiary has an active pregnancy episode AND the target
+  // clinic is OBS&GYN. Uses episode_of_care.end_date as EDD.
+  let anc_cadence_suggestion: {
+    edd: string;
+    cadence: string;
+    next_visit_by: string;
+  } | null = null;
+  const specStr = (schedule.specialty ?? "").toLowerCase();
+  const scheduleIsObs = specStr.includes("obs") || specStr.includes("gyn");
+  if (scheduleIsObs) {
+    const { data: preg } = await db.from("episode_of_care")
+      .select("id, end_date, status, care_type, tenant_id")
+      .eq("beneficiary_id", body.beneficiary_id)
+      .eq("care_type", "pregnancy")
+      .eq("status", "active")
+      .maybeSingle();
+    if (preg && preg.tenant_id === ctx.tenantId && preg.end_date) {
+      const edd = new Date(preg.end_date as string);
+      const slotDate = new Date(slot.slot_at);
+      const twoWeekWindowStart = new Date(edd.getTime() - 90 * 86400_000); // EDD - 3mo
+      const monthly = slotDate < twoWeekWindowStart;
+      const nextDays = monthly ? 28 : 14;
+      const next = new Date(slotDate.getTime() + nextDays * 86400_000);
+      anc_cadence_suggestion = {
+        edd: preg.end_date as string,
+        cadence: monthly ? "monthly" : "2-weekly",
+        next_visit_by: next.toISOString().slice(0, 10),
+      };
+    }
+  }
+
   // Atomic held-slot claim.
   const heldUntil = new Date(Date.now() + 90_000).toISOString();
   const { data: held, error: hErr } = await db.from("clinic_slot")
@@ -173,7 +205,7 @@ export async function handlePOST(args: {
 
   return jsonData({
     ok: true,
-    data: { booking_id: booking.id, slot_id: slot.id, held_until: heldUntil, charge_mode, eligibility_check_pending, overbook_warning },
+    data: { booking_id: booking.id, slot_id: slot.id, held_until: heldUntil, charge_mode, eligibility_check_pending, overbook_warning, anc_cadence_suggestion },
     overbook_warning,
     request_id: crypto.randomUUID(),
   });

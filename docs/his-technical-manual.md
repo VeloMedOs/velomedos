@@ -165,3 +165,54 @@ absent from `SCHEDULER_ERROR`.
    reviewers can verify the intent.
 4. **Never** update snapshots to hide a regression. If the diff surprises
    you, roll back the source change instead.
+
+---
+
+## OPD Cross-Module Gate (E16) — Step 4 Turn 1 wiring reference
+
+**Predicate.** An OPD visit becomes billable only when the encounter has a
+valid `episode_of_care` context (implicit for outpatient) AND every ordered
+`charge_item` clears the two-layer gate: **forms gate → billed gate**. The
+SQL trigger `charge_is_billed()` is the enforcing edge; UI `<BilledGate>`
+wrappers and API 4xx envelopes are UX/API mirrors that must never diverge.
+
+**Three layers, one order.**
+
+| Layer | Enforcement | Blocking? |
+|-------|-------------|-----------|
+| 1 · Registration eligibility | `POST /opd/registration/eligibility-first` (HCA-0065) | Yes (422/403) |
+| 2 · Forms gate | `v_order_item_gate` + `order_item_perform_guard` trigger | Yes (locked state) |
+| 3 · Billed gate | `charge_is_billed()` trigger + `<BilledGate>` UX | Yes (Perform disabled) |
+
+**Six touch points.**
+
+1. Registration: eligibility-first BEFORE visit-create. Coverage card sits
+   above Contact in `RegistrationPane`.
+2. Pregnancy episode linking: `POST /opd/pregnancy-episode/link` runs on
+   encounter-create when specialty is OBS&GYN. Idempotent.
+3. Order Profile Billed Status column (HCA-0250/0251) presents
+   `v_order_item_gate.gate_state` as Paid/Unpaid — same pill across every
+   order group.
+4. Scheduler drop-validate surfaces `anc_cadence_suggestion` when the
+   beneficiary has an active `care_type='pregnancy'` episode and the
+   target schedule is OBS&GYN. Advisory only — never bounces.
+5. Patient banner shows a pulsing pregnancy pill (`animate-pulse`) when
+   an active pregnancy episode exists.
+6. Refund → Unpaid re-lock: the trigger revokes billed status when
+   `charge_item.status` returns to unpaid, flowing back through
+   `<BilledGate>` without any client work.
+
+**Eligibility-check self-pay mutation warning.**
+`POST /api/clinical/v1/eligibility/check` is state-mutating: when
+`coverage_id` is omitted it immediately transitions the visit to
+`self_pay`. Only call it with a real `coverage_id`. For the pre-visit
+gate, use `/opd/registration/eligibility-first` (self-pay is decided by
+`financial_type` alone, never by an eligibility probe).
+
+**Column-name overrides (verified at plan-time).**
+
+| Table | Correct column | Common miswrite |
+|-------|---------------|-----------------|
+| `episode_of_care` | `care_type`, `end_date` | `type`, `expected_end` |
+| `clinic_bookings` | `origin_encounter_id` (already exists) | `parent_encounter_id` |
+| `service_master` | `execution_venue` (now CHECK-constrained) | `venue` |

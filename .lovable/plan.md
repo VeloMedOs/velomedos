@@ -108,3 +108,20 @@ Resolved rows are struck through and kept for one step, then archived.
 | ~~26~~ | Playwright body for `day-board.spec.ts` | Turn 5 |
 | ~~27~~ | Drag-drop UX + walk-in suggester in `ClinicDayBoardPane` | Turn 5 |
 | ~~28~~ | 3 remaining scheduler route handler pure-fn refactors (booking-requests, board, blocks) | Turn 5 |
+
+### Open (Step 4)
+
+| # | Item | Owner turn | Notes |
+|---|------|-----------|-------|
+| 29 | E14 cashier UI (queue, hold-release, receipts) | Step 4 Turn 2 | Table `cashier_assignment` seeded in Turn 1 |
+| 30 | E15 board (queue_occupancy consumers, load-band chips) | Step 4 Turn 2 | `queue_occupancy` + refresh fn seeded in Turn 1 |
+| 31 | Pre-Auth MID pane | Step 4 Turn 3 | Reuses admin config + form binding |
+| 32 | Treatment Room worklist pane | Step 4 Turn 3 | Consumes `execution_venue='treatment_room'` |
+| 33 | Vaccine Clinic department wiring | Step 4 Turn 4 | Requires code_system extension |
+| 34 | Maternity banner deltas D2 / D3 / D4 / D6 / D7 | Step 4 Turn 3 | D1 (pregnancy pill) landed Turn 1 |
+| 35 | QMS spine restoration (tokens, queue tables) | Step 4 Turn 4 | Unblocks queue_occupancy re-key (debt #14) |
+| 36 | Referral cockpit deep-links | Step 5 | Cross-module surface |
+| 37 | Wallet-negative OPD gate check (file 17 §4) | Step 4 Turn 2 | Blocks visit creation |
+| 38 | Bulk-cancel disruption body (skeleton exists) | Step 4 Turn 4 | |
+| 39 | Nutrition auto-referral HCA-0255 | Step 4 Turn 4 | |
+| 40 | E2b full consolidation (order profile) | Step 4 Turn 3 | Column landed Turn 1 |
