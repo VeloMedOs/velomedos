@@ -80,3 +80,31 @@ Grep gates: `serviceClient|\.from\(` and raw `bg-emerald|bg-rose-N|bg-amber-N|bg
 - Drag-drop, walk-in, keyboard access all working in demo env
 - Grep gates: `submitEligibility`=1, `requireSupabaseAuth`=0, no `serviceClient`/`.from(` in `daylight/scheduling/`
 - Debt #24–#28 removed from `.lovable/plan.md`; #18–#23 retained
+
+---
+
+## Debt Register
+
+Persistent cross-step debt log. Each row survives turn/step closures until resolved.
+Resolved rows are struck through and kept for one step, then archived.
+
+### Open
+
+| # | Item | Owner step | Notes |
+|---|------|-----------|-------|
+| 18 | Rule C series branch dormant until `service_master.sub_category='series_therapy'` seeded | Batch C service catalog | Backfill was 0-row no-op at Turn 1 |
+| 19 | BRS to confirm `approx_perform_minutes` vs `tat_minutes` for OPD visit duration | BRS call | Currently uses `approx_perform_minutes` in `opdVisitDurationMin` |
+| 20 | `visit_type` spec-vs-code naming divergence (`new` ↔ `new_consult`); repo `no_charge`/`procedure` additive-correct | Documentation | Non-blocking |
+| 21 | `maternity_protocol.next_anc_due_at` missing; ANC UNION clause in booking-requests returns empty | Batch C Maternity | Clause present, returns 0 rows until column lands |
+| 22 | `referral_network` lookup table required before Step 5 external referral flow | Step 5 blocker | |
+| 23 | Portal-patient self-booking compat layer pending review; new writes tenant-scoped, portal writes stay user-scoped | Public patient app | |
+
+### Resolved in Step 3 (archive after Step 4 opens)
+
+| # | Item | Resolved in |
+|---|------|-------------|
+| ~~24~~ | Two remaining route fixtures (charge-mode-display, booking-requests-union) | Turn 5 |
+| ~~25~~ | Demo seed extension `seedSchedulerFixtures` | Turn 5 |
+| ~~26~~ | Playwright body for `day-board.spec.ts` | Turn 5 |
+| ~~27~~ | Drag-drop UX + walk-in suggester in `ClinicDayBoardPane` | Turn 5 |
+| ~~28~~ | 3 remaining scheduler route handler pure-fn refactors (booking-requests, board, blocks) | Turn 5 |
