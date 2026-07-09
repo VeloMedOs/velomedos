@@ -28,7 +28,7 @@ type Row = {
 
 function outcome(row: Row): BilledGateOutcome {
   if (row.gate_state === "billed" || row.gate_state === "released_by_exception") {
-    return { billed: true };
+    return { billed: true, via: row.gate_state === "released_by_exception" ? "release" : "insured_auth" };
   }
   return {
     billed: false,
