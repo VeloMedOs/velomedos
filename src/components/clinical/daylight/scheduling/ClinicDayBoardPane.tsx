@@ -49,10 +49,6 @@ function todayIso(): string {
  * src/lib/rcm/scheduler.ts (priority_rank ASC NULLS LAST, then
  * providers.display_name ASC locale-aware).
  */
-function makeOpdConfig(board: BoardResponse): SuiteConfig<ClinicSlot, ClinicBooking> {
-  return makeOpdConfigWith(board, undefined);
-}
-
 function makeOpdConfigWith(
   board: BoardResponse,
   onDrop: SuiteConfig<ClinicSlot, ClinicBooking>["onSlotDrop"] | undefined,
