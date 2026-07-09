@@ -1,3 +1,35 @@
+# Step 4 · Turn 2 — status
+
+Turn 2 shipped: E14 Cashier UI, E15 Routing Board, wallet-negative OPD order gate. Suite 123 pass / 0 fail across 23 files. Client wrappers on `opdApi.cashier.*`, `opdApi.routing.*`, `opdApi.orders.walletGate`. Panes read only through `opdApi`; zero direct `patient_wallet` updates in touched code; no `bill`/`bill_item` references.
+
+Turn 3 unlocked: #31 Pre-Auth MID pane, #32 Treatment Room worklist, #33 Vaccine Clinic.
+
+## Debt Register
+
+Open:
+- #18 — Rule C dormant until `series_therapy` seeded.
+- #19 — `approx_perform_minutes` vs `tat_minutes` BRS reconciliation.
+- #20 — `visit_type` naming divergence across schema and UI.
+- #21 — `maternity_protocol.next_anc_due_at` column missing.
+- #22 — `referral_network` table (needed before Step 5).
+- #23 — Portal self-booking compat (spec alignment).
+- #31 — Pre-Auth MID pane (Turn 3).
+- #32 — Treatment Room worklist (Turn 3).
+- #33 — Vaccine Clinic (Turn 3).
+- #34 — Maternity D2/D4/D6/D7 flows.
+- #35 — QMS token spine.
+- #36 — Referral cockpit.
+- #38 — Bulk-cancel body (skeleton only today).
+- #39 — Nutrition auto-referral.
+- #40 — E2b full order-profile.
+- #41 — ZATCA credit-note linkage for pre-invoice cancellations. OP tax invoices cut at claim assembly; credit-note route cancels charge_item + order_item + auth request and writes wallet credit via `wallet_apply_txn`, but no `tax_invoice` linkage exists yet because no invoice exists pre-claim. Defer to claim-assembly / VAT engine turn.
+
+Resolved this step: #29 (E14 Cashier UI), #30 (E15 Routing Board), #37 (wallet-negative OPD order gate).
+
+Archived: #24–#28 (Step 3 Turn 5 closeout).
+
+---
+
 # Step 4 · Turn 2 — E14 Cashier UI + E15 Routing Board + Wallet Gate (corrected v2, repo-verified @988b3c1)
 
 Closes debt #29 (E14 cashier), #30 (E15 board), #37 (wallet-negative OPD order gate). Non-goals unchanged (#31–#36, #38–#40 → Turns 3–5).
