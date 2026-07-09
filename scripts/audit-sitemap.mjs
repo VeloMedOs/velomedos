@@ -39,6 +39,7 @@ const EXCLUDE_FILES = new Set([
   "demo-login.tsx",             // sandbox demo entry — noindex
   "demo-credentials.tsx",       // sandbox roster — noindex
   "mcp.ts",                     // MCP server endpoint — not a page
+  "preauth-mid.tsx",            // public kiosk — noindex
 ]);
 
 function walk(dir) {
