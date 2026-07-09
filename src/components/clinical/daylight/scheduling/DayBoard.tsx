@@ -107,8 +107,8 @@ export function DayBoard<TSlot, TBooking>(props: {
       >
         {/* Header row */}
         <div className="p-2 border-b border-hairline bg-panel mono text-[10px] uppercase tracking-widest text-muted-foreground">Time</div>
-        {columns.map((col) => (
-          <SessionHeader key={col.session_id} session={col} badges={config.columnBadges(col)} />
+        {columns.map((col, colIdx) => (
+          <SessionHeader key={col.session_id} session={col} badges={config.columnBadges(col)} columnIndex={colIdx} />
         ))}
 
         {/* Time × session grid */}
@@ -120,10 +120,11 @@ export function DayBoard<TSlot, TBooking>(props: {
                 className="p-2 mono text-[10px] text-muted-foreground border-b border-hairline bg-panel/50"
                 style={isNow ? { borderTop: "2px solid var(--crit-fg, #C7362F)" } : undefined}
                 data-now={isNow || undefined}
+                data-testid={isNow ? "now-line" : undefined}
               >
                 {new Date(tick).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
               </div>
-              {columns.map((col) => {
+              {columns.map((col, colIdx) => {
                 const row = config.slotsBySession[col.session_id]?.find((s) => s.slot_at === tick);
                 if (!row) {
                   return (
@@ -131,17 +132,22 @@ export function DayBoard<TSlot, TBooking>(props: {
                       key={col.session_id + tick}
                       className="p-1 border-b border-hairline/50"
                       style={isNow ? { borderTop: "2px solid var(--crit-fg, #C7362F)" } : undefined}
+                      data-column-index={colIdx}
                     />
                   );
                 }
                 const booking = config.bookingsBySlot[row.slot_at] ?? null;
                 const tone = config.slotColor(row.slot, booking);
+                const overbook = (booking as { overbooked?: boolean } | null)?.overbooked === true;
                 return (
                   <div
                     key={col.session_id + tick}
                     className={`m-1 rounded-md border p-1.5 text-[11px] ${SLOT_TONE[tone]}`}
                     style={isNow ? { borderTop: "2px solid var(--crit-fg, #C7362F)" } : undefined}
                     data-slot-state={tone}
+                    data-tone={tone}
+                    data-column-index={colIdx}
+                    data-overbook-ribbon={overbook ? "true" : undefined}
                   >
                     {config.renderSlot ? config.renderSlot(row.slot, booking) : new Date(row.slot_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </div>
@@ -159,10 +165,12 @@ function FragmentRow({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-function SessionHeader({ session, badges }: { session: SessionMeta; badges: BadgeChip[] }) {
+function SessionHeader({ session, badges, columnIndex }: { session: SessionMeta; badges: BadgeChip[]; columnIndex: number }) {
   return (
-    <div className="p-2 border-b border-hairline bg-panel">
-      <div className="font-semibold text-[13px]">{session.provider_display_name}</div>
+    <div className="p-2 border-b border-hairline bg-panel" data-column-index={columnIndex}>
+      <div className="font-semibold text-[13px]" data-testid="session-title">
+        {session.provider_display_name}{session.specialty ? ` — ${session.specialty}` : ""}
+      </div>
       <div className="mono text-[10px] text-muted-foreground">
         {session.specialty ?? "—"} · {session.room ?? "—"}
       </div>
