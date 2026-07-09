@@ -28,6 +28,7 @@ import { ClinicDayBoardPane } from "@/components/clinical/daylight/scheduling/Cl
 import { ScheduleSetupPane } from "@/components/clinical/daylight/scheduling/ScheduleSetupPane";
 import { CashierWorklistPane } from "@/components/clinical/daylight/worklists/CashierWorklistPane";
 import { RoutingBoardPane } from "@/components/clinical/daylight/worklists/RoutingBoardPane";
+import { TreatmentRoomPane } from "@/components/clinical/daylight/worklists/TreatmentRoomPane";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
 import { formatHalalas } from "@/lib/clinical/format-money";
 import { DoctorWorklistPane } from "@/components/clinical/daylight/worklists/DoctorWorklistPane";
