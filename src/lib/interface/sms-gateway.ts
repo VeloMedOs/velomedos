@@ -19,8 +19,9 @@ export async function sendPreauthUpdate(args: PreauthUpdateArgs): Promise<void> 
   const sb = serviceClient();
   await sb.from("interface_log").insert({
     tenant_id: args.tenant_id,
-    interface: "sms_gateway",
+    interface_name: "sms_gateway",
     direction: "outbound",
+    trigger: "preauth_status_transition",
     status: "queued",
     payload: {
       kind: "preauth_update",
