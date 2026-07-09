@@ -21,9 +21,10 @@ export async function sendPreauthUpdate(args: PreauthUpdateArgs): Promise<void> 
     tenant_id: args.tenant_id,
     interface: "sms_gateway",
     direction: "outbound",
-    status: "stub_noop",
+    status: "queued",
     payload: {
       kind: "preauth_update",
+      transport: "stub_noop",
       lang: args.lang,
       status: args.status,
       masked_ref: args.masked_ref,
