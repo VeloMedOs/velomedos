@@ -30,7 +30,7 @@ export type NavTabId =
   | "wl-transfer-discharge" | "wl-coder" | "wl-mrd" | "wl-pharmacist"
   | "wl-nutrition" | "wl-social-work"
   // Step 3 · Turn 3 — OPD Scheduling
-  | "opd-day-board" | "opd-schedule-setup";
+  | "opd-day-board" | "opd-schedule-setup" | "opd-treatment-room";
 // Step 4 · Turn 2 — OPD Cashier + Routing Board (E14/E15)
 export type NavTabIdExt = NavTabId | "opd-cashier" | "opd-routing";
 
@@ -56,6 +56,7 @@ export const NAV_SECTIONS: NavSectionDef[] = [
       { module: "Clinical",                   label: "OPD Day Board", tab: "opd-day-board",     icon: CalendarDays },
       { module: "Clinical",                   label: "Schedule Setup", tab: "opd-schedule-setup", icon: CalendarCog },
       { module: "Clinical",                   label: "Routing Board", tab: "opd-routing" as NavTabId, icon: LayoutGrid },
+      { module: "Clinical",                   label: "Treatment Room", tab: "opd-treatment-room", icon: LayoutGrid },
       { module: "Clinical",                   label: "Orders",       tab: "orders",       icon: ClipboardList },
       { module: "Clinical",                   label: "Results",      tab: "results",      icon: FlaskConical },
       { module: "Coding & DRG",               label: "Coding · DRG", tab: "coding",       icon: Hash },

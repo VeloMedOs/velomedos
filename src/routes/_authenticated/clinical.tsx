@@ -28,6 +28,7 @@ import { ClinicDayBoardPane } from "@/components/clinical/daylight/scheduling/Cl
 import { ScheduleSetupPane } from "@/components/clinical/daylight/scheduling/ScheduleSetupPane";
 import { CashierWorklistPane } from "@/components/clinical/daylight/worklists/CashierWorklistPane";
 import { RoutingBoardPane } from "@/components/clinical/daylight/worklists/RoutingBoardPane";
+import { TreatmentRoomPane } from "@/components/clinical/daylight/worklists/TreatmentRoomPane";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
 import { formatHalalas } from "@/lib/clinical/format-money";
 import { DoctorWorklistPane } from "@/components/clinical/daylight/worklists/DoctorWorklistPane";
@@ -126,6 +127,7 @@ function ClinicalWorkspace() {
       {tab === "results"             && <ResultsPane />}
       {tab === "opd-day-board"       && <ClinicDayBoardPane />}
       {tab === "opd-schedule-setup"  && <ScheduleSetupPane />}
+      {tab === "opd-treatment-room"  && <TreatmentRoomPane />}
       {tab === "vitals"              && <VitalsTrendPane />}
       {tab === "wl-doctor"           && <DoctorWorklistPane />}
       {tab === "wl-nursing"          && <NursingWorkbenchPane />}

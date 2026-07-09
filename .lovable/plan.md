@@ -13,9 +13,10 @@ Open:
 - #21 — `maternity_protocol.next_anc_due_at` column missing.
 - #22 — `referral_network` table (needed before Step 5).
 - #23 — Portal self-booking compat (spec alignment).
-- #31 — Pre-Auth MID pane (Turn 3).
-- #32 — Treatment Room worklist (Turn 3).
-- #33 — Vaccine Clinic (Turn 3).
+- #31 — Pre-Auth MID pane (Turn 3). RESOLVED — public kiosk `/preauth-mid` + `v_preauth_mid` + `preauth_mid_board`.
+- #32 — Treatment Room worklist (Turn 3). RESOLVED — `v_treatment_room_worklist` + perform route + `TreatmentRoomPane`.
+- #33 — Vaccine Clinic (Turn 3). RESOLVED — `seed_vaccine_clinic` + enable route + Schedule Setup card.
+- #42 — Bilingual SMS gateway wiring: stub at `src/lib/interface/sms-gateway.ts`; call-site hooks at `submitted_at`/`decision_at` transitions deferred.
 - #34 — Maternity D2/D4/D6/D7 flows.
 - #35 — QMS token spine.
 - #36 — Referral cockpit.

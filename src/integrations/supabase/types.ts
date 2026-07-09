@@ -540,6 +540,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "authorization_attachment_authorization_request_id_fkey"
+            columns: ["authorization_request_id"]
+            isOneToOne: false
+            referencedRelation: "v_preauth_mid"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "authorization_attachment_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
@@ -594,6 +601,13 @@ export type Database = {
             columns: ["authorization_request_id"]
             isOneToOne: false
             referencedRelation: "authorization_request"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_communication_authorization_request_id_fkey"
+            columns: ["authorization_request_id"]
+            isOneToOne: false
+            referencedRelation: "v_preauth_mid"
             referencedColumns: ["id"]
           },
           {
@@ -675,6 +689,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "authorization_item_authorization_request_id_fkey"
+            columns: ["authorization_request_id"]
+            isOneToOne: false
+            referencedRelation: "v_preauth_mid"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "authorization_item_charge_item_id_fkey"
             columns: ["charge_item_id"]
             isOneToOne: false
@@ -686,6 +707,13 @@ export type Database = {
             columns: ["charge_item_id"]
             isOneToOne: false
             referencedRelation: "v_order_item_gate"
+            referencedColumns: ["charge_item_id"]
+          },
+          {
+            foreignKeyName: "authorization_item_charge_item_id_fkey"
+            columns: ["charge_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_treatment_room_worklist"
             referencedColumns: ["charge_item_id"]
           },
           {
@@ -701,6 +729,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "service_master"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "authorization_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "v_treatment_room_worklist"
+            referencedColumns: ["service_id"]
           },
           {
             foreignKeyName: "authorization_item_tenant_id_fkey"
@@ -952,6 +987,13 @@ export type Database = {
             columns: ["authorization_request_id"]
             isOneToOne: false
             referencedRelation: "authorization_request"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bed_transfer_authorization_request_id_fkey"
+            columns: ["authorization_request_id"]
+            isOneToOne: false
+            referencedRelation: "v_preauth_mid"
             referencedColumns: ["id"]
           },
         ]
@@ -2102,6 +2144,13 @@ export type Database = {
             referencedRelation: "service_master"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "charge_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "v_treatment_room_worklist"
+            referencedColumns: ["service_id"]
+          },
         ]
       }
       chi_formulary: {
@@ -2640,6 +2689,13 @@ export type Database = {
             columns: ["charge_item_id"]
             isOneToOne: false
             referencedRelation: "v_order_item_gate"
+            referencedColumns: ["charge_item_id"]
+          },
+          {
+            foreignKeyName: "claim_item_charge_item_id_fkey"
+            columns: ["charge_item_id"]
+            isOneToOne: false
+            referencedRelation: "v_treatment_room_worklist"
             referencedColumns: ["charge_item_id"]
           },
           {
@@ -5967,6 +6023,13 @@ export type Database = {
             referencedRelation: "service_master"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ep_order_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "v_treatment_room_worklist"
+            referencedColumns: ["service_id"]
+          },
         ]
       }
       episode_of_care: {
@@ -6241,6 +6304,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "service_master"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_workflow_binding_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "v_treatment_room_worklist"
+            referencedColumns: ["service_id"]
           },
         ]
       }
@@ -6947,6 +7017,13 @@ export type Database = {
             referencedRelation: "service_master"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "lab_order_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "v_treatment_room_worklist"
+            referencedColumns: ["service_id"]
+          },
         ]
       }
       legal_acceptances: {
@@ -7163,6 +7240,13 @@ export type Database = {
             columns: ["authorization_request_id"]
             isOneToOne: false
             referencedRelation: "authorization_request"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "los_extension_authorization_request_id_fkey"
+            columns: ["authorization_request_id"]
+            isOneToOne: false
+            referencedRelation: "v_preauth_mid"
             referencedColumns: ["id"]
           },
         ]
@@ -9685,6 +9769,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "price_list_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "v_treatment_room_worklist"
+            referencedColumns: ["service_id"]
+          },
+          {
             foreignKeyName: "price_list_item_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
@@ -10297,6 +10388,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "service_master"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "radiology_order_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "v_treatment_room_worklist"
+            referencedColumns: ["service_id"]
           },
         ]
       }
@@ -11246,6 +11344,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "service_code_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "v_treatment_room_worklist"
+            referencedColumns: ["service_id"]
+          },
+          {
             foreignKeyName: "service_code_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
@@ -11555,6 +11660,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "service_master"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_order_item_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "v_treatment_room_worklist"
+            referencedColumns: ["service_id"]
           },
         ]
       }
@@ -13244,6 +13356,50 @@ export type Database = {
           },
         ]
       }
+      v_preauth_mid: {
+        Row: {
+          decision_at: string | null
+          id: string | null
+          masked_ref: string | null
+          priority: string | null
+          status: string | null
+          status_color: string | null
+          tenant_id: string | null
+          updated_at: string | null
+          valid_to: string | null
+        }
+        Insert: {
+          decision_at?: string | null
+          id?: string | null
+          masked_ref?: never
+          priority?: string | null
+          status?: never
+          status_color?: never
+          tenant_id?: string | null
+          updated_at?: string | null
+          valid_to?: string | null
+        }
+        Update: {
+          decision_at?: string | null
+          id?: string | null
+          masked_ref?: never
+          priority?: string | null
+          status?: never
+          status_color?: never
+          tenant_id?: string | null
+          updated_at?: string | null
+          valid_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "authorization_request_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v_rcm_comm_thread: {
         Row: {
           author_role: string | null
@@ -13259,6 +13415,58 @@ export type Database = {
           unread: boolean | null
         }
         Relationships: []
+      }
+      v_treatment_room_worklist: {
+        Row: {
+          charge_item_id: string | null
+          encounter_id: string | null
+          execution_venue: string | null
+          gate_state: Database["public"]["Enums"]["rcm_gate_state"] | null
+          net_minor: number | null
+          order_item_id: string | null
+          order_item_table: string | null
+          ordered_at: string | null
+          pricing_mode:
+            | Database["public"]["Enums"]["charge_pricing_mode"]
+            | null
+          reason_code:
+            | Database["public"]["Enums"]["rcm_gate_reason_code"]
+            | null
+          service_code: string | null
+          service_id: string | null
+          service_name: string | null
+          tenant_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charge_item_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "charge_item_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_cashier_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "charge_item_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "charge_item_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
+          },
+        ]
       }
     }
     Functions: {
@@ -13335,12 +13543,27 @@ export type Database = {
           value: Json
         }[]
       }
+      preauth_mid_board: {
+        Args: { _tenant: string }
+        Returns: {
+          decision_at: string
+          id: string
+          masked_ref: string
+          priority: string
+          status: string
+          status_color: string
+          tenant_id: string
+          updated_at: string
+          valid_to: string
+        }[]
+      }
       profile_completeness: { Args: { _user_id: string }; Returns: number }
       rcm_admin_config_get: {
         Args: { _default?: Json; _key: string; _tenant: string }
         Returns: Json
       }
       refresh_queue_occupancy: { Args: { _tenant: string }; Returns: undefined }
+      seed_vaccine_clinic: { Args: { _tenant: string }; Returns: string }
       wallet_apply_txn: {
         Args: { _delta_minor: number; _wallet_id: string }
         Returns: number
