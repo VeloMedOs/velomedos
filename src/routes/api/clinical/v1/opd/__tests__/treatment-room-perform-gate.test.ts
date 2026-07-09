@@ -22,7 +22,7 @@ function db(opts: { billed?: boolean } = {}) {
         const _sel = sub.select.bind(sub);
         sub.select = (...a: any[]) => {
           const s = _sel(...a);
-          s.maybeSingle = async () => ({ data: null, error: { message: "billed gate failed: charge not billed" } });
+          (s as any).maybeSingle = async () => ({ data: null, error: { message: "billed gate failed: charge not billed" } });
           return s;
         };
         return sub;
