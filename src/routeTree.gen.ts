@@ -356,15 +356,25 @@ import { Route as ApiAdminV1ConfigEffectiveSubscriberIdRouteImport } from './rou
 import { Route as ApiAdminV1BusinessRequestsIdFeaturedRouteImport } from './routes/api/admin/v1/business-requests.$id.featured'
 import { Route as ApiAdminV1BusinessRequestsIdConvertRouteImport } from './routes/api/admin/v1/business-requests.$id.convert'
 import { Route as ApiAdminV1BusinessRequestsIdAdvanceRouteImport } from './routes/api/admin/v1/business-requests.$id.advance'
+import { Route as ApiClinicalV1OpdOpdRoutingRouteRouteImport } from './routes/api/clinical/v1/opd/opd.routing.route'
 import { Route as ApiPublicV1HomecareVisitsIdEvvRouteImport } from './routes/api/public/v1/homecare.visits.$id.evv'
 import { Route as ApiPublicV1HomecareVisitsIdCheckOutRouteImport } from './routes/api/public/v1/homecare.visits.$id.check-out'
 import { Route as ApiPublicV1HomecareVisitsIdCheckInRouteImport } from './routes/api/public/v1/homecare.visits.$id.check-in'
 import { Route as ApiClinicalV1SchedulerBookingsIdStatusRouteImport } from './routes/api/clinical/v1/scheduler.bookings.$id.status'
 import { Route as ApiClinicalV1SchedulerBookingsIdEligibilityCheckRouteImport } from './routes/api/clinical/v1/scheduler.bookings.$id.eligibility-check'
 import { Route as ApiClinicalV1SchedulerBookingsIdBookRouteImport } from './routes/api/clinical/v1/scheduler.bookings.$id.book'
+import { Route as ApiClinicalV1OpdOpdRoutingBoardRouteImport } from './routes/api/clinical/v1/opd/opd.routing.board'
 import { Route as ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport } from './routes/api/clinical/v1/opd/opd.registration.eligibility-first'
 import { Route as ApiClinicalV1OpdOpdPregnancyEpisodeLinkRouteImport } from './routes/api/clinical/v1/opd/opd.pregnancy-episode.link'
+import { Route as ApiClinicalV1OpdOpdOrdersWalletGateRouteImport } from './routes/api/clinical/v1/opd/opd.orders.wallet-gate'
 import { Route as ApiClinicalV1OpdOpdOrdersBilledStatusRouteImport } from './routes/api/clinical/v1/opd/opd.orders.billed-status'
+import { Route as ApiClinicalV1OpdOpdCashierWorklistRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.worklist'
+import { Route as ApiClinicalV1OpdOpdCashierRaisePreauthRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.raise-preauth'
+import { Route as ApiClinicalV1OpdOpdCashierEligibilityFreshnessRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.eligibility-freshness'
+import { Route as ApiClinicalV1OpdOpdCashierCreditNoteRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.credit-note'
+import { Route as ApiClinicalV1OpdOpdCashierConsultationLockRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.consultation-lock'
+import { Route as ApiClinicalV1OpdOpdCashierChargesRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.charges'
+import { Route as ApiClinicalV1OpdOpdCashierAllocateRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.allocate'
 import { Route as ApiClinicalV1MastersServicesIdCodesRouteImport } from './routes/api/clinical/v1/masters/services.$id.codes'
 import { Route as ApiClinicalV1MastersPriceListsIdReplicateRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.replicate'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items'
@@ -2359,6 +2369,12 @@ const ApiAdminV1BusinessRequestsIdAdvanceRoute =
     path: '/advance',
     getParentRoute: () => ApiAdminV1BusinessRequestsIdRoute,
   } as any)
+const ApiClinicalV1OpdOpdRoutingRouteRoute =
+  ApiClinicalV1OpdOpdRoutingRouteRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/routing',
+    path: '/api/clinical/v1/opd/opd/routing',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1HomecareVisitsIdEvvRoute =
   ApiPublicV1HomecareVisitsIdEvvRouteImport.update({
     id: '/evv',
@@ -2395,6 +2411,12 @@ const ApiClinicalV1SchedulerBookingsIdBookRoute =
     path: '/api/clinical/v1/scheduler/bookings/$id/book',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1OpdOpdRoutingBoardRoute =
+  ApiClinicalV1OpdOpdRoutingBoardRouteImport.update({
+    id: '/board',
+    path: '/board',
+    getParentRoute: () => ApiClinicalV1OpdOpdRoutingRouteRoute,
+  } as any)
 const ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute =
   ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport.update({
     id: '/api/clinical/v1/opd/opd/registration/eligibility-first',
@@ -2407,10 +2429,58 @@ const ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute =
     path: '/api/clinical/v1/opd/opd/pregnancy-episode/link',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1OpdOpdOrdersWalletGateRoute =
+  ApiClinicalV1OpdOpdOrdersWalletGateRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/orders/wallet-gate',
+    path: '/api/clinical/v1/opd/opd/orders/wallet-gate',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1OpdOpdOrdersBilledStatusRoute =
   ApiClinicalV1OpdOpdOrdersBilledStatusRouteImport.update({
     id: '/api/clinical/v1/opd/opd/orders/billed-status',
     path: '/api/clinical/v1/opd/opd/orders/billed-status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdCashierWorklistRoute =
+  ApiClinicalV1OpdOpdCashierWorklistRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/cashier/worklist',
+    path: '/api/clinical/v1/opd/opd/cashier/worklist',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdCashierRaisePreauthRoute =
+  ApiClinicalV1OpdOpdCashierRaisePreauthRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/cashier/raise-preauth',
+    path: '/api/clinical/v1/opd/opd/cashier/raise-preauth',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute =
+  ApiClinicalV1OpdOpdCashierEligibilityFreshnessRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/cashier/eligibility-freshness',
+    path: '/api/clinical/v1/opd/opd/cashier/eligibility-freshness',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdCashierCreditNoteRoute =
+  ApiClinicalV1OpdOpdCashierCreditNoteRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/cashier/credit-note',
+    path: '/api/clinical/v1/opd/opd/cashier/credit-note',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdCashierConsultationLockRoute =
+  ApiClinicalV1OpdOpdCashierConsultationLockRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/cashier/consultation-lock',
+    path: '/api/clinical/v1/opd/opd/cashier/consultation-lock',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdCashierChargesRoute =
+  ApiClinicalV1OpdOpdCashierChargesRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/cashier/charges',
+    path: '/api/clinical/v1/opd/opd/cashier/charges',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdCashierAllocateRoute =
+  ApiClinicalV1OpdOpdCashierAllocateRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/cashier/allocate',
+    path: '/api/clinical/v1/opd/opd/cashier/allocate',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1MastersServicesIdCodesRoute =
@@ -2856,6 +2926,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
+  '/api/clinical/v1/opd/opd/routing': typeof ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren
   '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
   '/api/admin/v1/business-requests/$id/convert': typeof ApiAdminV1BusinessRequestsIdConvertRoute
   '/api/admin/v1/business-requests/$id/featured': typeof ApiAdminV1BusinessRequestsIdFeaturedRoute
@@ -2997,9 +3068,18 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRouteWithChildren
   '/api/clinical/v1/masters/price-lists/$id/replicate': typeof ApiClinicalV1MastersPriceListsIdReplicateRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
+  '/api/clinical/v1/opd/opd/cashier/allocate': typeof ApiClinicalV1OpdOpdCashierAllocateRoute
+  '/api/clinical/v1/opd/opd/cashier/charges': typeof ApiClinicalV1OpdOpdCashierChargesRoute
+  '/api/clinical/v1/opd/opd/cashier/consultation-lock': typeof ApiClinicalV1OpdOpdCashierConsultationLockRoute
+  '/api/clinical/v1/opd/opd/cashier/credit-note': typeof ApiClinicalV1OpdOpdCashierCreditNoteRoute
+  '/api/clinical/v1/opd/opd/cashier/eligibility-freshness': typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
+  '/api/clinical/v1/opd/opd/cashier/raise-preauth': typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
+  '/api/clinical/v1/opd/opd/cashier/worklist': typeof ApiClinicalV1OpdOpdCashierWorklistRoute
   '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
+  '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
+  '/api/clinical/v1/opd/opd/routing/board': typeof ApiClinicalV1OpdOpdRoutingBoardRoute
   '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/clinical/v1/scheduler/bookings/$id/eligibility-check': typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   '/api/clinical/v1/scheduler/bookings/$id/status': typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
@@ -3245,6 +3325,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
+  '/api/clinical/v1/opd/opd/routing': typeof ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren
   '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
   '/api/admin/v1/business-requests/$id/convert': typeof ApiAdminV1BusinessRequestsIdConvertRoute
   '/api/admin/v1/business-requests/$id/featured': typeof ApiAdminV1BusinessRequestsIdFeaturedRoute
@@ -3386,9 +3467,18 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRouteWithChildren
   '/api/clinical/v1/masters/price-lists/$id/replicate': typeof ApiClinicalV1MastersPriceListsIdReplicateRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
+  '/api/clinical/v1/opd/opd/cashier/allocate': typeof ApiClinicalV1OpdOpdCashierAllocateRoute
+  '/api/clinical/v1/opd/opd/cashier/charges': typeof ApiClinicalV1OpdOpdCashierChargesRoute
+  '/api/clinical/v1/opd/opd/cashier/consultation-lock': typeof ApiClinicalV1OpdOpdCashierConsultationLockRoute
+  '/api/clinical/v1/opd/opd/cashier/credit-note': typeof ApiClinicalV1OpdOpdCashierCreditNoteRoute
+  '/api/clinical/v1/opd/opd/cashier/eligibility-freshness': typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
+  '/api/clinical/v1/opd/opd/cashier/raise-preauth': typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
+  '/api/clinical/v1/opd/opd/cashier/worklist': typeof ApiClinicalV1OpdOpdCashierWorklistRoute
   '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
+  '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
+  '/api/clinical/v1/opd/opd/routing/board': typeof ApiClinicalV1OpdOpdRoutingBoardRoute
   '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/clinical/v1/scheduler/bookings/$id/eligibility-check': typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   '/api/clinical/v1/scheduler/bookings/$id/status': typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
@@ -3638,6 +3728,7 @@ export interface FileRoutesById {
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
   '/api/public/v1/incidents/$id': typeof ApiPublicV1IncidentsIdRoute
   '/api/public/v1/share/$token': typeof ApiPublicV1ShareTokenRoute
+  '/api/clinical/v1/opd/opd/routing': typeof ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren
   '/api/admin/v1/business-requests/$id/advance': typeof ApiAdminV1BusinessRequestsIdAdvanceRoute
   '/api/admin/v1/business-requests/$id/convert': typeof ApiAdminV1BusinessRequestsIdConvertRoute
   '/api/admin/v1/business-requests/$id/featured': typeof ApiAdminV1BusinessRequestsIdFeaturedRoute
@@ -3779,9 +3870,18 @@ export interface FileRoutesById {
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRouteWithChildren
   '/api/clinical/v1/masters/price-lists/$id/replicate': typeof ApiClinicalV1MastersPriceListsIdReplicateRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
+  '/api/clinical/v1/opd/opd/cashier/allocate': typeof ApiClinicalV1OpdOpdCashierAllocateRoute
+  '/api/clinical/v1/opd/opd/cashier/charges': typeof ApiClinicalV1OpdOpdCashierChargesRoute
+  '/api/clinical/v1/opd/opd/cashier/consultation-lock': typeof ApiClinicalV1OpdOpdCashierConsultationLockRoute
+  '/api/clinical/v1/opd/opd/cashier/credit-note': typeof ApiClinicalV1OpdOpdCashierCreditNoteRoute
+  '/api/clinical/v1/opd/opd/cashier/eligibility-freshness': typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
+  '/api/clinical/v1/opd/opd/cashier/raise-preauth': typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
+  '/api/clinical/v1/opd/opd/cashier/worklist': typeof ApiClinicalV1OpdOpdCashierWorklistRoute
   '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
+  '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
+  '/api/clinical/v1/opd/opd/routing/board': typeof ApiClinicalV1OpdOpdRoutingBoardRoute
   '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/clinical/v1/scheduler/bookings/$id/eligibility-check': typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   '/api/clinical/v1/scheduler/bookings/$id/status': typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
@@ -4031,6 +4131,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/visits'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
+    | '/api/clinical/v1/opd/opd/routing'
     | '/api/admin/v1/business-requests/$id/advance'
     | '/api/admin/v1/business-requests/$id/convert'
     | '/api/admin/v1/business-requests/$id/featured'
@@ -4172,9 +4273,18 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/price-lists/$id/replicate'
     | '/api/clinical/v1/masters/services/$id/codes'
+    | '/api/clinical/v1/opd/opd/cashier/allocate'
+    | '/api/clinical/v1/opd/opd/cashier/charges'
+    | '/api/clinical/v1/opd/opd/cashier/consultation-lock'
+    | '/api/clinical/v1/opd/opd/cashier/credit-note'
+    | '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
+    | '/api/clinical/v1/opd/opd/cashier/raise-preauth'
+    | '/api/clinical/v1/opd/opd/cashier/worklist'
     | '/api/clinical/v1/opd/opd/orders/billed-status'
+    | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
+    | '/api/clinical/v1/opd/opd/routing/board'
     | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/clinical/v1/scheduler/bookings/$id/eligibility-check'
     | '/api/clinical/v1/scheduler/bookings/$id/status'
@@ -4420,6 +4530,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/visits'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
+    | '/api/clinical/v1/opd/opd/routing'
     | '/api/admin/v1/business-requests/$id/advance'
     | '/api/admin/v1/business-requests/$id/convert'
     | '/api/admin/v1/business-requests/$id/featured'
@@ -4561,9 +4672,18 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/price-lists/$id/replicate'
     | '/api/clinical/v1/masters/services/$id/codes'
+    | '/api/clinical/v1/opd/opd/cashier/allocate'
+    | '/api/clinical/v1/opd/opd/cashier/charges'
+    | '/api/clinical/v1/opd/opd/cashier/consultation-lock'
+    | '/api/clinical/v1/opd/opd/cashier/credit-note'
+    | '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
+    | '/api/clinical/v1/opd/opd/cashier/raise-preauth'
+    | '/api/clinical/v1/opd/opd/cashier/worklist'
     | '/api/clinical/v1/opd/opd/orders/billed-status'
+    | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
+    | '/api/clinical/v1/opd/opd/routing/board'
     | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/clinical/v1/scheduler/bookings/$id/eligibility-check'
     | '/api/clinical/v1/scheduler/bookings/$id/status'
@@ -4812,6 +4932,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/visits'
     | '/api/public/v1/incidents/$id'
     | '/api/public/v1/share/$token'
+    | '/api/clinical/v1/opd/opd/routing'
     | '/api/admin/v1/business-requests/$id/advance'
     | '/api/admin/v1/business-requests/$id/convert'
     | '/api/admin/v1/business-requests/$id/featured'
@@ -4953,9 +5074,18 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/price-lists/$id/replicate'
     | '/api/clinical/v1/masters/services/$id/codes'
+    | '/api/clinical/v1/opd/opd/cashier/allocate'
+    | '/api/clinical/v1/opd/opd/cashier/charges'
+    | '/api/clinical/v1/opd/opd/cashier/consultation-lock'
+    | '/api/clinical/v1/opd/opd/cashier/credit-note'
+    | '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
+    | '/api/clinical/v1/opd/opd/cashier/raise-preauth'
+    | '/api/clinical/v1/opd/opd/cashier/worklist'
     | '/api/clinical/v1/opd/opd/orders/billed-status'
+    | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
+    | '/api/clinical/v1/opd/opd/routing/board'
     | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/clinical/v1/scheduler/bookings/$id/eligibility-check'
     | '/api/clinical/v1/scheduler/bookings/$id/status'
@@ -5141,6 +5271,7 @@ export interface RootRouteChildren {
   ApiPublicV1HomecareRecipientsRoute: typeof ApiPublicV1HomecareRecipientsRoute
   ApiPublicV1HomecareVisitsRoute: typeof ApiPublicV1HomecareVisitsRouteWithChildren
   ApiPublicV1ShareTokenRoute: typeof ApiPublicV1ShareTokenRoute
+  ApiClinicalV1OpdOpdRoutingRouteRoute: typeof ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren
   ApiAdminV1ConfigEffectiveSubscriberIdRoute: typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   ApiClinicalV1InterfacesD365SummaryRoute: typeof ApiClinicalV1InterfacesD365SummaryRoute
   ApiClinicalV1MastersNetworkMembershipsIdRoute: typeof ApiClinicalV1MastersNetworkMembershipsIdRoute
@@ -5154,7 +5285,15 @@ export interface RootRouteChildren {
   ApiPublicV1VehiclesIdCredentialsRoute: typeof ApiPublicV1VehiclesIdCredentialsRoute
   ApiPublicV1VehiclesIdDefectsRoute: typeof ApiPublicV1VehiclesIdDefectsRoute
   ApiPublicV1VehiclesIdWork_ordersRoute: typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  ApiClinicalV1OpdOpdCashierAllocateRoute: typeof ApiClinicalV1OpdOpdCashierAllocateRoute
+  ApiClinicalV1OpdOpdCashierChargesRoute: typeof ApiClinicalV1OpdOpdCashierChargesRoute
+  ApiClinicalV1OpdOpdCashierConsultationLockRoute: typeof ApiClinicalV1OpdOpdCashierConsultationLockRoute
+  ApiClinicalV1OpdOpdCashierCreditNoteRoute: typeof ApiClinicalV1OpdOpdCashierCreditNoteRoute
+  ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute: typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
+  ApiClinicalV1OpdOpdCashierRaisePreauthRoute: typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
+  ApiClinicalV1OpdOpdCashierWorklistRoute: typeof ApiClinicalV1OpdOpdCashierWorklistRoute
   ApiClinicalV1OpdOpdOrdersBilledStatusRoute: typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
+  ApiClinicalV1OpdOpdOrdersWalletGateRoute: typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute: typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
   ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute: typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   ApiClinicalV1SchedulerBookingsIdBookRoute: typeof ApiClinicalV1SchedulerBookingsIdBookRoute
@@ -7593,6 +7732,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1BusinessRequestsIdAdvanceRouteImport
       parentRoute: typeof ApiAdminV1BusinessRequestsIdRoute
     }
+    '/api/clinical/v1/opd/opd/routing': {
+      id: '/api/clinical/v1/opd/opd/routing'
+      path: '/api/clinical/v1/opd/opd/routing'
+      fullPath: '/api/clinical/v1/opd/opd/routing'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdRoutingRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/homecare/visits/$id/evv': {
       id: '/api/public/v1/homecare/visits/$id/evv'
       path: '/evv'
@@ -7635,6 +7781,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1SchedulerBookingsIdBookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/opd/opd/routing/board': {
+      id: '/api/clinical/v1/opd/opd/routing/board'
+      path: '/board'
+      fullPath: '/api/clinical/v1/opd/opd/routing/board'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdRoutingBoardRouteImport
+      parentRoute: typeof ApiClinicalV1OpdOpdRoutingRouteRoute
+    }
     '/api/clinical/v1/opd/opd/registration/eligibility-first': {
       id: '/api/clinical/v1/opd/opd/registration/eligibility-first'
       path: '/api/clinical/v1/opd/opd/registration/eligibility-first'
@@ -7649,11 +7802,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/opd/opd/orders/wallet-gate': {
+      id: '/api/clinical/v1/opd/opd/orders/wallet-gate'
+      path: '/api/clinical/v1/opd/opd/orders/wallet-gate'
+      fullPath: '/api/clinical/v1/opd/opd/orders/wallet-gate'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdOrdersWalletGateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/opd/opd/orders/billed-status': {
       id: '/api/clinical/v1/opd/opd/orders/billed-status'
       path: '/api/clinical/v1/opd/opd/orders/billed-status'
       fullPath: '/api/clinical/v1/opd/opd/orders/billed-status'
       preLoaderRoute: typeof ApiClinicalV1OpdOpdOrdersBilledStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/cashier/worklist': {
+      id: '/api/clinical/v1/opd/opd/cashier/worklist'
+      path: '/api/clinical/v1/opd/opd/cashier/worklist'
+      fullPath: '/api/clinical/v1/opd/opd/cashier/worklist'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdCashierWorklistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/cashier/raise-preauth': {
+      id: '/api/clinical/v1/opd/opd/cashier/raise-preauth'
+      path: '/api/clinical/v1/opd/opd/cashier/raise-preauth'
+      fullPath: '/api/clinical/v1/opd/opd/cashier/raise-preauth'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdCashierRaisePreauthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/cashier/eligibility-freshness': {
+      id: '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
+      path: '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
+      fullPath: '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/cashier/credit-note': {
+      id: '/api/clinical/v1/opd/opd/cashier/credit-note'
+      path: '/api/clinical/v1/opd/opd/cashier/credit-note'
+      fullPath: '/api/clinical/v1/opd/opd/cashier/credit-note'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdCashierCreditNoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/cashier/consultation-lock': {
+      id: '/api/clinical/v1/opd/opd/cashier/consultation-lock'
+      path: '/api/clinical/v1/opd/opd/cashier/consultation-lock'
+      fullPath: '/api/clinical/v1/opd/opd/cashier/consultation-lock'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdCashierConsultationLockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/cashier/charges': {
+      id: '/api/clinical/v1/opd/opd/cashier/charges'
+      path: '/api/clinical/v1/opd/opd/cashier/charges'
+      fullPath: '/api/clinical/v1/opd/opd/cashier/charges'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdCashierChargesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/cashier/allocate': {
+      id: '/api/clinical/v1/opd/opd/cashier/allocate'
+      path: '/api/clinical/v1/opd/opd/cashier/allocate'
+      fullPath: '/api/clinical/v1/opd/opd/cashier/allocate'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdCashierAllocateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/masters/services/$id/codes': {
@@ -9535,6 +9744,20 @@ const ApiPublicV1HomecareVisitsRouteWithChildren =
     ApiPublicV1HomecareVisitsRouteChildren,
   )
 
+interface ApiClinicalV1OpdOpdRoutingRouteRouteChildren {
+  ApiClinicalV1OpdOpdRoutingBoardRoute: typeof ApiClinicalV1OpdOpdRoutingBoardRoute
+}
+
+const ApiClinicalV1OpdOpdRoutingRouteRouteChildren: ApiClinicalV1OpdOpdRoutingRouteRouteChildren =
+  {
+    ApiClinicalV1OpdOpdRoutingBoardRoute: ApiClinicalV1OpdOpdRoutingBoardRoute,
+  }
+
+const ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren =
+  ApiClinicalV1OpdOpdRoutingRouteRoute._addFileChildren(
+    ApiClinicalV1OpdOpdRoutingRouteRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -9747,6 +9970,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1HomecareRecipientsRoute: ApiPublicV1HomecareRecipientsRoute,
   ApiPublicV1HomecareVisitsRoute: ApiPublicV1HomecareVisitsRouteWithChildren,
   ApiPublicV1ShareTokenRoute: ApiPublicV1ShareTokenRoute,
+  ApiClinicalV1OpdOpdRoutingRouteRoute:
+    ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren,
   ApiAdminV1ConfigEffectiveSubscriberIdRoute:
     ApiAdminV1ConfigEffectiveSubscriberIdRoute,
   ApiClinicalV1InterfacesD365SummaryRoute:
@@ -9768,8 +9993,24 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1VehiclesIdCredentialsRoute: ApiPublicV1VehiclesIdCredentialsRoute,
   ApiPublicV1VehiclesIdDefectsRoute: ApiPublicV1VehiclesIdDefectsRoute,
   ApiPublicV1VehiclesIdWork_ordersRoute: ApiPublicV1VehiclesIdWork_ordersRoute,
+  ApiClinicalV1OpdOpdCashierAllocateRoute:
+    ApiClinicalV1OpdOpdCashierAllocateRoute,
+  ApiClinicalV1OpdOpdCashierChargesRoute:
+    ApiClinicalV1OpdOpdCashierChargesRoute,
+  ApiClinicalV1OpdOpdCashierConsultationLockRoute:
+    ApiClinicalV1OpdOpdCashierConsultationLockRoute,
+  ApiClinicalV1OpdOpdCashierCreditNoteRoute:
+    ApiClinicalV1OpdOpdCashierCreditNoteRoute,
+  ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute:
+    ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute,
+  ApiClinicalV1OpdOpdCashierRaisePreauthRoute:
+    ApiClinicalV1OpdOpdCashierRaisePreauthRoute,
+  ApiClinicalV1OpdOpdCashierWorklistRoute:
+    ApiClinicalV1OpdOpdCashierWorklistRoute,
   ApiClinicalV1OpdOpdOrdersBilledStatusRoute:
     ApiClinicalV1OpdOpdOrdersBilledStatusRoute,
+  ApiClinicalV1OpdOpdOrdersWalletGateRoute:
+    ApiClinicalV1OpdOpdOrdersWalletGateRoute,
   ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute:
     ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute,
   ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute:

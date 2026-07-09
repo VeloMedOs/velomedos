@@ -221,6 +221,15 @@ CLINICAL_CAPABILITIES.push(
   { id: "opd.orders.read",        module: "Clinical",                   apiNamespace: "/api/clinical/v1/opd/orders/billed-status",           label: "Read Order billed status",       description: "Order Profile 'Billed Status' column readout from v_order_item_gate.", roles: ["tenant_admin","physician","nurse","front_office","case_manager","coder","pharmacist"] },
 );
 
+// ── Step 4 Turn 2 · Cashier / Routing / wallet-gate capabilities ─────────
+CLINICAL_CAPABILITIES.push(
+  { id: "opd.cashier.read",       module: "Billing — OP/ER", apiNamespace: "/api/clinical/v1/opd/cashier/*",                label: "Read cashier worklist",  description: "OPD cashier queue, charges, consultation-lock, eligibility-freshness readouts.", roles: ["tenant_admin","front_office","case_manager"] },
+  { id: "opd.cashier.write",      module: "Billing — OP/ER", apiNamespace: "/api/clinical/v1/opd/cashier/*",                label: "Cashier write actions",  description: "Allocate collections, raise pre-auth, cancel/credit-note charges.",              roles: ["tenant_admin","front_office"] },
+  { id: "opd.routing.read",       module: "Clinical",        apiNamespace: "/api/clinical/v1/opd/routing/board",            label: "Read routing board",     description: "Queue-occupancy load monitor across clinics (HCA-0946/0947).",                    roles: ["tenant_admin","front_office","floor_manager","nurse","physician"] },
+  { id: "opd.routing.write",      module: "Clinical",        apiNamespace: "/api/clinical/v1/opd/routing/route",            label: "Route patient",          description: "Route encounter to a clinic within the required specialty.",                       roles: ["tenant_admin","front_office","floor_manager"] },
+  { id: "opd.orders.wallet_gate", module: "Clinical",        apiNamespace: "/api/clinical/v1/opd/orders/wallet-gate",       label: "Read order wallet gate", description: "Presentation-only wallet-gate readout for OrdersPane banner.",                     roles: ["tenant_admin","physician","nurse","front_office","case_manager","pharmacist"] },
+);
+
 export const CLINICAL_MODULES: string[] = [
   ...new Set(CLINICAL_CAPABILITIES.map((c) => c.module)),
 ];

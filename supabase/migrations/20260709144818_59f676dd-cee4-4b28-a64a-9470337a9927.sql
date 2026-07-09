@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.tg_refresh_queue_occupancy() FROM PUBLIC, anon, authenticated;
