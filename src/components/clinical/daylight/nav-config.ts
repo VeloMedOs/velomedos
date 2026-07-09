@@ -31,6 +31,8 @@ export type NavTabId =
   | "wl-nutrition" | "wl-social-work"
   // Step 3 · Turn 3 — OPD Scheduling
   | "opd-day-board" | "opd-schedule-setup";
+// Step 4 · Turn 2 — OPD Cashier + Routing Board (E14/E15)
+export type NavTabIdExt = NavTabId | "opd-cashier" | "opd-routing";
 
 export type NavItemDef = {
   module: string;
@@ -53,6 +55,7 @@ export const NAV_SECTIONS: NavSectionDef[] = [
       { module: "Clinical",                   label: "Encounter",    tab: "encounters",   icon: Stethoscope },
       { module: "Clinical",                   label: "OPD Day Board", tab: "opd-day-board",     icon: CalendarDays },
       { module: "Clinical",                   label: "Schedule Setup", tab: "opd-schedule-setup", icon: CalendarCog },
+      { module: "Clinical",                   label: "Routing Board", tab: "opd-routing" as NavTabId, icon: LayoutGrid },
       { module: "Clinical",                   label: "Orders",       tab: "orders",       icon: ClipboardList },
       { module: "Clinical",                   label: "Results",      tab: "results",      icon: FlaskConical },
       { module: "Coding & DRG",               label: "Coding · DRG", tab: "coding",       icon: Hash },
@@ -92,6 +95,7 @@ export const NAV_SECTIONS: NavSectionDef[] = [
     group: "Finance",
     items: [
       { module: "Billing — OP/ER",            label: "Billing · OP/ER",          tab: "finance-billing-op", icon: Wallet },
+      { module: "Billing — OP/ER",            label: "Cashier worklist",         tab: "opd-cashier" as NavTabId, icon: Wallet },
       { module: "Billing — IP/Day-Case",      label: "Billing · IP",             tab: "finance-billing-ip", icon: BedDouble },
       { module: "Deposits & Refunds",         label: "Deposits & refunds",       tab: "finance-deposits",   icon: PiggyBank },
       { module: "Cash & ZATCA",               label: "Cash & ZATCA",             tab: "finance-cash",       icon: Banknote },

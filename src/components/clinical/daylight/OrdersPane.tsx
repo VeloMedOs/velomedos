@@ -11,7 +11,7 @@
  * derive gate outcome client-side from `charge_item.status`.
  */
 import { useEffect, useState } from "react";
-import { ClinicalAPI, ClinicalApiError, gateApi, type GateViewRow } from "@/lib/clinical-api";
+import { ClinicalAPI, ClinicalApiError, gateApi, opdApi, type GateViewRow } from "@/lib/clinical-api";
 import { BilledGate } from "@/components/clinical/daylight/spine/BilledGate";
 import { RcmCommCard } from "@/components/clinical/daylight/spine/RcmCommCard";
 import type { BilledGateOutcome } from "@/lib/rcm/billed-gate";
@@ -70,6 +70,7 @@ export function OrdersPane() {
   const [status, setStatus] = useState<string>("all");
   const [urgency, setUrgency] = useState<string>("all");
   const [err, setErr] = useState<string | null>(null);
+  const [walletGate, setWalletGate] = useState<{ open: boolean; balance_minor: number; wallet_present: boolean } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -78,14 +79,16 @@ export function OrdersPane() {
         const first = (encs.data as Array<{ id: string; encounter_number?: string | null }>)[0];
         if (!first) { setEncLabel("No encounters"); return; }
         setEncLabel(first.encounter_number ?? first.id.slice(0, 8));
-        const [r, g] = await Promise.all([
+        const [r, g, wg] = await Promise.all([
           ClinicalAPI.listCharges(first.id),
           gateApi.view(first.id),
+          opdApi.orders.walletGate(first.id).catch(() => null),
         ]);
         setRows(((r.data as any)?.rows ?? r.data ?? []) as ChargeRow[]);
         const map = new Map<string, GateViewRow>();
         for (const row of g.data ?? []) map.set(row.charge_item_id, row);
         setGate(map);
+        if (wg?.data) setWalletGate(wg.data);
       } catch (e) {
         setErr(e instanceof ClinicalApiError ? e.message : "Failed to load orders");
       }
@@ -102,6 +105,11 @@ export function OrdersPane() {
     <div className="px-7 pt-6 pb-14 mx-auto grid gap-4" style={{ maxWidth: 1400, width: "100%", gridTemplateColumns: "minmax(0,1fr) 320px" }}>
       <div>
         <DCard title="Orders" caption={`Encounter · ${encLabel}`}>
+          {walletGate && !walletGate.open ? (
+            <div className="clin-pill crit mb-3" data-testid="wallet-gate-banner">
+              Wallet negative ({walletGate.balance_minor}). New orders blocked — settle before continuing.
+            </div>
+          ) : null}
           <div className="flex gap-2 mb-3 text-xs">
             <select className="clin-ctrl" value={status} onChange={(e) => setStatus(e.target.value)}>
               <option value="all">All statuses</option>

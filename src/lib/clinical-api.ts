@@ -648,6 +648,50 @@ export const opdApi = {
       clinicalFetch<{ ok: true; data: { rows: GateViewRow[]; grouped: Record<string, GateViewRow[]> } }>(
         `/api/clinical/v1/opd/orders/billed-status${qs({ encounter_id })}`,
       ),
+    walletGate: (encounter_id: string) =>
+      clinicalFetch<{ ok: true; data: { open: boolean; balance_minor: number; wallet_present: boolean } }>(
+        `/api/clinical/v1/opd/orders/wallet-gate${qs({ encounter_id })}`,
+      ),
+  },
+  cashier: {
+    worklist: (params?: { limit?: number; offset?: number }) =>
+      clinicalFetch<{ ok: true; data: { rows: any[]; total: number } }>(
+        `/api/clinical/v1/opd/cashier/worklist${qs(params)}`,
+      ),
+    charges: (encounter_id: string) =>
+      clinicalFetch<{ ok: true; data: { rows: any[] } }>(
+        `/api/clinical/v1/opd/cashier/charges${qs({ encounter_id })}`,
+      ),
+    allocate: (body: { encounter_id: string; allocations: Array<{ charge_item_id: string; amount_minor: number; method: "deposit" | "cash" | "wallet"; deposit_id?: string; receipt_no?: string; notes?: string }> }) =>
+      clinicalFetch<{ ok: true; data: { applied: any[]; gate: any[] } }>(
+        `/api/clinical/v1/opd/cashier/allocate`, { method: "POST", body },
+      ),
+    raisePreauth: (body: { encounter_id: string; charge_item_ids: string[]; reason?: string }) =>
+      clinicalFetch<{ ok: true; data: any }>(
+        `/api/clinical/v1/opd/cashier/raise-preauth`, { method: "POST", body },
+      ),
+    creditNote: (body: { encounter_id: string; charge_item_ids: string[]; reason: string }) =>
+      clinicalFetch<{ ok: true; data: { results: any[] } }>(
+        `/api/clinical/v1/opd/cashier/credit-note`, { method: "POST", body },
+      ),
+    consultationLock: (encounter_id: string) =>
+      clinicalFetch<{ ok: true; data: { locked: boolean; reason: string | null; journey_state: string } }>(
+        `/api/clinical/v1/opd/cashier/consultation-lock${qs({ encounter_id })}`,
+      ),
+    eligibilityFreshness: (encounter_id: string) =>
+      clinicalFetch<{ ok: true; data: { must_recheck: boolean; checked_at: string | null } }>(
+        `/api/clinical/v1/opd/cashier/eligibility-freshness${qs({ encounter_id })}`,
+      ),
+  },
+  routing: {
+    board: (params?: { specialty?: string | null }) =>
+      clinicalFetch<{ ok: true; data: { rows: any[]; refreshed_now: boolean } }>(
+        `/api/clinical/v1/opd/routing/board${qs(params)}`,
+      ),
+    route: (body: { booking_id: string; target_clinic_id: string; required_specialty: string; reason?: string }) =>
+      clinicalFetch<{ ok: true; data: { booking: any } }>(
+        `/api/clinical/v1/opd/routing`, { method: "POST", body },
+      ),
   },
 };
 

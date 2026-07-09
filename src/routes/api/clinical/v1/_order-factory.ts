@@ -106,27 +106,13 @@ export function orderRouteHandlers<TCreate extends ZodTypeAny>(cfg: ModalityConf
       // Wallet gate (file 17 §4) — for OPD (AMB) encounters, block new orders
       // when the beneficiary wallet is negative. Missing wallet = open.
       {
-        const encRes: { data: { class: string | null; beneficiary_id: string | null } | null } =
-          await (db as unknown as {
-            from: (t: string) => {
-              select: (c: string) => {
-                eq: (k: string, v: string) => {
-                  maybeSingle: () => Promise<{ data: { class: string | null; beneficiary_id: string | null } | null }>;
-                };
-              };
-            };
-          }).from("encounter").select("class, beneficiary_id").eq("id", params.id).maybeSingle();
-        const enc = encRes.data;
-        if (enc && enc.class === "AMB" && enc.beneficiary_id) {
-          const rpc = await (db as unknown as {
-            rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: boolean | null }>;
-          }).rpc("wallet_gate_open", { _beneficiary_id: enc.beneficiary_id, _tenant_id: auth.ctx.tenantId });
-          if (rpc.data === false) {
-            return envelope(
-              "wallet balance is negative — settle before opening new orders",
-              "wallet_gate", 403, { beneficiary_id: enc.beneficiary_id },
-            );
-          }
+        const { walletGateAllowsOrder } = await import("@/lib/rcm/wallet-gate");
+        const wg = await walletGateAllowsOrder(db, auth.ctx.tenantId, params.id);
+        if (!wg.open) {
+          return envelope(
+            "wallet balance is negative — settle before opening new orders",
+            "wallet_gate", 403, { beneficiary_id: wg.beneficiary_id },
+          );
         }
       }
       // insert header
