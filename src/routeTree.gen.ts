@@ -415,6 +415,7 @@ import { Route as ApiClinicalV1AuthRequestsIdSubmitRouteImport } from './routes/
 import { Route as ApiClinicalV1AuthRequestsIdDecisionRouteImport } from './routes/api/clinical/v1/auth/requests.$id.decision'
 import { Route as ApiClinicalV1AuthRequestsIdCommunicationsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.communications'
 import { Route as ApiClinicalV1AuthRequestsIdAttachmentsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.attachments'
+import { Route as ApiClinicalV1OpdOpdNutritionReferralsPendingRouteImport } from './routes/api/clinical/v1/opd/opd.nutrition.referrals.pending'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsFeedRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.feed'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.bulk-update'
 
@@ -2730,6 +2731,12 @@ const ApiClinicalV1AuthRequestsIdAttachmentsRoute =
     path: '/attachments',
     getParentRoute: () => ApiClinicalV1AuthRequestsIdRoute,
   } as any)
+const ApiClinicalV1OpdOpdNutritionReferralsPendingRoute =
+  ApiClinicalV1OpdOpdNutritionReferralsPendingRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/nutrition/referrals/pending',
+    path: '/api/clinical/v1/opd/opd/nutrition/referrals/pending',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1MastersPriceListsIdItemsFeedRoute =
   ApiClinicalV1MastersPriceListsIdItemsFeedRouteImport.update({
     id: '/feed',
@@ -3151,6 +3158,7 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/homecare/visits/$id/evv': typeof ApiPublicV1HomecareVisitsIdEvvRoute
   '/api/clinical/v1/masters/price-lists/$id/items/bulk-update': typeof ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRoute
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
+  '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -3558,6 +3566,7 @@ export interface FileRoutesByTo {
   '/api/public/v1/homecare/visits/$id/evv': typeof ApiPublicV1HomecareVisitsIdEvvRoute
   '/api/clinical/v1/masters/price-lists/$id/items/bulk-update': typeof ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRoute
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
+  '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -3969,6 +3978,7 @@ export interface FileRoutesById {
   '/api/public/v1/homecare/visits/$id/evv': typeof ApiPublicV1HomecareVisitsIdEvvRoute
   '/api/clinical/v1/masters/price-lists/$id/items/bulk-update': typeof ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRoute
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
+  '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -4380,6 +4390,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/visits/$id/evv'
     | '/api/clinical/v1/masters/price-lists/$id/items/bulk-update'
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
+    | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -4787,6 +4798,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/visits/$id/evv'
     | '/api/clinical/v1/masters/price-lists/$id/items/bulk-update'
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
+    | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
   id:
     | '__root__'
     | '/'
@@ -5197,6 +5209,7 @@ export interface FileRouteTypes {
     | '/api/public/v1/homecare/visits/$id/evv'
     | '/api/clinical/v1/masters/price-lists/$id/items/bulk-update'
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
+    | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -5410,6 +5423,7 @@ export interface RootRouteChildren {
   ApiClinicalV1SchedulerBookingsIdBookRoute: typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute: typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   ApiClinicalV1SchedulerBookingsIdStatusRoute: typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
+  ApiClinicalV1OpdOpdNutritionReferralsPendingRoute: typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -8256,6 +8270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1AuthRequestsIdAttachmentsRouteImport
       parentRoute: typeof ApiClinicalV1AuthRequestsIdRoute
     }
+    '/api/clinical/v1/opd/opd/nutrition/referrals/pending': {
+      id: '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
+      path: '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
+      fullPath: '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/masters/price-lists/$id/items/feed': {
       id: '/api/clinical/v1/masters/price-lists/$id/items/feed'
       path: '/feed'
@@ -10202,7 +10223,19 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute,
   ApiClinicalV1SchedulerBookingsIdStatusRoute:
     ApiClinicalV1SchedulerBookingsIdStatusRoute,
+  ApiClinicalV1OpdOpdNutritionReferralsPendingRoute:
+    ApiClinicalV1OpdOpdNutritionReferralsPendingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
