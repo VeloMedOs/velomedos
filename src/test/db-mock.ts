@@ -45,6 +45,7 @@ type Filter =
   | { op: "eq" | "neq" | "gt" | "gte" | "lt" | "lte"; col: string; val: unknown }
   | { op: "in"; col: string; vals: unknown[] }
   | { op: "is"; col: string; val: null | boolean }
+  | { op: "like" | "ilike"; col: string; pattern: string }
   | { op: "or"; expr: string };
 
 function passesFilter(row: Row, f: Filter): boolean {
@@ -74,6 +75,12 @@ function passesFilter(row: Row, f: Filter): boolean {
     case "lte": return (cell as any) <= (f.val as any);
     case "in":  return f.vals.includes(cell);
     case "is":  return cell === f.val;
+    case "like":
+    case "ilike": {
+      if (typeof cell !== "string") return false;
+      const rx = new RegExp("^" + f.pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/%/g, ".*").replace(/_/g, ".") + "$", f.op === "ilike" ? "i" : "");
+      return rx.test(cell);
+    }
   }
 }
 
@@ -157,6 +164,8 @@ class ChainBuilder implements PromiseLike<{ data: unknown; error: null | { messa
   lte(col: string, val: unknown): this { this.filters.push({ op: "lte", col, val }); return this; }
   in(col: string, vals: unknown[]): this { this.filters.push({ op: "in", col, vals }); return this; }
   is(col: string, val: null | boolean): this { this.filters.push({ op: "is", col, val }); return this; }
+  like(col: string, pattern: string): this { this.filters.push({ op: "like", col, pattern }); return this; }
+  ilike(col: string, pattern: string): this { this.filters.push({ op: "ilike", col, pattern }); return this; }
   or(expr: string): this { this.filters.push({ op: "or", expr }); return this; }
   order(col: string, opts?: { ascending?: boolean }): this {
     this.orderBy = { col, asc: opts?.ascending ?? true }; return this;
