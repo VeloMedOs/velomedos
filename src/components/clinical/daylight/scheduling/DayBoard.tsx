@@ -67,6 +67,14 @@ export interface SuiteConfig<TSlot, TBooking> {
   now?: Date; // injectable for tests; defaults to new Date()
   /** Progressive disclosure. Callers can gate optional bells. */
   enhance?: boolean;
+  /** Step 3 · Turn 5 — drag-drop hook. Fired when a draggable rail card is
+   *  dropped onto a slot cell. Payload is whatever the caller stashed in
+   *  dataTransfer's `application/x-veloc-booking` MIME. */
+  onSlotDrop?: (
+    slot: TSlot,
+    booking: TBooking | null,
+    payload: unknown,
+  ) => void;
 }
 
 const SLOT_TONE: Record<SlotColorToken, string> = {
@@ -148,6 +156,19 @@ export function DayBoard<TSlot, TBooking>(props: {
                     data-tone={tone}
                     data-column-index={colIdx}
                     data-overbook-ribbon={overbook ? "true" : undefined}
+                    onDragOver={(e) => {
+                      if (!config.onSlotDrop) return;
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                    }}
+                    onDrop={(e) => {
+                      if (!config.onSlotDrop) return;
+                      e.preventDefault();
+                      const raw = e.dataTransfer.getData("application/x-veloc-booking");
+                      if (!raw) return;
+                      try { config.onSlotDrop(row.slot, booking, JSON.parse(raw)); }
+                      catch { config.onSlotDrop(row.slot, booking, null); }
+                    }}
                   >
                     {config.renderSlot ? config.renderSlot(row.slot, booking) : new Date(row.slot_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </div>
