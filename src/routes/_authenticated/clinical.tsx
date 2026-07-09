@@ -18,7 +18,7 @@ import { ContractMastersPane } from "@/components/clinical/daylight/ContractMast
 import { ClaimsWorklistPane } from "@/components/clinical/daylight/ClaimsWorklistPane";
 import {
   RcmHubPane, AuthorizationPane,
-  BillingOpPane, DepositsPane, CashPane,
+  DepositsPane, CashPane,
   VitalsTrendPane,
 } from "@/components/clinical/daylight/RcmStubs";
 import { IpAdmissionsPane } from "@/components/clinical/daylight/IpAdmissionsPane";
@@ -26,6 +26,8 @@ import { OrdersPane } from "@/components/clinical/daylight/OrdersPane";
 import { ResultsPane } from "@/components/clinical/daylight/ResultsPane";
 import { ClinicDayBoardPane } from "@/components/clinical/daylight/scheduling/ClinicDayBoardPane";
 import { ScheduleSetupPane } from "@/components/clinical/daylight/scheduling/ScheduleSetupPane";
+import { CashierWorklistPane } from "@/components/clinical/daylight/worklists/CashierWorklistPane";
+import { RoutingBoardPane } from "@/components/clinical/daylight/worklists/RoutingBoardPane";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
 import { formatHalalas } from "@/lib/clinical/format-money";
 import { DoctorWorklistPane } from "@/components/clinical/daylight/worklists/DoctorWorklistPane";
@@ -111,11 +113,13 @@ function ClinicalWorkspace() {
       {tab === "rcm-eligibility"     && <EligibilityWorklistPane role={me.clinicalRole} />}
       {tab === "rcm-activation"      && <PolicyActivationPane role={me.clinicalRole} />}
       {tab === "rcm-authorization"   && <AuthorizationPane />}
-      {tab === "finance-billing-op"  && <BillingOpPane />}
+      {tab === "finance-billing-op"  && <CashierWorklistPane />}
+      {(tab as string) === "opd-cashier" && <CashierWorklistPane />}
+      {(tab as string) === "opd-routing" && <RoutingBoardPane />}
       {tab === "finance-billing-ip"  && <IpAdmissionsPane role={me.clinicalRole} />}
       {tab === "finance-deposits"    && <DepositsPane />}
       {tab === "finance-cash"        && <CashPane />}
-      {tab === "billing"             && <BillingOpPane />}
+      {tab === "billing"             && <CashierWorklistPane />}
       {tab === "admin-masters"       && <ContractsPane role={me.clinicalRole} />}
       {tab === "admin-contract-masters" && <ContractMastersPane role={me.clinicalRole} />}
       {tab === "orders"              && <OrdersPane />}

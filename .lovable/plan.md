@@ -107,3 +107,16 @@ v1's six files, with these fixture corrections:
   Post-build watchlist: (1) plan-time psql outputs for the two CHECK constraints actually pasted in the build report — that's the KK4 verification; (2) `FOR EACH STATEMENT` in the trigger migration; (3) the credit-note fixture asserting the RPC call log AND the absence of direct `patient_wallet` updates; (4) whether debt #41 opens (it probably should — OP tax invoices at claim assembly means the VAT path defers). Paste the build report when it lands.
 
 Proceed to build.
+## Turn 2 completion round — outcome
+
+**Resolved:** #29 (E14 Cashier UI), #30 (E15 Routing Board), #37 (wallet-negative OPD order gate).
+**Opened:** #41 — ZATCA credit-note linkage for pre-invoice cancellations. OP tax invoices are cut at claim assembly; credit-note route cancels charge_item + order_item + auth request and writes wallet credit via `wallet_apply_txn`, but no `tax_invoice` linkage exists yet because no invoice exists pre-claim. Defer to the claim-assembly / VAT engine turn.
+
+Delivered:
+- `opdApi.cashier.*`, `opdApi.routing.*`, `opdApi.orders.walletGate` client wrappers on `src/lib/clinical-api.ts`.
+- `CashierWorklistPane` replaces `BillingOpPane` on `finance-billing-op` and new `opd-cashier` tab; `RoutingBoardPane` on new `opd-routing` tab (nav-config wired).
+- `OrdersPane` renders wallet-gate banner (`data-testid=wallet-gate-banner`) when `opdApi.orders.walletGate` returns `open=false`.
+- Wallet-gate check extracted to `src/lib/rcm/wallet-gate.ts::walletGateAllowsOrder`; `_order-factory` calls it and returns 403 `wallet_gate` unchanged.
+- 5 fixtures added, 16 new tests: `wallet-gate` (4), `cashier-consultation-lock` (3), `cashier-allocate` (3), `cashier-credit-note` (4), `routing-specialty-lock` (2). Total suite 123 pass / 0 fail across 23 files.
+
+Grep gates verified: zero direct `patient_wallet` updates in touched code; zero references to a `bill` / `bill_item` table; daylight components use `opdApi.*` only, never `serviceClient` / raw `.from(`.
