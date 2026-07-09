@@ -63,10 +63,12 @@ export async function handlePOST(args: {
 
   // 2. Visit duration fits.
   let durMin: number = schedule.slot_duration_min;
+  let svcSubCategory: string | null = null;
   if (body.service_id) {
     const { data: svc } = await db.from("service_master")
       .select("approx_perform_minutes, sub_category").eq("id", body.service_id).maybeSingle();
     if (svc?.approx_perform_minutes && svc.approx_perform_minutes > 0) durMin = svc.approx_perform_minutes;
+    svcSubCategory = (svc?.sub_category as string | undefined) ?? null;
   }
   if (durMin > schedule.slot_duration_min) return bounce("SLOT_VISIT_DURATION_EXCEEDS");
 
@@ -118,10 +120,11 @@ export async function handlePOST(args: {
       days_since_last_visit: daysSinceLast,
       visit_type: body.visit_type,
       overbook: overbooked_flag,
+      sub_category: svcSubCategory,
     } as unknown as Record<string, unknown>,
     "referral",
   );
-  const folded = foldTriggerOutcome(hits, { target_specialty: targetSpecialty });
+  const folded = foldTriggerOutcome(hits, { target_specialty: targetSpecialty, sub_category: svcSubCategory });
   charge_mode = folded.charge_mode;
 
   // 6. Eligibility gating (post-book only).
