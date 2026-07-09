@@ -362,6 +362,9 @@ import { Route as ApiPublicV1HomecareVisitsIdCheckInRouteImport } from './routes
 import { Route as ApiClinicalV1SchedulerBookingsIdStatusRouteImport } from './routes/api/clinical/v1/scheduler.bookings.$id.status'
 import { Route as ApiClinicalV1SchedulerBookingsIdEligibilityCheckRouteImport } from './routes/api/clinical/v1/scheduler.bookings.$id.eligibility-check'
 import { Route as ApiClinicalV1SchedulerBookingsIdBookRouteImport } from './routes/api/clinical/v1/scheduler.bookings.$id.book'
+import { Route as ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport } from './routes/api/clinical/v1/opd/opd.registration.eligibility-first'
+import { Route as ApiClinicalV1OpdOpdPregnancyEpisodeLinkRouteImport } from './routes/api/clinical/v1/opd/opd.pregnancy-episode.link'
+import { Route as ApiClinicalV1OpdOpdOrdersBilledStatusRouteImport } from './routes/api/clinical/v1/opd/opd.orders.billed-status'
 import { Route as ApiClinicalV1MastersServicesIdCodesRouteImport } from './routes/api/clinical/v1/masters/services.$id.codes'
 import { Route as ApiClinicalV1MastersPriceListsIdReplicateRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.replicate'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items'
@@ -2392,6 +2395,24 @@ const ApiClinicalV1SchedulerBookingsIdBookRoute =
     path: '/api/clinical/v1/scheduler/bookings/$id/book',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute =
+  ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/registration/eligibility-first',
+    path: '/api/clinical/v1/opd/opd/registration/eligibility-first',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute =
+  ApiClinicalV1OpdOpdPregnancyEpisodeLinkRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/pregnancy-episode/link',
+    path: '/api/clinical/v1/opd/opd/pregnancy-episode/link',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdOrdersBilledStatusRoute =
+  ApiClinicalV1OpdOpdOrdersBilledStatusRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/orders/billed-status',
+    path: '/api/clinical/v1/opd/opd/orders/billed-status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1MastersServicesIdCodesRoute =
   ApiClinicalV1MastersServicesIdCodesRouteImport.update({
     id: '/codes',
@@ -2976,6 +2997,9 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRouteWithChildren
   '/api/clinical/v1/masters/price-lists/$id/replicate': typeof ApiClinicalV1MastersPriceListsIdReplicateRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
+  '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
+  '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
+  '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/clinical/v1/scheduler/bookings/$id/eligibility-check': typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   '/api/clinical/v1/scheduler/bookings/$id/status': typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
@@ -3362,6 +3386,9 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRouteWithChildren
   '/api/clinical/v1/masters/price-lists/$id/replicate': typeof ApiClinicalV1MastersPriceListsIdReplicateRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
+  '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
+  '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
+  '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/clinical/v1/scheduler/bookings/$id/eligibility-check': typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   '/api/clinical/v1/scheduler/bookings/$id/status': typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
@@ -3752,6 +3779,9 @@ export interface FileRoutesById {
   '/api/clinical/v1/masters/price-lists/$id/items': typeof ApiClinicalV1MastersPriceListsIdItemsRouteWithChildren
   '/api/clinical/v1/masters/price-lists/$id/replicate': typeof ApiClinicalV1MastersPriceListsIdReplicateRoute
   '/api/clinical/v1/masters/services/$id/codes': typeof ApiClinicalV1MastersServicesIdCodesRoute
+  '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
+  '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
+  '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/clinical/v1/scheduler/bookings/$id/eligibility-check': typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   '/api/clinical/v1/scheduler/bookings/$id/status': typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
@@ -4142,6 +4172,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/price-lists/$id/replicate'
     | '/api/clinical/v1/masters/services/$id/codes'
+    | '/api/clinical/v1/opd/opd/orders/billed-status'
+    | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
+    | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/clinical/v1/scheduler/bookings/$id/eligibility-check'
     | '/api/clinical/v1/scheduler/bookings/$id/status'
@@ -4528,6 +4561,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/price-lists/$id/replicate'
     | '/api/clinical/v1/masters/services/$id/codes'
+    | '/api/clinical/v1/opd/opd/orders/billed-status'
+    | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
+    | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/clinical/v1/scheduler/bookings/$id/eligibility-check'
     | '/api/clinical/v1/scheduler/bookings/$id/status'
@@ -4917,6 +4953,9 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items'
     | '/api/clinical/v1/masters/price-lists/$id/replicate'
     | '/api/clinical/v1/masters/services/$id/codes'
+    | '/api/clinical/v1/opd/opd/orders/billed-status'
+    | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
+    | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/clinical/v1/scheduler/bookings/$id/eligibility-check'
     | '/api/clinical/v1/scheduler/bookings/$id/status'
@@ -5115,6 +5154,9 @@ export interface RootRouteChildren {
   ApiPublicV1VehiclesIdCredentialsRoute: typeof ApiPublicV1VehiclesIdCredentialsRoute
   ApiPublicV1VehiclesIdDefectsRoute: typeof ApiPublicV1VehiclesIdDefectsRoute
   ApiPublicV1VehiclesIdWork_ordersRoute: typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  ApiClinicalV1OpdOpdOrdersBilledStatusRoute: typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
+  ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute: typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
+  ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute: typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   ApiClinicalV1SchedulerBookingsIdBookRoute: typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute: typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   ApiClinicalV1SchedulerBookingsIdStatusRoute: typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
@@ -7593,6 +7635,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1SchedulerBookingsIdBookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/opd/opd/registration/eligibility-first': {
+      id: '/api/clinical/v1/opd/opd/registration/eligibility-first'
+      path: '/api/clinical/v1/opd/opd/registration/eligibility-first'
+      fullPath: '/api/clinical/v1/opd/opd/registration/eligibility-first'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/pregnancy-episode/link': {
+      id: '/api/clinical/v1/opd/opd/pregnancy-episode/link'
+      path: '/api/clinical/v1/opd/opd/pregnancy-episode/link'
+      fullPath: '/api/clinical/v1/opd/opd/pregnancy-episode/link'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/orders/billed-status': {
+      id: '/api/clinical/v1/opd/opd/orders/billed-status'
+      path: '/api/clinical/v1/opd/opd/orders/billed-status'
+      fullPath: '/api/clinical/v1/opd/opd/orders/billed-status'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdOrdersBilledStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/masters/services/$id/codes': {
       id: '/api/clinical/v1/masters/services/$id/codes'
       path: '/codes'
@@ -9705,6 +9768,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1VehiclesIdCredentialsRoute: ApiPublicV1VehiclesIdCredentialsRoute,
   ApiPublicV1VehiclesIdDefectsRoute: ApiPublicV1VehiclesIdDefectsRoute,
   ApiPublicV1VehiclesIdWork_ordersRoute: ApiPublicV1VehiclesIdWork_ordersRoute,
+  ApiClinicalV1OpdOpdOrdersBilledStatusRoute:
+    ApiClinicalV1OpdOpdOrdersBilledStatusRoute,
+  ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute:
+    ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute,
+  ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute:
+    ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute,
   ApiClinicalV1SchedulerBookingsIdBookRoute:
     ApiClinicalV1SchedulerBookingsIdBookRoute,
   ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute:
@@ -9715,13 +9784,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

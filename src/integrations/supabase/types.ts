@@ -1819,6 +1819,61 @@ export type Database = {
           },
         ]
       }
+      cashier_assignment: {
+        Row: {
+          assigned_at: string
+          created_at: string
+          encounter_id: string
+          id: string
+          released_at: string | null
+          tenant_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          created_at?: string
+          encounter_id: string
+          id?: string
+          released_at?: string | null
+          tenant_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          created_at?: string
+          encounter_id?: string
+          id?: string
+          released_at?: string | null
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cashier_assignment_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "encounter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cashier_assignment_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_doctor_worklist"
+            referencedColumns: ["encounter_id"]
+          },
+          {
+            foreignKeyName: "cashier_assignment_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "v_nursing_workbench"
+            referencedColumns: ["encounter_id"]
+          },
+        ]
+      }
       certificates: {
         Row: {
           code: string
@@ -9916,6 +9971,39 @@ export type Database = {
         }
         Relationships: []
       }
+      queue_occupancy: {
+        Row: {
+          clinic_id: string
+          in_progress: number
+          load_band: string
+          refreshed_at: string
+          registered: number
+          specialty: string | null
+          tenant_id: string
+          waiting: number
+        }
+        Insert: {
+          clinic_id: string
+          in_progress?: number
+          load_band?: string
+          refreshed_at?: string
+          registered?: number
+          specialty?: string | null
+          tenant_id: string
+          waiting?: number
+        }
+        Update: {
+          clinic_id?: string
+          in_progress?: number
+          load_band?: string
+          refreshed_at?: string
+          registered?: number
+          specialty?: string | null
+          tenant_id?: string
+          waiting?: number
+        }
+        Relationships: []
+      }
       radiology_order: {
         Row: {
           created_at: string
@@ -11024,7 +11112,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
-          execution_venue: string | null
+          execution_venue: string
           gender_rule: string | null
           general_comments: string | null
           has_report: boolean | null
@@ -11072,7 +11160,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
-          execution_venue?: string | null
+          execution_venue: string
           gender_rule?: string | null
           general_comments?: string | null
           has_report?: boolean | null
@@ -11120,7 +11208,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
-          execution_venue?: string | null
+          execution_venue?: string
           gender_rule?: string | null
           general_comments?: string | null
           has_report?: boolean | null
@@ -13012,6 +13100,7 @@ export type Database = {
         Args: { _default?: Json; _key: string; _tenant: string }
         Returns: Json
       }
+      refresh_queue_occupancy: { Args: { _tenant: string }; Returns: undefined }
       wallet_apply_txn: {
         Args: { _delta_minor: number; _wallet_id: string }
         Returns: number

@@ -292,58 +292,11 @@ export function RegistrationPane() {
             </div>
           </DCard>
 
-          {/* CONTACT ------------------------------------------------ */}
-          <DCard
-            title="Contact" caption="How do we reach them?" icon={Phone}
-            status={<span className={`clin-pill ${groups.contact ? "ok" : "warn"}`}>{groups.contact ? "Captured" : "Needs 3"}</span>}
-          >
-            <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
-              <Field label="Mobile" required><input className="clin-ctrl mono" inputMode="tel" placeholder="05X XXX XXXX" value={form.mobile} onChange={(e) => set("mobile", e.target.value)} /></Field>
-              <Field label="City" required><input className="clin-ctrl" value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="Al Khobar" /></Field>
-              <Field label="Preferred language" required>
-                <select className="clin-ctrl" value={form.language} onChange={(e) => set("language", e.target.value)}>
-                  <option value="">Select…</option><option>Arabic</option><option>English</option>
-                </select>
-              </Field>
-              <Field label="Email"><input className="clin-ctrl" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="optional" /></Field>
-              <Field label="Region"><input className="clin-ctrl" value={form.region} onChange={(e) => set("region", e.target.value)} placeholder="Eastern Province" /></Field>
-              <Field label="District"><input className="clin-ctrl" value={form.district} onChange={(e) => set("district", e.target.value)} placeholder="optional" /></Field>
-            </div>
-          </DCard>
-
-          {/* CLINICAL BASELINE ------------------------------------- */}
-          <DCard
-            title="Clinical baseline" caption="Safety essentials" icon={HeartPulse}
-            status={<span className={`clin-pill ${groups.clinical ? "ok" : "warn"}`}>{groups.clinical ? "Captured" : "Needs 1"}</span>}
-          >
-            <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
-              <Field label="Any known allergies?" required full>
-                <Seg2
-                  value={form.allergies_known}
-                  onChange={(v) => set("allergies_known", v as RegForm["allergies_known"])}
-                  options={[{ v: "yes", label: "Yes — record them" }, { v: "no", label: "No known allergies" }]}
-                />
-                {form.allergies_known === "yes" && (
-                  <input
-                    className="clin-ctrl mt-2"
-                    placeholder="e.g. Penicillin, Sulfa"
-                    value={form.allergies_text}
-                    onChange={(e) => set("allergies_text", e.target.value)}
-                  />
-                )}
-              </Field>
-              <Field label="Blood group">
-                <select className="clin-ctrl" value={form.blood_group} onChange={(e) => set("blood_group", e.target.value)}>
-                  <option value="">Unknown</option>{["O+","O-","A+","A-","B+","B-","AB+","AB-"].map((b) => <option key={b}>{b}</option>)}
-                </select>
-              </Field>
-              <Field label="Primary care / GP"><input className="clin-ctrl" value={form.gp} onChange={(e) => set("gp", e.target.value)} placeholder="optional" /></Field>
-            </div>
-          </DCard>
-
           {/* COVERAGE ---------------------------------------------- */}
+          {/* HCA-0065 · Step 4 Turn 1 — Coverage moves above Contact so eligibility
+              is decided BEFORE any visit-creation UX. */}
           <DCard
-            title="Coverage" caption="Insurer & eligibility" icon={ShieldCheck}
+            title="Coverage & eligibility" caption="Decide payer path before creating a visit" icon={ShieldCheck}
             status={<span className={`clin-pill ${groups.coverage ? "ok" : "warn"}`}>{groups.coverage ? "From NPHIES" : "Needs payer"}</span>}
           >
             <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
@@ -394,6 +347,55 @@ export function RegistrationPane() {
               <span className="mono text-[11px]" style={{ color: "var(--clin-faint)" }}>
                 Coverage is created once · post-creation edits are out of scope
               </span>
+            </div>
+          </DCard>
+
+          {/* CONTACT ------------------------------------------------ */}
+          <DCard
+            title="Contact" caption="How do we reach them?" icon={Phone}
+            status={<span className={`clin-pill ${groups.contact ? "ok" : "warn"}`}>{groups.contact ? "Captured" : "Needs 3"}</span>}
+          >
+            <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+              <Field label="Mobile" required><input className="clin-ctrl mono" inputMode="tel" placeholder="05X XXX XXXX" value={form.mobile} onChange={(e) => set("mobile", e.target.value)} /></Field>
+              <Field label="City" required><input className="clin-ctrl" value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="Al Khobar" /></Field>
+              <Field label="Preferred language" required>
+                <select className="clin-ctrl" value={form.language} onChange={(e) => set("language", e.target.value)}>
+                  <option value="">Select…</option><option>Arabic</option><option>English</option>
+                </select>
+              </Field>
+              <Field label="Email"><input className="clin-ctrl" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="optional" /></Field>
+              <Field label="Region"><input className="clin-ctrl" value={form.region} onChange={(e) => set("region", e.target.value)} placeholder="Eastern Province" /></Field>
+              <Field label="District"><input className="clin-ctrl" value={form.district} onChange={(e) => set("district", e.target.value)} placeholder="optional" /></Field>
+            </div>
+          </DCard>
+
+          {/* CLINICAL BASELINE ------------------------------------- */}
+          <DCard
+            title="Clinical baseline" caption="Safety essentials" icon={HeartPulse}
+            status={<span className={`clin-pill ${groups.clinical ? "ok" : "warn"}`}>{groups.clinical ? "Captured" : "Needs 1"}</span>}
+          >
+            <div className="grid gap-4" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <Field label="Any known allergies?" required full>
+                <Seg2
+                  value={form.allergies_known}
+                  onChange={(v) => set("allergies_known", v as RegForm["allergies_known"])}
+                  options={[{ v: "yes", label: "Yes — record them" }, { v: "no", label: "No known allergies" }]}
+                />
+                {form.allergies_known === "yes" && (
+                  <input
+                    className="clin-ctrl mt-2"
+                    placeholder="e.g. Penicillin, Sulfa"
+                    value={form.allergies_text}
+                    onChange={(e) => set("allergies_text", e.target.value)}
+                  />
+                )}
+              </Field>
+              <Field label="Blood group">
+                <select className="clin-ctrl" value={form.blood_group} onChange={(e) => set("blood_group", e.target.value)}>
+                  <option value="">Unknown</option>{["O+","O-","A+","A-","B+","B-","AB+","AB-"].map((b) => <option key={b}>{b}</option>)}
+                </select>
+              </Field>
+              <Field label="Primary care / GP"><input className="clin-ctrl" value={form.gp} onChange={(e) => set("gp", e.target.value)} placeholder="optional" /></Field>
             </div>
           </DCard>
 

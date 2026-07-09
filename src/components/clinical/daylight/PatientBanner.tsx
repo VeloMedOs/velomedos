@@ -1,4 +1,4 @@
-import { AlertCircle, Shield, Stethoscope } from "lucide-react";
+import { AlertCircle, Baby, Shield, Stethoscope } from "lucide-react";
 
 export type BannerPatient = {
   full_name: string;
@@ -11,6 +11,7 @@ export type BannerPatient = {
   coverage_status?: "eligible" | "pending" | "ineligible" | null;
   encounter_label?: string | null;       // e.g. "OP · Cardiology · today"
   mds_pct?: number;                       // 0-100
+  is_pregnant?: boolean;                  // HCA-0240 — active pregnancy episode
 };
 
 /**
@@ -58,6 +59,11 @@ export function PatientBanner({ p, sticky = true }: { p: BannerPatient; sticky?:
           </span>
         ) : (
           <span className="clin-pill ok"><Shield className="size-3" />NKDA</span>
+        )}
+        {p.is_pregnant && (
+          <span className="clin-pill warn animate-pulse" data-testid="banner-pregnancy" title="Active pregnancy episode">
+            <Baby className="size-3" />PREGNANT
+          </span>
         )}
         {p.coverage_label && (
           <span className={`clin-pill ${covTone}`}>

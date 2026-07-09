@@ -52,6 +52,17 @@ function urgencyPill(u?: string | null) {
   return <span className={cls}>{u ?? "routine"}</span>;
 }
 
+/** HCA-0250 · Billed Status pill (Paid / Unpaid). Presentation only. */
+function billedStatusPill(row: ChargeRow, gate: GateViewRow | undefined) {
+  const state = gate?.gate_state;
+  const paid = state === "billed" || state === "released_by_exception";
+  return (
+    <span className={`clin-pill ${paid ? "ok" : "warn"}`} data-billed-status={paid ? "paid" : "unpaid"}>
+      {paid ? "Paid" : "Unpaid"}
+    </span>
+  );
+}
+
 export function OrdersPane() {
   const [rows, setRows] = useState<ChargeRow[]>([]);
   const [gate, setGate] = useState<Map<string, GateViewRow>>(new Map());
@@ -115,6 +126,7 @@ export function OrdersPane() {
                 <th className="text-left py-2">Order</th>
                 <th className="text-left">Urgency</th>
                 <th className="text-left">Pricing</th>
+                <th className="text-left">Billed Status</th>
                 <th className="text-right">Amount</th>
                 <th className="text-right">Action</th>
               </tr>
@@ -128,6 +140,7 @@ export function OrdersPane() {
                   </td>
                   <td>{urgencyPill(r.urgency)}</td>
                   <td className="text-xs" style={{ color: "var(--clin-muted)" }}>{r.pricing_mode}</td>
+                  <td>{billedStatusPill(r, gate.get(r.id))}</td>
                   <td className="text-right mono text-xs">{formatHalalas(r.net_minor, { currency: r.currency })}</td>
                   <td className="text-right">
                     <BilledGate outcome={outcomeFromGate(r, gate.get(r.id))}>
@@ -139,7 +152,7 @@ export function OrdersPane() {
                 </tr>
               ))}
               {!filtered.length && (
-                <tr><td colSpan={5} className="py-6 text-center text-xs" style={{ color: "var(--clin-muted)" }}>No orders match filters.</td></tr>
+                <tr><td colSpan={6} className="py-6 text-center text-xs" style={{ color: "var(--clin-muted)" }}>No orders match filters.</td></tr>
               )}
             </tbody>
           </table>
