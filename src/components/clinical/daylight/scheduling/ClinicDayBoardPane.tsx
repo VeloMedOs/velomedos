@@ -146,7 +146,7 @@ export function ClinicDayBoardPane() {
         </div>
 
         <aside className="space-y-3">
-          <div className="clin-card p-3">
+          <div className="clin-card p-3" data-testid="walk-in-lane">
             <div className="mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
               Walk-in / urgent
             </div>
@@ -167,7 +167,11 @@ export function ClinicDayBoardPane() {
                 <div className="text-xs text-muted-foreground">No pending requests.</div>
               )}
               {requests.map((r) => (
-                <div key={`${r.kind}:${r.request_id}`} className="rounded border border-hairline p-2 bg-card">
+                <div
+                  key={`${r.kind}:${r.request_id}`}
+                  className="rounded border border-hairline p-2 bg-card"
+                  data-testid="booking-request-card"
+                >
                   <div className="flex items-center justify-between">
                     <div className="text-sm font-semibold">{r.full_name ?? "—"}</div>
                     <span className={`clin-pill ${r.kind === "referral" ? "info" : r.kind === "rebook" ? "warn" : "mut"}`}>
