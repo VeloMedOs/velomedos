@@ -111,8 +111,8 @@ function parseSelect(sel: string): SelectNode {
     if (head.includes(":")) {
       const [a, fk] = head.split(":").map((s) => s.trim());
       alias = a; fkCol = fk;
-      // ref table = fk stripped of trailing _id
-      refTable = fk.endsWith("_id") ? fk.slice(0, -3) : fk;
+      // PostgREST convention: `alias:fk_col` joins table `<alias>` via `<fk_col>`.
+      refTable = alias;
     } else {
       alias = head; fkCol = `${head}_id`; refTable = head;
     }
