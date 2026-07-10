@@ -1024,6 +1024,7 @@ export type Database = {
           birth_weight_grams: number | null
           blood_group: string | null
           contact_number: string | null
+          country_code: string | null
           created_at: string
           created_by: string | null
           dob: string
@@ -1031,10 +1032,12 @@ export type Database = {
           document_type: string
           ehealth_id: string | null
           email: string | null
+          father_mrn: string | null
           first_name: string | null
           full_name: string
           gender: string
           id: string
+          is_newborn_under_mother: boolean
           is_vip: boolean
           journey_state: string
           last_name: string | null
@@ -1042,6 +1045,8 @@ export type Database = {
           middle_name: string | null
           nationality: string | null
           occupation: string | null
+          occupation_ar: string | null
+          occupation_en: string | null
           patient_file_no: string | null
           patient_user_id: string | null
           preferred_language: string | null
@@ -1062,6 +1067,7 @@ export type Database = {
           birth_weight_grams?: number | null
           blood_group?: string | null
           contact_number?: string | null
+          country_code?: string | null
           created_at?: string
           created_by?: string | null
           dob: string
@@ -1069,10 +1075,12 @@ export type Database = {
           document_type: string
           ehealth_id?: string | null
           email?: string | null
+          father_mrn?: string | null
           first_name?: string | null
           full_name: string
           gender: string
           id?: string
+          is_newborn_under_mother?: boolean
           is_vip?: boolean
           journey_state?: string
           last_name?: string | null
@@ -1080,6 +1088,8 @@ export type Database = {
           middle_name?: string | null
           nationality?: string | null
           occupation?: string | null
+          occupation_ar?: string | null
+          occupation_en?: string | null
           patient_file_no?: string | null
           patient_user_id?: string | null
           preferred_language?: string | null
@@ -1100,6 +1110,7 @@ export type Database = {
           birth_weight_grams?: number | null
           blood_group?: string | null
           contact_number?: string | null
+          country_code?: string | null
           created_at?: string
           created_by?: string | null
           dob?: string
@@ -1107,10 +1118,12 @@ export type Database = {
           document_type?: string
           ehealth_id?: string | null
           email?: string | null
+          father_mrn?: string | null
           first_name?: string | null
           full_name?: string
           gender?: string
           id?: string
+          is_newborn_under_mother?: boolean
           is_vip?: boolean
           journey_state?: string
           last_name?: string | null
@@ -1118,6 +1131,8 @@ export type Database = {
           middle_name?: string | null
           nationality?: string | null
           occupation?: string | null
+          occupation_ar?: string | null
+          occupation_en?: string | null
           patient_file_no?: string | null
           patient_user_id?: string | null
           preferred_language?: string | null
@@ -3177,6 +3192,87 @@ export type Database = {
           },
           {
             foreignKeyName: "clinic_bookings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinic_disruption: {
+        Row: {
+          action: string
+          affected_count: number
+          cancellation_charge: boolean
+          clinic_id: string
+          created_at: string
+          created_by: string
+          id: string
+          reason: string
+          reassign_target_clinic_id: string | null
+          slot_at_from: string
+          slot_at_to: string
+          tenant_id: string
+        }
+        Insert: {
+          action: string
+          affected_count?: number
+          cancellation_charge?: boolean
+          clinic_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          reason: string
+          reassign_target_clinic_id?: string | null
+          slot_at_from: string
+          slot_at_to: string
+          tenant_id: string
+        }
+        Update: {
+          action?: string
+          affected_count?: number
+          cancellation_charge?: boolean
+          clinic_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          reason?: string
+          reassign_target_clinic_id?: string | null
+          slot_at_from?: string
+          slot_at_to?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_disruption_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_disruption_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_disruption_reassign_target_clinic_id_fkey"
+            columns: ["reassign_target_clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_disruption_reassign_target_clinic_id_fkey"
+            columns: ["reassign_target_clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_disruption_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "corporate_accounts"
