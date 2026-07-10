@@ -31,7 +31,7 @@ function seed(count: number) {
 const WINDOW = { slot_at_from: "2026-07-11T09:00:00Z", slot_at_to: "2026-07-11T12:00:00Z" } as const;
 
 describe("opd/disruption/bulk-cancel — row-per-notification, action semantics", () => {
-  it("cancel: one interface_log per affected booking + one disruption row", async () => {
+  it("cancel: single UPDATE statement + one interface_log per affected booking", async () => {
     const { client, db } = seed(3);
     const body: BulkCancelBody = { clinic_id: "cl1", ...WINDOW, action: "cancel", reason: "provider unavailable" };
     const res = await handlePOST({ body, ctx: CTX, db: client });
@@ -47,7 +47,11 @@ describe("opd/disruption/bulk-cancel — row-per-notification, action semantics"
     for (const bk of db.tables.clinic_bookings as any[]) {
       expect(bk.status).toBe("cancelled");
       expect(bk.rebook_request).toBe(false);
+      expect(bk.cancellation_reason).toBe("hospital_initiated");
     }
+    // Exactly one UPDATE call against clinic_bookings — no row-by-row loop.
+    const updates = db.calls.filter((c) => c.table === "clinic_bookings" && c.op === "update");
+    expect(updates.length).toBe(1);
   });
 
   it("reschedule: same as cancel but rebook_request=true", async () => {

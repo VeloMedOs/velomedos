@@ -61,15 +61,24 @@ export async function handlePOST(args: {
     .gte("slot_at", body.slot_at_from).lt("slot_at", body.slot_at_to);
 
   const rows = (bookings ?? []) as any[];
-
-  // Apply the action row by row (mock DB has no bulk .update+.in condition semantics).
+  const rowIds = rows.map((r) => r.id as string);
   const rebookRequest = body.action === "reschedule";
-  for (const bk of rows) {
+
+  // Single UPDATE per action branch — Turn 2's statement-level occupancy trigger
+  // recomputes queue_occupancy once per statement, so row-by-row loops would
+  // fire it N times per disruption event.
+  if (rowIds.length > 0) {
     const patch: Record<string, unknown> =
       body.action === "reassign"
         ? { clinic_id: body.reassign_target_clinic_id, status: "confirmed" }
-        : { status: "cancelled", cancelled_at: now.toISOString(), rebook_request: rebookRequest };
-    await db.from("clinic_bookings").update(patch).eq("id", bk.id).eq("tenant_id", ctx.tenantId);
+        : {
+            status: "cancelled",
+            cancelled_at: now.toISOString(),
+            rebook_request: rebookRequest,
+            cancellation_reason: "hospital_initiated",
+          };
+    await db.from("clinic_bookings").update(patch)
+      .in("id", rowIds).eq("tenant_id", ctx.tenantId);
   }
 
   const { data: disruption, error: dErr } = await db.from("clinic_disruption").insert({

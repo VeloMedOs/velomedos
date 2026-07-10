@@ -31,16 +31,21 @@ function seed() {
 }
 
 describe("opd/registration/provider-load — in_queue_count derivation", () => {
-  it("counts only today's active bookings and sorts ascending", async () => {
+  it("splits booked vs in-queue and sorts by total load ascending", async () => {
     const { client } = seed();
     const res = await handleGET({ clinicId: "cl1", ctx: CTX, db: client, now: NOW });
     const j = await res.json();
     expect(j.ok).toBe(true);
-    const rows = j.data as Array<{ id: string; in_queue_count: number }>;
-    const byId = new Map(rows.map((r) => [r.id, r.in_queue_count]));
-    expect(byId.get("p1")).toBe(3);
-    expect(byId.get("p2")).toBe(1);
-    expect(byId.get("p3")).toBe(0);
+    const rows = j.data as Array<{ id: string; booked_count: number; in_queue_count: number }>;
+    const byId = new Map(rows.map((r) => [r.id, r]));
+    // p1: requested + arrived + in_consult → 1 booked, 2 in-queue
+    expect(byId.get("p1")!.booked_count).toBe(1);
+    expect(byId.get("p1")!.in_queue_count).toBe(2);
+    // p2: confirmed today + cancelled today + confirmed-yesterday → 1 booked, 0 in-queue
+    expect(byId.get("p2")!.booked_count).toBe(1);
+    expect(byId.get("p2")!.in_queue_count).toBe(0);
+    expect(byId.get("p3")!.booked_count).toBe(0);
+    expect(byId.get("p3")!.in_queue_count).toBe(0);
     expect(rows.map((r) => r.id)).toEqual(["p3", "p2", "p1"]);
   });
 

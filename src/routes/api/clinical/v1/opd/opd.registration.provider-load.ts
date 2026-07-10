@@ -7,13 +7,18 @@ import type { ClinicalRole } from "@/lib/clinical-role-matrix";
 
 /**
  * GET /api/clinical/v1/opd/registration/provider-load?clinic_id=…
- * Returns providers assigned to the clinic with their live in_queue_count
- * (bookings today with status ∈ requested|confirmed|arrived|in_consult).
+ * Returns providers assigned to the clinic split into two counts per File 14 §③:
+ *   booked_count   = today's bookings still off-site (requested|confirmed)
+ *   in_queue_count = today's bookings on-site         (arrived|in_consult)
+ * Kept as two distinct fields so the receptionist sees
+ * "N booked · M in queue" instead of a single collapsed number.
  */
 
 export type ProviderLoadCtx = { tenantId: string; userId: string; clinicalRole: ClinicalRole | null };
 
-const ACTIVE_STATUSES = ["requested", "confirmed", "arrived", "in_consult"] as const;
+const BOOKED_STATUSES = ["requested", "confirmed"] as const;
+const IN_QUEUE_STATUSES = ["arrived", "in_consult"] as const;
+const ACTIVE_STATUSES = [...BOOKED_STATUSES, ...IN_QUEUE_STATUSES] as const;
 
 export async function handleGET(args: {
   clinicId: string;
@@ -45,18 +50,28 @@ export async function handleGET(args: {
     .gte("slot_at", dayStart.toISOString())
     .lt("slot_at", dayEnd.toISOString());
 
-  const counts = new Map<string, number>();
+  const booked = new Map<string, number>();
+  const inQueue = new Map<string, number>();
   for (const b of (bookings ?? []) as any[]) {
     if (!b.provider_id) continue;
-    counts.set(b.provider_id, (counts.get(b.provider_id) ?? 0) + 1);
+    if ((BOOKED_STATUSES as readonly string[]).includes(b.status)) {
+      booked.set(b.provider_id, (booked.get(b.provider_id) ?? 0) + 1);
+    } else if ((IN_QUEUE_STATUSES as readonly string[]).includes(b.status)) {
+      inQueue.set(b.provider_id, (inQueue.get(b.provider_id) ?? 0) + 1);
+    }
   }
 
-  const out = list.map((p) => ({
-    id: p.id,
-    full_name: p.full_name,
-    specialty: p.specialty,
-    in_queue_count: counts.get(p.id) ?? 0,
-  })).sort((a, b) => a.in_queue_count - b.in_queue_count);
+  const out = list.map((p) => {
+    const b = booked.get(p.id) ?? 0;
+    const q = inQueue.get(p.id) ?? 0;
+    return {
+      id: p.id,
+      full_name: p.full_name,
+      specialty: p.specialty,
+      booked_count: b,
+      in_queue_count: q,
+    };
+  }).sort((a, b) => (a.booked_count + a.in_queue_count) - (b.booked_count + b.in_queue_count));
 
   return jsonData({ ok: true, data: out });
 }

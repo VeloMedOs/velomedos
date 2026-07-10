@@ -10,7 +10,7 @@ import { DemographicsEligibilityCore } from "./DemographicsEligibilityCore";
  * visit" card that reads real-time provider load and calls the atomic
  * create-visit endpoint (which requires a fresh visit_eligibility row).
  */
-type Provider = { id: string; full_name: string; specialty: string | null; in_queue_count: number };
+type Provider = { id: string; full_name: string; specialty: string | null; booked_count: number; in_queue_count: number };
 
 export function E2bRegistrationPane() {
   const [clinics, setClinics] = useState<Array<{ id: string; name: string }>>([]);
@@ -86,7 +86,7 @@ export function E2bRegistrationPane() {
               <option value="">Any available…</option>
               {providers.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.full_name} · queue {p.in_queue_count}{p.specialty ? ` · ${p.specialty}` : ""}
+                  {p.full_name} · {p.booked_count} booked · {p.in_queue_count} in queue{p.specialty ? ` · ${p.specialty}` : ""}
                 </option>
               ))}
             </select>

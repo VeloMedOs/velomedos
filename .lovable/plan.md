@@ -195,11 +195,21 @@ Nav: replace existing `RegistrationPane` binding with `E2bRegistrationPane` in `
 
 ## Debt Register
 
-- **#18–#23** — Batch-B/Step-5 debts. Open, parked for Step 5.
+- **#18–#20, #22–#23** — Batch-B/Step-5 debts. Open, parked for Step 5.
+- **#21** — Open · `next_anc_due_at` literal-cadence follow-up (maternity protocol).
+- **#35** — Parked · QMS batch (kiosk / MID / front-office / routing consumers).
+- **#36** — Parked · Step 5 (files 08 + 09 + 10 + 20).
 - **#38** — RESOLVED (Turn 5) · `clinic_disruption` table + `opd.disruption.bulk-cancel` route + `ClinicDisruptionPane` + `sendBulkCancelNotification` stub.
 - **#40** — RESOLVED (Turn 5) · `E2bRegistrationPane` wraps demographics/eligibility and adds atomic `create-visit` gated on fresh `visit_eligibility`; `provider-load` derives `in_queue_count` from today's active bookings.
 - **#41** — Open · ZATCA credit-note linkage; deferred to VAT engine turn.
 - **#42** — Open · SMS gateway integration; three stub entry points ready (`sendPreauthUpdate`, `sendVisitConfirmation`, `sendBulkCancelNotification`).
 - **#43** — Open · D7 form bindings; carried to next batch.
-- **#35** — Parked · QMS batch.
-- **#36** — Parked · Step 5.
+- **#44** — Open (Turn 5) · Hijri calendar (HCA-0051) — `moment-hijri` gateway pending; E2b demographics card renders disabled placeholder until wired.
+
+## Turn 5 completion round (5 fixes)
+
+- OO1 · `RegistrationPane.tsx` deleted (renamed to internal `DemographicsEligibilityCore.tsx`); `clinical.tsx` `registration` tab binds to `E2bRegistrationPane`; duplicate nav item removed.
+- OO2 · Hijri deferred to debt #44 with disabled placeholder in E2b demographics.
+- OO3 · `provider-load` returns `{booked_count, in_queue_count}` per File 14 §③; UI shows "N booked · M in queue"; test updated.
+- OO4 · `bulk-cancel` uses single `.update().in("id", rowIds).eq("tenant_id", …)` per action branch; fixture asserts `updates.length === 1`.
+- OO5 · Debt register restored (#21/#35/#36/#41 preserved; #44 added).
