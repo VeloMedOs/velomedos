@@ -217,6 +217,8 @@ CLINICAL_CAPABILITIES.push(
 // linking, and the Order Profile billed-status readout.
 CLINICAL_CAPABILITIES.push(
   { id: "opd.registration",       module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/opd/registration/eligibility-first", label: "Eligibility-first registration", description: "HCA-0065 gate before visit creation (self-pay / insured / exception).", roles: ["tenant_admin","front_office"] },
+ { id: "opd.registration.create_visit", module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/opd/registration/create-visit", label: "Create OPD visit",       description: "Consolidated E2b visit creation — requires fresh visit_eligibility row.", roles: ["tenant_admin","front_office"] },
+ { id: "opd.disruption.write",   module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/opd/disruption/bulk-cancel",          label: "Bulk clinic disruption", description: "HCA-0732 bulk cancel / reschedule / reassign with SMS auto-notify.", roles: ["tenant_admin","front_office","floor_manager"] },
   { id: "opd.pregnancy_episode",  module: "Clinical",                   apiNamespace: "/api/clinical/v1/opd/pregnancy-episode/link",         label: "Link pregnancy episode",         description: "Attach active pregnancy episode to an OBS&GYN encounter (HCA-0240).", roles: ["tenant_admin","front_office","physician","nurse"] },
   { id: "opd.orders.read",        module: "Clinical",                   apiNamespace: "/api/clinical/v1/opd/orders/billed-status",           label: "Read Order billed status",       description: "Order Profile 'Billed Status' column readout from v_order_item_gate.", roles: ["tenant_admin","physician","nurse","front_office","case_manager","coder","pharmacist"] },
 );
