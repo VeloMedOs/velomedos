@@ -644,7 +644,7 @@ export const opdApi = {
         `/api/clinical/v1/opd/registration/create-visit`, { method: "POST", body: input },
       ),
     providerLoad: (clinic_id: string) =>
-      clinicalFetch<{ ok: true; data: Array<{ id: string; full_name: string; specialty: string | null; in_queue_count: number }> }>(
+      clinicalFetch<{ ok: true; data: Array<{ id: string; full_name: string; specialty: string | null; booked_count: number; in_queue_count: number }> }>(
         `/api/clinical/v1/opd/registration/provider-load${qs({ clinic_id })}`,
       ),
   },

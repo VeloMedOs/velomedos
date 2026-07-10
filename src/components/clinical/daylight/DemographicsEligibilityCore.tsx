@@ -32,7 +32,7 @@ const EMPTY: RegForm = {
   consent: false,
 };
 
-export function RegistrationPane() {
+export function DemographicsEligibilityCore() {
   const [form, setForm] = useState<RegForm>(EMPTY);
   const [payers, setPayers] = useState<any[]>([]);
   const [plans, setPlans] = useState<any[]>([]);

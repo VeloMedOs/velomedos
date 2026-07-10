@@ -53,7 +53,6 @@ export const NAV_SECTIONS: NavSectionDef[] = [
     group: "Clinical",
     items: [
       { module: "Registration & Eligibility", label: "Registration", tab: "registration", icon: UserPlus },
-      { module: "Registration & Eligibility", label: "Registration (E2b)", tab: "opd-registration-e2b" as NavTabId, icon: UserPlus },
       { module: "Registration & Eligibility", label: "Bulk disruption",    tab: "opd-disruption" as NavTabId,      icon: LayoutGrid },
       { module: "Clinical",                   label: "Encounter",    tab: "encounters",   icon: Stethoscope },
       { module: "Clinical",                   label: "OPD Day Board", tab: "opd-day-board",     icon: CalendarDays },
