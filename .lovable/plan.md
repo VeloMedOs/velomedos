@@ -192,3 +192,14 @@ Nav: replace existing `RegistrationPane` binding with `E2bRegistrationPane` in `
 2. **Create-visit rejects on missing eligibility:** the `409 eligibility_stale` fixture must call create-visit *without* first calling eligibility-first, and assert the 409. Rejects the "just pass coverage_id in the body" shortcut.
 3. **Bulk-cancel notification per row, not per action:** the mock call log for `sendBulkCancelNotification` should have `affected_count` entries, not 1. Row-by-row *notification* is fine; row-by-row *SQL update* isn't (Turn 2 statement-level trigger).
 4. **Register single hit + no D7 sneak-in:** #43 stays open unless the resolution note explicitly says folded.
+
+## Debt Register
+
+- **#18–#23** — Batch-B/Step-5 debts. Open, parked for Step 5.
+- **#38** — RESOLVED (Turn 5) · `clinic_disruption` table + `opd.disruption.bulk-cancel` route + `ClinicDisruptionPane` + `sendBulkCancelNotification` stub.
+- **#40** — RESOLVED (Turn 5) · `E2bRegistrationPane` wraps demographics/eligibility and adds atomic `create-visit` gated on fresh `visit_eligibility`; `provider-load` derives `in_queue_count` from today's active bookings.
+- **#41** — Open · ZATCA credit-note linkage; deferred to VAT engine turn.
+- **#42** — Open · SMS gateway integration; three stub entry points ready (`sendPreauthUpdate`, `sendVisitConfirmation`, `sendBulkCancelNotification`).
+- **#43** — Open · D7 form bindings; carried to next batch.
+- **#35** — Parked · QMS batch.
+- **#36** — Parked · Step 5.
