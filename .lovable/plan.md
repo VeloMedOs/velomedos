@@ -1,155 +1,194 @@
-# Step 4 · Turn 4 — status
+# Step 4 · Turn 5 — E2b Registration + Bulk-cancel (corrected v2, repo-verified @8e33f73)
 
-Turn 4 shipped: Maternity D2/D4/D6 banner deltas (protocol resolver, EDD/cadence chip, cross-facility stub) and Nutrition auto-referral (HCA-0255) driven by nursing screening form completion. New SQL: `referral.source_key` + unique index, `v_pregnancy_episode_active`, `resolve_maternity_protocol()`, `ensure_nutrition_screening_form()`, `v_opd_nutrition_referral_candidate`, `tg_encounter_nutrition_referral`, `NUTRITION_CONSULT` seed. Client wrappers on `opdApi.maternity.*` and `opdApi.nutrition.pendingReferrals`.
+Closes #38 (bulk-cancel body) + #40 (E2b consolidated registration). **This is Step 4's closeout turn.** Non-goals: #35 (QMS batch), #36 (Step 5), #41 (VAT engine turn), #42 (SMS gateway integration — but stubs wired this turn), #43 (D7 form bindings — Turn 5 fold if scope allows, else next-batch).
 
-Turn 5 owns: #38 bulk-cancel body, #40 E2b full order-profile. #35 (QMS batch) and #36 (Step 5) stay parked.
+## Repo facts verified at plan-time (OVERRIDES v1 plan)
 
-## Debt Register
+- `beneficiary` **columns confirmed:** `patient_file_no, first_name, middle_name, last_name, full_name, dob, gender, nationality, document_type, document_id, contact_number, ehealth_id, residency_type, marital_status, blood_group, preferred_language, email, address_line, address_street, address_city, address_district, address_state, address_postal_code, is_vip`. **No** `occupation`**, no** `country_code`**, no** `father_mrn`**, no** `is_newborn_under_mother`**, no** `hijri_dob` — all additive this turn.
+- `visit_eligibility` **exists** (Turn 1 verified) — plan's assumption that it takes `financial_type/eligibility_type/eligibility_ref_no/payer/policy/class/network` is correct per file 14 §②. **Turn 1's** `opd.registration.eligibility-first.ts` **currently does NOT persist to** `visit_eligibility` — it returns `{ok, path}` only. This turn must fix that (NN6 below).
+- **No** `provider_load` **/ live-queue table exists** (NN1). `providers` table has no counts; `queue_occupancy` is `(tenant_id, clinic_id)`, not per-provider. "In-queue count" per 0947 must derive from `clinic_bookings.status IN ('arrived','in_consult')` — no QMS dependency.
+- `sms-gateway.ts` **exists** (Turn 3) with `sendPreauthUpdate`; needs two new stub entry points this turn (NN4, NN5).
+- `coverage.expiry_date` **exists** (Turn 4 verified) — the eligibility-first route currently doesn't validate it (NN3).
+- **Bulk-cancel SMS/WhatsApp (0732) and Create-Visit sticker replacement (0062) both hit the same stub sink** — `interface_log` — via distinct entry points so gateway swap-in is a single implementation.
 
-Open:
-- #18 — Rule C dormant until `series_therapy` seeded.
-- #19 — `approx_perform_minutes` vs `tat_minutes` BRS reconciliation.
-- #20 — `visit_type` naming divergence across schema and UI.
-- #21 — `maternity_protocol.next_anc_due_at` column missing. Turn 4 uses literal `start_date + 280d` cadence bands (Q4W/Q2W/Q1W) as an interim; remains open until protocol-driven cadence lands.
-- #22 — `referral_network` table (needed before Step 5).
-- #23 — Portal self-booking compat (spec alignment).
-- #31 — Pre-Auth MID pane (Turn 3). RESOLVED — public kiosk `/preauth-mid` + `v_preauth_mid` + `preauth_mid_board`.
-- #32 — Treatment Room worklist (Turn 3). RESOLVED — `v_treatment_room_worklist` + perform route + `TreatmentRoomPane`.
-- #33 — Vaccine Clinic (Turn 3). RESOLVED — `seed_vaccine_clinic` + enable route + Schedule Setup card.
-- #42 — Bilingual SMS gateway wiring: stub at `src/lib/interface/sms-gateway.ts`; call-site hooks at `submitted_at`/`decision_at` transitions deferred.
-- #34 — Maternity D2/D4/D6/D7 flows. RESOLVED — `v_pregnancy_episode_active` + `resolve_maternity_protocol` + banner deltas + `MaternityProtocolPanel` + `CrossFacilityVisitsSheet` (view-only stub) + `DeliveryOutcomeDialog`. D6 cadence chip renders from view; D7 form bindings deferred to Turn 5.
-- #35 — QMS token spine. Owner: QMS batch (parked).
-- #36 — Referral cockpit. Owner: Step 5 (parked).
-- #38 — Bulk-cancel body (skeleton only today).
-- #39 — Nutrition auto-referral. RESOLVED — `v_opd_nutrition_referral_candidate` view + `tg_encounter_nutrition_referral` trigger + `opd.nutrition.referrals.pending` route + `NutritionReferralCard`. Trigger primary source is nursing screening form score (moderate/high); idempotent via `source_key` UNIQUE index.
-- #40 — E2b full order-profile.
-- #41 — ZATCA credit-note linkage for pre-invoice cancellations. OP tax invoices cut at claim assembly; credit-note route cancels charge_item + order_item + auth request and writes wallet credit via `wallet_apply_txn`, but no `tax_invoice` linkage exists yet because no invoice exists pre-claim. Defer to claim-assembly / VAT engine turn.
-
-Resolved this step: #29 (E14 Cashier UI), #30 (E15 Routing Board), #37 (wallet-negative OPD order gate), #31/#32/#33 (Turn 3), #34/#39 (Turn 4).
-
-Archived: #24–#28 (Step 3 Turn 5 closeout).
-
----
-
-# Step 4 · Turn 2 — E14 Cashier UI + E15 Routing Board + Wallet Gate (corrected v2, repo-verified @988b3c1)
-
-Closes debt #29 (E14 cashier), #30 (E15 board), #37 (wallet-negative OPD order gate). Non-goals unchanged (#31–#36, #38–#40 → Turns 3–5).
-
-## Repo facts verified at plan-time (OVERRIDES v1 plan — do not re-derive)
-
-- **No** `bill`**/**`bill_item` **tables** (v1 plan already acknowledges). Chain: `charge_item → claim/claim_item`; money via `deposit/deposit_transaction`, `patient_wallet/wallet_txn`, `credit_note`, `cash_collection/cash_session`, `tax_invoice/tax_invoice_line`.
-- `charge_item.billing_type` **does NOT exist** (KK1). It is a catalog attribute → additive `service_master.billing_type` this turn.
-- `wallet_apply_txn(_wallet_id uuid, _delta_minor bigint) RETURNS bigint` — sole balance write path. Routes resolve wallet id, insert `wallet_txn` (with valid `source`), call the RPC. Never `UPDATE patient_wallet SET balance_minor`.
-- `wallet_txn.source` **has a CHECK** (extended in M06). Plan-time psql: `SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conname='wallet_txn_source_check';` — if `'credit_note'` absent, extend CHECK in its own migration first (R1 pattern).
-- `'expired'` **is an** `authorization_request.status` **value;** `authorization_item.decision ∈ (pending,approved,partial,rejected)` (KK3). "Raise pre-auth" trigger reads the request header via item→request join.
-- `deposit_txn_apply_ai` AFTER INSERT trigger on `deposit_transaction` exists — allocate route inserts the row; the trigger recomputes deposit balance + ERP enqueue.
-- `encounter_open` **is the journey state at visit creation** — too early for the consultation-fee lock (KK2). Lock signal: linked `clinic_bookings.status='in_consult'` (primary) or `journey_state='clinically_documented'` (fallback).
-- File 17 §4 confirmed: negative wallet blocks the next OPD **order** — `_order-factory.ts` is the correct enforcement point.
-- `claim.status` CHECK exists — plan-time psql to list values; "open" filter uses the actual non-terminal values, not a guessed literal.
-
-## 1 · DB migrations (additive, strict order)
-
-**M-S4T2-00 ·** `service_master.billing_type` (KK1 — must precede the charges route)
+## Plan-time psql (NON-OPTIONAL — paste outputs)
 
 ```sql
-ALTER TABLE public.service_master
-  ADD COLUMN IF NOT EXISTS billing_type text NOT NULL DEFAULT 'on_raising'
-  CHECK (billing_type IN ('on_raising','on_execution','no_charge'));
+-- Beneficiary additive columns don't already exist
+SELECT column_name FROM information_schema.columns
+ WHERE table_schema='public' AND table_name='beneficiary'
+   AND column_name IN ('occupation_ar','occupation_en','country_code','father_mrn','is_newborn_under_mother','hijri_dob');
+-- Expected: 0 rows.
+
+-- Coverage expiry check available
+SELECT column_name FROM information_schema.columns
+ WHERE table_schema='public' AND table_name='coverage' AND column_name='expiry_date';
+-- Expected: 1 row.
+
+-- visit_eligibility shape (for the persist path)
+SELECT column_name, data_type, is_nullable FROM information_schema.columns
+ WHERE table_schema='public' AND table_name='visit_eligibility' ORDER BY ordinal_position;
+
+-- clinic_bookings.status enum values (for in-queue derivation)
+SELECT enum_range(NULL::public.booking_status);
+
+-- token_sequence sequences that exist (for token issuance)
+SELECT sequencename FROM pg_sequences WHERE schemaname='public' AND sequencename ILIKE '%token%';
 
 ```
 
-**M-S4T2-00b ·** `wallet_txn` **source CHECK extension** — ONLY if plan-time psql shows `'credit_note'` missing; own migration.
+## 0 · Debt register fence (LANDS FIRST)
 
-**M-S4T2-01 ·** `v_cashier_worklist` — as v1 plan, plus `sm.billing_type` through the service join. SECURITY INVOKER; tenant scoping via underlying RLS. "Open claims" filter uses verified `claim.status` values.
+`.lovable/plan.md` row deltas only, `## Debt Register` single hit preserved. #38/#40 stay "open" until this turn closes; #43 (D7 form bindings) confirmed still open with owner "Turn 5 stretch, else next batch".
 
-**M-S4T2-02 ·** `wallet_gate_open(_beneficiary_id uuid, _tenant_id uuid) RETURNS boolean` — STABLE SECURITY DEFINER, `SET search_path=public`; true iff wallet missing OR `balance_minor >= 0`. REVOKE from anon; GRANT to authenticated + service_role.
+## 1 · Schema deltas
 
-**M-S4T2-03 · occupancy refresh triggers —** `FOR EACH STATEMENT` (KK5)
+**M-S4T5-01 · Beneficiary demographics additive** (5 columns, all nullable, non-breaking):
 
 ```sql
-CREATE TRIGGER clinic_bookings_occupancy_refresh
-  AFTER INSERT OR UPDATE OF status ON public.clinic_bookings
-  FOR EACH STATEMENT EXECUTE FUNCTION public.tg_refresh_queue_occupancy();
--- same statement-level trigger on encounter (status changes)
+ALTER TABLE public.beneficiary
+  ADD COLUMN IF NOT EXISTS occupation_ar text NULL,
+  ADD COLUMN IF NOT EXISTS occupation_en text NULL,
+  ADD COLUMN IF NOT EXISTS country_code text NULL,   -- ISO E.164 dial code e.g. '+966'
+  ADD COLUMN IF NOT EXISTS father_mrn text NULL,     -- 0056 reusable family MRN
+  ADD COLUMN IF NOT EXISTS is_newborn_under_mother boolean NOT NULL DEFAULT false;  -- 0058
 
 ```
 
-`tg_refresh_queue_occupancy()` derives affected tenant(s) and calls `refresh_queue_occupancy`. Statement-level so bulk-cancel (debt #38) recomputes once, not N times.
+Hijri DOB is **NOT** stored (computed client-side from `dob` via Hijri library — NN2). Comment on `dob`: "Gregorian only; Hijri computed client-side per HCA-0051."
 
-## 2 · Server routes (`src/routes/api/clinical/v1/opd/`) — pure handlers, capIds, envelope
+**M-S4T5-02 ·** `visit_eligibility` **persist support** (NN6) — if the table lacks an `eligibility_type` CHECK, add:
 
-New capIds: `opd.cashier.read` (front_office, tenant_admin), `opd.cashier.write` (front_office, tenant_admin), `opd.routing.read` (front_office, floor_manager, tenant_admin), `opd.orders.wallet_gate` (physician, nurse, front_office, tenant_admin).
+```sql
+ALTER TABLE public.visit_eligibility
+  ADD CONSTRAINT visit_eligibility_type_check
+  CHECK (eligibility_type IN ('standard','referral','emergency','newborn'));
 
-- `opd.cashier.worklist.ts` GET — `v_cashier_worklist`, caller-scoped (HCA-0948). RLS + explicit `user_id = ctx.userId` unless caller has tenant_admin.
-- `opd.cashier.charges.ts` GET `?encounter_id` — line items: `charge_item` × `authorization_item` (latest decision) × request header (for `expired`) × `service_master.billing_type`. Returns `approved_amount_minor` (= `authorization_item.benefit_amount_minor`), `copay_minor`, `auth_status` (**item decision, plus** `request_status` **separately** — KK3), `billing_type`. HCA-0793/0209/1062.
-- `opd.cashier.allocate.ts` POST — per allocation: `deposit` → insert `deposit_transaction` (trigger `deposit_txn_apply_ai` settles); `cash` → insert `cash_collection` (encounter-scoped); `wallet` → resolve `patient_wallet.id`, insert `wallet_txn` (valid source), call `wallet_apply_txn(wallet_id, -amount_minor)`. Returns per-row gate state from `v_order_item_gate` post-write. Never mutates balances directly.
-- `opd.cashier.raise-preauth.ts` POST — creates `authorization_request` linked to the charge; enabled when **request** status is `expired` or absent (KK3).
-- `opd.cashier.credit-note.ts` POST `{encounter_id, charge_item_ids[], reason}` — server-side guards (KK6), in order:
-  1. **Unperformed-only**: resolve each charge's order item via `charge_item.order_item_table/order_item_id`; reject with 422 `item_already_performed` if status has left `ordered` (or `prescription_item.dispense_status='dispensed'`).
-  2. **Consultation-fee guard**: if the charge is the consultation fee and `consultation-lock` says locked → 409 `consultation_locked` (HCA-0802).
-  3. Create `credit_note` rows (mandatory `reason`); co-pay already collected → wallet credit via `wallet_txn` + `wallet_apply_txn(wallet_id, +copay_minor)`.
-  4. **Authorization revocation**: linked `authorization_request` for a fully-cancelled item → status `cancelled` (or the enum's revocation value — verify at build).
-  5. **VAT/ZATCA**: if a `tax_invoice` already covers the charge, route through the existing vat-engine credit path; if OP invoices are cut at claim assembly only (expected), add code comment + **debt row #41: ZATCA credit-note linkage for pre-invoice cancellations**. Cancelled items excluded from invoice preview.
-- `opd.cashier.consultation-lock.ts` GET — `{locked, reason}` where locked ⇔ linked booking `status='in_consult'` OR `encounter.journey_state='clinically_documented'` (KK2). Unlock only via doctor revert (booking back to `arrived` / consultation order cancelled).
-- `opd.cashier.eligibility-freshness.ts` GET — `{stale, last_check_at, must_recheck}` from `visit_eligibility.checked_at` vs today (HCA-0789).
-- `opd.routing.board.ts` GET — `queue_occupancy`; refresh if `refreshed_at` older than 3 min. HCA-0946/0947/0175/NEW-SR-01.
-- `opd.routing.route.ts` POST — server-side specialty-lock: target clinic specialty must equal current required specialty, else 422 `specialty_mismatch`. Updates `clinic_bookings`, emits `booking_event`. HCA-0941/0761.
-- `opd.orders.wallet-gate.ts` GET — `wallet_gate_open()` + balance (presentation).
-- `_order-factory.ts` **extension** — before insert for OPD encounters: `wallet_gate_open(beneficiary, tenant)` false → 403 `wallet_gate` (file 17 §4). Gate order stays **forms gate → billed gate → wallet gate check at creation**.
+```
 
-## 3 · Client wiring — as v1 plan (`opdApi.cashier.*`, `opdApi.routing.*`, `opdApi.orders.walletGate`).
+Add unique index on `(beneficiary_id, coverage_id, tenant_id, checked_at::date)` if not present — prevents duplicate-day rows.
 
-## 4 · UI — as v1 plan with three amendments
+**M-S4T5-03 · Bulk cancel event table**:
 
-**a.** `CashierWorklistPane.tsx` (tab `finance-billing-op`, replaces stub) — as v1, plus: `billing_type` chip per row (from service join); "Raise pre-auth" button keyed on **request** status expired (KK3); Allocate disabled for the consultation-fee row only when `consultation-lock.locked` (KK2 — not at visit creation); cancel flow surfaces the 422/409 guard codes as inline reasons.
+```sql
+CREATE TABLE public.clinic_disruption (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id uuid NOT NULL,
+  clinic_id uuid NOT NULL REFERENCES public.clinics(id),
+  slot_at_from timestamptz NOT NULL,
+  slot_at_to timestamptz NOT NULL,
+  reason text NOT NULL,          -- e.g. 'or_emergency', 'shift_excuse'
+  action text NOT NULL CHECK (action IN ('cancel','reschedule','reassign')),
+  reassign_target_clinic_id uuid NULL REFERENCES public.clinics(id),
+  created_by uuid NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+-- RLS + GRANTs same migration.
 
-**b.** `RoutingBoardPane.tsx` (tab `opd-routing`) — as v1. Board is a **load monitor**; "Route here" appears only on clinic rows within the required specialty (file 14 correction (1) — never cross-specialty).
+```
 
-**c.** `OrdersPane` **amendment** — walletGate pre-check + inline banner; server 403 remains the boundary.
+Tenant-scoped, admin+floor_manager write, all-clinical read.
 
-## 5 · Tests (target ≥117; baseline 107)
+## 2 · SMS stub additions — `src/lib/interface/sms-gateway.ts`
 
-v1's six files, with these fixture corrections:
+Two new no-op entry points (same signature shape, log to `interface_log`):
 
-- `cashier-consultation-lock.test.ts` — locked when booking `in_consult` (NOT at `encounter_open`); unlocked while booking `arrived`; unlocked after doctor revert.
-- `cashier-credit-note.test.ts` (NEW, 3) — performed item → 422 `item_already_performed`; consultation fee while locked → 409; successful cancel writes credit_note + wallet_txn + calls `wallet_apply_txn` (mock RPC log) + marks auth request cancelled.
-- `cashier-allocate.test.ts` — wallet path asserts `wallet_apply_txn` in the RPC call log AND zero direct `patient_wallet` updates in `db.calls`.
-- `wallet-gate.test.ts` — negative blocks at `_order-factory`; positive allows; missing wallet open.
-- `routing-specialty-lock.test.ts` — cross-specialty → `specialty_mismatch`. Target ≥120 with the added credit-note file.
+- `sendVisitConfirmation({tenant_id, phone_e164, lang, mrn_masked, visit_at, token_number, clinic_name})` — 0062 sticker replacement.
+- `sendBulkCancelNotification({tenant_id, phone_e164, lang, encounter_id, reason, rebook_request_id})` — 0732 auto-notify.
 
-## 6 · Docs + debt
+Debt #42 remains the single "gateway integration" row — all three stubs (`sendPreauthUpdate`, `sendVisitConfirmation`, `sendBulkCancelNotification`) swap in together when a gateway lands.
 
-- Manual sections as v1, plus the KK2 lock-signal derivation and the KK6 guard order.
-- `.lovable/plan.md`: resolve #29/#30/#37; **open #41** (ZATCA credit-note linkage) if step 5 of credit-note defers the VAT path.
+## 3 · Server routes (all pure handlers, capIds, envelope)
 
-## Definition of Done (delta over v1)
+**Refactor:** `opd.registration.eligibility-first.ts` **(NN6, NN3)** — currently returns `{ok, path}` without persisting. Extend to:
 
-- [ ] `service_master.billing_type` exists with CHECK; charges route reads it via join (grep `charge_item.*billing_type` = 0).
-- [ ] Plan-time psql output pasted for `wallet_txn_source_check` and `claim_status_check` before migrations commit.
-- [ ] Occupancy triggers are `FOR EACH STATEMENT` (grep `FOR EACH ROW` in M-S4T2-03 = 0).
-- [ ] Consultation lock keys on booking `in_consult`/journey fallback; fixture proves unlocked at `encounter_open`.
-- [ ] Credit-note route enforces unperformed-only + consultation guard + auth revocation server-side; wallet credit flows through `wallet_apply_txn` (grep `UPDATE patient_wallet` = 0 repo-wide in new code).
-- [ ] "Raise pre-auth" keys on `authorization_request.status='expired'` (grep `decision.*expired` = 0).
-- [ ] Wallet-negative blocks order creation at `_order-factory` with 403 `wallet_gate`; OrdersPane banner renders.
-- [ ] Routing route rejects cross-specialty server-side.
-- [ ] ≥120 tests green; grep gates: `bill_item|bill\.` = 0 in touched files, raw palette = 0, `serviceClient|\.from\(` = 0 in daylight components.
-- [ ] Debt register: #29/#30/#37 resolved; #41 opened if VAT path deferred.
-- The two corrections with real business consequence:
-  **KK2 is a patient-refund-rights issue, not a technical nit.** Locking the consultation fee at `encounter_open` means the moment reception creates the visit, the fee becomes non-cancellable — but HCA-0802's lock point is *consultation start*, and 0053 gives patients a cancellation window (with % deduction) before that. Lovable's version would have silently eliminated the patient's cancellation right at OPD. The booking `in_consult` transition is the correct signal and it already exists from Step 3's lifecycle work.
-  **KK6 turns the credit-note route from a row-writer into an actual cancellation transaction.** The DoD acceptance row for 0952/0787/0820/0954 is explicit: unperformed-only, auth revocation, VAT adjustment, wallet Credit Note — four effects, one action. The v1 plan shipped one of the four. The performed-item guard especially matters because it's the reverse face of the billed gate: the gate stops perform-before-pay; this guard stops refund-after-perform.
-  Post-build watchlist: (1) plan-time psql outputs for the two CHECK constraints actually pasted in the build report — that's the KK4 verification; (2) `FOR EACH STATEMENT` in the trigger migration; (3) the credit-note fixture asserting the RPC call log AND the absence of direct `patient_wallet` updates; (4) whether debt #41 opens (it probably should — OP tax invoices at claim assembly means the VAT path defers). Paste the build report when it lands.
+1. Validate coverage — expired coverage (coverage.expiry_date < today) → `422 coverage_expired` (new error code), unless `path='self_pay'`.
+2. On any `ok` result (insured/self_pay/exception): UPSERT into `visit_eligibility` (`beneficiary_id, coverage_id, tenant_id`) with the resolved `eligibility_type`, `eligibility_ref_no` (from NPHIES response or NULL for self_pay/exception), `checked_at=now()`, `financial_type`. Return the `visit_eligibility.id`.
 
-Proceed to build.
-## Turn 2 completion round — outcome
+**New:** `opd.registration.create-visit.ts` **POST** `{beneficiary_id, department_id, provider_id, service_id, priority?}` — capId `opd.registration.create_visit` (front_office, tenant_admin). Server:
 
-**Resolved:** #29 (E14 Cashier UI), #30 (E15 Routing Board), #37 (wallet-negative OPD order gate).
-**Opened:** #41 — ZATCA credit-note linkage for pre-invoice cancellations. OP tax invoices are cut at claim assembly; credit-note route cancels charge_item + order_item + auth request and writes wallet credit via `wallet_apply_txn`, but no `tax_invoice` linkage exists yet because no invoice exists pre-claim. Defer to the claim-assembly / VAT engine turn.
+1. Look up latest `visit_eligibility` row for `(beneficiary_id, tenant_id)` within last 24h. Missing or stale → `409 eligibility_stale`.
+2. If `eligibility_type='standard'` and last check was `not_eligible` → `403 not_eligible`.
+3. Insert `encounter` (class=AMB, journey_state='encounter_open', coverage_id from visit_eligibility, episode_of_care resolution via Turn-1 pregnancy hook).
+4. Insert `clinic_bookings` row today, status='confirmed' (walk-in), source='walk_in', provider_id, service_id.
+5. Issue token via existing sequence or literal counter (NN1 stretch — see below).
+6. Fire `sendVisitConfirmation()` stub (NN4).
+7. Return `{encounter_id, booking_id, token_number}`.
 
-Delivered:
-- `opdApi.cashier.*`, `opdApi.routing.*`, `opdApi.orders.walletGate` client wrappers on `src/lib/clinical-api.ts`.
-- `CashierWorklistPane` replaces `BillingOpPane` on `finance-billing-op` and new `opd-cashier` tab; `RoutingBoardPane` on new `opd-routing` tab (nav-config wired).
-- `OrdersPane` renders wallet-gate banner (`data-testid=wallet-gate-banner`) when `opdApi.orders.walletGate` returns `open=false`.
-- Wallet-gate check extracted to `src/lib/rcm/wallet-gate.ts::walletGateAllowsOrder`; `_order-factory` calls it and returns 403 `wallet_gate` unchanged.
-- 5 fixtures added, 16 new tests: `wallet-gate` (4), `cashier-consultation-lock` (3), `cashier-allocate` (3), `cashier-credit-note` (4), `routing-specialty-lock` (2). Total suite 123 pass / 0 fail across 23 files.
+**New:** `opd.registration.provider-load.ts` **GET** `?department_id&date=today` (NN1 corrected): Returns per-provider row: `{provider_id, display_name, booked_count, in_queue_count, priority_rank}` where `in_queue_count = COUNT(clinic_bookings.status IN ('arrived','in_consult'))` for the provider today. **No QMS dependency.** Comment cites "in-queue = on-site waiting per 0947; token-based queue counts land with QMS batch".
 
-Grep gates verified: zero direct `patient_wallet` updates in touched code; zero references to a `bill` / `bill_item` table; daylight components use `opdApi.*` only, never `serviceClient` / raw `.from(`.
+**New:** `opd.disruption.bulk-cancel.ts` **POST** `{clinic_id, slot_at_from, slot_at_to, reason, action, reassign_target_clinic_id?, cancellation_charge?: boolean}` — capId `opd.disruption.write` (floor_manager, tenant_admin):
+
+1. Insert `clinic_disruption` row.
+2. Select affected `clinic_bookings` (clinic_id + slot_at range + status NOT IN ('completed','cancelled')).
+3. Bulk UPDATE per `action`:
+  - `cancel` → status='cancelled', `cancellation_reason='hospital_initiated'` (no % deduction — 0053 contrast), `rebook_request=true` so they surface in the booking-request rail.
+  - `reschedule` → status stays 'confirmed'; new `slot_at` computed via next-available on same provider (Step 3 scheduler); if crosses eligibility window (>24h from last check), stamp `eligibility_check_pending=true` (0789).
+  - `reassign` → status='confirmed'; `clinic_id=reassign_target_clinic_id`; verify same specialty (Step 3 routing lock).
+4. For each affected booking, fire `sendBulkCancelNotification()` stub (NN5).
+5. Return `{affected_count, action_taken}`.
+
+**Grep gate:** the bulk update MUST use a single UPDATE statement per action branch (not row-by-row) — Turn 2's statement-level occupancy trigger design assumes this.
+
+## 4 · Client wiring
+
+`opdApi.registration.{eligibilityFirst, createVisit, providerLoad}` + `opdApi.disruption.bulkCancel`.
+
+## 5 · UI
+
+`E2bRegistrationPane.tsx` — replaces `RegistrationPane` (old file removed after both refs updated). Three stacked `.clin-card`s in strict order:
+
+- **① Demographics card** (§4.2): dual-calendar Gregorian↔Hijri (NN2 library: `moment-hijri`, licensed as MIT). Country code select (dropdown of ISO codes, default `+966`), then phone. Occupation single row AR + EN inputs. Father MRN reuse toggle when age <18. Newborn-under-mother toggle when age ≤30d and `is_newborn_under_mother` is settable. Blocking validation: MDS mandatory fields (0057) prevent save.
+- **② Eligibility & payer card** (rendered second per HCA-0065): payer select, policy/class, network chip, referring-hospital dropdown (dept links), insurance referral letter upload (stub). "Check Eligibility" button calls `eligibilityFirst`. Result strip: **Eligible green** or **Not-eligible-or-Error red** with payer detail. On success, shows `eligibility_ref_no` and `approval_limit`. On not_eligible: exception path (`referral|emergency|newborn`) or block.
+- **③ Visit details card** (final): department select → provider dropdown filtered to department (0946), each provider row shows `booked_count | in_queue_count` (NN1). Priority-physician list (0050 override). "Create visit & issue token" button disabled unless card ② returned `ok`. On success: token displayed, and "Send SMS/WhatsApp confirmation" auto-fires (NN4 stub — displays inline toast "SMS logged; gateway pending #42"). "Check specialty load" link opens routing board.
+
+Nav: replace existing `RegistrationPane` binding with `E2bRegistrationPane` in `clinical.tsx`; no new tabs.
+
+`ClinicDisruptionPane.tsx` (new tab `opd-disruption` under Worklists, floor_manager+tenant_admin caps): Session picker (clinic + date range slider), reason input, action radio (cancel/reschedule/reassign), reassign target picker (same-specialty only, uses routing board data). "Preview affected bookings" shows the list before commit. "Execute" calls `bulkCancel`, toast shows affected_count.
+
+## 6 · Tests (target ≥164; baseline 150)
+
+- `e2b-registration-flow.test.ts` (5) — happy: eligible → visit created → token issued → visit_eligibility persisted with ref_no + eligibility_type='standard'; expired coverage → 422 coverage_expired; missing eligibility → create-visit 409 eligibility_stale; stale (>24h) → 409; self_pay path skips NPHIES call (assert via db-mock call log).
+- `provider-load.test.ts` (3) — booked_count computed from confirmed bookings; in_queue_count only from arrived+in_consult; empty department returns empty list.
+- `bulk-cancel.test.ts` (4) — cancel branch marks all affected as cancelled with hospital_initiated reason + rebook_request=true; reschedule branch stamps eligibility_check_pending on crossings >24h; reassign branch fails on cross-specialty target with 422 specialty_mismatch; sendBulkCancelNotification stub called per affected row (mock call log).
+- `sms-stub-shapes.test.ts` (2) — sendVisitConfirmation and sendBulkCancelNotification write to interface_log with expected payload shape.
+
+## 7 · Docs + debt
+
+`docs/his-technical-manual.md`: append "E2b Registration screen (front-office consolidated)" citing the three-card order + eligibility-persist + create-visit gate; "Bulk cancel (0732/0306/0357/0918)" documenting hospital-initiated no-charge semantics + notification hook.
+
+`.lovable/plan.md` at close:
+
+- #38 RESOLVED — clinic_disruption table + bulk-cancel route + `ClinicDisruptionPane`; hospital-initiated no % deduction; sendBulkCancelNotification stub.
+- #40 RESOLVED — E2bRegistrationPane + eligibility-first persist + create-visit gate + provider-load derivation.
+- #42 remains open (SMS gateway integration) — now three stub entry points ready.
+- #43 D7 form bindings — evaluate at close whether Turn 5 can fold; else next batch.
+
+## Definition of Done
+
+- [ ] Plan-time psql outputs pasted BEFORE migrations (5 queries).
+- [ ] Debt register fence landed FIRST; `## Debt Register` grep=1.
+- [ ] Beneficiary additive columns all nullable; no schema breakage (grep new schema errors on demo reset = 0).
+- [ ] `visit_eligibility` unique day-index in place; eligibility_type CHECK matches file 14 §② (`standard|referral|emergency|newborn`).
+- [ ] `eligibility-first` route persists to `visit_eligibility` (grep INSERT/UPSERT into visit_eligibility = 1+).
+- [ ] `create-visit` route reads `visit_eligibility`, rejects on stale/missing with 409 `eligibility_stale`; grep `coverage_id` in create-visit body params = 0 (comes from visit_eligibility row).
+- [ ] Expired coverage returns 422 `coverage_expired`; grep in validation.ts.
+- [ ] `provider-load` derives `in_queue_count` from `clinic_bookings.status IN ('arrived','in_consult')`; grep new queue tables = 0.
+- [ ] `moment-hijri` (or equivalent) named in package.json for Hijri conversion; no server storage of Hijri (grep `hijri_dob` in migrations = 0).
+- [ ] Both new SMS stubs (`sendVisitConfirmation`, `sendBulkCancelNotification`) call `interface_log` only; no fake sends (grep external fetch in sms-gateway.ts = 0).
+- [ ] Bulk-cancel uses single UPDATE statements per action branch; grep row-by-row loops in bulk-cancel route = 0.
+- [ ] Bulk-cancel cancel branch sets `hospital_initiated` reason and `rebook_request=true`; 0053 patient-window contrast documented in code comment.
+- [ ] Reassign branch verifies same-specialty via Step 3 routing lock; cross-specialty → 422 specialty_mismatch.
+- [ ] `E2bRegistrationPane` replaces `RegistrationPane`; both references updated; old file removed.
+- [ ] `ClinicDisruptionPane` on new tab `opd-disruption`; cap-guarded.
+- [ ] Test count ≥164 green; grep gates (raw palette, serviceClient/.from in daylight) = 0.
+- [ ] Debt register: #38/#40 RESOLVED, #42 open, #21/#41/#43 open, #35/#36 parked.
+    
+    
+
+- Post-build watchlist:
+
+1. **Persistence proof:** grep for `INSERT INTO public.visit_eligibility` in the new `eligibility-first` handler and its fixture. If the fixture asserts on `visit_eligibility` state after the call, NN6 is real.
+2. **Create-visit rejects on missing eligibility:** the `409 eligibility_stale` fixture must call create-visit *without* first calling eligibility-first, and assert the 409. Rejects the "just pass coverage_id in the body" shortcut.
+3. **Bulk-cancel notification per row, not per action:** the mock call log for `sendBulkCancelNotification` should have `affected_count` entries, not 1. Row-by-row *notification* is fine; row-by-row *SQL update* isn't (Turn 2 statement-level trigger).
+4. **Register single hit + no D7 sneak-in:** #43 stays open unless the resolution note explicitly says folded.
