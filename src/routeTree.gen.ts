@@ -378,6 +378,7 @@ import { Route as ApiClinicalV1OpdOpdOrdersBilledStatusRouteImport } from './rou
 import { Route as ApiClinicalV1OpdOpdMaternityProtocolRouteImport } from './routes/api/clinical/v1/opd/opd.maternity.protocol'
 import { Route as ApiClinicalV1OpdOpdMaternityDeliveryCloseRouteImport } from './routes/api/clinical/v1/opd/opd.maternity.delivery-close'
 import { Route as ApiClinicalV1OpdOpdMaternityBannerRouteImport } from './routes/api/clinical/v1/opd/opd.maternity.banner'
+import { Route as ApiClinicalV1OpdOpdDisruptionBulkCancelRouteImport } from './routes/api/clinical/v1/opd/opd.disruption.bulk-cancel'
 import { Route as ApiClinicalV1OpdOpdCashierWorklistRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.worklist'
 import { Route as ApiClinicalV1OpdOpdCashierRaisePreauthRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.raise-preauth'
 import { Route as ApiClinicalV1OpdOpdCashierEligibilityFreshnessRouteImport } from './routes/api/clinical/v1/opd/opd.cashier.eligibility-freshness'
@@ -2511,6 +2512,12 @@ const ApiClinicalV1OpdOpdMaternityBannerRoute =
     path: '/api/clinical/v1/opd/opd/maternity/banner',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1OpdOpdDisruptionBulkCancelRoute =
+  ApiClinicalV1OpdOpdDisruptionBulkCancelRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/disruption/bulk-cancel',
+    path: '/api/clinical/v1/opd/opd/disruption/bulk-cancel',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1OpdOpdCashierWorklistRoute =
   ApiClinicalV1OpdOpdCashierWorklistRouteImport.update({
     id: '/api/clinical/v1/opd/opd/cashier/worklist',
@@ -3153,6 +3160,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/opd/opd/cashier/eligibility-freshness': typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
   '/api/clinical/v1/opd/opd/cashier/raise-preauth': typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
   '/api/clinical/v1/opd/opd/cashier/worklist': typeof ApiClinicalV1OpdOpdCashierWorklistRoute
+  '/api/clinical/v1/opd/opd/disruption/bulk-cancel': typeof ApiClinicalV1OpdOpdDisruptionBulkCancelRoute
   '/api/clinical/v1/opd/opd/maternity/banner': typeof ApiClinicalV1OpdOpdMaternityBannerRoute
   '/api/clinical/v1/opd/opd/maternity/delivery-close': typeof ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute
   '/api/clinical/v1/opd/opd/maternity/protocol': typeof ApiClinicalV1OpdOpdMaternityProtocolRoute
@@ -3563,6 +3571,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/opd/opd/cashier/eligibility-freshness': typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
   '/api/clinical/v1/opd/opd/cashier/raise-preauth': typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
   '/api/clinical/v1/opd/opd/cashier/worklist': typeof ApiClinicalV1OpdOpdCashierWorklistRoute
+  '/api/clinical/v1/opd/opd/disruption/bulk-cancel': typeof ApiClinicalV1OpdOpdDisruptionBulkCancelRoute
   '/api/clinical/v1/opd/opd/maternity/banner': typeof ApiClinicalV1OpdOpdMaternityBannerRoute
   '/api/clinical/v1/opd/opd/maternity/delivery-close': typeof ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute
   '/api/clinical/v1/opd/opd/maternity/protocol': typeof ApiClinicalV1OpdOpdMaternityProtocolRoute
@@ -3977,6 +3986,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/opd/opd/cashier/eligibility-freshness': typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
   '/api/clinical/v1/opd/opd/cashier/raise-preauth': typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
   '/api/clinical/v1/opd/opd/cashier/worklist': typeof ApiClinicalV1OpdOpdCashierWorklistRoute
+  '/api/clinical/v1/opd/opd/disruption/bulk-cancel': typeof ApiClinicalV1OpdOpdDisruptionBulkCancelRoute
   '/api/clinical/v1/opd/opd/maternity/banner': typeof ApiClinicalV1OpdOpdMaternityBannerRoute
   '/api/clinical/v1/opd/opd/maternity/delivery-close': typeof ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute
   '/api/clinical/v1/opd/opd/maternity/protocol': typeof ApiClinicalV1OpdOpdMaternityProtocolRoute
@@ -4391,6 +4401,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
     | '/api/clinical/v1/opd/opd/cashier/raise-preauth'
     | '/api/clinical/v1/opd/opd/cashier/worklist'
+    | '/api/clinical/v1/opd/opd/disruption/bulk-cancel'
     | '/api/clinical/v1/opd/opd/maternity/banner'
     | '/api/clinical/v1/opd/opd/maternity/delivery-close'
     | '/api/clinical/v1/opd/opd/maternity/protocol'
@@ -4801,6 +4812,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
     | '/api/clinical/v1/opd/opd/cashier/raise-preauth'
     | '/api/clinical/v1/opd/opd/cashier/worklist'
+    | '/api/clinical/v1/opd/opd/disruption/bulk-cancel'
     | '/api/clinical/v1/opd/opd/maternity/banner'
     | '/api/clinical/v1/opd/opd/maternity/delivery-close'
     | '/api/clinical/v1/opd/opd/maternity/protocol'
@@ -5214,6 +5226,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/cashier/eligibility-freshness'
     | '/api/clinical/v1/opd/opd/cashier/raise-preauth'
     | '/api/clinical/v1/opd/opd/cashier/worklist'
+    | '/api/clinical/v1/opd/opd/disruption/bulk-cancel'
     | '/api/clinical/v1/opd/opd/maternity/banner'
     | '/api/clinical/v1/opd/opd/maternity/delivery-close'
     | '/api/clinical/v1/opd/opd/maternity/protocol'
@@ -5436,6 +5449,7 @@ export interface RootRouteChildren {
   ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute: typeof ApiClinicalV1OpdOpdCashierEligibilityFreshnessRoute
   ApiClinicalV1OpdOpdCashierRaisePreauthRoute: typeof ApiClinicalV1OpdOpdCashierRaisePreauthRoute
   ApiClinicalV1OpdOpdCashierWorklistRoute: typeof ApiClinicalV1OpdOpdCashierWorklistRoute
+  ApiClinicalV1OpdOpdDisruptionBulkCancelRoute: typeof ApiClinicalV1OpdOpdDisruptionBulkCancelRoute
   ApiClinicalV1OpdOpdMaternityBannerRoute: typeof ApiClinicalV1OpdOpdMaternityBannerRoute
   ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute: typeof ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute
   ApiClinicalV1OpdOpdMaternityProtocolRoute: typeof ApiClinicalV1OpdOpdMaternityProtocolRoute
@@ -8039,6 +8053,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1OpdOpdMaternityBannerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/opd/opd/disruption/bulk-cancel': {
+      id: '/api/clinical/v1/opd/opd/disruption/bulk-cancel'
+      path: '/api/clinical/v1/opd/opd/disruption/bulk-cancel'
+      fullPath: '/api/clinical/v1/opd/opd/disruption/bulk-cancel'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdDisruptionBulkCancelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/opd/opd/cashier/worklist': {
       id: '/api/clinical/v1/opd/opd/cashier/worklist'
       path: '/api/clinical/v1/opd/opd/cashier/worklist'
@@ -10239,6 +10260,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1OpdOpdCashierRaisePreauthRoute,
   ApiClinicalV1OpdOpdCashierWorklistRoute:
     ApiClinicalV1OpdOpdCashierWorklistRoute,
+  ApiClinicalV1OpdOpdDisruptionBulkCancelRoute:
+    ApiClinicalV1OpdOpdDisruptionBulkCancelRoute,
   ApiClinicalV1OpdOpdMaternityBannerRoute:
     ApiClinicalV1OpdOpdMaternityBannerRoute,
   ApiClinicalV1OpdOpdMaternityDeliveryCloseRoute:
