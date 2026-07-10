@@ -32,7 +32,8 @@ export type NavTabId =
   // Step 3 · Turn 3 — OPD Scheduling
   | "opd-day-board" | "opd-schedule-setup" | "opd-treatment-room";
 // Step 4 · Turn 2 — OPD Cashier + Routing Board (E14/E15)
-export type NavTabIdExt = NavTabId | "opd-cashier" | "opd-routing";
+// Step 4 · Turn 5 — E2b Registration + Bulk-cancel disruption
+export type NavTabIdExt = NavTabId | "opd-cashier" | "opd-routing" | "opd-registration-e2b" | "opd-disruption";
 
 export type NavItemDef = {
   module: string;
@@ -52,6 +53,8 @@ export const NAV_SECTIONS: NavSectionDef[] = [
     group: "Clinical",
     items: [
       { module: "Registration & Eligibility", label: "Registration", tab: "registration", icon: UserPlus },
+      { module: "Registration & Eligibility", label: "Registration (E2b)", tab: "opd-registration-e2b" as NavTabId, icon: UserPlus },
+      { module: "Registration & Eligibility", label: "Bulk disruption",    tab: "opd-disruption" as NavTabId,      icon: LayoutGrid },
       { module: "Clinical",                   label: "Encounter",    tab: "encounters",   icon: Stethoscope },
       { module: "Clinical",                   label: "OPD Day Board", tab: "opd-day-board",     icon: CalendarDays },
       { module: "Clinical",                   label: "Schedule Setup", tab: "opd-schedule-setup", icon: CalendarCog },

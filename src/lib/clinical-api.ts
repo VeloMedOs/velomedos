@@ -635,6 +635,31 @@ export const opdApi = {
       clinicalFetch<OpdEligibilityFirstResult>(`/api/clinical/v1/opd/registration/eligibility-first`, {
         method: "POST", body: input,
       }),
+    createVisit: (input: {
+      beneficiary_id: string; clinic_id: string;
+      provider_id?: string | null; service_id?: string | null;
+      priority?: number; specialty?: string | null;
+    }) =>
+      clinicalFetch<{ ok: true; data: { encounter_id: string; booking_id: string; token_number: string; clinic_id: string } }>(
+        `/api/clinical/v1/opd/registration/create-visit`, { method: "POST", body: input },
+      ),
+    providerLoad: (clinic_id: string) =>
+      clinicalFetch<{ ok: true; data: Array<{ id: string; full_name: string; specialty: string | null; in_queue_count: number }> }>(
+        `/api/clinical/v1/opd/registration/provider-load${qs({ clinic_id })}`,
+      ),
+  },
+  disruption: {
+    bulkCancel: (body: {
+      clinic_id: string;
+      slot_at_from: string; slot_at_to: string;
+      action: "cancel" | "reschedule" | "reassign";
+      reason: string;
+      reassign_target_clinic_id?: string | null;
+      cancellation_charge?: boolean;
+    }) =>
+      clinicalFetch<{ ok: true; data: { disruption_id: string; affected_count: number; notifications_queued: number } }>(
+        `/api/clinical/v1/opd/disruption/bulk-cancel`, { method: "POST", body },
+      ),
   },
   pregnancyEpisode: {
     link: (input: { encounter_id: string; specialty?: string | null }) =>

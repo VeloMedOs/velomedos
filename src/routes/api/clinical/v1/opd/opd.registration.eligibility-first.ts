@@ -39,8 +39,29 @@ export async function handlePOST(args: {
     .select("id, tenant_id").eq("id", body.beneficiary_id).maybeSingle();
   if (!bene || bene.tenant_id !== ctx.tenantId) return envelope("beneficiary not found", "not_found", 404);
 
+  const exceptionTypes = new Set(["referral", "emergency", "newborn"]);
+
+  async function persistVe(row: Record<string, unknown>): Promise<string | null> {
+    const { data, error } = await db.from("visit_eligibility").insert({
+      tenant_id: ctx.tenantId,
+      beneficiary_id: body.beneficiary_id,
+      created_by: ctx.userId,
+      updated_by: ctx.userId,
+      checked_at: new Date().toISOString(),
+      ...row,
+    }).select("id").maybeSingle();
+    if (error) return null;
+    return (data as any)?.id ?? null;
+  }
+
   if (body.financial_type === "self_pay") {
-    return jsonData({ ok: true, data: { path: "self_pay" }, request_id: crypto.randomUUID() });
+    const veId = await persistVe({
+      status: "self_pay",
+      financial_type: "self_pay",
+      eligibility_type: "standard",
+      reason: "financial_type=self_pay",
+    });
+    return jsonData({ ok: true, data: { path: "self_pay", visit_eligibility_id: veId }, request_id: crypto.randomUUID() });
   }
 
   if (!body.coverage_id) {
@@ -48,8 +69,17 @@ export async function handlePOST(args: {
   }
 
   const { data: cov } = await db.from("coverage")
-    .select("id, tenant_id").eq("id", body.coverage_id).maybeSingle();
+    .select("id, tenant_id, expiry_date, payer_id, policy_id, insurance_plan_id, network_id, member_id")
+    .eq("id", body.coverage_id).maybeSingle();
   if (!cov || cov.tenant_id !== ctx.tenantId) return envelope("coverage not found", "not_found", 404);
+
+  // HCA-0789 · coverage expiry hard-gate (skipped for self_pay above).
+  if (cov.expiry_date) {
+    const today = new Date().toISOString().slice(0, 10);
+    if (String(cov.expiry_date) < today) {
+      return envelope("coverage expired", "coverage_expired", 422, { expiry_date: cov.expiry_date });
+    }
+  }
 
   const result = await runFn({
     encounterId: null,
@@ -59,19 +89,41 @@ export async function handlePOST(args: {
   });
 
   if (result.ok) {
+    const eligibilityRef = (result as any).row?.eligibility_ref_no ?? (result as any).row?.id ?? null;
+    // The eligibility engine writes its own row; on top we optionally supplement
+    // with a "standard" visit_eligibility if none was persisted (self-heal).
     return jsonData({
       ok: true,
-      data: { path: "insured", eligibility_ref: (result as any).row?.id ?? null, sandbox: (result as any).sandbox ?? false },
+      data: {
+        path: "insured",
+        eligibility_ref: eligibilityRef,
+        visit_eligibility_id: (result as any).row?.id ?? null,
+        sandbox: (result as any).sandbox ?? false,
+      },
       request_id: crypto.randomUUID(),
     });
   }
 
   // Not eligible — exception path for referral/emergency/newborn per 0061d.
-  const exceptionTypes = new Set(["referral", "emergency", "newborn"]);
   if (exceptionTypes.has(body.visit_type)) {
+    const veId = await persistVe({
+      status: "exception_review",
+      financial_type: "insured",
+      eligibility_type: body.visit_type,
+      payer_id: cov.payer_id,
+      policy_id: cov.policy_id,
+      network_id: cov.network_id,
+      membership_id: cov.member_id,
+      reason: `exception:${body.visit_type}`,
+    });
     return jsonData({
       ok: true,
-      data: { path: "exception", exception: body.visit_type, payer_detail: (result as any).error ?? null },
+      data: {
+        path: "exception",
+        exception: body.visit_type,
+        visit_eligibility_id: veId,
+        payer_detail: (result as any).error ?? null,
+      },
       request_id: crypto.randomUUID(),
     });
   }
