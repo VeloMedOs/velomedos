@@ -71,6 +71,7 @@ export async function handlePOST(args: {
     tenant_id: ctx.tenantId,
     beneficiary_id: body.beneficiary_id,
     class: "AMB",
+    encounter_number: `E-${now.getTime().toString(36).toUpperCase()}`,
     status: "in-progress",
     journey_state: "encounter_open",
     period_start: now.toISOString(),
