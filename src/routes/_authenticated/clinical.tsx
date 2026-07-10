@@ -9,6 +9,8 @@ import { ClaimCompletenessPanel } from "@/components/clinical/ClaimCompletenessP
 import { OutcomesPane } from "@/components/clinical/OutcomesPane";
 import { DaylightShell, type TabId } from "@/components/clinical/daylight/Shell";
 import { RegistrationPane } from "@/components/clinical/daylight/RegistrationPane";
+import { E2bRegistrationPane } from "@/components/clinical/daylight/E2bRegistrationPane";
+import { ClinicDisruptionPane } from "@/components/clinical/daylight/ClinicDisruptionPane";
 import { EncounterPane } from "@/components/clinical/daylight/EncounterPane";
 import { DCard } from "@/components/clinical/daylight/Primitives";
 import { EligibilityWorklistPane } from "@/components/clinical/daylight/EligibilityWorklistPane";
@@ -107,6 +109,8 @@ function ClinicalWorkspace() {
   return (
     <DaylightShell tab={tab} onTab={setTab} role={me.clinicalRole} initials={initials} roleLabel={roleLabel}>
       {tab === "registration"        && <RegistrationPane />}
+      {(tab as string) === "opd-registration-e2b" && <E2bRegistrationPane />}
+      {(tab as string) === "opd-disruption"       && <ClinicDisruptionPane />}
       {tab === "encounters"          && <EncounterPane />}
       {tab === "coding"              && <CodingPane />}
       {(tab === "claims" || tab === "rcm-claims") && <ClaimsWorklistPane role={me.clinicalRole} />}
