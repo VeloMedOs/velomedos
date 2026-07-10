@@ -370,6 +370,7 @@ import { Route as ApiClinicalV1OpdOpdTreatmentRoomWorklistRouteImport } from './
 import { Route as ApiClinicalV1OpdOpdTreatmentRoomPerformRouteImport } from './routes/api/clinical/v1/opd/opd.treatment-room.perform'
 import { Route as ApiClinicalV1OpdOpdRoutingBoardRouteImport } from './routes/api/clinical/v1/opd/opd.routing.board'
 import { Route as ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport } from './routes/api/clinical/v1/opd/opd.registration.eligibility-first'
+import { Route as ApiClinicalV1OpdOpdRegistrationCreateVisitRouteImport } from './routes/api/clinical/v1/opd/opd.registration.create-visit'
 import { Route as ApiClinicalV1OpdOpdPregnancyEpisodeLinkRouteImport } from './routes/api/clinical/v1/opd/opd.pregnancy-episode.link'
 import { Route as ApiClinicalV1OpdOpdOrdersWalletGateRouteImport } from './routes/api/clinical/v1/opd/opd.orders.wallet-gate'
 import { Route as ApiClinicalV1OpdOpdOrdersBilledStatusRouteImport } from './routes/api/clinical/v1/opd/opd.orders.billed-status'
@@ -2461,6 +2462,12 @@ const ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute =
     path: '/api/clinical/v1/opd/opd/registration/eligibility-first',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1OpdOpdRegistrationCreateVisitRoute =
+  ApiClinicalV1OpdOpdRegistrationCreateVisitRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/registration/create-visit',
+    path: '/api/clinical/v1/opd/opd/registration/create-visit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute =
   ApiClinicalV1OpdOpdPregnancyEpisodeLinkRouteImport.update({
     id: '/api/clinical/v1/opd/opd/pregnancy-episode/link',
@@ -3145,6 +3152,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
   '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
+  '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/routing/board': typeof ApiClinicalV1OpdOpdRoutingBoardRoute
   '/api/clinical/v1/opd/opd/treatment-room/perform': typeof ApiClinicalV1OpdOpdTreatmentRoomPerformRoute
@@ -3553,6 +3561,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
   '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
+  '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/routing/board': typeof ApiClinicalV1OpdOpdRoutingBoardRoute
   '/api/clinical/v1/opd/opd/treatment-room/perform': typeof ApiClinicalV1OpdOpdTreatmentRoomPerformRoute
@@ -3965,6 +3974,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/opd/opd/orders/billed-status': typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
   '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
+  '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/routing/board': typeof ApiClinicalV1OpdOpdRoutingBoardRoute
   '/api/clinical/v1/opd/opd/treatment-room/perform': typeof ApiClinicalV1OpdOpdTreatmentRoomPerformRoute
@@ -4377,6 +4387,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/orders/billed-status'
     | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
+    | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/opd/opd/routing/board'
     | '/api/clinical/v1/opd/opd/treatment-room/perform'
@@ -4785,6 +4796,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/orders/billed-status'
     | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
+    | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/opd/opd/routing/board'
     | '/api/clinical/v1/opd/opd/treatment-room/perform'
@@ -5196,6 +5208,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/orders/billed-status'
     | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
+    | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/opd/opd/routing/board'
     | '/api/clinical/v1/opd/opd/treatment-room/perform'
@@ -5416,6 +5429,7 @@ export interface RootRouteChildren {
   ApiClinicalV1OpdOpdOrdersBilledStatusRoute: typeof ApiClinicalV1OpdOpdOrdersBilledStatusRoute
   ApiClinicalV1OpdOpdOrdersWalletGateRoute: typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute: typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
+  ApiClinicalV1OpdOpdRegistrationCreateVisitRoute: typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute: typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   ApiClinicalV1OpdOpdTreatmentRoomPerformRoute: typeof ApiClinicalV1OpdOpdTreatmentRoomPerformRoute
   ApiClinicalV1OpdOpdTreatmentRoomWorklistRoute: typeof ApiClinicalV1OpdOpdTreatmentRoomWorklistRoute
@@ -7955,6 +7969,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/opd/opd/registration/create-visit': {
+      id: '/api/clinical/v1/opd/opd/registration/create-visit'
+      path: '/api/clinical/v1/opd/opd/registration/create-visit'
+      fullPath: '/api/clinical/v1/opd/opd/registration/create-visit'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/opd/opd/pregnancy-episode/link': {
       id: '/api/clinical/v1/opd/opd/pregnancy-episode/link'
       path: '/api/clinical/v1/opd/opd/pregnancy-episode/link'
@@ -10209,6 +10230,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1OpdOpdOrdersWalletGateRoute,
   ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute:
     ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute,
+  ApiClinicalV1OpdOpdRegistrationCreateVisitRoute:
+    ApiClinicalV1OpdOpdRegistrationCreateVisitRoute,
   ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute:
     ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute,
   ApiClinicalV1OpdOpdTreatmentRoomPerformRoute:
