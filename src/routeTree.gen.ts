@@ -365,10 +365,10 @@ import { Route as ApiPublicV1HomecareVisitsIdCheckInRouteImport } from './routes
 import { Route as ApiClinicalV1SchedulerBookingsIdStatusRouteImport } from './routes/api/clinical/v1/scheduler.bookings.$id.status'
 import { Route as ApiClinicalV1SchedulerBookingsIdEligibilityCheckRouteImport } from './routes/api/clinical/v1/scheduler.bookings.$id.eligibility-check'
 import { Route as ApiClinicalV1SchedulerBookingsIdBookRouteImport } from './routes/api/clinical/v1/scheduler.bookings.$id.book'
+import { Route as ApiClinicalV1RcmRcmRulesAdminRouteImport } from './routes/api/clinical/v1/rcm/rcm.rules.admin'
 import { Route as ApiClinicalV1OpdOpdVaccineClinicEnableRouteImport } from './routes/api/clinical/v1/opd/opd.vaccine-clinic.enable'
 import { Route as ApiClinicalV1OpdOpdTreatmentRoomWorklistRouteImport } from './routes/api/clinical/v1/opd/opd.treatment-room.worklist'
 import { Route as ApiClinicalV1OpdOpdTreatmentRoomPerformRouteImport } from './routes/api/clinical/v1/opd/opd.treatment-room.perform'
-import { Route as ApiClinicalV1OpdOpdRulesAdminRouteImport } from './routes/api/clinical/v1/opd/opd.rules.admin'
 import { Route as ApiClinicalV1OpdOpdRoutingBoardRouteImport } from './routes/api/clinical/v1/opd/opd.routing.board'
 import { Route as ApiClinicalV1OpdOpdRegistrationProviderLoadRouteImport } from './routes/api/clinical/v1/opd/opd.registration.provider-load'
 import { Route as ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport } from './routes/api/clinical/v1/opd/opd.registration.eligibility-first'
@@ -2439,6 +2439,12 @@ const ApiClinicalV1SchedulerBookingsIdBookRoute =
     path: '/api/clinical/v1/scheduler/bookings/$id/book',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1RcmRcmRulesAdminRoute =
+  ApiClinicalV1RcmRcmRulesAdminRouteImport.update({
+    id: '/api/clinical/v1/rcm/rcm/rules/admin',
+    path: '/api/clinical/v1/rcm/rcm/rules/admin',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1OpdOpdVaccineClinicEnableRoute =
   ApiClinicalV1OpdOpdVaccineClinicEnableRouteImport.update({
     id: '/api/clinical/v1/opd/opd/vaccine-clinic/enable',
@@ -2455,12 +2461,6 @@ const ApiClinicalV1OpdOpdTreatmentRoomPerformRoute =
   ApiClinicalV1OpdOpdTreatmentRoomPerformRouteImport.update({
     id: '/api/clinical/v1/opd/opd/treatment-room/perform',
     path: '/api/clinical/v1/opd/opd/treatment-room/perform',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiClinicalV1OpdOpdRulesAdminRoute =
-  ApiClinicalV1OpdOpdRulesAdminRouteImport.update({
-    id: '/api/clinical/v1/opd/opd/rules/admin',
-    path: '/api/clinical/v1/opd/opd/rules/admin',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1OpdOpdRoutingBoardRoute =
@@ -3210,10 +3210,10 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/registration/provider-load': typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
   '/api/clinical/v1/opd/opd/routing/board': typeof ApiClinicalV1OpdOpdRoutingBoardRoute
-  '/api/clinical/v1/opd/opd/rules/admin': typeof ApiClinicalV1OpdOpdRulesAdminRoute
   '/api/clinical/v1/opd/opd/treatment-room/perform': typeof ApiClinicalV1OpdOpdTreatmentRoomPerformRoute
   '/api/clinical/v1/opd/opd/treatment-room/worklist': typeof ApiClinicalV1OpdOpdTreatmentRoomWorklistRoute
   '/api/clinical/v1/opd/opd/vaccine-clinic/enable': typeof ApiClinicalV1OpdOpdVaccineClinicEnableRoute
+  '/api/clinical/v1/rcm/rcm/rules/admin': typeof ApiClinicalV1RcmRcmRulesAdminRoute
   '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/clinical/v1/scheduler/bookings/$id/eligibility-check': typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   '/api/clinical/v1/scheduler/bookings/$id/status': typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
@@ -3626,10 +3626,10 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/registration/provider-load': typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
   '/api/clinical/v1/opd/opd/routing/board': typeof ApiClinicalV1OpdOpdRoutingBoardRoute
-  '/api/clinical/v1/opd/opd/rules/admin': typeof ApiClinicalV1OpdOpdRulesAdminRoute
   '/api/clinical/v1/opd/opd/treatment-room/perform': typeof ApiClinicalV1OpdOpdTreatmentRoomPerformRoute
   '/api/clinical/v1/opd/opd/treatment-room/worklist': typeof ApiClinicalV1OpdOpdTreatmentRoomWorklistRoute
   '/api/clinical/v1/opd/opd/vaccine-clinic/enable': typeof ApiClinicalV1OpdOpdVaccineClinicEnableRoute
+  '/api/clinical/v1/rcm/rcm/rules/admin': typeof ApiClinicalV1RcmRcmRulesAdminRoute
   '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/clinical/v1/scheduler/bookings/$id/eligibility-check': typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   '/api/clinical/v1/scheduler/bookings/$id/status': typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
@@ -4046,10 +4046,10 @@ export interface FileRoutesById {
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/registration/provider-load': typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
   '/api/clinical/v1/opd/opd/routing/board': typeof ApiClinicalV1OpdOpdRoutingBoardRoute
-  '/api/clinical/v1/opd/opd/rules/admin': typeof ApiClinicalV1OpdOpdRulesAdminRoute
   '/api/clinical/v1/opd/opd/treatment-room/perform': typeof ApiClinicalV1OpdOpdTreatmentRoomPerformRoute
   '/api/clinical/v1/opd/opd/treatment-room/worklist': typeof ApiClinicalV1OpdOpdTreatmentRoomWorklistRoute
   '/api/clinical/v1/opd/opd/vaccine-clinic/enable': typeof ApiClinicalV1OpdOpdVaccineClinicEnableRoute
+  '/api/clinical/v1/rcm/rcm/rules/admin': typeof ApiClinicalV1RcmRcmRulesAdminRoute
   '/api/clinical/v1/scheduler/bookings/$id/book': typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   '/api/clinical/v1/scheduler/bookings/$id/eligibility-check': typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   '/api/clinical/v1/scheduler/bookings/$id/status': typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
@@ -4466,10 +4466,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/opd/opd/registration/provider-load'
     | '/api/clinical/v1/opd/opd/routing/board'
-    | '/api/clinical/v1/opd/opd/rules/admin'
     | '/api/clinical/v1/opd/opd/treatment-room/perform'
     | '/api/clinical/v1/opd/opd/treatment-room/worklist'
     | '/api/clinical/v1/opd/opd/vaccine-clinic/enable'
+    | '/api/clinical/v1/rcm/rcm/rules/admin'
     | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/clinical/v1/scheduler/bookings/$id/eligibility-check'
     | '/api/clinical/v1/scheduler/bookings/$id/status'
@@ -4882,10 +4882,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/opd/opd/registration/provider-load'
     | '/api/clinical/v1/opd/opd/routing/board'
-    | '/api/clinical/v1/opd/opd/rules/admin'
     | '/api/clinical/v1/opd/opd/treatment-room/perform'
     | '/api/clinical/v1/opd/opd/treatment-room/worklist'
     | '/api/clinical/v1/opd/opd/vaccine-clinic/enable'
+    | '/api/clinical/v1/rcm/rcm/rules/admin'
     | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/clinical/v1/scheduler/bookings/$id/eligibility-check'
     | '/api/clinical/v1/scheduler/bookings/$id/status'
@@ -5301,10 +5301,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/opd/opd/registration/provider-load'
     | '/api/clinical/v1/opd/opd/routing/board'
-    | '/api/clinical/v1/opd/opd/rules/admin'
     | '/api/clinical/v1/opd/opd/treatment-room/perform'
     | '/api/clinical/v1/opd/opd/treatment-room/worklist'
     | '/api/clinical/v1/opd/opd/vaccine-clinic/enable'
+    | '/api/clinical/v1/rcm/rcm/rules/admin'
     | '/api/clinical/v1/scheduler/bookings/$id/book'
     | '/api/clinical/v1/scheduler/bookings/$id/eligibility-check'
     | '/api/clinical/v1/scheduler/bookings/$id/status'
@@ -5528,10 +5528,10 @@ export interface RootRouteChildren {
   ApiClinicalV1OpdOpdRegistrationCreateVisitRoute: typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute: typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   ApiClinicalV1OpdOpdRegistrationProviderLoadRoute: typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
-  ApiClinicalV1OpdOpdRulesAdminRoute: typeof ApiClinicalV1OpdOpdRulesAdminRoute
   ApiClinicalV1OpdOpdTreatmentRoomPerformRoute: typeof ApiClinicalV1OpdOpdTreatmentRoomPerformRoute
   ApiClinicalV1OpdOpdTreatmentRoomWorklistRoute: typeof ApiClinicalV1OpdOpdTreatmentRoomWorklistRoute
   ApiClinicalV1OpdOpdVaccineClinicEnableRoute: typeof ApiClinicalV1OpdOpdVaccineClinicEnableRoute
+  ApiClinicalV1RcmRcmRulesAdminRoute: typeof ApiClinicalV1RcmRcmRulesAdminRoute
   ApiClinicalV1SchedulerBookingsIdBookRoute: typeof ApiClinicalV1SchedulerBookingsIdBookRoute
   ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute: typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   ApiClinicalV1SchedulerBookingsIdStatusRoute: typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
@@ -8032,6 +8032,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1SchedulerBookingsIdBookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/rcm/rcm/rules/admin': {
+      id: '/api/clinical/v1/rcm/rcm/rules/admin'
+      path: '/api/clinical/v1/rcm/rcm/rules/admin'
+      fullPath: '/api/clinical/v1/rcm/rcm/rules/admin'
+      preLoaderRoute: typeof ApiClinicalV1RcmRcmRulesAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/opd/opd/vaccine-clinic/enable': {
       id: '/api/clinical/v1/opd/opd/vaccine-clinic/enable'
       path: '/api/clinical/v1/opd/opd/vaccine-clinic/enable'
@@ -8051,13 +8058,6 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/opd/opd/treatment-room/perform'
       fullPath: '/api/clinical/v1/opd/opd/treatment-room/perform'
       preLoaderRoute: typeof ApiClinicalV1OpdOpdTreatmentRoomPerformRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/clinical/v1/opd/opd/rules/admin': {
-      id: '/api/clinical/v1/opd/opd/rules/admin'
-      path: '/api/clinical/v1/opd/opd/rules/admin'
-      fullPath: '/api/clinical/v1/opd/opd/rules/admin'
-      preLoaderRoute: typeof ApiClinicalV1OpdOpdRulesAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/opd/opd/routing/board': {
@@ -10393,13 +10393,13 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute,
   ApiClinicalV1OpdOpdRegistrationProviderLoadRoute:
     ApiClinicalV1OpdOpdRegistrationProviderLoadRoute,
-  ApiClinicalV1OpdOpdRulesAdminRoute: ApiClinicalV1OpdOpdRulesAdminRoute,
   ApiClinicalV1OpdOpdTreatmentRoomPerformRoute:
     ApiClinicalV1OpdOpdTreatmentRoomPerformRoute,
   ApiClinicalV1OpdOpdTreatmentRoomWorklistRoute:
     ApiClinicalV1OpdOpdTreatmentRoomWorklistRoute,
   ApiClinicalV1OpdOpdVaccineClinicEnableRoute:
     ApiClinicalV1OpdOpdVaccineClinicEnableRoute,
+  ApiClinicalV1RcmRcmRulesAdminRoute: ApiClinicalV1RcmRcmRulesAdminRoute,
   ApiClinicalV1SchedulerBookingsIdBookRoute:
     ApiClinicalV1SchedulerBookingsIdBookRoute,
   ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute:
