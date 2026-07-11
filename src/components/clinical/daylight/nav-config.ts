@@ -139,6 +139,12 @@ export const ALL_NAV_TABS: NavTabId[] = [
   // Legacy alias kept for `?tab=claims` deep-links from earlier revisions.
   "claims",
   "billing",
+  // Step 5 · Turn 1 — Referral Cockpit + Rule Engine admin.
+  "opd-referral-cockpit" as NavTabId,
+  "opd-referral-cross-encounter" as NavTabId,
+  "opd-referral-inter-company" as NavTabId,
+  "opd-referral-external" as NavTabId,
+  "rcm-rules-admin" as NavTabId,
 ];
 
 // Silence unused-import (icons are used in items above; FileText retained
