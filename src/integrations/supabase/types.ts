@@ -3954,6 +3954,7 @@ export type Database = {
         Row: {
           accent_color: string | null
           billing_ref: string | null
+          cluster_id: string | null
           company_name: string
           contact_email: string | null
           contact_phone: string | null
@@ -3970,6 +3971,7 @@ export type Database = {
         Insert: {
           accent_color?: string | null
           billing_ref?: string | null
+          cluster_id?: string | null
           company_name: string
           contact_email?: string | null
           contact_phone?: string | null
@@ -3986,6 +3988,7 @@ export type Database = {
         Update: {
           accent_color?: string | null
           billing_ref?: string | null
+          cluster_id?: string | null
           company_name?: string
           contact_email?: string | null
           contact_phone?: string | null
@@ -3999,7 +4002,15 @@ export type Database = {
           slug?: string | null
           status?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "corporate_accounts_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "health_cluster"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       course_modules: {
         Row: {
@@ -6528,6 +6539,27 @@ export type Database = {
             referencedColumns: ["service_id"]
           },
         ]
+      }
+      health_cluster: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       him_communication: {
         Row: {

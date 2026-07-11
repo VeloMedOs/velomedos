@@ -242,6 +242,15 @@ CLINICAL_CAPABILITIES.push(
   { id: "opd.nutrition.read",  module: "Clinical", apiNamespace: "/api/clinical/v1/opd/nutrition/referrals/pending", label: "Read nutrition referrals", description: "Auto-generated draft nutrition referrals (HCA-0255).",                            roles: ["tenant_admin","physician","nurse","case_manager"] },
 );
 
+// ── Step 5 Turn 1 · Referral Cockpit + Rule Engine admin (screens only) ───
+CLINICAL_CAPABILITIES.push(
+  { id: "referral.cockpit.read",         module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/opd/referral/cockpit",         label: "Read Referral Cockpit",        description: "List outbound referrals + targets with per-target rule decisions (file 08 §C2).", roles: ["tenant_admin","front_office","physician","nurse","case_manager","rcm"] },
+  { id: "referral.cross_encounter.read", module: "Clinical",                   apiNamespace: "/api/clinical/v1/opd/referral/cross-encounter", label: "Read Cross-Encounter referrals", description: "Read referrals fanning out to ER/IPD/OR/Endo/L&D targets.",                     roles: ["tenant_admin","physician","nurse","case_manager","floor_manager"] },
+  { id: "referral.inter_company.read",   module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/opd/referral/inter-company",   label: "Read Inter-Company referrals", description: "Read referrals to sibling tenants in the same health_cluster (HCA-0979).",       roles: ["tenant_admin","rcm","case_manager"] },
+  { id: "referral.external.read",        module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/opd/referral/external",        label: "Read External referrals",      description: "Read outbound external-facility referrals (read-only skeleton — debt #22).",     roles: ["tenant_admin","rcm","case_manager"] },
+  { id: "rules.admin",                   module: "Masters & Contracts",        apiNamespace: "/api/clinical/v1/opd/rules/admin",              label: "Manage Rule Engine",           description: "CRUD referral-scoped rows in approval/need_approval/not_covered/pricing rule tables (Rules A–E admin).", roles: ["tenant_admin"] },
+);
+
 export const CLINICAL_MODULES: string[] = [
   ...new Set(CLINICAL_CAPABILITIES.map((c) => c.module)),
 ];

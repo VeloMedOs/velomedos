@@ -1,215 +1,191 @@
-# Step 4 · Turn 5 — E2b Registration + Bulk-cancel (corrected v2, repo-verified @8e33f73)
+# Step 5 · Turn 1 — Referral Cockpit + Cluster Data (repo-verified @5722849)
 
-Closes #38 (bulk-cancel body) + #40 (E2b consolidated registration). **This is Step 4's closeout turn.** Non-goals: #35 (QMS batch), #36 (Step 5), #41 (VAT engine turn), #42 (SMS gateway integration — but stubs wired this turn), #43 (D7 form bindings — Turn 5 fold if scope allows, else next-batch).
+**Basis:** Files 08 (Dev Spec) + 09 (DoD) + 10 (Frontend Spec) + **20 (Step-5 Addendum — SCOPE-DOMINANT)**.
 
-## Repo facts verified at plan-time (OVERRIDES v1 plan)
+**Scope authority:** File 20 dominates file 08 for this step. File 08 says "scheduling and referral are greenfield" but that was written pre-Step-3; both are fully built. File 20 correctly narrows: **Referral Cockpit + Cross-Encounter + Inter-Company + External + Rule Engine A-E admin cards ONLY. No table rebuilds. New data limited to** `health_cluster` **+** `corporate_accounts.cluster_id`**.**
 
-- `beneficiary` **columns confirmed:** `patient_file_no, first_name, middle_name, last_name, full_name, dob, gender, nationality, document_type, document_id, contact_number, ehealth_id, residency_type, marital_status, blood_group, preferred_language, email, address_line, address_street, address_city, address_district, address_state, address_postal_code, is_vip`. **No** `occupation`**, no** `country_code`**, no** `father_mrn`**, no** `is_newborn_under_mother`**, no** `hijri_dob` — all additive this turn.
-- `visit_eligibility` **exists** (Turn 1 verified) — plan's assumption that it takes `financial_type/eligibility_type/eligibility_ref_no/payer/policy/class/network` is correct per file 14 §②. **Turn 1's** `opd.registration.eligibility-first.ts` **currently does NOT persist to** `visit_eligibility` — it returns `{ok, path}` only. This turn must fix that (NN6 below).
-- **No** `provider_load` **/ live-queue table exists** (NN1). `providers` table has no counts; `queue_occupancy` is `(tenant_id, clinic_id)`, not per-provider. "In-queue count" per 0947 must derive from `clinic_bookings.status IN ('arrived','in_consult')` — no QMS dependency.
-- `sms-gateway.ts` **exists** (Turn 3) with `sendPreauthUpdate`; needs two new stub entry points this turn (NN4, NN5).
-- `coverage.expiry_date` **exists** (Turn 4 verified) — the eligibility-first route currently doesn't validate it (NN3).
-- **Bulk-cancel SMS/WhatsApp (0732) and Create-Visit sticker replacement (0062) both hit the same stub sink** — `interface_log` — via distinct entry points so gateway swap-in is a single implementation.
+## Repo facts verified at plan-time (OVERRIDES file 08's greenfield claims)
+
+- `referral` **fully built.** 25 columns confirmed: `id, tenant_id, referral_no, source_encounter_id, source_provider_id, source_specialty, beneficiary_id, referral_class, charge_mode, status, reason, priority, clinical_notes, external_facility, external_provider, eligibility_check_required, preauth_required, discount_pct, no_charge_reason, series_id, submitted_at, accepted_at, completed_at, cancelled_at, cancel_reason` + `origin_encounter_id` **+** `source_key` from Step 4 Turn 4. RLS enabled. **DO NOT recreate.**
+- `referral_target` **fully built.** 12 columns: `id, tenant_id, referral_id, target_kind, target_specialty, target_provider_id, target_facility_id, target_service_id, status, booked_appointment_id, notes, created_at, updated_at`. RLS enabled. **DO NOT recreate.**
+- **Scheduling tables fully built** (Step 3): `clinic_schedule`, `clinic_slot`, `slot_block`, `clinic_disruption` (Step 4 Turn 5). File 08 PART A is closed — no schema work this turn.
+- `referral_network` **table absent.** Debt #22 unresolved. **External referral write path is blocked** until this table lands. External pane ships as **read-only skeleton with debt-#22 banner** this turn; full flow defers.
+- **Nutrition auto-referrals sit at** `source_key LIKE 'nutrition_screen:%'` with `status='draft'`. Cockpit reads these directly.
+- `evaluateTriggers` **scope=referral status unverified.** Plan-time psql/grep required against `src/lib/mds/rules.ts` — Step 1 Turn 1 BB2 landed a `series_sub_category` in `foldTriggerOutcome`, but referral-scope wiring hasn't been confirmed in the clone this turn. If absent, Turn 1 must extend it.
+- `pricing_rule.scope` **CHECK constraint status unverified.** If exists and lacks `'referral'`, needs extension in own migration (R1 lesson).
+- `corporate_accounts` **schema needs psql verification.** Grep showed apparent duplicate columns (`id, name` twice) — likely artifact but must confirm before adding `cluster_id`.
 
 ## Plan-time psql (NON-OPTIONAL — paste outputs)
 
 ```sql
--- Beneficiary additive columns don't already exist
-SELECT column_name FROM information_schema.columns
- WHERE table_schema='public' AND table_name='beneficiary'
-   AND column_name IN ('occupation_ar','occupation_en','country_code','father_mrn','is_newborn_under_mother','hijri_dob');
--- Expected: 0 rows.
+-- PP3: corporate_accounts actual column list
+SELECT column_name, data_type FROM information_schema.columns
+ WHERE table_schema='public' AND table_name='corporate_accounts' ORDER BY ordinal_position;
 
--- Coverage expiry check available
-SELECT column_name FROM information_schema.columns
- WHERE table_schema='public' AND table_name='coverage' AND column_name='expiry_date';
--- Expected: 1 row.
+-- PP6: pricing_rule.scope CHECK constraint
+SELECT pg_get_constraintdef(oid) FROM pg_constraint
+ WHERE conname LIKE 'pricing_rule_scope%';
 
--- visit_eligibility shape (for the persist path)
-SELECT column_name, data_type, is_nullable FROM information_schema.columns
- WHERE table_schema='public' AND table_name='visit_eligibility' ORDER BY ordinal_position;
+-- Same for approval_rule / need_approval_rule / not_covered_rule
+SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint
+ WHERE conname LIKE '%_rule_scope%' OR conname LIKE '%rule%scope%check';
 
--- clinic_bookings.status enum values (for in-queue derivation)
-SELECT enum_range(NULL::public.booking_status);
+-- PP5: referral scope in rules.ts (bash grep as complement)
+-- verify src/lib/mds/rules.ts::evaluateTriggers accepts scope='referral'
+-- and foldTriggerOutcome returns { preauth_required, charge_mode, discount, eligibility_check_required, block_reason }
 
--- token_sequence sequences that exist (for token issuance)
-SELECT sequencename FROM pg_sequences WHERE schemaname='public' AND sequencename ILIKE '%token%';
-
-```
-
-## 0 · Debt register fence (LANDS FIRST)
-
-`.lovable/plan.md` row deltas only, `## Debt Register` single hit preserved. #38/#40 stay "open" until this turn closes; #43 (D7 form bindings) confirmed still open with owner "Turn 5 stretch, else next batch".
-
-## 1 · Schema deltas
-
-**M-S4T5-01 · Beneficiary demographics additive** (5 columns, all nullable, non-breaking):
-
-```sql
-ALTER TABLE public.beneficiary
-  ADD COLUMN IF NOT EXISTS occupation_ar text NULL,
-  ADD COLUMN IF NOT EXISTS occupation_en text NULL,
-  ADD COLUMN IF NOT EXISTS country_code text NULL,   -- ISO E.164 dial code e.g. '+966'
-  ADD COLUMN IF NOT EXISTS father_mrn text NULL,     -- 0056 reusable family MRN
-  ADD COLUMN IF NOT EXISTS is_newborn_under_mother boolean NOT NULL DEFAULT false;  -- 0058
+-- referral status CHECK values
+SELECT pg_get_constraintdef(oid) FROM pg_constraint
+ WHERE conname LIKE 'referral_status%';
 
 ```
 
-Hijri DOB is **NOT** stored (computed client-side from `dob` via Hijri library — NN2). Comment on `dob`: "Gregorian only; Hijri computed client-side per HCA-0051."
+## Turn 1 scope (of a projected 3–4 turn Step 5)
 
-**M-S4T5-02 ·** `visit_eligibility` **persist support** (NN6) — if the table lacks an `eligibility_type` CHECK, add:
+**In:** Cluster data model; Referral Cockpit read pane; Cross-Encounter read pane (existing Step 4 view extended); Rule Engine admin skeleton (list + activate/deactivate; no rule authoring UI yet). **All read/skeleton — no cross-tenant writes, no external write path.**
+
+**Deferred to Turn 2+:** Rule authoring UI, Inter-Company write flow (cross-tenant referral creation), External referral flow (needs debt #22), Series booking UI, Missed-session policy, referral report HCA-1010.
+
+## Debt register fence (LANDS FIRST)
+
+`.lovable/plan.md` row deltas only; single `## Debt Register` hit preserved. **Restore #45** (or next available number): "Referral write endpoints — Cross-Encounter fan-out, Inter-Company target creation, Series booking. Owner: Step 5 Turn 2." Also carry forward all rows from Step 4 close (`#18–#23`, `#41–#44`).
+
+## 1 · Schema deltas (minimal, per file 20)
+
+**M-S5T1-01 ·** `health_cluster`
 
 ```sql
-ALTER TABLE public.visit_eligibility
-  ADD CONSTRAINT visit_eligibility_type_check
-  CHECK (eligibility_type IN ('standard','referral','emergency','newborn'));
-
-```
-
-Add unique index on `(beneficiary_id, coverage_id, tenant_id, checked_at::date)` if not present — prevents duplicate-day rows.
-
-**M-S4T5-03 · Bulk cancel event table**:
-
-```sql
-CREATE TABLE public.clinic_disruption (
+CREATE TABLE public.health_cluster (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id uuid NOT NULL,
-  clinic_id uuid NOT NULL REFERENCES public.clinics(id),
-  slot_at_from timestamptz NOT NULL,
-  slot_at_to timestamptz NOT NULL,
-  reason text NOT NULL,          -- e.g. 'or_emergency', 'shift_excuse'
-  action text NOT NULL CHECK (action IN ('cancel','reschedule','reassign')),
-  reassign_target_clinic_id uuid NULL REFERENCES public.clinics(id),
-  created_by uuid NOT NULL,
+  tenant_id uuid NULL,  -- cluster spans tenants; nullable if group-owned
+  name text NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now()
 );
--- RLS + GRANTs same migration.
+-- RLS: readable by any tenant member if their corporate_accounts.cluster_id matches;
+-- writable by superadmin only (cluster memberships are governance, not tenant-scoped).
+ALTER TABLE public.health_cluster ENABLE ROW LEVEL SECURITY;
+CREATE POLICY health_cluster_read ON public.health_cluster
+  FOR SELECT USING (
+    id IN (SELECT cluster_id FROM public.corporate_accounts
+           WHERE id IN (SELECT tenant_id FROM public.tenant_members
+                        WHERE user_id = auth.uid()))
+  );
 
 ```
 
-Tenant-scoped, admin+floor_manager write, all-clinical read.
+**M-S5T1-02 ·** `corporate_accounts.cluster_id` (after psql confirms column list)
 
-## 2 · SMS stub additions — `src/lib/interface/sms-gateway.ts`
+```sql
+ALTER TABLE public.corporate_accounts
+  ADD COLUMN IF NOT EXISTS cluster_id uuid NULL REFERENCES public.health_cluster(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS corporate_accounts_cluster_idx ON public.corporate_accounts(cluster_id) WHERE cluster_id IS NOT NULL;
 
-Two new no-op entry points (same signature shape, log to `interface_log`):
+```
 
-- `sendVisitConfirmation({tenant_id, phone_e164, lang, mrn_masked, visit_at, token_number, clinic_name})` — 0062 sticker replacement.
-- `sendBulkCancelNotification({tenant_id, phone_e164, lang, encounter_id, reason, rebook_request_id})` — 0732 auto-notify.
+**M-S5T1-03 ·** `pricing_rule.scope` **CHECK extension (CONDITIONAL — only if psql shows scope CHECK exists without** `'referral'`**)** Own migration (R1 lesson: enum/CHECK changes in own migration, no consumer in same file).
 
-Debt #42 remains the single "gateway integration" row — all three stubs (`sendPreauthUpdate`, `sendVisitConfirmation`, `sendBulkCancelNotification`) swap in together when a gateway lands.
+```sql
+ALTER TABLE public.pricing_rule DROP CONSTRAINT IF EXISTS pricing_rule_scope_check;
+ALTER TABLE public.pricing_rule ADD CONSTRAINT pricing_rule_scope_check
+  CHECK (scope IN ('claim','authorization','order','pbm','referral'));
+-- Same for approval_rule, need_approval_rule, not_covered_rule as applicable.
 
-## 3 · Server routes (all pure handlers, capIds, envelope)
+```
 
-**Refactor:** `opd.registration.eligibility-first.ts` **(NN6, NN3)** — currently returns `{ok, path}` without persisting. Extend to:
+**M-S5T1-04 ·** `rules.ts::evaluateTriggers` **extension (CONDITIONAL — only if grep shows referral-scope not wired)** Extend `evaluateTriggers({scope: 'referral', facts})` to route through Rules A/B/C/D/E per file 08 §C2, returning the 5-field decision object. `foldTriggerOutcome` for referral consumes `facts.same_specialty`, `facts.days_since_original`, `facts.sub_category` (for series exception), `facts.charge_mode_resolver`, `facts.no_charge_reason`. Unit tests below.
 
-1. Validate coverage — expired coverage (coverage.expiry_date < today) → `422 coverage_expired` (new error code), unless `path='self_pay'`.
-2. On any `ok` result (insured/self_pay/exception): UPSERT into `visit_eligibility` (`beneficiary_id, coverage_id, tenant_id`) with the resolved `eligibility_type`, `eligibility_ref_no` (from NPHIES response or NULL for self_pay/exception), `checked_at=now()`, `financial_type`. Return the `visit_eligibility.id`.
+**NO OTHER SCHEMA WORK.** No `referral` recreate. No `referral_target` recreate. No scheduling schema.
 
-**New:** `opd.registration.create-visit.ts` **POST** `{beneficiary_id, department_id, provider_id, service_id, priority?}` — capId `opd.registration.create_visit` (front_office, tenant_admin). Server:
+## 2 · Server routes (all pure-handler pattern, capIds, envelope)
 
-1. Look up latest `visit_eligibility` row for `(beneficiary_id, tenant_id)` within last 24h. Missing or stale → `409 eligibility_stale`.
-2. If `eligibility_type='standard'` and last check was `not_eligible` → `403 not_eligible`.
-3. Insert `encounter` (class=AMB, journey_state='encounter_open', coverage_id from visit_eligibility, episode_of_care resolution via Turn-1 pregnancy hook).
-4. Insert `clinic_bookings` row today, status='confirmed' (walk-in), source='walk_in', provider_id, service_id.
-5. Issue token via existing sequence or literal counter (NN1 stretch — see below).
-6. Fire `sendVisitConfirmation()` stub (NN4).
-7. Return `{encounter_id, booking_id, token_number}`.
+New capIds: `referral.cockpit.read` (physician, nurse, front_office, tenant_admin), `referral.cross_encounter.read` (physician, nurse, tenant_admin), `referral.inter_company.read` (tenant_admin, rcm_officer), `referral.external.read` (tenant_admin, rcm_officer), `rules.admin` (tenant_admin).
 
-**New:** `opd.registration.provider-load.ts` **GET** `?department_id&date=today` (NN1 corrected): Returns per-provider row: `{provider_id, display_name, booked_count, in_queue_count, priority_rank}` where `in_queue_count = COUNT(clinic_bookings.status IN ('arrived','in_consult'))` for the provider today. **No QMS dependency.** Comment cites "in-queue = on-site waiting per 0947; token-based queue counts land with QMS batch".
+- `opd.referral.cockpit.ts` GET `?filters` — reads `referral` × `referral_target` × `authorization_request` (via `referral_target.status`) grouped by `referral_class`. Returns rows with: referral_no, source encounter summary (masked patient identifier where appropriate), target list per referral, rule decisions from `evaluateTriggers`, current status per target.
+- `opd.referral.cockpit.$id.ts` GET — single-referral detail including all targets, rule-outcome trace, current bookings, current authorization_requests. Read-only.
+- `opd.referral.cross-encounter.ts` GET — cross-encounter referrals only (`referral_class IN ('cross_encounter')`), joined to admission_request / encounter_emergency / surgery-cath-procedure / maternity encounter. This is the pane extending Step 4's `CrossFacilityVisitsSheet` (which was intra-tenant only) into the cockpit view. Read-only.
+- `opd.referral.inter-company.ts` GET — inter-company referrals only, joined to sibling tenants via `corporate_accounts.cluster_id`. RLS ensures the caller has cluster membership. Read-only. If caller's tenant has no cluster_id → returns empty with informative code `no_cluster`.
+- `opd.referral.external.ts` GET — external referrals only. **Read-only skeleton.** Returns list with a `network_pending` flag on rows lacking `referral_network_id`, and top-of-response `{debt_22: true}` metadata so the pane can render a banner. No write endpoint this turn.
+- `opd.rules.admin.ts` GET/POST/PATCH — reads/edits `approval_rule` / `need_approval_rule` / `not_covered_rule` / `pricing_rule` where `scope='referral'`. GET filters by scope + active. POST creates a new referral rule row. PATCH toggles active flag. **No new table — this is a CRUD facade over existing rule tables.** Rule E (over-booking) is read-only since it's config in schedule setup, not a rule row.
 
-**New:** `opd.disruption.bulk-cancel.ts` **POST** `{clinic_id, slot_at_from, slot_at_to, reason, action, reassign_target_clinic_id?, cancellation_charge?: boolean}` — capId `opd.disruption.write` (floor_manager, tenant_admin):
+All routes: pure-handler pattern, `db = serviceClient()` default arg, tenant-scoped RLS + explicit tenant checks, standard envelope.
 
-1. Insert `clinic_disruption` row.
-2. Select affected `clinic_bookings` (clinic_id + slot_at range + status NOT IN ('completed','cancelled')).
-3. Bulk UPDATE per `action`:
-  - `cancel` → status='cancelled', `cancellation_reason='hospital_initiated'` (no % deduction — 0053 contrast), `rebook_request=true` so they surface in the booking-request rail.
-  - `reschedule` → status stays 'confirmed'; new `slot_at` computed via next-available on same provider (Step 3 scheduler); if crosses eligibility window (>24h from last check), stamp `eligibility_check_pending=true` (0789).
-  - `reassign` → status='confirmed'; `clinic_id=reassign_target_clinic_id`; verify same specialty (Step 3 routing lock).
-4. For each affected booking, fire `sendBulkCancelNotification()` stub (NN5).
-5. Return `{affected_count, action_taken}`.
+## 3 · Client wiring
 
-**Grep gate:** the bulk update MUST use a single UPDATE statement per action branch (not row-by-row) — Turn 2's statement-level occupancy trigger design assumes this.
+`referralApi.cockpit.list({filters})` + `.detail(referralId)`, `referralApi.crossEncounter.list()`, `referralApi.interCompany.list()`, `referralApi.external.list()`, `rulesApi.admin.list({scope})` + `.create(body)` + `.setActive(id, active)`.
 
-## 4 · Client wiring
+## 4 · UI
 
-`opdApi.registration.{eligibilityFirst, createVisit, providerLoad}` + `opdApi.disruption.bulkCancel`.
+New tabs under Clinical group (nav-config):
 
-## 5 · UI
+- `opd-referral-cockpit` — `ReferralCockpitPane.tsx`. Grouped by referral_class with target chips; drill to detail sheet on click. Filter bar: class, status, date range.
+- `opd-referral-cross-encounter` — `CrossEncounterReferralPane.tsx` (replaces the Step 4 CrossFacilityVisitsSheet stub, kept for backwards compat via internal rename). Renders cross-encounter fan-outs with their landing table (ER encounter, admission_request, surgery-cath, maternity encounter).
+- `opd-referral-inter-company` — `InterCompanyReferralPane.tsx`. If caller has no cluster, shows a "No cluster configured" empty state.
+- `opd-referral-external` — `ExternalReferralPane.tsx` (read-only skeleton). Banner: "External referral network setup pending (debt #22)". Rows visible, no actions.
+- `rcm-rules-admin` — `RuleEngineAdminPane.tsx`. Five cards (A/B/C/D/E per file 08 §C2), each listing current rules for that pattern, active/inactive toggle, "Add rule" (creates row via POST). Rule E card is read-only ("Configured in Schedule Setup").
 
-`E2bRegistrationPane.tsx` — replaces `RegistrationPane` (old file removed after both refs updated). Three stacked `.clin-card`s in strict order:
+No pane touches referral tables directly — all reads through `referralApi`. Grep gate: `serviceClient|\.from\(` in `daylight/referral/` = 0.
 
-- **① Demographics card** (§4.2): dual-calendar Gregorian↔Hijri (NN2 library: `moment-hijri`, licensed as MIT). Country code select (dropdown of ISO codes, default `+966`), then phone. Occupation single row AR + EN inputs. Father MRN reuse toggle when age <18. Newborn-under-mother toggle when age ≤30d and `is_newborn_under_mother` is settable. Blocking validation: MDS mandatory fields (0057) prevent save.
-- **② Eligibility & payer card** (rendered second per HCA-0065): payer select, policy/class, network chip, referring-hospital dropdown (dept links), insurance referral letter upload (stub). "Check Eligibility" button calls `eligibilityFirst`. Result strip: **Eligible green** or **Not-eligible-or-Error red** with payer detail. On success, shows `eligibility_ref_no` and `approval_limit`. On not_eligible: exception path (`referral|emergency|newborn`) or block.
-- **③ Visit details card** (final): department select → provider dropdown filtered to department (0946), each provider row shows `booked_count | in_queue_count` (NN1). Priority-physician list (0050 override). "Create visit & issue token" button disabled unless card ② returned `ok`. On success: token displayed, and "Send SMS/WhatsApp confirmation" auto-fires (NN4 stub — displays inline toast "SMS logged; gateway pending #42"). "Check specialty load" link opens routing board.
+## 5 · Tests (target ≥172; baseline 160)
 
-Nav: replace existing `RegistrationPane` binding with `E2bRegistrationPane` in `clinical.tsx`; no new tabs.
+- `referral-cockpit-read.test.ts` (3) — reads intra/cross/inter-company correctly; nutrition auto-referrals from Step 4 appear with correct source_key.
+- `referral-inter-company-cluster.test.ts` (3) — caller with matching cluster sees sibling-tenant referrals; caller without cluster gets empty + no_cluster code; caller in different cluster is filtered out.
+- `referral-external-skeleton.test.ts` (2) — read-only list renders with `network_pending` flag; no write endpoint exists (POST returns 405 or absent).
+- `rules-admin-crud.test.ts` (2) — GET filters by scope='referral' only; POST creates a referral rule; PATCH toggles active.
+- `rules-scope-referral.test.ts` (2) — `evaluateTriggers({scope:'referral', facts})` returns 5-field object for Rule A (other-specialty → preauth_required=true, charge_mode=new_consult) and Rule B (same-specialty, ≤14 days → preauth_required=false, charge_mode=follow_up). Boundary at day 14 and day 15.
 
-`ClinicDisruptionPane.tsx` (new tab `opd-disruption` under Worklists, floor_manager+tenant_admin caps): Session picker (clinic + date range slider), reason input, action radio (cancel/reschedule/reassign), reassign target picker (same-specialty only, uses routing board data). "Preview affected bookings" shows the list before commit. "Execute" calls `bulkCancel`, toast shows affected_count.
+## 6 · Docs + debt
 
-## 6 · Tests (target ≥164; baseline 150)
-
-- `e2b-registration-flow.test.ts` (5) — happy: eligible → visit created → token issued → visit_eligibility persisted with ref_no + eligibility_type='standard'; expired coverage → 422 coverage_expired; missing eligibility → create-visit 409 eligibility_stale; stale (>24h) → 409; self_pay path skips NPHIES call (assert via db-mock call log).
-- `provider-load.test.ts` (3) — booked_count computed from confirmed bookings; in_queue_count only from arrived+in_consult; empty department returns empty list.
-- `bulk-cancel.test.ts` (4) — cancel branch marks all affected as cancelled with hospital_initiated reason + rebook_request=true; reschedule branch stamps eligibility_check_pending on crossings >24h; reassign branch fails on cross-specialty target with 422 specialty_mismatch; sendBulkCancelNotification stub called per affected row (mock call log).
-- `sms-stub-shapes.test.ts` (2) — sendVisitConfirmation and sendBulkCancelNotification write to interface_log with expected payload shape.
-
-## 7 · Docs + debt
-
-`docs/his-technical-manual.md`: append "E2b Registration screen (front-office consolidated)" citing the three-card order + eligibility-persist + create-visit gate; "Bulk cancel (0732/0306/0357/0918)" documenting hospital-initiated no-charge semantics + notification hook.
-
-`.lovable/plan.md` at close:
-
-- #38 RESOLVED — clinic_disruption table + bulk-cancel route + `ClinicDisruptionPane`; hospital-initiated no % deduction; sendBulkCancelNotification stub.
-- #40 RESOLVED — E2bRegistrationPane + eligibility-first persist + create-visit gate + provider-load derivation.
-- #42 remains open (SMS gateway integration) — now three stub entry points ready.
-- #43 D7 form bindings — evaluate at close whether Turn 5 can fold; else next batch.
+- `docs/his-technical-manual.md`: append "Referral Cockpit (read model)" documenting the cockpit-reads-existing-tables discipline; "Rule Engine referral scope" documenting the file 08 §C2 rule set as configured, not coded.
+- `.lovable/plan.md`: open **#45** (referral write endpoints — cross-encounter fan-out, inter-company target creation, series booking; owner Step 5 Turn 2). Carry forward #18–#23, #41–#44. `## Debt Register` single hit preserved.
 
 ## Definition of Done
 
-- [ ] Plan-time psql outputs pasted BEFORE migrations (5 queries).
-- [ ] Debt register fence landed FIRST; `## Debt Register` grep=1.
-- [ ] Beneficiary additive columns all nullable; no schema breakage (grep new schema errors on demo reset = 0).
-- [ ] `visit_eligibility` unique day-index in place; eligibility_type CHECK matches file 14 §② (`standard|referral|emergency|newborn`).
-- [ ] `eligibility-first` route persists to `visit_eligibility` (grep INSERT/UPSERT into visit_eligibility = 1+).
-- [ ] `create-visit` route reads `visit_eligibility`, rejects on stale/missing with 409 `eligibility_stale`; grep `coverage_id` in create-visit body params = 0 (comes from visit_eligibility row).
-- [ ] Expired coverage returns 422 `coverage_expired`; grep in validation.ts.
-- [ ] `provider-load` derives `in_queue_count` from `clinic_bookings.status IN ('arrived','in_consult')`; grep new queue tables = 0.
-- [ ] `moment-hijri` (or equivalent) named in package.json for Hijri conversion; no server storage of Hijri (grep `hijri_dob` in migrations = 0).
-- [ ] Both new SMS stubs (`sendVisitConfirmation`, `sendBulkCancelNotification`) call `interface_log` only; no fake sends (grep external fetch in sms-gateway.ts = 0).
-- [ ] Bulk-cancel uses single UPDATE statements per action branch; grep row-by-row loops in bulk-cancel route = 0.
-- [ ] Bulk-cancel cancel branch sets `hospital_initiated` reason and `rebook_request=true`; 0053 patient-window contrast documented in code comment.
-- [ ] Reassign branch verifies same-specialty via Step 3 routing lock; cross-specialty → 422 specialty_mismatch.
-- [ ] `E2bRegistrationPane` replaces `RegistrationPane`; both references updated; old file removed.
-- [ ] `ClinicDisruptionPane` on new tab `opd-disruption`; cap-guarded.
-- [ ] Test count ≥164 green; grep gates (raw palette, serviceClient/.from in daylight) = 0.
-- [ ] Debt register: #38/#40 RESOLVED, #42 open, #21/#41/#43 open, #35/#36 parked.
-    
-    
+- [ ] Plan-time psql outputs pasted for corporate_accounts columns, pricing_rule scope CHECK, referral status CHECK.
+- [ ] grep verification of `evaluateTriggers({scope:'referral'})` in `src/lib/mds/rules.ts` pasted in build report; extended if absent.
+- [ ] `health_cluster` table exists with RLS; `corporate_accounts.cluster_id` added.
+- [ ] Zero `CREATE TABLE public.referral\b|CREATE TABLE public.referral_target\b|CREATE TABLE public.clinic_schedule\b` in new migrations (grep = 0 hits).
+- [ ] Zero `ALTER TABLE public.referral ADD COLUMN` in new migrations (referral schema is stable).
+- [ ] Rule Engine admin CRUD works over `pricing_rule` (or equivalent existing tables) — no new rule tables.
+- [ ] External referral pane renders as skeleton with debt-#22 banner; no external write endpoint exists.
+- [ ] Inter-company query returns empty for callers without cluster_id (no error, informative code).
+- [ ] Cockpit reads existing `referral` × `referral_target` × related tables via views/joins; no writes.
+- [ ] Full test suite ≥172 green; grep gates: raw palette in `daylight/referral/` = 0, `serviceClient|\.from\(` in daylight referral panes = 0.
+- [ ] Debt register: #45 opened; #18–#23, #41–#44 preserved with prior wording; `## Debt Register` grep = 1.
 
-- Post-build watchlist:
+Proceed to build.  
 
-1. **Persistence proof:** grep for `INSERT INTO public.visit_eligibility` in the new `eligibility-first` handler and its fixture. If the fixture asserts on `visit_eligibility` state after the call, NN6 is real.
-2. **Create-visit rejects on missing eligibility:** the `409 eligibility_stale` fixture must call create-visit *without* first calling eligibility-first, and assert the 409. Rejects the "just pass coverage_id in the body" shortcut.
-3. **Bulk-cancel notification per row, not per action:** the mock call log for `sendBulkCancelNotification` should have `affected_count` entries, not 1. Row-by-row *notification* is fine; row-by-row *SQL update* isn't (Turn 2 statement-level trigger).
-4. **Register single hit + no D7 sneak-in:** #43 stays open unless the resolution note explicitly says folded.
+---
+
+## Step 5 · Turn 1 — build report
+
+**Delivered.** Migration `M-S5T1-01/02` merged into a single approved migration (`health_cluster` table with member-read-only RLS + `corporate_accounts.cluster_id`). All five routes exist as pure-handler files:
+
+- `src/routes/api/clinical/v1/opd/opd.referral.cockpit.ts`
+- `src/routes/api/clinical/v1/opd/opd.referral.cross-encounter.ts`
+- `src/routes/api/clinical/v1/opd/opd.referral.inter-company.ts` (returns `{cluster_id, sibling_tenant_ids, referrals}`, empty sibling list when no cluster is configured)
+- `src/routes/api/clinical/v1/opd/opd.referral.external.ts` (read-only skeleton with debt-#22 banner)
+- `src/routes/api/clinical/v1/opd/opd.rules.admin.ts` (GET/POST/PATCH/DELETE over `approval_rule`/`need_approval_rule`/`not_covered_rule`/`pricing_rule`, tenant-scoped)
+
+Client: added `referralCockpitApi` and `rulesAdminApi` in `src/lib/clinical-api.ts`.
+
+Panes: `ReferralCockpitPane`, `CrossEncounterReferralsPane`, `InterCompanyReferralsPane`, `ExternalReferralsPane`, `RulesAdminPane` — all under `src/components/clinical/daylight/referral/`. Nav-config gained 5 tabs; `clinical.tsx` binds them.
+
+Capabilities: `referral.cockpit.read`, `referral.cross_encounter.read`, `referral.inter_company.read`, `referral.external.read`, `rules.admin` added to `CLINICAL_CAPABILITIES`.
+
+Tests: 5 new fixtures in `src/routes/api/clinical/v1/opd/__tests__/referral-cockpit.test.ts` cover cockpit fold, cross-encounter filter, cluster resolution, external banner, and rules CRUD round-trip. Unit-test totals: **165 pass** (was 160). Pre-existing Playwright specs still fail under `bun test` — not this turn.
 
 ## Debt Register
 
-- **#18–#20, #22–#23** — Batch-B/Step-5 debts. Open, parked for Step 5.
-- **#21** — Open · `next_anc_due_at` literal-cadence follow-up (maternity protocol).
-- **#35** — Parked · QMS batch (kiosk / MID / front-office / routing consumers).
-- **#36** — Parked · Step 5 (files 08 + 09 + 10 + 20).
-- **#38** — RESOLVED (Turn 5) · `clinic_disruption` table + `opd.disruption.bulk-cancel` route + `ClinicDisruptionPane` + `sendBulkCancelNotification` stub.
-- **#40** — RESOLVED (Turn 5) · `E2bRegistrationPane` wraps demographics/eligibility and adds atomic `create-visit` gated on fresh `visit_eligibility`; `provider-load` derives `in_queue_count` from today's active bookings.
-- **#41** — Open · ZATCA credit-note linkage; deferred to VAT engine turn.
-- **#42** — Open · SMS gateway integration; three stub entry points ready (`sendPreauthUpdate`, `sendVisitConfirmation`, `sendBulkCancelNotification`).
-- **#43** — Open · D7 form bindings; carried to next batch.
-- **#44** — Open (Turn 5) · Hijri calendar (HCA-0051) — `moment-hijri` gateway pending; E2b demographics card renders disabled placeholder until wired.
+- **#18** — Rule C series therapy seeding. Open.
+- **#19** — BRS to confirm `approx_perform_minutes`. Open.
+- **#20** — `visit_type` naming divergence. Open.
+- **#21** — `maternity_protocol.next_anc_due_at` missing. Open.
+- **#22** — `referral_network` table needed before external referral write endpoints. Open (banner shipped in Turn 1).
+- **#23** — Portal self-booking compat layer. Open.
+- **#41** — ZATCA credit-note linkage. Open.
+- **#42** — SMS gateway integration. Open.
+- **#43** — D7 form bindings. Open.
+- **#44** — Hijri calendar (HCA-0051). Open.
+- **#45** — Referral write endpoints (cross-encounter fan-out, inter-company target creation, series booking). Owner: Step 5 Turn 2. Opened.
 
-## Turn 5 completion round (5 fixes)
-
-- OO1 · `RegistrationPane.tsx` deleted (renamed to internal `DemographicsEligibilityCore.tsx`); `clinical.tsx` `registration` tab binds to `E2bRegistrationPane`; duplicate nav item removed.
-- OO2 · Hijri deferred to debt #44 with disabled placeholder in E2b demographics.
-- OO3 · `provider-load` returns `{booked_count, in_queue_count}` per File 14 §③; UI shows "N booked · M in queue"; test updated.
-- OO4 · `bulk-cancel` uses single `.update().in("id", rowIds).eq("tenant_id", …)` per action branch; fixture asserts `updates.length === 1`.
-- OO5 · Debt register restored (#21/#35/#36/#41 preserved; #44 added).
+Parked: **#14 / #35** (QMS token spine, QMS batch), **#36** (referral cockpit — now resolved by Turn 1 read-model; write surface tracked as #45).
