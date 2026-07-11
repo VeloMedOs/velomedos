@@ -14,6 +14,7 @@ import {
   FlaskConical, Activity, Users, ClipboardCheck, Megaphone, FormInput,
   Ambulance, DoorOpen, LogIn, LayoutGrid, LogOut, FileEdit,
   Pill, Apple, HandHeart, CalendarDays, CalendarCog,
+  Share2, Network, Globe, SlidersHorizontal,
 } from "lucide-react";
 
 export type NavTabId =
@@ -34,6 +35,13 @@ export type NavTabId =
 // Step 4 · Turn 2 — OPD Cashier + Routing Board (E14/E15)
 // Step 4 · Turn 5 — E2b Registration + Bulk-cancel disruption
 export type NavTabIdExt = NavTabId | "opd-cashier" | "opd-routing" | "opd-registration-e2b" | "opd-disruption";
+// Step 5 · Turn 1 — Referral Cockpit + Rule Engine admin
+export type NavTabIdS5T1 =
+  | "opd-referral-cockpit"
+  | "opd-referral-cross-encounter"
+  | "opd-referral-inter-company"
+  | "opd-referral-external"
+  | "rcm-rules-admin";
 
 export type NavItemDef = {
   module: string;
@@ -54,6 +62,10 @@ export const NAV_SECTIONS: NavSectionDef[] = [
     items: [
       { module: "Registration & Eligibility", label: "Registration", tab: "registration", icon: UserPlus },
       { module: "Registration & Eligibility", label: "Bulk disruption",    tab: "opd-disruption" as NavTabId,      icon: LayoutGrid },
+      { module: "Registration & Eligibility", label: "Referral cockpit",       tab: "opd-referral-cockpit" as NavTabId,         icon: Share2 },
+      { module: "Clinical",                   label: "Cross-encounter refs",   tab: "opd-referral-cross-encounter" as NavTabId, icon: Share2 },
+      { module: "Registration & Eligibility", label: "Inter-company refs",     tab: "opd-referral-inter-company" as NavTabId,   icon: Network },
+      { module: "Registration & Eligibility", label: "External referrals",     tab: "opd-referral-external" as NavTabId,        icon: Globe },
       { module: "Clinical",                   label: "Encounter",    tab: "encounters",   icon: Stethoscope },
       { module: "Clinical",                   label: "OPD Day Board", tab: "opd-day-board",     icon: CalendarDays },
       { module: "Clinical",                   label: "Schedule Setup", tab: "opd-schedule-setup", icon: CalendarCog },
@@ -116,6 +128,7 @@ export const NAV_SECTIONS: NavSectionDef[] = [
     items: [
       { module: "Masters & Contracts",        label: "Masters & contracts",      tab: "admin-masters",      icon: Settings },
       { module: "Masters & Contracts",        label: "Contract masters editor",  tab: "admin-contract-masters", icon: FileText },
+      { module: "Masters & Contracts",        label: "Rule engine admin",        tab: "rcm-rules-admin" as NavTabId, icon: SlidersHorizontal },
     ],
   },
 ];
