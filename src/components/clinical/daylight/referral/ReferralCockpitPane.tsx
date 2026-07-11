@@ -45,9 +45,8 @@ export function ReferralCockpitPane() {
 
   return (
     <div className="space-y-3" data-testid="referral-cockpit">
-      <DCard>
-        <div className="flex flex-wrap items-center gap-3 p-4">
-          <div className="text-sm font-semibold">Referral cockpit</div>
+      <DCard title="Referral cockpit" caption="Outbound referrals with per-target rule-engine decision">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex gap-2 text-xs">
             <Chip tone="muted">Total {counts.total}</Chip>
             <Chip tone="info">Auto-generated {counts.auto}</Chip>
@@ -65,7 +64,7 @@ export function ReferralCockpitPane() {
         </div>
       </DCard>
 
-      <DCard>
+      <DCard title="Referrals">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-xs text-slate-500 border-b">
