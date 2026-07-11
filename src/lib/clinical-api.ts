@@ -825,6 +825,66 @@ export const referralsApi = {
 };
 
 // -----------------------------------------------------------------------------
+// Step 5 · Turn 1 — Referral Cockpit + Rule Engine admin (screens only)
+// -----------------------------------------------------------------------------
+
+export type CockpitRuleDecision = {
+  preauth_required?: boolean;
+  charge_mode?: string;
+  discount_pct?: number;
+  eligibility_check_required?: boolean;
+  block_reason?: string;
+  hits?: unknown[];
+};
+
+export type CockpitRow = {
+  id: string;
+  referral_no: string;
+  source_encounter_id: string | null;
+  source_specialty: string | null;
+  referral_class: "intra" | "inter_company" | "external" | "cross_encounter" | string;
+  status: string;
+  reason: string | null;
+  source_key: string | null;
+  created_at: string;
+  auto_generated: boolean;
+  targets: Array<{
+    id: string; target_kind: string; target_specialty: string | null;
+    target_provider_id: string | null; target_facility_id: string | null;
+    target_service_id: string | null; status: string;
+    booked_appointment_id: string | null; notes: string | null;
+  }>;
+  rule_decision: CockpitRuleDecision;
+};
+
+export const referralCockpitApi = {
+  cockpit: (params?: { referral_class?: string; status?: string; from?: string; to?: string; limit?: number }) =>
+    clinicalFetch<{ ok: true; data: CockpitRow[] }>(`/api/clinical/v1/opd/referral/cockpit${qs(params)}`),
+  crossEncounter: (params?: { limit?: number }) =>
+    clinicalFetch<{ ok: true; data: CockpitRow[] }>(`/api/clinical/v1/opd/referral/cross-encounter${qs(params)}`),
+  interCompany: (params?: { limit?: number }) =>
+    clinicalFetch<{ ok: true; data: { cluster_id: string | null; sibling_tenant_ids: string[]; referrals: any[] } }>(
+      `/api/clinical/v1/opd/referral/inter-company${qs(params)}`,
+    ),
+  external: (params?: { limit?: number }) =>
+    clinicalFetch<{ ok: true; data: { referrals: any[]; network_enabled: boolean; debt_banner: string } }>(
+      `/api/clinical/v1/opd/referral/external${qs(params)}`,
+    ),
+};
+
+export type RuleTable = "approval_rule" | "need_approval_rule" | "not_covered_rule" | "pricing_rule";
+export const rulesAdminApi = {
+  list: (table: RuleTable) =>
+    clinicalFetch<{ ok: true; table: RuleTable; data: any[] }>(`/api/clinical/v1/opd/rules/admin${qs({ table })}`),
+  create: (table: RuleTable, body: unknown) =>
+    clinicalFetch<{ ok: true; table: RuleTable; data: any }>(`/api/clinical/v1/opd/rules/admin${qs({ table })}`, { method: "POST", body }),
+  patch: (table: RuleTable, id: string, body: unknown) =>
+    clinicalFetch<{ ok: true; table: RuleTable; data: any }>(`/api/clinical/v1/opd/rules/admin${qs({ table, id })}`, { method: "PATCH", body }),
+  remove: (table: RuleTable, id: string) =>
+    clinicalFetch<{ ok: true; table: RuleTable }>(`/api/clinical/v1/opd/rules/admin${qs({ table, id })}`, { method: "DELETE" }),
+};
+
+// -----------------------------------------------------------------------------
 // Batch B Spine Turn-1 · Worklist views (doctor / nursing / forms / rcm-comms)
 // -----------------------------------------------------------------------------
 
