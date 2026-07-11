@@ -61,7 +61,7 @@ export async function handleDELETE(args: { table: RuleTable; id: string; ctx: Ru
   return jsonData({ ok: true, table: args.table });
 }
 
-export const Route = createFileRoute("/api/clinical/v1/opd/opd/rules/admin")({
+export const Route = createFileRoute("/api/clinical/v1/rcm/rcm/rules/admin")({
   server: { handlers: {
     OPTIONS: () => preflight(),
     GET: async ({ request }) => {

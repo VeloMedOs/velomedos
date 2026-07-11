@@ -10,7 +10,7 @@ export function ExternalReferralsPane() {
     <div className="space-y-3">
       <DCard title="External referrals" caption="Outbound external-facility referrals (read-only)">
         {d?.debt_banner && (
-          <div className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900" data-testid="external-debt-banner">
+          <div className="clin-pill warn" data-testid="external-debt-banner" style={{ display: "block", padding: "8px 12px", fontFamily: "inherit", fontSize: 12, letterSpacing: 0, borderRadius: 8 }}>
             {d.debt_banner}
           </div>
         )}

@@ -11,13 +11,7 @@ import { DCard } from "@/components/clinical/daylight/Primitives";
 const CLASSES = ["all", "intra", "inter_company", "external", "cross_encounter"] as const;
 
 function Chip({ tone, children }: { tone: "info" | "warn" | "ok" | "muted"; children: React.ReactNode }) {
-  const cls: Record<string, string> = {
-    info: "bg-sky-100 text-sky-900 border-sky-200",
-    warn: "bg-amber-100 text-amber-900 border-amber-200",
-    ok:   "bg-emerald-100 text-emerald-900 border-emerald-200",
-    muted:"bg-slate-100 text-slate-700 border-slate-200",
-  };
-  return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs border ${cls[tone]}`}>{children}</span>;
+  return <span className={`clin-pill ${tone}`}>{children}</span>;
 }
 
 export function ReferralCockpitPane() {
