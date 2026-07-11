@@ -153,3 +153,39 @@ No pane touches referral tables directly — all reads through `referralApi`. Gr
 - [ ] Debt register: #45 opened; #18–#23, #41–#44 preserved with prior wording; `## Debt Register` grep = 1.
 
 Proceed to build.  
+
+---
+
+## Step 5 · Turn 1 — build report
+
+**Delivered.** Migration `M-S5T1-01/02` merged into a single approved migration (`health_cluster` table with member-read-only RLS + `corporate_accounts.cluster_id`). All five routes exist as pure-handler files:
+
+- `src/routes/api/clinical/v1/opd/opd.referral.cockpit.ts`
+- `src/routes/api/clinical/v1/opd/opd.referral.cross-encounter.ts`
+- `src/routes/api/clinical/v1/opd/opd.referral.inter-company.ts` (returns `{cluster_id, sibling_tenant_ids, referrals}`, empty sibling list when no cluster is configured)
+- `src/routes/api/clinical/v1/opd/opd.referral.external.ts` (read-only skeleton with debt-#22 banner)
+- `src/routes/api/clinical/v1/opd/opd.rules.admin.ts` (GET/POST/PATCH/DELETE over `approval_rule`/`need_approval_rule`/`not_covered_rule`/`pricing_rule`, tenant-scoped)
+
+Client: added `referralCockpitApi` and `rulesAdminApi` in `src/lib/clinical-api.ts`.
+
+Panes: `ReferralCockpitPane`, `CrossEncounterReferralsPane`, `InterCompanyReferralsPane`, `ExternalReferralsPane`, `RulesAdminPane` — all under `src/components/clinical/daylight/referral/`. Nav-config gained 5 tabs; `clinical.tsx` binds them.
+
+Capabilities: `referral.cockpit.read`, `referral.cross_encounter.read`, `referral.inter_company.read`, `referral.external.read`, `rules.admin` added to `CLINICAL_CAPABILITIES`.
+
+Tests: 5 new fixtures in `src/routes/api/clinical/v1/opd/__tests__/referral-cockpit.test.ts` cover cockpit fold, cross-encounter filter, cluster resolution, external banner, and rules CRUD round-trip. Unit-test totals: **165 pass** (was 160). Pre-existing Playwright specs still fail under `bun test` — not this turn.
+
+## Debt Register
+
+- **#18** — Rule C series therapy seeding. Open.
+- **#19** — BRS to confirm `approx_perform_minutes`. Open.
+- **#20** — `visit_type` naming divergence. Open.
+- **#21** — `maternity_protocol.next_anc_due_at` missing. Open.
+- **#22** — `referral_network` table needed before external referral write endpoints. Open (banner shipped in Turn 1).
+- **#23** — Portal self-booking compat layer. Open.
+- **#41** — ZATCA credit-note linkage. Open.
+- **#42** — SMS gateway integration. Open.
+- **#43** — D7 form bindings. Open.
+- **#44** — Hijri calendar (HCA-0051). Open.
+- **#45** — Referral write endpoints (cross-encounter fan-out, inter-company target creation, series booking). Owner: Step 5 Turn 2. Opened.
+
+Parked: **#14 / #35** (QMS token spine, QMS batch), **#36** (referral cockpit — now resolved by Turn 1 read-model; write surface tracked as #45).
