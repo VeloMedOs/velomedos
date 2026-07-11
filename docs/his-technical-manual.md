@@ -1,5 +1,21 @@
 # VeloMed Mini-HIS — Technical Manual
 
+## Referral Cockpit — read model (Step 5 · Turn 1)
+
+Cockpit is strictly a read surface over the existing `referral` × `referral_target` tables. No new referral schema; only `health_cluster` and `corporate_accounts.cluster_id` were added.
+
+- `GET /api/clinical/v1/opd/referral/cockpit` — tenant-scoped list with per-referral targets and a folded rule-engine decision (`evaluateTriggers({scope:'referral'})` → `foldTriggerOutcome`). Filters: `referral_class`, `status`, `from`, `to`, `limit`.
+- `GET /api/clinical/v1/opd/referral/cross-encounter` — `referral_class='cross_encounter'` slice for ER/IP/OR/Endo/L&D landings.
+- `GET /api/clinical/v1/opd/referral/inter-company` — `referral_class='inter_company'`, plus `{cluster_id, sibling_tenant_ids}` from `corporate_accounts.cluster_id`. Empty sibling list is a valid state ("No cluster configured").
+- `GET /api/clinical/v1/opd/referral/external` — read-only skeleton. Response includes `{network_enabled:false, debt_banner}` until `referral_network` (debt #22) lands.
+
+Write endpoints (cross-encounter fan-out, inter-company target creation, series booking) are tracked as debt **#45** for Step 5 Turn 2.
+
+## Rule Engine — referral scope (Step 5 · Turn 1)
+
+The rule set from file 08 §C2 is configured, not coded. The admin facade at `/api/clinical/v1/opd/rules/admin` provides GET/POST/PATCH/DELETE over four existing tables — `approval_rule`, `need_approval_rule`, `not_covered_rule`, `pricing_rule` — filtered to the caller's tenant (plus `tenant_id IS NULL` catalogue rows on GET). Capability `rules.admin` (tenant_admin only) gates writes.
+
+`evaluateTriggers` already supports `scope:'referral'`; the cockpit surfaces the fold (`preauth_required`, `charge_mode`, `discount_pct`, `eligibility_check_required`, `block_reason`) as per-row chips.
 ## Access entry architecture (v2)
 
 - **Single door:** every human signs in through `/auth`. Search-param `next` is validated by `z.string().regex(/^\/(?![\/\\])/)`, which rejects absolute URLs, protocol-relative `//evil` and backslash `/\evil` bait. `next` is *honoured only when authorised* — both `auth.tsx` and the launcher resolve the user's allow-set via `resolveDestination()` in `src/lib/launch-destination.ts` and drop unauthorised targets silently.
