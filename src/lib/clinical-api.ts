@@ -875,13 +875,13 @@ export const referralCockpitApi = {
 export type RuleTable = "approval_rule" | "need_approval_rule" | "not_covered_rule" | "pricing_rule";
 export const rulesAdminApi = {
   list: (table: RuleTable) =>
-    clinicalFetch<{ ok: true; table: RuleTable; data: any[] }>(`/api/clinical/v1/opd/rules/admin${qs({ table })}`),
+    clinicalFetch<{ ok: true; table: RuleTable; data: any[] }>(`/api/clinical/v1/rcm/rules/admin${qs({ table })}`),
   create: (table: RuleTable, body: unknown) =>
-    clinicalFetch<{ ok: true; table: RuleTable; data: any }>(`/api/clinical/v1/opd/rules/admin${qs({ table })}`, { method: "POST", body }),
+    clinicalFetch<{ ok: true; table: RuleTable; data: any }>(`/api/clinical/v1/rcm/rules/admin${qs({ table })}`, { method: "POST", body }),
   patch: (table: RuleTable, id: string, body: unknown) =>
-    clinicalFetch<{ ok: true; table: RuleTable; data: any }>(`/api/clinical/v1/opd/rules/admin${qs({ table, id })}`, { method: "PATCH", body }),
+    clinicalFetch<{ ok: true; table: RuleTable; data: any }>(`/api/clinical/v1/rcm/rules/admin${qs({ table, id })}`, { method: "PATCH", body }),
   remove: (table: RuleTable, id: string) =>
-    clinicalFetch<{ ok: true; table: RuleTable }>(`/api/clinical/v1/opd/rules/admin${qs({ table, id })}`, { method: "DELETE" }),
+    clinicalFetch<{ ok: true; table: RuleTable }>(`/api/clinical/v1/rcm/rules/admin${qs({ table, id })}`, { method: "DELETE" }),
 };
 
 // -----------------------------------------------------------------------------
