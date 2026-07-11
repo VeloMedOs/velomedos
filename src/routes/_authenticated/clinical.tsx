@@ -30,6 +30,11 @@ import { ScheduleSetupPane } from "@/components/clinical/daylight/scheduling/Sch
 import { CashierWorklistPane } from "@/components/clinical/daylight/worklists/CashierWorklistPane";
 import { RoutingBoardPane } from "@/components/clinical/daylight/worklists/RoutingBoardPane";
 import { TreatmentRoomPane } from "@/components/clinical/daylight/worklists/TreatmentRoomPane";
+import { ReferralCockpitPane } from "@/components/clinical/daylight/referral/ReferralCockpitPane";
+import { CrossEncounterReferralsPane } from "@/components/clinical/daylight/referral/CrossEncounterReferralsPane";
+import { InterCompanyReferralsPane } from "@/components/clinical/daylight/referral/InterCompanyReferralsPane";
+import { ExternalReferralsPane } from "@/components/clinical/daylight/referral/ExternalReferralsPane";
+import { RulesAdminPane } from "@/components/clinical/daylight/referral/RulesAdminPane";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
 import { formatHalalas } from "@/lib/clinical/format-money";
 import { DoctorWorklistPane } from "@/components/clinical/daylight/worklists/DoctorWorklistPane";
@@ -130,6 +135,11 @@ function ClinicalWorkspace() {
       {tab === "opd-day-board"       && <ClinicDayBoardPane />}
       {tab === "opd-schedule-setup"  && <ScheduleSetupPane />}
       {tab === "opd-treatment-room"  && <TreatmentRoomPane />}
+      {(tab as string) === "opd-referral-cockpit"         && <ReferralCockpitPane />}
+      {(tab as string) === "opd-referral-cross-encounter" && <CrossEncounterReferralsPane />}
+      {(tab as string) === "opd-referral-inter-company"   && <InterCompanyReferralsPane />}
+      {(tab as string) === "opd-referral-external"        && <ExternalReferralsPane />}
+      {(tab as string) === "rcm-rules-admin"              && <RulesAdminPane />}
       {tab === "vitals"              && <VitalsTrendPane />}
       {tab === "wl-doctor"           && <DoctorWorklistPane />}
       {tab === "wl-nursing"          && <NursingWorkbenchPane />}
