@@ -4,7 +4,7 @@ import { handleGET as cockpitGET } from "../opd.referral.cockpit";
 import { handleGET as crossGET }   from "../opd.referral.cross-encounter";
 import { handleGET as interGET }   from "../opd.referral.inter-company";
 import { handleGET as extGET }     from "../opd.referral.external";
-import { handleGET as rulesGET, handlePOST as rulesPOST, handleDELETE as rulesDEL } from "../../rcm/rcm.rules.admin";
+import { handleGET as rulesGET, handlePOST as rulesPOST, handleDELETE as rulesDEL } from "../../rcm/rules.admin";
 import { makeMockDb } from "@/test/db-mock";
 
 const TENANT = "t1";
