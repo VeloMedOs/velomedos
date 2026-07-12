@@ -58,7 +58,7 @@ export function FanOutDialog({
             <div className="text-sm font-semibold">Fan out referral</div>
             <div className="text-xs text-slate-500">Ref {row.referral_no} · from {row.source_specialty ?? "—"}</div>
           </div>
-          <button className="clin-btn ghost" onClick={onClose}>Close</button>
+          <button className="text-xs underline" onClick={onClose}>Close</button>
         </div>
 
         <div className="p-5 space-y-3">
@@ -104,7 +104,7 @@ export function FanOutDialog({
                   </>
                 )}
                 <button
-                  className="clin-btn ghost ml-auto"
+                  className="ml-auto text-xs underline text-rose-700 disabled:opacity-40"
                   onClick={() => setTargets((p) => p.filter((_, idx) => idx !== i))}
                   disabled={targets.length === 1}
                 >Remove</button>
@@ -112,7 +112,7 @@ export function FanOutDialog({
             </div>
           ))}
 
-          <button className="clin-btn ghost" onClick={() => setTargets((p) => [...p, emptyTarget()])}>+ Add target</button>
+          <button className="text-xs underline" onClick={() => setTargets((p) => [...p, emptyTarget()])}>+ Add target</button>
 
           {results && (
             <div className="space-y-2 pt-3 border-t" data-testid="fan-out-results">
@@ -136,9 +136,9 @@ export function FanOutDialog({
         </div>
 
         <div className="px-5 py-3 border-t flex justify-end gap-2">
-          <button className="clin-btn ghost" onClick={onClose}>Cancel</button>
+          <button className="text-xs underline" onClick={onClose}>Cancel</button>
           <button
-            className="clin-btn primary"
+            className="px-3 py-1 rounded bg-slate-900 text-white text-xs disabled:opacity-50"
             onClick={() => submit.mutate()}
             disabled={submit.isPending}
             data-testid="fan-out-submit"
