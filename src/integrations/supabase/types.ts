@@ -1279,6 +1279,7 @@ export type Database = {
           region: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          reviewer_notes: string | null
           source: Database["public"]["Enums"]["business_request_source"]
           source_detail: string | null
           stage: Database["public"]["Enums"]["business_request_stage"]
@@ -1322,6 +1323,7 @@ export type Database = {
           region?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          reviewer_notes?: string | null
           source?: Database["public"]["Enums"]["business_request_source"]
           source_detail?: string | null
           stage?: Database["public"]["Enums"]["business_request_stage"]
@@ -1365,6 +1367,7 @@ export type Database = {
           region?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          reviewer_notes?: string | null
           source?: Database["public"]["Enums"]["business_request_source"]
           source_detail?: string | null
           stage?: Database["public"]["Enums"]["business_request_stage"]
@@ -3967,6 +3970,8 @@ export type Database = {
           primary_color: string | null
           slug: string | null
           status: string
+          tenant_lifecycle: Database["public"]["Enums"]["tenant_lifecycle"]
+          tenant_type: Database["public"]["Enums"]["tenant_type"]
         }
         Insert: {
           accent_color?: string | null
@@ -3984,6 +3989,8 @@ export type Database = {
           primary_color?: string | null
           slug?: string | null
           status?: string
+          tenant_lifecycle?: Database["public"]["Enums"]["tenant_lifecycle"]
+          tenant_type?: Database["public"]["Enums"]["tenant_type"]
         }
         Update: {
           accent_color?: string | null
@@ -4001,6 +4008,8 @@ export type Database = {
           primary_color?: string | null
           slug?: string | null
           status?: string
+          tenant_lifecycle?: Database["public"]["Enums"]["tenant_lifecycle"]
+          tenant_type?: Database["public"]["Enums"]["tenant_type"]
         }
         Relationships: [
           {
@@ -12539,6 +12548,82 @@ export type Database = {
           },
         ]
       }
+      tenant_provisioning_request: {
+        Row: {
+          admin_email: string
+          business_request_id: string | null
+          cluster_id: string | null
+          completed_at: string | null
+          completed_tenant_id: string | null
+          created_at: string
+          handoff_payload: Json
+          id: string
+          notes: string | null
+          requested_by: string | null
+          requested_project_ref: string | null
+          requested_slug: string
+          status: string
+          target_tenant_type: Database["public"]["Enums"]["tenant_type"]
+          updated_at: string
+        }
+        Insert: {
+          admin_email: string
+          business_request_id?: string | null
+          cluster_id?: string | null
+          completed_at?: string | null
+          completed_tenant_id?: string | null
+          created_at?: string
+          handoff_payload?: Json
+          id?: string
+          notes?: string | null
+          requested_by?: string | null
+          requested_project_ref?: string | null
+          requested_slug: string
+          status?: string
+          target_tenant_type?: Database["public"]["Enums"]["tenant_type"]
+          updated_at?: string
+        }
+        Update: {
+          admin_email?: string
+          business_request_id?: string | null
+          cluster_id?: string | null
+          completed_at?: string | null
+          completed_tenant_id?: string | null
+          created_at?: string
+          handoff_payload?: Json
+          id?: string
+          notes?: string | null
+          requested_by?: string | null
+          requested_project_ref?: string | null
+          requested_slug?: string
+          status?: string
+          target_tenant_type?: Database["public"]["Enums"]["tenant_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_provisioning_request_business_request_id_fkey"
+            columns: ["business_request_id"]
+            isOneToOne: false
+            referencedRelation: "business_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenant_provisioning_request_cluster_id_fkey"
+            columns: ["cluster_id"]
+            isOneToOne: false
+            referencedRelation: "health_cluster"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenant_provisioning_request_completed_tenant_id_fkey"
+            columns: ["completed_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_subscriptions: {
         Row: {
           assigned_by: string | null
@@ -13975,6 +14060,7 @@ export type Database = {
         Returns: number
       }
       is_portal_staff: { Args: { _user_id: string }; Returns: boolean }
+      is_sandbox_tenant: { Args: { _tenant_id: string }; Returns: boolean }
       is_tenant_admin: {
         Args: { _tenant: string; _user_id: string }
         Returns: boolean
@@ -14352,6 +14438,13 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "no_show"
+      tenant_lifecycle:
+        | "intake"
+        | "provisioning"
+        | "active"
+        | "suspended"
+        | "archived"
+      tenant_type: "sandbox" | "partner" | "production"
       visit_frequency:
         | "one_off"
         | "daily"
@@ -14858,6 +14951,14 @@ export const Constants = {
         "cancelled",
         "no_show",
       ],
+      tenant_lifecycle: [
+        "intake",
+        "provisioning",
+        "active",
+        "suspended",
+        "archived",
+      ],
+      tenant_type: ["sandbox", "partner", "production"],
       visit_frequency: [
         "one_off",
         "daily",

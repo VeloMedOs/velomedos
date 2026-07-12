@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { json, preflight, serviceClient } from "@/lib/api-server";
+import { sendBusinessIntakeAcknowledgment } from "@/lib/interface/sms-gateway";
 
 const schema = z.object({
   company_name: z.string().trim().min(2).max(200),
@@ -58,6 +59,15 @@ export const Route = createFileRoute("/api/public/v1/business_intake")({
           display_publicly: false,
         }).select("id, company_name, stage, source, created_at").single();
         if (error) { console.error("business_intake", error); return json({ error: "create_failed" }, 500); }
+        // Convention #27 — route ack through SMS-gateway stub (debt #42).
+        try {
+          await sendBusinessIntakeAcknowledgment({
+            contact_phone: d.contact_phone ?? null,
+            contact_email: d.contact_email,
+            company_name: d.company_name,
+            request_id: (data as { id: string }).id,
+          }, db);
+        } catch { /* best-effort */ }
         return json({ ok: true, request: data });
       },
     },

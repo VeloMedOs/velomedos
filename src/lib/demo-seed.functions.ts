@@ -76,7 +76,7 @@ async function resolveDemoTenant(): Promise<{ ok: true; id: string } | { ok: fal
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await (supabaseAdmin as any)
     .from("corporate_accounts")
-    .select("id")
+    .select("id, tenant_type")
     .eq("slug", DEMO_SLUG)
     .maybeSingle();
   if (error) return { ok: false, error: error.message };
@@ -90,11 +90,18 @@ async function resolveDemoTenant(): Promise<{ ok: true; id: string } | { ok: fal
         status: "active",
         plan_tier: "demo",
         country: "SA",
+        tenant_type: "sandbox",
       })
       .select("id")
       .single();
     if (createErr) return { ok: false, error: createErr.message };
     return { ok: true, id: created.id as string };
+  }
+  // Round 1 safety gate: demo reset/seed refuses to touch any tenant not
+  // tagged sandbox — even if slug matches — to prevent misconfigured demo
+  // slugs from destroying partner data.
+  if ((data as any).tenant_type !== "sandbox") {
+    return { ok: false, error: "not_sandbox_tenant" };
   }
   return { ok: true, id: data.id as string };
 }
