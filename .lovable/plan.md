@@ -171,3 +171,17 @@ The audit becomes a "did we get the hardening right?" pass rather than a discove
 - **#50** — Six Phases provisioning coordination (out-of-app infrastructure handoff for `tenant_provisioning_request`). Owner: Six Phases infrastructure.
 
 Parked: **#14 / #35** (QMS token spine — QMS batch), **#36** (referral cockpit — resolved across Step 5 Turns 1/2/3).
+
+## Round 1 · Batch 1 shipped (foundation)
+
+- **Migrations** — `tenant_type` / `tenant_lifecycle` enums + columns on `corporate_accounts`; existing demo tenant backfilled to `sandbox`; `business_requests.reviewer_notes`; `tenant_provisioning_request` table (superadmin-gated RLS); `platform_settings.demo_videos_enabled` row; `is_sandbox_tenant()` helper.
+- **SMS gateway stubs (Convention #27 restored)** — added `sendInterCompanyReferralNotification` + `sendBusinessIntakeAcknowledgment`. Inter-company referral route + public business_intake route now route through stubs (no inline `interface_log` writes).
+- **Demo isolation** — `DemoBanner` reads `tenant_type === 'sandbox'` (drop of legacy `is_demo`). `resolveDemoTenant()` refuses to touch any tenant not tagged sandbox even when the slug matches (`not_sandbox_tenant` guard) — reset/seed cannot mis-target a production tenant.
+- **Tests** — 221 pass unchanged. 5 pre-existing Playwright specs surface an unhandled `test.describe` warning under `bun test`; not touched by this batch.
+
+### Batch 2 (next turn) — deferred
+
+- `/demo-tour` route + `BusinessIntakeModal` component (public surfaces).
+- `BusinessManagementPane` (superadmin) with Intake / All Businesses / Provisioning tabs.
+- Superadmin routes for `tenant_provisioning_request` CRUD + business-request advance flow.
+- Public physician-only filter on demo credentials roster.
