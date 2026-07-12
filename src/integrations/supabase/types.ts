@@ -10853,6 +10853,7 @@ export type Database = {
           external_provider: string | null
           id: string
           no_charge_reason: string | null
+          origin_source: string | null
           preauth_required: boolean
           priority: string | null
           reason: string | null
@@ -10885,6 +10886,7 @@ export type Database = {
           external_provider?: string | null
           id?: string
           no_charge_reason?: string | null
+          origin_source?: string | null
           preauth_required?: boolean
           priority?: string | null
           reason?: string | null
@@ -10917,6 +10919,7 @@ export type Database = {
           external_provider?: string | null
           id?: string
           no_charge_reason?: string | null
+          origin_source?: string | null
           preauth_required?: boolean
           priority?: string | null
           reason?: string | null
@@ -10942,6 +10945,7 @@ export type Database = {
           id: string
           notes: string | null
           referral_id: string
+          source_key: string | null
           status: Database["public"]["Enums"]["referral_status"]
           target_facility_id: string | null
           target_kind: Database["public"]["Enums"]["target_kind"]
@@ -10957,6 +10961,7 @@ export type Database = {
           id?: string
           notes?: string | null
           referral_id: string
+          source_key?: string | null
           status?: Database["public"]["Enums"]["referral_status"]
           target_facility_id?: string | null
           target_kind: Database["public"]["Enums"]["target_kind"]
@@ -10972,6 +10977,7 @@ export type Database = {
           id?: string
           notes?: string | null
           referral_id?: string
+          source_key?: string | null
           status?: Database["public"]["Enums"]["referral_status"]
           target_facility_id?: string | null
           target_kind?: Database["public"]["Enums"]["target_kind"]
