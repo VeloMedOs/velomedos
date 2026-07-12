@@ -100,3 +100,74 @@ export async function sendBulkCancelNotification(args: BulkCancelNotificationArg
     },
   });
 }
+
+/** HCA-0979 — inter-company referral notification. Stub only; #42 wires gateway.
+ * Restores Convention #27 parity: inter-company route no longer writes
+ * `interface_log` inline — it calls this stub. */
+export type InterCompanyReferralNotificationArgs = {
+  tenant_id: string;
+  sibling_tenant_id: string;
+  referral_id: string;
+  target_id: string;
+  lang?: "en" | "ar";
+};
+
+export async function sendInterCompanyReferralNotification(
+  args: InterCompanyReferralNotificationArgs,
+  db?: any,
+): Promise<void> {
+  const sb: any = db ?? serviceClient();
+  await sb.from("interface_log").insert({
+    tenant_id: args.tenant_id,
+    interface_name: "sms_gateway",
+    direction: "outbound",
+    trigger: "inter_company_referral_notification",
+    status: "queued",
+    payload: {
+      kind: "inter_company_referral_notification",
+      transport: "stub_noop",
+      lang: args.lang ?? "en",
+      referral_id: args.referral_id,
+      target_id: args.target_id,
+      sibling_tenant_id: args.sibling_tenant_id,
+    },
+  });
+}
+
+/** Platform Governance Round 1 — Business intake acknowledgment. Stub only. */
+export type BusinessIntakeAcknowledgmentArgs = {
+  contact_phone: string | null;
+  contact_email: string;
+  company_name: string;
+  request_id: string;
+  lang?: "en" | "ar";
+};
+
+export async function sendBusinessIntakeAcknowledgment(
+  args: BusinessIntakeAcknowledgmentArgs,
+  db?: any,
+): Promise<void> {
+  const sb: any = db ?? serviceClient();
+  // No tenant_id yet — this is a platform-level event. Store under a NULL
+  // tenant. If interface_log requires tenant_id, log to console and skip.
+  try {
+    await sb.from("interface_log").insert({
+      tenant_id: null,
+      interface_name: "sms_gateway",
+      direction: "outbound",
+      trigger: "business_intake_ack",
+      status: "queued",
+      payload: {
+        kind: "business_intake_ack",
+        transport: "stub_noop",
+        lang: args.lang ?? "en",
+        request_id: args.request_id,
+        company_name: args.company_name,
+        contact_email_present: !!args.contact_email,
+        contact_phone_present: !!args.contact_phone,
+      },
+    });
+  } catch {
+    // best-effort — platform-level log surface pending
+  }
+}
