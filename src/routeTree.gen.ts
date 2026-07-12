@@ -374,6 +374,7 @@ import { Route as ApiClinicalV1OpdOpdRegistrationProviderLoadRouteImport } from 
 import { Route as ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport } from './routes/api/clinical/v1/opd/opd.registration.eligibility-first'
 import { Route as ApiClinicalV1OpdOpdRegistrationCreateVisitRouteImport } from './routes/api/clinical/v1/opd/opd.registration.create-visit'
 import { Route as ApiClinicalV1OpdOpdReferralInterCompanyRouteImport } from './routes/api/clinical/v1/opd/opd.referral.inter-company'
+import { Route as ApiClinicalV1OpdOpdReferralFanOutRouteImport } from './routes/api/clinical/v1/opd/opd.referral.fan-out'
 import { Route as ApiClinicalV1OpdOpdReferralExternalRouteImport } from './routes/api/clinical/v1/opd/opd.referral.external'
 import { Route as ApiClinicalV1OpdOpdReferralCrossEncounterRouteImport } from './routes/api/clinical/v1/opd/opd.referral.cross-encounter'
 import { Route as ApiClinicalV1OpdOpdReferralCreateRouteImport } from './routes/api/clinical/v1/opd/opd.referral.create'
@@ -2494,6 +2495,12 @@ const ApiClinicalV1OpdOpdReferralInterCompanyRoute =
     path: '/api/clinical/v1/opd/opd/referral/inter-company',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1OpdOpdReferralFanOutRoute =
+  ApiClinicalV1OpdOpdReferralFanOutRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/referral/fan-out',
+    path: '/api/clinical/v1/opd/opd/referral/fan-out',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1OpdOpdReferralExternalRoute =
   ApiClinicalV1OpdOpdReferralExternalRouteImport.update({
     id: '/api/clinical/v1/opd/opd/referral/external',
@@ -3214,6 +3221,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/opd/opd/referral/create': typeof ApiClinicalV1OpdOpdReferralCreateRoute
   '/api/clinical/v1/opd/opd/referral/cross-encounter': typeof ApiClinicalV1OpdOpdReferralCrossEncounterRoute
   '/api/clinical/v1/opd/opd/referral/external': typeof ApiClinicalV1OpdOpdReferralExternalRoute
+  '/api/clinical/v1/opd/opd/referral/fan-out': typeof ApiClinicalV1OpdOpdReferralFanOutRoute
   '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRoute
   '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
@@ -3631,6 +3639,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/opd/opd/referral/create': typeof ApiClinicalV1OpdOpdReferralCreateRoute
   '/api/clinical/v1/opd/opd/referral/cross-encounter': typeof ApiClinicalV1OpdOpdReferralCrossEncounterRoute
   '/api/clinical/v1/opd/opd/referral/external': typeof ApiClinicalV1OpdOpdReferralExternalRoute
+  '/api/clinical/v1/opd/opd/referral/fan-out': typeof ApiClinicalV1OpdOpdReferralFanOutRoute
   '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRoute
   '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
@@ -4052,6 +4061,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/opd/opd/referral/create': typeof ApiClinicalV1OpdOpdReferralCreateRoute
   '/api/clinical/v1/opd/opd/referral/cross-encounter': typeof ApiClinicalV1OpdOpdReferralCrossEncounterRoute
   '/api/clinical/v1/opd/opd/referral/external': typeof ApiClinicalV1OpdOpdReferralExternalRoute
+  '/api/clinical/v1/opd/opd/referral/fan-out': typeof ApiClinicalV1OpdOpdReferralFanOutRoute
   '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRoute
   '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
@@ -4473,6 +4483,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/referral/create'
     | '/api/clinical/v1/opd/opd/referral/cross-encounter'
     | '/api/clinical/v1/opd/opd/referral/external'
+    | '/api/clinical/v1/opd/opd/referral/fan-out'
     | '/api/clinical/v1/opd/opd/referral/inter-company'
     | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
@@ -4890,6 +4901,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/referral/create'
     | '/api/clinical/v1/opd/opd/referral/cross-encounter'
     | '/api/clinical/v1/opd/opd/referral/external'
+    | '/api/clinical/v1/opd/opd/referral/fan-out'
     | '/api/clinical/v1/opd/opd/referral/inter-company'
     | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
@@ -5310,6 +5322,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/referral/create'
     | '/api/clinical/v1/opd/opd/referral/cross-encounter'
     | '/api/clinical/v1/opd/opd/referral/external'
+    | '/api/clinical/v1/opd/opd/referral/fan-out'
     | '/api/clinical/v1/opd/opd/referral/inter-company'
     | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
@@ -5539,6 +5552,7 @@ export interface RootRouteChildren {
   ApiClinicalV1OpdOpdReferralCreateRoute: typeof ApiClinicalV1OpdOpdReferralCreateRoute
   ApiClinicalV1OpdOpdReferralCrossEncounterRoute: typeof ApiClinicalV1OpdOpdReferralCrossEncounterRoute
   ApiClinicalV1OpdOpdReferralExternalRoute: typeof ApiClinicalV1OpdOpdReferralExternalRoute
+  ApiClinicalV1OpdOpdReferralFanOutRoute: typeof ApiClinicalV1OpdOpdReferralFanOutRoute
   ApiClinicalV1OpdOpdReferralInterCompanyRoute: typeof ApiClinicalV1OpdOpdReferralInterCompanyRoute
   ApiClinicalV1OpdOpdRegistrationCreateVisitRoute: typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute: typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
@@ -8109,6 +8123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralInterCompanyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/opd/opd/referral/fan-out': {
+      id: '/api/clinical/v1/opd/opd/referral/fan-out'
+      path: '/api/clinical/v1/opd/opd/referral/fan-out'
+      fullPath: '/api/clinical/v1/opd/opd/referral/fan-out'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralFanOutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/opd/opd/referral/external': {
       id: '/api/clinical/v1/opd/opd/referral/external'
       path: '/api/clinical/v1/opd/opd/referral/external'
@@ -10409,6 +10430,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1OpdOpdReferralCrossEncounterRoute,
   ApiClinicalV1OpdOpdReferralExternalRoute:
     ApiClinicalV1OpdOpdReferralExternalRoute,
+  ApiClinicalV1OpdOpdReferralFanOutRoute:
+    ApiClinicalV1OpdOpdReferralFanOutRoute,
   ApiClinicalV1OpdOpdReferralInterCompanyRoute:
     ApiClinicalV1OpdOpdReferralInterCompanyRoute,
   ApiClinicalV1OpdOpdRegistrationCreateVisitRoute:
