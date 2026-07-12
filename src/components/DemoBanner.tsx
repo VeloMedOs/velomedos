@@ -4,7 +4,8 @@ import { ShieldAlert } from "lucide-react";
 
 /**
  * Sticky DEMO / SANDBOX banner. Renders only when the signed-in user belongs
- * to a tenant with `is_demo = true`.
+ * to a tenant tagged `tenant_type = 'sandbox'` (Round 1 replaces the legacy
+ * `is_demo` flag with the new `tenant_type` enum on `corporate_accounts`).
  */
 export function DemoBanner() {
   const [show, setShow] = useState(false);
@@ -17,12 +18,12 @@ export function DemoBanner() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await (supabase as any)
         .from("tenant_members")
-        .select("tenant_id, corporate_accounts(is_demo)")
+        .select("tenant_id, corporate_accounts(tenant_type)")
         .eq("user_id", user.id);
       if (cancelled) return;
       const any = (data ?? []).some(
-        (r: { corporate_accounts?: { is_demo?: boolean } | null }) =>
-          r?.corporate_accounts?.is_demo === true,
+        (r: { corporate_accounts?: { tenant_type?: string } | null }) =>
+          r?.corporate_accounts?.tenant_type === "sandbox",
       );
       setShow(any);
     })();
