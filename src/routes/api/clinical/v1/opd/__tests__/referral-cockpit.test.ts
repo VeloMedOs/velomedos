@@ -1,9 +1,9 @@
 // @ts-expect-error bun-types conflicts with supabase-js fetch typing
 import { describe, expect, it } from "bun:test";
-import { handleGET as cockpitGET } from "../opd.referral.cockpit";
-import { handleGET as crossGET }   from "../opd.referral.cross-encounter";
-import { handleGET as interGET }   from "../opd.referral.inter-company";
-import { handleGET as extGET }     from "../opd.referral.external";
+import { handleGET as cockpitGET } from "../referral.cockpit";
+import { handleGET as crossGET }   from "../referral.cross-encounter";
+import { handleGET as interGET }   from "../referral.inter-company";
+import { handleGET as extGET }     from "../referral.external";
 import { handleGET as rulesGET, handlePOST as rulesPOST, handleDELETE as rulesDEL } from "../../rcm/rules.admin";
 import { makeMockDb } from "@/test/db-mock";
 

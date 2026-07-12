@@ -1,7 +1,7 @@
 // @ts-expect-error bun-types conflicts with supabase-js fetch typing
 import { describe, expect, it } from "bun:test";
-import { fetchReport, handleGET as reportGET } from "../opd.referral.report";
-import { handleGET as reportCsvGET } from "../opd.referral.report.csv";
+import { fetchReport, handleGET as reportGET } from "../referral.report";
+import { handleGET as reportCsvGET } from "../referral.report.csv";
 import { makeMockDb } from "@/test/db-mock";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

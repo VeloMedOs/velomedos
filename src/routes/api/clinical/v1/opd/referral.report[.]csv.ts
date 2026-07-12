@@ -4,7 +4,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { preflight, requireClinicalModule } from "@/lib/api-clinical";
-import { fetchReport, type ReportCtx } from "./opd.referral.report";
+import { fetchReport, type ReportCtx } from "./referral.report";
 import { toCsv } from "@/lib/mds/referral-report";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
