@@ -425,6 +425,7 @@ import { Route as ApiClinicalV1AuthRequestsIdSubmitRouteImport } from './routes/
 import { Route as ApiClinicalV1AuthRequestsIdDecisionRouteImport } from './routes/api/clinical/v1/auth/requests.$id.decision'
 import { Route as ApiClinicalV1AuthRequestsIdCommunicationsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.communications'
 import { Route as ApiClinicalV1AuthRequestsIdAttachmentsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.attachments'
+import { Route as ApiClinicalV1OpdOpdReferralSeriesEligibleRouteImport } from './routes/api/clinical/v1/opd/opd.referral.series.eligible'
 import { Route as ApiClinicalV1OpdOpdReferralSeriesCreateRouteImport } from './routes/api/clinical/v1/opd/opd.referral.series.create'
 import { Route as ApiClinicalV1OpdOpdReferralInterCompanyCreateRouteImport } from './routes/api/clinical/v1/opd/opd.referral.inter-company.create'
 import { Route as ApiClinicalV1OpdOpdNutritionReferralsPendingRouteImport } from './routes/api/clinical/v1/opd/opd.nutrition.referrals.pending'
@@ -2803,6 +2804,12 @@ const ApiClinicalV1AuthRequestsIdAttachmentsRoute =
     path: '/attachments',
     getParentRoute: () => ApiClinicalV1AuthRequestsIdRoute,
   } as any)
+const ApiClinicalV1OpdOpdReferralSeriesEligibleRoute =
+  ApiClinicalV1OpdOpdReferralSeriesEligibleRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/referral/series/eligible',
+    path: '/api/clinical/v1/opd/opd/referral/series/eligible',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1OpdOpdReferralSeriesCreateRoute =
   ApiClinicalV1OpdOpdReferralSeriesCreateRouteImport.update({
     id: '/api/clinical/v1/opd/opd/referral/series/create',
@@ -3255,6 +3262,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
   '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
   '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
+  '/api/clinical/v1/opd/opd/referral/series/eligible': typeof ApiClinicalV1OpdOpdReferralSeriesEligibleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -3675,6 +3683,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
   '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
   '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
+  '/api/clinical/v1/opd/opd/referral/series/eligible': typeof ApiClinicalV1OpdOpdReferralSeriesEligibleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -4099,6 +4108,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
   '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
   '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
+  '/api/clinical/v1/opd/opd/referral/series/eligible': typeof ApiClinicalV1OpdOpdReferralSeriesEligibleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -4523,6 +4533,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
     | '/api/clinical/v1/opd/opd/referral/inter-company/create'
     | '/api/clinical/v1/opd/opd/referral/series/create'
+    | '/api/clinical/v1/opd/opd/referral/series/eligible'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -4943,6 +4954,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
     | '/api/clinical/v1/opd/opd/referral/inter-company/create'
     | '/api/clinical/v1/opd/opd/referral/series/create'
+    | '/api/clinical/v1/opd/opd/referral/series/eligible'
   id:
     | '__root__'
     | '/'
@@ -5366,6 +5378,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
     | '/api/clinical/v1/opd/opd/referral/inter-company/create'
     | '/api/clinical/v1/opd/opd/referral/series/create'
+    | '/api/clinical/v1/opd/opd/referral/series/eligible'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -5591,6 +5604,7 @@ export interface RootRouteChildren {
   ApiClinicalV1SchedulerBookingsIdStatusRoute: typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
   ApiClinicalV1OpdOpdNutritionReferralsPendingRoute: typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
   ApiClinicalV1OpdOpdReferralSeriesCreateRoute: typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
+  ApiClinicalV1OpdOpdReferralSeriesEligibleRoute: typeof ApiClinicalV1OpdOpdReferralSeriesEligibleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -8507,6 +8521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1AuthRequestsIdAttachmentsRouteImport
       parentRoute: typeof ApiClinicalV1AuthRequestsIdRoute
     }
+    '/api/clinical/v1/opd/opd/referral/series/eligible': {
+      id: '/api/clinical/v1/opd/opd/referral/series/eligible'
+      path: '/api/clinical/v1/opd/opd/referral/series/eligible'
+      fullPath: '/api/clinical/v1/opd/opd/referral/series/eligible'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralSeriesEligibleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/opd/opd/referral/series/create': {
       id: '/api/clinical/v1/opd/opd/referral/series/create'
       path: '/api/clinical/v1/opd/opd/referral/series/create'
@@ -10512,6 +10533,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1OpdOpdNutritionReferralsPendingRoute,
   ApiClinicalV1OpdOpdReferralSeriesCreateRoute:
     ApiClinicalV1OpdOpdReferralSeriesCreateRoute,
+  ApiClinicalV1OpdOpdReferralSeriesEligibleRoute:
+    ApiClinicalV1OpdOpdReferralSeriesEligibleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
