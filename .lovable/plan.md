@@ -151,3 +151,23 @@ The audit becomes a "did we get the hardening right?" pass rather than a discove
 - Round 2 — tiered pricing catalog (ApplicationPMO Call A).
 - Round 3 — white-label triple (rename + logo + domain + email identity) (Call C).
 - Post-Round-1 — Demo Security Audit investigation turn against the hardened surface.
+## Debt Register
+
+- **#18** — Rule C series therapy seeding. Open.
+- **#19** — BRS to confirm `approx_perform_minutes` vs `tat_minutes`. Open.
+- **#20** — `visit_type` naming divergence. Open.
+- **#21** — `maternity_protocol.next_anc_due_at` missing (literal cadence in place). Open.
+- **#22** — `referral_network` table needed before external write path (skeleton shipped Turn 1). Open.
+- **#23** — Portal self-booking compat layer. Open.
+- **#41** — ZATCA credit-note linkage. Owner: VAT engine turn. Open.
+- **#42** — SMS gateway integration. **5 stubs after Round 1** (`sendPreauthUpdate`, `sendVisitConfirmation`, `sendBulkCancelNotification`, `sendInterCompanyReferralNotification`, `sendBusinessIntakeAcknowledgment`) — Convention #27 restored (inter-company no longer writes `interface_log` inline). Owner: gateway integration turn. Open.
+- **#43** — D7 form bindings. Open.
+- **#44** — Hijri calendar (HCA-0051, E2b placeholder in place). Open.
+- **#45** — Referral write endpoints. **RESOLVED (Step 5 Turn 2).**
+- **#46** — Surgery/OR referral target: fan-out returns `422 target_kind_not_ready`; no `surgery_booking` table yet. Owner: **Batch C_05 OR**. Open.
+- **#47** — HCA-1010 audit-log-backed TAT (currently derived from `referral_target.updated_at`). Owner: audit-log spine. Open.
+- **#48** — CSV streaming for large date ranges. `referral.report[.]csv.ts` materialises the whole CSV in memory. Migrate to `ReadableStream` row-at-a-time chunking when a report crosses ~10K rows in practice. Owner: performance turn. Open.
+- **#49** — Demo Security Audit — placeholder. Pending investigation turn against Round 1 hardened surface. Owner: Investigation turn.
+- **#50** — Six Phases provisioning coordination (out-of-app infrastructure handoff for `tenant_provisioning_request`). Owner: Six Phases infrastructure.
+
+Parked: **#14 / #35** (QMS token spine — QMS batch), **#36** (referral cockpit — resolved across Step 5 Turns 1/2/3).
