@@ -41,7 +41,9 @@ export type NavTabIdS5T1 =
   | "opd-referral-cross-encounter"
   | "opd-referral-inter-company"
   | "opd-referral-external"
-  | "rcm-rules-admin";
+  | "rcm-rules-admin"
+  // Step 5 · Turn 2 — Series booking pane
+  | "opd-referral-series";
 
 export type NavItemDef = {
   module: string;
@@ -66,6 +68,7 @@ export const NAV_SECTIONS: NavSectionDef[] = [
       { module: "Clinical",                   label: "Cross-encounter refs",   tab: "opd-referral-cross-encounter" as NavTabId, icon: Share2 },
       { module: "Registration & Eligibility", label: "Inter-company refs",     tab: "opd-referral-inter-company" as NavTabId,   icon: Network },
       { module: "Registration & Eligibility", label: "External referrals",     tab: "opd-referral-external" as NavTabId,        icon: Globe },
+      { module: "Registration & Eligibility", label: "Series booking",         tab: "opd-referral-series" as NavTabId,          icon: CalendarDays },
       { module: "Clinical",                   label: "Encounter",    tab: "encounters",   icon: Stethoscope },
       { module: "Clinical",                   label: "OPD Day Board", tab: "opd-day-board",     icon: CalendarDays },
       { module: "Clinical",                   label: "Schedule Setup", tab: "opd-schedule-setup", icon: CalendarCog },
