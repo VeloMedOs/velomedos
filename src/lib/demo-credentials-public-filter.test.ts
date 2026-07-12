@@ -4,7 +4,8 @@
  *   must return the physician row only — superadmin, tenant_admin, and
  *   the 10 other support-role emails must not leak to anonymous callers.
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+// @ts-expect-error — bun-types conflicts with @supabase/supabase-js fetch typing
+import { describe, expect, it, mock, beforeEach } from "bun:test";
 
 const FULL_ROSTER = [
   { email: "superadmin@demo.velomedos.com", role_label: "Demo Superadmin", clinical_role: null, lands_on: "/superadmin", sort_order: 0 },
@@ -43,13 +44,9 @@ function makeMockClient(rows: typeof FULL_ROSTER, opts: { platformSettingsValue?
   };
 }
 
-beforeEach(() => {
-  vi.resetModules();
-});
-
 describe("demo credentials — public physician-only filter (WW1)", () => {
   it("getDemoPublicStateRest returns exactly the physician row", async () => {
-    vi.doMock("@/integrations/supabase/client.server", () => ({
+    mock.module("@/integrations/supabase/client.server", () => ({
       supabaseAdmin: makeMockClient(FULL_ROSTER),
     }));
     const { getDemoPublicStateRest } = await import("./demo-credentials.functions");
@@ -65,7 +62,7 @@ describe("demo credentials — public physician-only filter (WW1)", () => {
   });
 
   it("REST fallback path (empty table) still filters to physician", async () => {
-    vi.doMock("@/integrations/supabase/client.server", () => ({
+    mock.module("@/integrations/supabase/client.server", () => ({
       supabaseAdmin: makeMockClient([]),
     }));
     const { getDemoPublicStateRest } = await import("./demo-credentials.functions");
@@ -75,7 +72,7 @@ describe("demo credentials — public physician-only filter (WW1)", () => {
   });
 
   it("reveal-on path still leaks only physician password", async () => {
-    vi.doMock("@/integrations/supabase/client.server", () => ({
+    mock.module("@/integrations/supabase/client.server", () => ({
       supabaseAdmin: {
         from(table: string) {
           if (table === "demo_credentials") {
