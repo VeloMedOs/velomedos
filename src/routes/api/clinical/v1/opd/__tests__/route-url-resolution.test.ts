@@ -12,7 +12,7 @@ import { describe, it, expect } from "bun:test";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const tree = readFileSync(resolve(__dirname, "../../../../../routeTree.gen.ts"), "utf8");
+const tree = readFileSync(resolve(__dirname, "../../../../../../routeTree.gen.ts"), "utf8");
 
 const EXPECTED_URLS = [
   "/api/clinical/v1/opd/referral/report",
