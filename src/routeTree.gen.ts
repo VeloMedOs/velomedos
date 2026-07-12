@@ -425,6 +425,7 @@ import { Route as ApiClinicalV1AuthRequestsIdSubmitRouteImport } from './routes/
 import { Route as ApiClinicalV1AuthRequestsIdDecisionRouteImport } from './routes/api/clinical/v1/auth/requests.$id.decision'
 import { Route as ApiClinicalV1AuthRequestsIdCommunicationsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.communications'
 import { Route as ApiClinicalV1AuthRequestsIdAttachmentsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.attachments'
+import { Route as ApiClinicalV1OpdOpdReferralSeriesCreateRouteImport } from './routes/api/clinical/v1/opd/opd.referral.series.create'
 import { Route as ApiClinicalV1OpdOpdReferralInterCompanyCreateRouteImport } from './routes/api/clinical/v1/opd/opd.referral.inter-company.create'
 import { Route as ApiClinicalV1OpdOpdNutritionReferralsPendingRouteImport } from './routes/api/clinical/v1/opd/opd.nutrition.referrals.pending'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsFeedRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.feed'
@@ -2802,6 +2803,12 @@ const ApiClinicalV1AuthRequestsIdAttachmentsRoute =
     path: '/attachments',
     getParentRoute: () => ApiClinicalV1AuthRequestsIdRoute,
   } as any)
+const ApiClinicalV1OpdOpdReferralSeriesCreateRoute =
+  ApiClinicalV1OpdOpdReferralSeriesCreateRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/referral/series/create',
+    path: '/api/clinical/v1/opd/opd/referral/series/create',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute =
   ApiClinicalV1OpdOpdReferralInterCompanyCreateRouteImport.update({
     id: '/create',
@@ -3247,6 +3254,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
   '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
+  '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -3666,6 +3674,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
   '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
+  '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -4089,6 +4098,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
   '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
+  '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -4512,6 +4522,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
     | '/api/clinical/v1/opd/opd/referral/inter-company/create'
+    | '/api/clinical/v1/opd/opd/referral/series/create'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -4931,6 +4942,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
     | '/api/clinical/v1/opd/opd/referral/inter-company/create'
+    | '/api/clinical/v1/opd/opd/referral/series/create'
   id:
     | '__root__'
     | '/'
@@ -5353,6 +5365,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
     | '/api/clinical/v1/opd/opd/referral/inter-company/create'
+    | '/api/clinical/v1/opd/opd/referral/series/create'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -5577,6 +5590,7 @@ export interface RootRouteChildren {
   ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute: typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   ApiClinicalV1SchedulerBookingsIdStatusRoute: typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
   ApiClinicalV1OpdOpdNutritionReferralsPendingRoute: typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
+  ApiClinicalV1OpdOpdReferralSeriesCreateRoute: typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -8493,6 +8507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1AuthRequestsIdAttachmentsRouteImport
       parentRoute: typeof ApiClinicalV1AuthRequestsIdRoute
     }
+    '/api/clinical/v1/opd/opd/referral/series/create': {
+      id: '/api/clinical/v1/opd/opd/referral/series/create'
+      path: '/api/clinical/v1/opd/opd/referral/series/create'
+      fullPath: '/api/clinical/v1/opd/opd/referral/series/create'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralSeriesCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/opd/opd/referral/inter-company/create': {
       id: '/api/clinical/v1/opd/opd/referral/inter-company/create'
       path: '/create'
@@ -10489,6 +10510,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1SchedulerBookingsIdStatusRoute,
   ApiClinicalV1OpdOpdNutritionReferralsPendingRoute:
     ApiClinicalV1OpdOpdNutritionReferralsPendingRoute,
+  ApiClinicalV1OpdOpdReferralSeriesCreateRoute:
+    ApiClinicalV1OpdOpdReferralSeriesCreateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
