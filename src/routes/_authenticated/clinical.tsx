@@ -36,6 +36,7 @@ import { InterCompanyReferralsPane } from "@/components/clinical/daylight/referr
 import { ExternalReferralsPane } from "@/components/clinical/daylight/referral/ExternalReferralsPane";
 import { RulesAdminPane } from "@/components/clinical/daylight/referral/RulesAdminPane";
 import { SeriesBookingPane } from "@/components/clinical/daylight/referral/SeriesBookingPane";
+import { ReferralReportPane } from "@/components/clinical/daylight/referral/ReferralReportPane";
 import { ALL_NAV_TABS } from "@/components/clinical/daylight/nav-config";
 import { formatHalalas } from "@/lib/clinical/format-money";
 import { DoctorWorklistPane } from "@/components/clinical/daylight/worklists/DoctorWorklistPane";
@@ -141,6 +142,7 @@ function ClinicalWorkspace() {
       {(tab as string) === "opd-referral-inter-company"   && <InterCompanyReferralsPane />}
       {(tab as string) === "opd-referral-external"        && <ExternalReferralsPane />}
       {(tab as string) === "opd-referral-series"          && <SeriesBookingPane />}
+      {(tab as string) === "opd-referral-report"          && <ReferralReportPane />}
       {(tab as string) === "rcm-rules-admin"              && <RulesAdminPane />}
       {tab === "vitals"              && <VitalsTrendPane />}
       {tab === "wl-doctor"           && <DoctorWorklistPane />}

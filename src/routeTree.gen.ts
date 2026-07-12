@@ -373,6 +373,7 @@ import { Route as ApiClinicalV1OpdOpdRoutingBoardRouteImport } from './routes/ap
 import { Route as ApiClinicalV1OpdOpdRegistrationProviderLoadRouteImport } from './routes/api/clinical/v1/opd/opd.registration.provider-load'
 import { Route as ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport } from './routes/api/clinical/v1/opd/opd.registration.eligibility-first'
 import { Route as ApiClinicalV1OpdOpdRegistrationCreateVisitRouteImport } from './routes/api/clinical/v1/opd/opd.registration.create-visit'
+import { Route as ApiClinicalV1OpdOpdReferralReportRouteImport } from './routes/api/clinical/v1/opd/opd.referral.report'
 import { Route as ApiClinicalV1OpdOpdReferralInterCompanyRouteImport } from './routes/api/clinical/v1/opd/opd.referral.inter-company'
 import { Route as ApiClinicalV1OpdOpdReferralFanOutRouteImport } from './routes/api/clinical/v1/opd/opd.referral.fan-out'
 import { Route as ApiClinicalV1OpdOpdReferralExternalRouteImport } from './routes/api/clinical/v1/opd/opd.referral.external'
@@ -427,6 +428,7 @@ import { Route as ApiClinicalV1AuthRequestsIdCommunicationsRouteImport } from '.
 import { Route as ApiClinicalV1AuthRequestsIdAttachmentsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.attachments'
 import { Route as ApiClinicalV1OpdOpdReferralSeriesEligibleRouteImport } from './routes/api/clinical/v1/opd/opd.referral.series.eligible'
 import { Route as ApiClinicalV1OpdOpdReferralSeriesCreateRouteImport } from './routes/api/clinical/v1/opd/opd.referral.series.create'
+import { Route as ApiClinicalV1OpdOpdReferralReportCsvRouteImport } from './routes/api/clinical/v1/opd/opd.referral.report.csv'
 import { Route as ApiClinicalV1OpdOpdReferralInterCompanyCreateRouteImport } from './routes/api/clinical/v1/opd/opd.referral.inter-company.create'
 import { Route as ApiClinicalV1OpdOpdNutritionReferralsPendingRouteImport } from './routes/api/clinical/v1/opd/opd.nutrition.referrals.pending'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsFeedRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.feed'
@@ -2492,6 +2494,12 @@ const ApiClinicalV1OpdOpdRegistrationCreateVisitRoute =
     path: '/api/clinical/v1/opd/opd/registration/create-visit',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1OpdOpdReferralReportRoute =
+  ApiClinicalV1OpdOpdReferralReportRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/referral/report',
+    path: '/api/clinical/v1/opd/opd/referral/report',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1OpdOpdReferralInterCompanyRoute =
   ApiClinicalV1OpdOpdReferralInterCompanyRouteImport.update({
     id: '/api/clinical/v1/opd/opd/referral/inter-company',
@@ -2815,6 +2823,12 @@ const ApiClinicalV1OpdOpdReferralSeriesCreateRoute =
     id: '/api/clinical/v1/opd/opd/referral/series/create',
     path: '/api/clinical/v1/opd/opd/referral/series/create',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdReferralReportCsvRoute =
+  ApiClinicalV1OpdOpdReferralReportCsvRouteImport.update({
+    id: '/csv',
+    path: '/csv',
+    getParentRoute: () => ApiClinicalV1OpdOpdReferralReportRoute,
   } as any)
 const ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute =
   ApiClinicalV1OpdOpdReferralInterCompanyCreateRouteImport.update({
@@ -3244,6 +3258,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/opd/opd/referral/external': typeof ApiClinicalV1OpdOpdReferralExternalRoute
   '/api/clinical/v1/opd/opd/referral/fan-out': typeof ApiClinicalV1OpdOpdReferralFanOutRoute
   '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren
+  '/api/clinical/v1/opd/opd/referral/report': typeof ApiClinicalV1OpdOpdReferralReportRouteWithChildren
   '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/registration/provider-load': typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
@@ -3261,6 +3276,7 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
   '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
+  '/api/clinical/v1/opd/opd/referral/report/csv': typeof ApiClinicalV1OpdOpdReferralReportCsvRoute
   '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
   '/api/clinical/v1/opd/opd/referral/series/eligible': typeof ApiClinicalV1OpdOpdReferralSeriesEligibleRoute
 }
@@ -3665,6 +3681,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/opd/opd/referral/external': typeof ApiClinicalV1OpdOpdReferralExternalRoute
   '/api/clinical/v1/opd/opd/referral/fan-out': typeof ApiClinicalV1OpdOpdReferralFanOutRoute
   '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren
+  '/api/clinical/v1/opd/opd/referral/report': typeof ApiClinicalV1OpdOpdReferralReportRouteWithChildren
   '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/registration/provider-load': typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
@@ -3682,6 +3699,7 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
   '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
+  '/api/clinical/v1/opd/opd/referral/report/csv': typeof ApiClinicalV1OpdOpdReferralReportCsvRoute
   '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
   '/api/clinical/v1/opd/opd/referral/series/eligible': typeof ApiClinicalV1OpdOpdReferralSeriesEligibleRoute
 }
@@ -4090,6 +4108,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/opd/opd/referral/external': typeof ApiClinicalV1OpdOpdReferralExternalRoute
   '/api/clinical/v1/opd/opd/referral/fan-out': typeof ApiClinicalV1OpdOpdReferralFanOutRoute
   '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren
+  '/api/clinical/v1/opd/opd/referral/report': typeof ApiClinicalV1OpdOpdReferralReportRouteWithChildren
   '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/registration/provider-load': typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
@@ -4107,6 +4126,7 @@ export interface FileRoutesById {
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
   '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
+  '/api/clinical/v1/opd/opd/referral/report/csv': typeof ApiClinicalV1OpdOpdReferralReportCsvRoute
   '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
   '/api/clinical/v1/opd/opd/referral/series/eligible': typeof ApiClinicalV1OpdOpdReferralSeriesEligibleRoute
 }
@@ -4515,6 +4535,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/referral/external'
     | '/api/clinical/v1/opd/opd/referral/fan-out'
     | '/api/clinical/v1/opd/opd/referral/inter-company'
+    | '/api/clinical/v1/opd/opd/referral/report'
     | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/opd/opd/registration/provider-load'
@@ -4532,6 +4553,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
     | '/api/clinical/v1/opd/opd/referral/inter-company/create'
+    | '/api/clinical/v1/opd/opd/referral/report/csv'
     | '/api/clinical/v1/opd/opd/referral/series/create'
     | '/api/clinical/v1/opd/opd/referral/series/eligible'
   fileRoutesByTo: FileRoutesByTo
@@ -4936,6 +4958,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/referral/external'
     | '/api/clinical/v1/opd/opd/referral/fan-out'
     | '/api/clinical/v1/opd/opd/referral/inter-company'
+    | '/api/clinical/v1/opd/opd/referral/report'
     | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/opd/opd/registration/provider-load'
@@ -4953,6 +4976,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
     | '/api/clinical/v1/opd/opd/referral/inter-company/create'
+    | '/api/clinical/v1/opd/opd/referral/report/csv'
     | '/api/clinical/v1/opd/opd/referral/series/create'
     | '/api/clinical/v1/opd/opd/referral/series/eligible'
   id:
@@ -5360,6 +5384,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/referral/external'
     | '/api/clinical/v1/opd/opd/referral/fan-out'
     | '/api/clinical/v1/opd/opd/referral/inter-company'
+    | '/api/clinical/v1/opd/opd/referral/report'
     | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
     | '/api/clinical/v1/opd/opd/registration/provider-load'
@@ -5377,6 +5402,7 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
     | '/api/clinical/v1/opd/opd/referral/inter-company/create'
+    | '/api/clinical/v1/opd/opd/referral/report/csv'
     | '/api/clinical/v1/opd/opd/referral/series/create'
     | '/api/clinical/v1/opd/opd/referral/series/eligible'
   fileRoutesById: FileRoutesById
@@ -5593,6 +5619,7 @@ export interface RootRouteChildren {
   ApiClinicalV1OpdOpdReferralExternalRoute: typeof ApiClinicalV1OpdOpdReferralExternalRoute
   ApiClinicalV1OpdOpdReferralFanOutRoute: typeof ApiClinicalV1OpdOpdReferralFanOutRoute
   ApiClinicalV1OpdOpdReferralInterCompanyRoute: typeof ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren
+  ApiClinicalV1OpdOpdReferralReportRoute: typeof ApiClinicalV1OpdOpdReferralReportRouteWithChildren
   ApiClinicalV1OpdOpdRegistrationCreateVisitRoute: typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute: typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   ApiClinicalV1OpdOpdRegistrationProviderLoadRoute: typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
@@ -8157,6 +8184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/opd/opd/referral/report': {
+      id: '/api/clinical/v1/opd/opd/referral/report'
+      path: '/api/clinical/v1/opd/opd/referral/report'
+      fullPath: '/api/clinical/v1/opd/opd/referral/report'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/opd/opd/referral/inter-company': {
       id: '/api/clinical/v1/opd/opd/referral/inter-company'
       path: '/api/clinical/v1/opd/opd/referral/inter-company'
@@ -8534,6 +8568,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/clinical/v1/opd/opd/referral/series/create'
       preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralSeriesCreateRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/referral/report/csv': {
+      id: '/api/clinical/v1/opd/opd/referral/report/csv'
+      path: '/csv'
+      fullPath: '/api/clinical/v1/opd/opd/referral/report/csv'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralReportCsvRouteImport
+      parentRoute: typeof ApiClinicalV1OpdOpdReferralReportRoute
     }
     '/api/clinical/v1/opd/opd/referral/inter-company/create': {
       id: '/api/clinical/v1/opd/opd/referral/inter-company/create'
@@ -10233,6 +10274,21 @@ const ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren =
     ApiClinicalV1OpdOpdReferralInterCompanyRouteChildren,
   )
 
+interface ApiClinicalV1OpdOpdReferralReportRouteChildren {
+  ApiClinicalV1OpdOpdReferralReportCsvRoute: typeof ApiClinicalV1OpdOpdReferralReportCsvRoute
+}
+
+const ApiClinicalV1OpdOpdReferralReportRouteChildren: ApiClinicalV1OpdOpdReferralReportRouteChildren =
+  {
+    ApiClinicalV1OpdOpdReferralReportCsvRoute:
+      ApiClinicalV1OpdOpdReferralReportCsvRoute,
+  }
+
+const ApiClinicalV1OpdOpdReferralReportRouteWithChildren =
+  ApiClinicalV1OpdOpdReferralReportRoute._addFileChildren(
+    ApiClinicalV1OpdOpdReferralReportRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -10511,6 +10567,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1OpdOpdReferralFanOutRoute,
   ApiClinicalV1OpdOpdReferralInterCompanyRoute:
     ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren,
+  ApiClinicalV1OpdOpdReferralReportRoute:
+    ApiClinicalV1OpdOpdReferralReportRouteWithChildren,
   ApiClinicalV1OpdOpdRegistrationCreateVisitRoute:
     ApiClinicalV1OpdOpdRegistrationCreateVisitRoute,
   ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute:

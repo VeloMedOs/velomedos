@@ -870,6 +870,44 @@ export const referralCockpitApi = {
     clinicalFetch<{ ok: true; data: { referrals: any[]; network_enabled: boolean; debt_banner: string } }>(
       `/api/clinical/v1/opd/referral/external${qs(params)}`,
     ),
+  // Step 5 · Turn 3 — Referral report (HCA-1010).
+  report: (params?: ReportFilters) =>
+    clinicalFetch<{ ok: true; data: ReferralReportSummary }>(
+      `/api/clinical/v1/opd/referral/report${qs(params as Record<string, unknown> | undefined)}`,
+    ),
+  reportCsvUrl: (params?: ReportFilters) =>
+    `/api/clinical/v1/opd/referral/report.csv${qs(params as Record<string, unknown> | undefined)}`,
+};
+
+export type ReportFilters = {
+  date_from?: string;
+  date_to?: string;
+  source_specialty?: string;
+  target_kind?: string;
+  cluster_scope?: "own" | "sibling" | "external" | "all";
+};
+
+export type ReferralReportSummary = {
+  filters: Required<Pick<ReportFilters, "date_from" | "date_to">> & {
+    source_specialty: string | null;
+    target_kind: string | null;
+    cluster_scope: "own" | "sibling" | "external" | "all";
+  };
+  totals: {
+    rows: number; referrals: number;
+    accepted: number; declined: number; cancelled: number;
+    completed: number; submitted: number; draft: number;
+  };
+  acceptance_rate: number;
+  external_blocked_share: number;
+  tat: { mean_hours: number | null; p90_hours: number | null };
+  by_source: Array<{ source_specialty: string; count: number }>;
+  by_target: Array<{ target_kind: string; target_specialty: string | null; count: number }>;
+  by_status: Array<{ status: string; count: number }>;
+  cluster_split: { own: number; sibling: number; external: number };
+  series_split: { series: number; single: number };
+  decline_reasons: Array<{ reason: string; count: number }>;
+  truncated: boolean;
 };
 
 // Step 5 · Turn 2 — Referral write endpoints (debt #45).
