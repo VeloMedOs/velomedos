@@ -43,7 +43,9 @@ export type NavTabIdS5T1 =
   | "opd-referral-external"
   | "rcm-rules-admin"
   // Step 5 · Turn 2 — Series booking pane
-  | "opd-referral-series";
+  | "opd-referral-series"
+  // Step 5 · Turn 3 — Referral report (HCA-1010)
+  | "opd-referral-report";
 
 export type NavItemDef = {
   module: string;
@@ -69,6 +71,7 @@ export const NAV_SECTIONS: NavSectionDef[] = [
       { module: "Registration & Eligibility", label: "Inter-company refs",     tab: "opd-referral-inter-company" as NavTabId,   icon: Network },
       { module: "Registration & Eligibility", label: "External referrals",     tab: "opd-referral-external" as NavTabId,        icon: Globe },
       { module: "Registration & Eligibility", label: "Series booking",         tab: "opd-referral-series" as NavTabId,          icon: CalendarDays },
+      { module: "Registration & Eligibility", label: "Referral report",        tab: "opd-referral-report" as NavTabId,          icon: FileText },
       { module: "Clinical",                   label: "Encounter",    tab: "encounters",   icon: Stethoscope },
       { module: "Clinical",                   label: "OPD Day Board", tab: "opd-day-board",     icon: CalendarDays },
       { module: "Clinical",                   label: "Schedule Setup", tab: "opd-schedule-setup", icon: CalendarCog },
@@ -150,6 +153,8 @@ export const ALL_NAV_TABS: NavTabId[] = [
   "rcm-rules-admin" as NavTabId,
   // Step 5 · Turn 2 — Series booking pane.
   "opd-referral-series" as NavTabId,
+  // Step 5 · Turn 3 — Referral report.
+  "opd-referral-report" as NavTabId,
 ];
 
 // Silence unused-import (icons are used in items above; FileText retained
