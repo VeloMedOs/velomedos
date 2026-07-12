@@ -917,6 +917,10 @@ export const referralWritesApi = {
       `/api/clinical/v1/opd/referral/series/create`,
       { method: "POST", body },
     ),
+  seriesEligibleServices: () =>
+    clinicalFetch<{ ok: true; data: Array<{ id: string; name: string | null; specialty: string | null; sub_category: string | null }> }>(
+      `/api/clinical/v1/opd/referral/series/eligible`,
+    ),
   acceptNutrition: (body: { referral_id: string; action: "accept" | "decline"; notes?: string | null }) =>
     clinicalFetch<{ ok: true; data: any }>(
       `/api/clinical/v1/opd/nutrition/referrals/pending`,
