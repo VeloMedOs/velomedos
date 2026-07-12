@@ -9,6 +9,7 @@ import { z } from "zod";
 import { preflight, requireClinicalModule, serviceClient } from "@/lib/api-clinical";
 import { envelope, jsonData, parseBody } from "../_helpers";
 import type { ClinicalRole } from "@/lib/clinical-role-matrix";
+import { sendInterCompanyReferralNotification } from "@/lib/interface/sms-gateway";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -74,19 +75,14 @@ export async function handlePOST(args: {
   }).select("id").single();
   if (tgtErr || !tgtIns) return envelope(tgtErr?.message ?? "insert failed", "db_error", 500);
 
-  // Fire notification stub (SMS gateway remains debt #42).
+  // Convention #27 — always route through the SMS-gateway stub (debt #42).
   try {
-    await db.from("interface_log").insert({
+    await sendInterCompanyReferralNotification({
       tenant_id: args.ctx.tenantId,
-      channel: "inter_company_notify",
-      direction: "out",
-      payload: {
-        referral_id: args.body.referral_id,
-        target_id: (tgtIns as any).id,
-        sibling_tenant_id: args.body.target_entity_id,
-      },
-      status: "queued",
-    });
+      sibling_tenant_id: args.body.target_entity_id,
+      referral_id: args.body.referral_id,
+      target_id: (tgtIns as any).id,
+    }, db);
   } catch { /* best-effort */ }
 
   return jsonData({
