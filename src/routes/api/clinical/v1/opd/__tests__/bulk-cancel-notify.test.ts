@@ -1,6 +1,6 @@
 // @ts-expect-error bun-types conflicts with supabase-js fetch typing
 import { describe, expect, it } from "bun:test";
-import { handlePOST, type BulkCancelBody } from "../opd.disruption.bulk-cancel";
+import { handlePOST, type BulkCancelBody } from "../disruption.bulk-cancel";
 import { makeMockDb } from "@/test/db-mock";
 
 const TENANT = "t1";

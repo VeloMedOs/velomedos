@@ -1,9 +1,9 @@
 // @ts-expect-error bun-types conflicts with supabase-js fetch typing
 import { describe, expect, it } from "bun:test";
-import { handlePOST as fanOutPOST } from "../opd.referral.fan-out";
-import { handlePOST as interCoPOST } from "../opd.referral.inter-company.create";
-import { handlePOST as seriesPOST } from "../opd.referral.series.create";
-import { handlePOST as nutritionPOST } from "../opd.nutrition.referrals.pending";
+import { handlePOST as fanOutPOST } from "../referral.fan-out";
+import { handlePOST as interCoPOST } from "../referral.inter-company.create";
+import { handlePOST as seriesPOST } from "../referral.series.create";
+import { handlePOST as nutritionPOST } from "../nutrition.referrals.pending";
 import { makeMockDb } from "@/test/db-mock";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

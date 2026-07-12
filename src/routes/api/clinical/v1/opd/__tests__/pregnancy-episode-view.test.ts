@@ -1,6 +1,6 @@
 // @ts-expect-error bun-types conflicts with supabase-js fetch typing
 import { describe, expect, it } from "bun:test";
-import { handleGET } from "../opd.maternity.banner";
+import { handleGET } from "../maternity.banner";
 import { makeMockDb } from "@/test/db-mock";
 
 const T = "t1";
