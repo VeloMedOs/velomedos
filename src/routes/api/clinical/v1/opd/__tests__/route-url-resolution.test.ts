@@ -7,6 +7,7 @@
  * `src/routeTree.gen.ts` as text so the check is independent of the
  * router runtime and catches drift at build time.
  */
+// @ts-expect-error bun-types conflicts with project types
 import { describe, it, expect } from "bun:test";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
