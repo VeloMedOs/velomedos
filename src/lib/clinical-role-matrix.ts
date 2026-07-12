@@ -251,6 +251,14 @@ CLINICAL_CAPABILITIES.push(
   { id: "rules.admin",                   module: "Masters & Contracts",        apiNamespace: "/api/clinical/v1/opd/rules/admin",              label: "Manage Rule Engine",           description: "CRUD referral-scoped rows in approval/need_approval/not_covered/pricing rule tables (Rules A–E admin).", roles: ["tenant_admin"] },
 );
 
+// ── Step 5 Turn 2 · Referral write endpoints (debt #45) ───────────────────
+CLINICAL_CAPABILITIES.push(
+  { id: "referral.create",              module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/opd/referral/create",              label: "Create referral",         description: "Doctor-direct referral with per-target rule evaluation (file 08 §B1).",             roles: ["tenant_admin","physician"] },
+  { id: "referral.fan_out",             module: "Clinical",                   apiNamespace: "/api/clinical/v1/opd/referral/fan-out",             label: "Fan-out referral",        description: "Cross-encounter fan-out (ER/IPD/EP/L&D) writing referral targets + sibling rows.",  roles: ["tenant_admin","physician"] },
+  { id: "referral.inter_company.create",module: "Registration & Eligibility", apiNamespace: "/api/clinical/v1/opd/referral/inter-company/create",label: "Send inter-company referral", description: "Write a referral target to a sibling tenant in the same cluster (HCA-0979).",  roles: ["tenant_admin","rcm"] },
+  { id: "referral.series.create",       module: "Clinical",                   apiNamespace: "/api/clinical/v1/opd/referral/series/create",       label: "Book series therapy",     description: "Create N-session series referral + clinic_bookings (physio/dialysis/psychotherapy).", roles: ["tenant_admin","physician"] },
+);
+
 export const CLINICAL_MODULES: string[] = [
   ...new Set(CLINICAL_CAPABILITIES.map((c) => c.module)),
 ];

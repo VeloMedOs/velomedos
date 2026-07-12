@@ -872,6 +872,58 @@ export const referralCockpitApi = {
     ),
 };
 
+// Step 5 · Turn 2 — Referral write endpoints (debt #45).
+export const referralWritesApi = {
+  create: (body: {
+    source_encounter_id: string;
+    target_kind: "specialty" | "encounter" | "entity" | "external_facility";
+    target_encounter_type?: "ER" | "IPD" | "EP" | "L&D" | "OR" | null;
+    target_specialty?: string | null;
+    target_provider_id?: string | null;
+    target_facility_id?: string | null;
+    target_service_id?: string | null;
+    reason: string;
+    clinical_notes?: string | null;
+    same_specialty?: boolean | null;
+    days_since_last_visit?: number | null;
+    sub_category?: string | null;
+    dental?: boolean | null;
+  }) =>
+    clinicalFetch<{ ok: true; data: { referral_id: string; target_id: string; engine_decision: unknown; idempotent?: boolean } }>(
+      `/api/clinical/v1/opd/referral/create`,
+      { method: "POST", body },
+    ),
+  fanOut: (body: { referral_id: string; targets: Array<Record<string, unknown>> }) =>
+    clinicalFetch<{ ok: true; data: { referral_id: string; targets: Array<Record<string, unknown>> } }>(
+      `/api/clinical/v1/opd/referral/fan-out`,
+      { method: "POST", body },
+    ),
+  interCompany: (body: { referral_id: string; target_entity_id: string; target_specialty?: string | null; target_provider_id?: string | null }) =>
+    clinicalFetch<{ ok: true; data: { target_id: string; sibling_tenant_id: string; idempotent?: boolean } }>(
+      `/api/clinical/v1/opd/referral/inter-company/create`,
+      { method: "POST", body },
+    ),
+  series: (body: {
+    origin_encounter_id: string;
+    service_id: string;
+    session_count: number;
+    cadence_days: number;
+    first_session_at?: string | null;
+    clinic_id?: string | null;
+    provider_id?: string | null;
+    beneficiary_id?: string | null;
+  }) =>
+    clinicalFetch<{ ok: true; data: { referral_id: string; series_id: string | null; booking_ids: string[]; idempotent?: boolean } }>(
+      `/api/clinical/v1/opd/referral/series/create`,
+      { method: "POST", body },
+    ),
+  acceptNutrition: (body: { referral_id: string; action: "accept" | "decline"; notes?: string | null }) =>
+    clinicalFetch<{ ok: true; data: any }>(
+      `/api/clinical/v1/opd/nutrition/referrals/pending`,
+      { method: "POST", body },
+    ),
+};
+
 export type RuleTable = "approval_rule" | "need_approval_rule" | "not_covered_rule" | "pricing_rule";
 export const rulesAdminApi = {
   list: (table: RuleTable) =>

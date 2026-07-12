@@ -1,16 +1,11 @@
-# Status — Step 5 · Turn 1 (post-closure hygiene @ 2026-07-11)
+# Status — Step 5 · Turn 2 (in flight @ 2026-07-12)
 
-Turn 1 shipped: 5 pure-handler routes (referral cockpit + cross-encounter + inter-company + external + rules-admin), 5 Daylight panes, `health_cluster` + `corporate_accounts.cluster_id` migration. 165/165 unit tests green.
+Turn 1 closed at 165/165. Turn 2 in progress: 5 referral write endpoints (`create`, `fan-out`, `inter-company.create`, `series.create`, `nutrition.accept`), 2 new migrations (`referral.origin_source`, `referral_target.source_key` UNIQUE idempotency substrate), FanOut / InterCompany dialogs + new `SeriesBookingPane`.
 
-Post-closure fixes landed this turn:
-- Rules-admin route relocated to RCM group: `src/routes/api/clinical/v1/rcm/rcm.rules.admin.ts` (tab id `rcm-rules-admin` now aligns with folder).
-- Raw palette removed from `ExternalReferralsPane` (banner → `.clin-pill.warn`) and `ReferralCockpitPane` (`Chip` → `.clin-pill` tone classes). Residual `text-slate-500` on table sub-labels is inherited shadcn/`DCard` default — kept.
-- Verified `evaluateTriggers` already routes `scope='referral'` correctly (rules.ts line 155: `if (r.scope !== scope) continue`); line-108 filter is inside `evaluate()` (share/eligibility path) and does not gate triggers. `rules-referral.test.ts` imports the production function, no mock.
-- Verified `pricing_rule.scope` has no CHECK constraint (empty `pg_constraint` result); rules-admin POSTs with `scope='referral'` succeed without a migration.
-
-## Turn 2 preview
-
-Referral write endpoints (debt #45): cross-encounter fan-out, inter-company target creation, series booking. Consumes existing referral/scheduling spine — no new tables.
+Repo-truth corrections applied vs draft prompt:
+- `referral.status` **and** `referral_target.status` share enum `public.referral_status = ('draft','submitted','accepted','declined','completed','cancelled')`. Writes use enum values only — no `'requested'|'booking'|'eligibility'|'preauth'` literals (same class as Turn 1 `pricing_rule.scope` near-miss).
+- `encounter.class` is `text` (not enum) — ER fan-out writes `class='EMER'` freely.
+- `admission_request` NOT-NULL / no-default = `tenant_id`, `encounter_id`. Rest defaulted.
 
 ## Debt Register
 
@@ -24,6 +19,7 @@ Referral write endpoints (debt #45): cross-encounter fan-out, inter-company targ
 - **#42** — SMS gateway integration. Open.
 - **#43** — D7 form bindings. Open.
 - **#44** — Hijri calendar (HCA-0051, E2b placeholder in place). Open.
-- **#45** — Referral write endpoints (cross-encounter fan-out, inter-company target creation, series booking). Owner: Step 5 Turn 2. Open.
+- **#45** — Referral write endpoints (cross-encounter fan-out, inter-company target creation, series booking). Owner: Step 5 Turn 2. **RESOLVED (Turn 2).**
+- **#46** — Surgery/OR referral target: `referral_target.target_kind='encounter', target_encounter_type='OR'` returns `422 target_kind_not_ready` from fan-out; no `surgery_booking` table yet. Owner: **Batch C_05 OR**. Open.
 
-Parked: **#14 / #35** (QMS token spine — QMS batch), **#36** (referral cockpit — resolved read-side by Turn 1; write surface tracked as #45).
+Parked: **#14 / #35** (QMS token spine — QMS batch), **#36** (referral cockpit — resolved read side Turn 1 + write side Turn 2).

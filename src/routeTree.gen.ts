@@ -374,8 +374,10 @@ import { Route as ApiClinicalV1OpdOpdRegistrationProviderLoadRouteImport } from 
 import { Route as ApiClinicalV1OpdOpdRegistrationEligibilityFirstRouteImport } from './routes/api/clinical/v1/opd/opd.registration.eligibility-first'
 import { Route as ApiClinicalV1OpdOpdRegistrationCreateVisitRouteImport } from './routes/api/clinical/v1/opd/opd.registration.create-visit'
 import { Route as ApiClinicalV1OpdOpdReferralInterCompanyRouteImport } from './routes/api/clinical/v1/opd/opd.referral.inter-company'
+import { Route as ApiClinicalV1OpdOpdReferralFanOutRouteImport } from './routes/api/clinical/v1/opd/opd.referral.fan-out'
 import { Route as ApiClinicalV1OpdOpdReferralExternalRouteImport } from './routes/api/clinical/v1/opd/opd.referral.external'
 import { Route as ApiClinicalV1OpdOpdReferralCrossEncounterRouteImport } from './routes/api/clinical/v1/opd/opd.referral.cross-encounter'
+import { Route as ApiClinicalV1OpdOpdReferralCreateRouteImport } from './routes/api/clinical/v1/opd/opd.referral.create'
 import { Route as ApiClinicalV1OpdOpdReferralCockpitRouteImport } from './routes/api/clinical/v1/opd/opd.referral.cockpit'
 import { Route as ApiClinicalV1OpdOpdPregnancyEpisodeLinkRouteImport } from './routes/api/clinical/v1/opd/opd.pregnancy-episode.link'
 import { Route as ApiClinicalV1OpdOpdOrdersWalletGateRouteImport } from './routes/api/clinical/v1/opd/opd.orders.wallet-gate'
@@ -423,6 +425,8 @@ import { Route as ApiClinicalV1AuthRequestsIdSubmitRouteImport } from './routes/
 import { Route as ApiClinicalV1AuthRequestsIdDecisionRouteImport } from './routes/api/clinical/v1/auth/requests.$id.decision'
 import { Route as ApiClinicalV1AuthRequestsIdCommunicationsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.communications'
 import { Route as ApiClinicalV1AuthRequestsIdAttachmentsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.attachments'
+import { Route as ApiClinicalV1OpdOpdReferralSeriesCreateRouteImport } from './routes/api/clinical/v1/opd/opd.referral.series.create'
+import { Route as ApiClinicalV1OpdOpdReferralInterCompanyCreateRouteImport } from './routes/api/clinical/v1/opd/opd.referral.inter-company.create'
 import { Route as ApiClinicalV1OpdOpdNutritionReferralsPendingRouteImport } from './routes/api/clinical/v1/opd/opd.nutrition.referrals.pending'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsFeedRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.feed'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.bulk-update'
@@ -2493,6 +2497,12 @@ const ApiClinicalV1OpdOpdReferralInterCompanyRoute =
     path: '/api/clinical/v1/opd/opd/referral/inter-company',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiClinicalV1OpdOpdReferralFanOutRoute =
+  ApiClinicalV1OpdOpdReferralFanOutRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/referral/fan-out',
+    path: '/api/clinical/v1/opd/opd/referral/fan-out',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiClinicalV1OpdOpdReferralExternalRoute =
   ApiClinicalV1OpdOpdReferralExternalRouteImport.update({
     id: '/api/clinical/v1/opd/opd/referral/external',
@@ -2503,6 +2513,12 @@ const ApiClinicalV1OpdOpdReferralCrossEncounterRoute =
   ApiClinicalV1OpdOpdReferralCrossEncounterRouteImport.update({
     id: '/api/clinical/v1/opd/opd/referral/cross-encounter',
     path: '/api/clinical/v1/opd/opd/referral/cross-encounter',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdReferralCreateRoute =
+  ApiClinicalV1OpdOpdReferralCreateRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/referral/create',
+    path: '/api/clinical/v1/opd/opd/referral/create',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiClinicalV1OpdOpdReferralCockpitRoute =
@@ -2786,6 +2802,18 @@ const ApiClinicalV1AuthRequestsIdAttachmentsRoute =
     id: '/attachments',
     path: '/attachments',
     getParentRoute: () => ApiClinicalV1AuthRequestsIdRoute,
+  } as any)
+const ApiClinicalV1OpdOpdReferralSeriesCreateRoute =
+  ApiClinicalV1OpdOpdReferralSeriesCreateRouteImport.update({
+    id: '/api/clinical/v1/opd/opd/referral/series/create',
+    path: '/api/clinical/v1/opd/opd/referral/series/create',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute =
+  ApiClinicalV1OpdOpdReferralInterCompanyCreateRouteImport.update({
+    id: '/create',
+    path: '/create',
+    getParentRoute: () => ApiClinicalV1OpdOpdReferralInterCompanyRoute,
   } as any)
 const ApiClinicalV1OpdOpdNutritionReferralsPendingRoute =
   ApiClinicalV1OpdOpdNutritionReferralsPendingRouteImport.update({
@@ -3204,9 +3232,11 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
   '/api/clinical/v1/opd/opd/referral/cockpit': typeof ApiClinicalV1OpdOpdReferralCockpitRoute
+  '/api/clinical/v1/opd/opd/referral/create': typeof ApiClinicalV1OpdOpdReferralCreateRoute
   '/api/clinical/v1/opd/opd/referral/cross-encounter': typeof ApiClinicalV1OpdOpdReferralCrossEncounterRoute
   '/api/clinical/v1/opd/opd/referral/external': typeof ApiClinicalV1OpdOpdReferralExternalRoute
-  '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRoute
+  '/api/clinical/v1/opd/opd/referral/fan-out': typeof ApiClinicalV1OpdOpdReferralFanOutRoute
+  '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren
   '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/registration/provider-load': typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
@@ -3223,6 +3253,8 @@ export interface FileRoutesByFullPath {
   '/api/clinical/v1/masters/price-lists/$id/items/bulk-update': typeof ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRoute
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
+  '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
+  '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -3620,9 +3652,11 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
   '/api/clinical/v1/opd/opd/referral/cockpit': typeof ApiClinicalV1OpdOpdReferralCockpitRoute
+  '/api/clinical/v1/opd/opd/referral/create': typeof ApiClinicalV1OpdOpdReferralCreateRoute
   '/api/clinical/v1/opd/opd/referral/cross-encounter': typeof ApiClinicalV1OpdOpdReferralCrossEncounterRoute
   '/api/clinical/v1/opd/opd/referral/external': typeof ApiClinicalV1OpdOpdReferralExternalRoute
-  '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRoute
+  '/api/clinical/v1/opd/opd/referral/fan-out': typeof ApiClinicalV1OpdOpdReferralFanOutRoute
+  '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren
   '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/registration/provider-load': typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
@@ -3639,6 +3673,8 @@ export interface FileRoutesByTo {
   '/api/clinical/v1/masters/price-lists/$id/items/bulk-update': typeof ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRoute
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
+  '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
+  '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -4040,9 +4076,11 @@ export interface FileRoutesById {
   '/api/clinical/v1/opd/opd/orders/wallet-gate': typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   '/api/clinical/v1/opd/opd/pregnancy-episode/link': typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
   '/api/clinical/v1/opd/opd/referral/cockpit': typeof ApiClinicalV1OpdOpdReferralCockpitRoute
+  '/api/clinical/v1/opd/opd/referral/create': typeof ApiClinicalV1OpdOpdReferralCreateRoute
   '/api/clinical/v1/opd/opd/referral/cross-encounter': typeof ApiClinicalV1OpdOpdReferralCrossEncounterRoute
   '/api/clinical/v1/opd/opd/referral/external': typeof ApiClinicalV1OpdOpdReferralExternalRoute
-  '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRoute
+  '/api/clinical/v1/opd/opd/referral/fan-out': typeof ApiClinicalV1OpdOpdReferralFanOutRoute
+  '/api/clinical/v1/opd/opd/referral/inter-company': typeof ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren
   '/api/clinical/v1/opd/opd/registration/create-visit': typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   '/api/clinical/v1/opd/opd/registration/eligibility-first': typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   '/api/clinical/v1/opd/opd/registration/provider-load': typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
@@ -4059,6 +4097,8 @@ export interface FileRoutesById {
   '/api/clinical/v1/masters/price-lists/$id/items/bulk-update': typeof ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRoute
   '/api/clinical/v1/masters/price-lists/$id/items/feed': typeof ApiClinicalV1MastersPriceListsIdItemsFeedRoute
   '/api/clinical/v1/opd/opd/nutrition/referrals/pending': typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
+  '/api/clinical/v1/opd/opd/referral/inter-company/create': typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
+  '/api/clinical/v1/opd/opd/referral/series/create': typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -4460,8 +4500,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
     | '/api/clinical/v1/opd/opd/referral/cockpit'
+    | '/api/clinical/v1/opd/opd/referral/create'
     | '/api/clinical/v1/opd/opd/referral/cross-encounter'
     | '/api/clinical/v1/opd/opd/referral/external'
+    | '/api/clinical/v1/opd/opd/referral/fan-out'
     | '/api/clinical/v1/opd/opd/referral/inter-company'
     | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
@@ -4479,6 +4521,8 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items/bulk-update'
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
+    | '/api/clinical/v1/opd/opd/referral/inter-company/create'
+    | '/api/clinical/v1/opd/opd/referral/series/create'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -4876,8 +4920,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
     | '/api/clinical/v1/opd/opd/referral/cockpit'
+    | '/api/clinical/v1/opd/opd/referral/create'
     | '/api/clinical/v1/opd/opd/referral/cross-encounter'
     | '/api/clinical/v1/opd/opd/referral/external'
+    | '/api/clinical/v1/opd/opd/referral/fan-out'
     | '/api/clinical/v1/opd/opd/referral/inter-company'
     | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
@@ -4895,6 +4941,8 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items/bulk-update'
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
+    | '/api/clinical/v1/opd/opd/referral/inter-company/create'
+    | '/api/clinical/v1/opd/opd/referral/series/create'
   id:
     | '__root__'
     | '/'
@@ -5295,8 +5343,10 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/opd/opd/orders/wallet-gate'
     | '/api/clinical/v1/opd/opd/pregnancy-episode/link'
     | '/api/clinical/v1/opd/opd/referral/cockpit'
+    | '/api/clinical/v1/opd/opd/referral/create'
     | '/api/clinical/v1/opd/opd/referral/cross-encounter'
     | '/api/clinical/v1/opd/opd/referral/external'
+    | '/api/clinical/v1/opd/opd/referral/fan-out'
     | '/api/clinical/v1/opd/opd/referral/inter-company'
     | '/api/clinical/v1/opd/opd/registration/create-visit'
     | '/api/clinical/v1/opd/opd/registration/eligibility-first'
@@ -5314,6 +5364,8 @@ export interface FileRouteTypes {
     | '/api/clinical/v1/masters/price-lists/$id/items/bulk-update'
     | '/api/clinical/v1/masters/price-lists/$id/items/feed'
     | '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
+    | '/api/clinical/v1/opd/opd/referral/inter-company/create'
+    | '/api/clinical/v1/opd/opd/referral/series/create'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -5523,9 +5575,11 @@ export interface RootRouteChildren {
   ApiClinicalV1OpdOpdOrdersWalletGateRoute: typeof ApiClinicalV1OpdOpdOrdersWalletGateRoute
   ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute: typeof ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute
   ApiClinicalV1OpdOpdReferralCockpitRoute: typeof ApiClinicalV1OpdOpdReferralCockpitRoute
+  ApiClinicalV1OpdOpdReferralCreateRoute: typeof ApiClinicalV1OpdOpdReferralCreateRoute
   ApiClinicalV1OpdOpdReferralCrossEncounterRoute: typeof ApiClinicalV1OpdOpdReferralCrossEncounterRoute
   ApiClinicalV1OpdOpdReferralExternalRoute: typeof ApiClinicalV1OpdOpdReferralExternalRoute
-  ApiClinicalV1OpdOpdReferralInterCompanyRoute: typeof ApiClinicalV1OpdOpdReferralInterCompanyRoute
+  ApiClinicalV1OpdOpdReferralFanOutRoute: typeof ApiClinicalV1OpdOpdReferralFanOutRoute
+  ApiClinicalV1OpdOpdReferralInterCompanyRoute: typeof ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren
   ApiClinicalV1OpdOpdRegistrationCreateVisitRoute: typeof ApiClinicalV1OpdOpdRegistrationCreateVisitRoute
   ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute: typeof ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute
   ApiClinicalV1OpdOpdRegistrationProviderLoadRoute: typeof ApiClinicalV1OpdOpdRegistrationProviderLoadRoute
@@ -5536,6 +5590,7 @@ export interface RootRouteChildren {
   ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute: typeof ApiClinicalV1SchedulerBookingsIdEligibilityCheckRoute
   ApiClinicalV1SchedulerBookingsIdStatusRoute: typeof ApiClinicalV1SchedulerBookingsIdStatusRoute
   ApiClinicalV1OpdOpdNutritionReferralsPendingRoute: typeof ApiClinicalV1OpdOpdNutritionReferralsPendingRoute
+  ApiClinicalV1OpdOpdReferralSeriesCreateRoute: typeof ApiClinicalV1OpdOpdReferralSeriesCreateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -8095,6 +8150,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralInterCompanyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/clinical/v1/opd/opd/referral/fan-out': {
+      id: '/api/clinical/v1/opd/opd/referral/fan-out'
+      path: '/api/clinical/v1/opd/opd/referral/fan-out'
+      fullPath: '/api/clinical/v1/opd/opd/referral/fan-out'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralFanOutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/clinical/v1/opd/opd/referral/external': {
       id: '/api/clinical/v1/opd/opd/referral/external'
       path: '/api/clinical/v1/opd/opd/referral/external'
@@ -8107,6 +8169,13 @@ declare module '@tanstack/react-router' {
       path: '/api/clinical/v1/opd/opd/referral/cross-encounter'
       fullPath: '/api/clinical/v1/opd/opd/referral/cross-encounter'
       preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralCrossEncounterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/referral/create': {
+      id: '/api/clinical/v1/opd/opd/referral/create'
+      path: '/api/clinical/v1/opd/opd/referral/create'
+      fullPath: '/api/clinical/v1/opd/opd/referral/create'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/clinical/v1/opd/opd/referral/cockpit': {
@@ -8437,6 +8506,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/clinical/v1/auth/requests/$id/attachments'
       preLoaderRoute: typeof ApiClinicalV1AuthRequestsIdAttachmentsRouteImport
       parentRoute: typeof ApiClinicalV1AuthRequestsIdRoute
+    }
+    '/api/clinical/v1/opd/opd/referral/series/create': {
+      id: '/api/clinical/v1/opd/opd/referral/series/create'
+      path: '/api/clinical/v1/opd/opd/referral/series/create'
+      fullPath: '/api/clinical/v1/opd/opd/referral/series/create'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralSeriesCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clinical/v1/opd/opd/referral/inter-company/create': {
+      id: '/api/clinical/v1/opd/opd/referral/inter-company/create'
+      path: '/create'
+      fullPath: '/api/clinical/v1/opd/opd/referral/inter-company/create'
+      preLoaderRoute: typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRouteImport
+      parentRoute: typeof ApiClinicalV1OpdOpdReferralInterCompanyRoute
     }
     '/api/clinical/v1/opd/opd/nutrition/referrals/pending': {
       id: '/api/clinical/v1/opd/opd/nutrition/referrals/pending'
@@ -10114,6 +10197,21 @@ const ApiClinicalV1OpdOpdRoutingRouteRouteWithChildren =
     ApiClinicalV1OpdOpdRoutingRouteRouteChildren,
   )
 
+interface ApiClinicalV1OpdOpdReferralInterCompanyRouteChildren {
+  ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute: typeof ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute
+}
+
+const ApiClinicalV1OpdOpdReferralInterCompanyRouteChildren: ApiClinicalV1OpdOpdReferralInterCompanyRouteChildren =
+  {
+    ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute:
+      ApiClinicalV1OpdOpdReferralInterCompanyCreateRoute,
+  }
+
+const ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren =
+  ApiClinicalV1OpdOpdReferralInterCompanyRoute._addFileChildren(
+    ApiClinicalV1OpdOpdReferralInterCompanyRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -10382,12 +10480,16 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1OpdOpdPregnancyEpisodeLinkRoute,
   ApiClinicalV1OpdOpdReferralCockpitRoute:
     ApiClinicalV1OpdOpdReferralCockpitRoute,
+  ApiClinicalV1OpdOpdReferralCreateRoute:
+    ApiClinicalV1OpdOpdReferralCreateRoute,
   ApiClinicalV1OpdOpdReferralCrossEncounterRoute:
     ApiClinicalV1OpdOpdReferralCrossEncounterRoute,
   ApiClinicalV1OpdOpdReferralExternalRoute:
     ApiClinicalV1OpdOpdReferralExternalRoute,
+  ApiClinicalV1OpdOpdReferralFanOutRoute:
+    ApiClinicalV1OpdOpdReferralFanOutRoute,
   ApiClinicalV1OpdOpdReferralInterCompanyRoute:
-    ApiClinicalV1OpdOpdReferralInterCompanyRoute,
+    ApiClinicalV1OpdOpdReferralInterCompanyRouteWithChildren,
   ApiClinicalV1OpdOpdRegistrationCreateVisitRoute:
     ApiClinicalV1OpdOpdRegistrationCreateVisitRoute,
   ApiClinicalV1OpdOpdRegistrationEligibilityFirstRoute:
@@ -10408,6 +10510,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiClinicalV1SchedulerBookingsIdStatusRoute,
   ApiClinicalV1OpdOpdNutritionReferralsPendingRoute:
     ApiClinicalV1OpdOpdNutritionReferralsPendingRoute,
+  ApiClinicalV1OpdOpdReferralSeriesCreateRoute:
+    ApiClinicalV1OpdOpdReferralSeriesCreateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
