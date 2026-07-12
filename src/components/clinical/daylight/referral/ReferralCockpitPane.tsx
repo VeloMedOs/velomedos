@@ -84,12 +84,13 @@ export function ReferralCockpitPane() {
                 <th className="px-3 py-2">Rule decision</th>
                 <th className="px-3 py-2">Status</th>
                 <th className="px-3 py-2">Created</th>
+                <th className="px-3 py-2">Actions</th>
               </tr>
             </thead>
             <tbody data-testid="cockpit-rows">
-              {q.isLoading && <tr><td colSpan={7} className="px-3 py-6 text-center text-slate-500">Loading…</td></tr>}
+              {q.isLoading && <tr><td colSpan={8} className="px-3 py-6 text-center text-slate-500">Loading…</td></tr>}
               {!q.isLoading && rows.length === 0 && (
-                <tr><td colSpan={7} className="px-3 py-6 text-center text-slate-500">No referrals.</td></tr>
+                <tr><td colSpan={8} className="px-3 py-6 text-center text-slate-500">No referrals.</td></tr>
               )}
               {rows.map((r) => (
                 <tr key={r.id} className="border-b hover:bg-slate-50" data-referral-id={r.id}>
@@ -124,7 +125,6 @@ export function ReferralCockpitPane() {
                 </tr>
               ))}
             </tbody>
-            <thead className="sr-only"><tr><th>Actions</th></tr></thead>
           </table>
         </div>
       </DCard>
