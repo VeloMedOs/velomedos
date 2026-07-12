@@ -93,3 +93,22 @@ Waiting for the actual commit.
 Out of scope (Batch 2)
 
 `/demo-tour` route, `BusinessIntakeModal`, `BusinessManagementPane` with three tabs, ~15 superadmin routes for business_requests / tenant_provisioning_request advancement, DemoBanner CTA wiring, landing-page CTAs, and the ≥237-test target all defer to Batch 2 as approved.
+---
+
+## Landed — WW1 + WW2 closure
+
+**Commit target: this turn.**
+
+- `src/lib/demo-credentials.functions.ts` — added module-scope `isPublicVisible` (line 62) filtering `clinical_role === "physician"`. Applied at all four public branches: `getDemoPublicState` fallback error path, fallback empty-table path, and main `.map(...)` (line ~260); same three points in `getDemoPublicStateRest` (line ~296). Superadmin paths untouched.
+- `src/routes/api/admin/v1/demo.reset.ts` line 10 — header comment now reads `corporate_accounts.tenant_type = 'sandbox'` with a `resolveDemoTenant()` returns `not_sandbox_tenant` cross-reference. Grep gate `rg "is_demo" src/routes/api/admin/v1/demo` → 0 hits.
+- Regression fixture `src/lib/demo-credentials-public-filter.test.ts` — 3 tests, all passing under `bun test`: `getDemoPublicStateRest` full-roster → 1 physician row; empty-table fallback → 1 physician row from `FALLBACK_PUBLIC_ACCOUNTS`; reveal-on path leaks only physician password.
+
+### Ratified enum shapes (for Batch 2 planning)
+
+- `tenant_type` = `sandbox | partner | production` (3 values).
+- `tenant_lifecycle` = `intake | provisioning | active | suspended | archived` (5 values). Promotion path `intake → provisioning → active`; terminal `suspended`, `archived`.
+- `platform_settings.demo_videos_enabled.value` shape is `{ enabled: boolean }` — Batch 2 `/demo-tour` reader accesses `.value.enabled`, not `.value`.
+
+### Out of scope for this closure (still open, tracked for Batch 2)
+
+`src/lib/demo-mode.ts` still selects the retired `is_demo` column (lines 28/31). Not part of WW2 (which was scoped to `demo.reset.ts`) — will be replaced by the `tenant_type === 'sandbox'` read path in Batch 2 alongside the `/demo-tour` and `BusinessManagementPane` work.
