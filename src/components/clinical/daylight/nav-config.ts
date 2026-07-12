@@ -148,6 +148,8 @@ export const ALL_NAV_TABS: NavTabId[] = [
   "opd-referral-inter-company" as NavTabId,
   "opd-referral-external" as NavTabId,
   "rcm-rules-admin" as NavTabId,
+  // Step 5 · Turn 2 — Series booking pane.
+  "opd-referral-series" as NavTabId,
 ];
 
 // Silence unused-import (icons are used in items above; FileText retained
