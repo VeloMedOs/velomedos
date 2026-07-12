@@ -9,6 +9,7 @@ import { z } from "zod";
 import { preflight, requireClinicalModule, serviceClient } from "@/lib/api-clinical";
 import { envelope, jsonData, parseBody } from "../_helpers";
 import type { ClinicalRole } from "@/lib/clinical-role-matrix";
+import { evaluateTriggers, foldTriggerOutcome } from "@/lib/mds/rules";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -48,6 +49,22 @@ export async function handlePOST(args: {
     );
   }
 
+  // Rule engine consultation (Rule C · series therapy).
+  const { data: rules } = await db.from("pricing_rule")
+    .select("id,name,scope,priority,condition,action,tenant_id,active")
+    .or(`tenant_id.eq.${args.ctx.tenantId},tenant_id.is.null`)
+    .eq("active", true)
+    .order("priority", { ascending: true });
+  const facts: Record<string, unknown> = {
+    sub_category: (svc as any).sub_category,
+    service_id: b.service_id,
+    target_specialty: (svc as any).specialty ?? null,
+    session_count: b.session_count,
+  };
+  const hits = evaluateTriggers((rules ?? []) as any[], facts, "referral");
+  const decision = foldTriggerOutcome(hits, {});
+  const chargeMode = (decision as any)?.charge_mode ?? "series";
+
   const sourceKey = `series:${b.origin_encounter_id}:${b.service_id}`;
   const { data: existing } = await db.from("referral_target")
     .select("id, referral_id")
@@ -79,7 +96,7 @@ export async function handlePOST(args: {
     referral_class: "intra",
     status: "accepted",
     origin_source: "doctor_direct",
-    charge_mode: "series",
+    charge_mode: chargeMode,
     reason: `Series therapy: ${(svc as any).name ?? b.service_id}`,
   }).select("id").single();
   if (refErr || !refIns) return envelope(refErr?.message ?? "insert failed", "db_error", 500);
@@ -125,6 +142,7 @@ export async function handlePOST(args: {
       referral_id: (refIns as any).id,
       series_id: seriesId,
       booking_ids: ((bkIns ?? []) as any[]).map((r: any) => r.id),
+      engine_decision: decision,
     },
   }, 201);
 }
