@@ -1,4 +1,6 @@
-# Status — Step 5 · Turn 2 (in flight @ 2026-07-12)
+# Status — Step 5 · Turn 2 UI round (shipped @ 2026-07-12)
+
+UI round: FanOutDialog + IPDStubBanner, InterCompanyDialog, SeriesBookingPane on new `opd-referral-series` tab, ReferralCockpitPane row actions (Fan out / Accept / Decline). 8 UI-contract fixtures added (total 184 green).
 
 Turn 1 closed at 165/165. Turn 2 in progress: 5 referral write endpoints (`create`, `fan-out`, `inter-company.create`, `series.create`, `nutrition.accept`), 2 new migrations (`referral.origin_source`, `referral_target.source_key` UNIQUE idempotency substrate), FanOut / InterCompany dialogs + new `SeriesBookingPane`.
 
