@@ -58,8 +58,12 @@ describe("route URL resolution — no duplicate segments", () => {
     it(`registers ${url}`, () => {
       // Match the generated `path: '<url>'` line exactly to ensure the
       // route is registered at the client-called URL, not a variant.
-      const needle = `path: '${url}'`;
-      expect(tree.includes(needle)).toBe(true);
+      // Children of layout (`.route.ts`) routes are registered only via
+      // `id: '<url>'`; standalone routes register both `id` and `path`.
+      // Accept either.
+      const hasId = tree.includes(`id: '${url}'`);
+      const hasPath = tree.includes(`path: '${url}'`);
+      expect(hasId || hasPath).toBe(true);
     });
   }
 });
