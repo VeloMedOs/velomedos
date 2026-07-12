@@ -48,6 +48,8 @@ type TargetResult = {
   status?: string;
   engine_decision?: unknown;
   sibling_write?: { table: string; id: string } | null;
+  admission_request_id?: string;
+  awaiting?: string[];
   error?: { code: string; message: string; hint?: string };
 };
 
@@ -185,6 +187,9 @@ export async function handlePOST(args: {
       status: wantsSibling ? "submitted" : "draft",
       engine_decision: decision,
       sibling_write: sibling,
+      ...(t.target_encounter_type === "IPD" && sibling
+        ? { admission_request_id: sibling.id, awaiting: ["mrp", "payer", "coverage", "room_type"] }
+        : {}),
     });
   }
 
