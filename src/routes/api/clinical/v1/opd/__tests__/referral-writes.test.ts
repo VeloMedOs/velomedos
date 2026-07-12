@@ -90,9 +90,46 @@ describe("Step 5 · Turn 2 — Referral writes (debt #45)", () => {
     });
     const j = await res.json();
     expect(j.data.targets[0].sibling_write.table).toBe("admission_request");
+    expect(j.data.targets[0].admission_request_id).toBe(j.data.targets[0].sibling_write.id);
+    expect(j.data.targets[0].awaiting).toEqual(["mrp", "payer", "coverage", "room_type"]);
     expect(db.tables.admission_request).toHaveLength(1);
     expect(j.data.targets[1].error.code).toBe("target_kind_not_ready");
     expect(j.data.targets[1].error.hint).toMatch(/#46/);
+  });
+
+  it("fan-out atomicity: sibling failure unwinds target + encounter (no partial state)", async () => {
+    const { client, db } = makeMockDb({
+      tables: {
+        referral: [{ id: "r1", tenant_id: TENANT, source_encounter_id: "e1", beneficiary_id: "b1", referral_class: "cross_encounter", status: "draft" }],
+        referral_target: [], pricing_rule: [], encounter: [], encounter_emergency: [],
+      },
+    });
+    // Wrap: force encounter_emergency insert to fail.
+    const origFrom = client.from.bind(client);
+    (client as any).from = (table: string) => {
+      const chain = origFrom(table);
+      if (table === "encounter_emergency") {
+        const origInsert = chain.insert.bind(chain);
+        chain.insert = (rows: any) => {
+          origInsert(rows);
+          const failing: any = {
+            select: () => failing,
+            single: async () => ({ data: null, error: { message: "boom" } }),
+            then: (r: any) => Promise.resolve({ data: null, error: { message: "boom" } }).then(r),
+          };
+          return failing;
+        };
+      }
+      return chain;
+    };
+    const res = await fanOutPOST({
+      body: { referral_id: "r1", targets: [{ target_kind: "encounter", target_encounter_type: "ER" }] } as any,
+      ctx: CTX, db: client,
+    });
+    const j = await res.json();
+    expect(j.data.targets[0].error.code).toBe("sibling_write_failed");
+    expect(db.tables.referral_target).toHaveLength(0);
+    expect(db.tables.encounter).toHaveLength(0);
   });
 
   it("fan-out: idempotent replay reuses target rows", async () => {
