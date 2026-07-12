@@ -7,7 +7,8 @@ import { runResetDemoFromHeader } from "@/lib/demo-seed.functions";
  *
  * Superadmin-only. Deletes transactional rows for the demo tenant (FK-child
  * first, scoped DELETE — never TRUNCATE) and re-runs the seed. Refuses to
- * run unless `corporate_accounts.is_demo = true` for the resolved tenant.
+ * run unless `corporate_accounts.tenant_type = 'sandbox'` for the resolved
+ * tenant (`resolveDemoTenant()` returns `not_sandbox_tenant` otherwise).
  */
 export const Route = createFileRoute("/api/admin/v1/demo/reset")({
   server: {
