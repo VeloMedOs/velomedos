@@ -54,6 +54,14 @@ const FALLBACK_PUBLIC_ACCOUNTS: DemoPublicAccount[] = [
   { email: "patient@demo.velomedos.com", role_label: "Patient", clinical_role: null, lands_on: "/patient" },
 ];
 
+// Round 1 hardening (Option A): anonymous callers only see the physician
+// row — superadmin / tenant-admin / support emails must not leak to
+// `/demo-login` or `/api/public/v1/demo/credentials`. Applied to the two
+// public entry points only; the superadmin-gated paths keep the full
+// roster.
+const isPublicVisible = (r: { clinical_role: string | null }) =>
+  r.clinical_role === "physician";
+
 async function requireSuperadminFromHeader(authHeader: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const token = (authHeader || "").toLowerCase().startsWith("bearer ") ? authHeader.slice(7) : "";
@@ -245,14 +253,14 @@ export const getDemoPublicState = createServerFn({ method: "GET" }).handler(asyn
     .from("demo_credentials")
     .select("email, role_label, clinical_role, lands_on, sort_order")
     .order("sort_order", { ascending: true });
-  if (error) return { ok: true as const, reveal: false, fallback: true, warning: error.message, accounts: FALLBACK_PUBLIC_ACCOUNTS };
-  if (!data?.length) return { ok: true as const, reveal: false, fallback: true, warning: "demo_credentials_empty", accounts: FALLBACK_PUBLIC_ACCOUNTS };
+  if (error) return { ok: true as const, reveal: false, fallback: true, warning: error.message, accounts: FALLBACK_PUBLIC_ACCOUNTS.filter(isPublicVisible) };
+  if (!data?.length) return { ok: true as const, reveal: false, fallback: true, warning: "demo_credentials_empty", accounts: FALLBACK_PUBLIC_ACCOUNTS.filter(isPublicVisible) };
   let pwBy = new Map<string, string>();
   if (reveal) {
     const { data: secrets } = await (supabaseAdmin as any).from("demo_credential_secrets").select("email, password");
     pwBy = new Map((secrets ?? []).map((s: any) => [s.email as string, s.password as string]));
   }
-  const accounts: DemoPublicAccount[] = (data ?? []).map((r: any) => ({
+  const accounts: DemoPublicAccount[] = (data ?? []).filter(isPublicVisible).map((r: any) => ({
     email: r.email,
     role_label: r.role_label,
     clinical_role: r.clinical_role,
@@ -289,14 +297,14 @@ export async function getDemoPublicStateRest() {
     .from("demo_credentials")
     .select("email, role_label, clinical_role, lands_on, sort_order")
     .order("sort_order", { ascending: true });
-  if (error) return { ok: true as const, reveal: false, fallback: true, warning: error.message, accounts: FALLBACK_PUBLIC_ACCOUNTS };
-  if (!data?.length) return { ok: true as const, reveal: false, fallback: true, warning: "demo_credentials_empty", accounts: FALLBACK_PUBLIC_ACCOUNTS };
+  if (error) return { ok: true as const, reveal: false, fallback: true, warning: error.message, accounts: FALLBACK_PUBLIC_ACCOUNTS.filter(isPublicVisible) };
+  if (!data?.length) return { ok: true as const, reveal: false, fallback: true, warning: "demo_credentials_empty", accounts: FALLBACK_PUBLIC_ACCOUNTS.filter(isPublicVisible) };
   let pwBy = new Map<string, string>();
   if (reveal) {
     const { data: secrets } = await (supabaseAdmin as any).from("demo_credential_secrets").select("email, password");
     pwBy = new Map((secrets ?? []).map((s: any) => [s.email as string, s.password as string]));
   }
-  const accounts: DemoPublicAccount[] = (data ?? []).map((r: any) => ({
+  const accounts: DemoPublicAccount[] = (data ?? []).filter(isPublicVisible).map((r: any) => ({
     email: r.email,
     role_label: r.role_label,
     clinical_role: r.clinical_role,
