@@ -10,6 +10,7 @@ import { HeroCommandPanel } from "@/components/marketing/HeroCommandPanel";
 import { PartnerMarquee } from "@/components/marketing/PartnerMarquee";
 import { PartnerIntakeSection } from "@/components/marketing/PartnerIntakeSection";
 import { useSiteContent } from "@/lib/use-site-content";
+import { BusinessIntakeModal } from "@/components/marketing/BusinessIntakeModal";
 
 const HOME_FAQS = [
   { q: "Who is VeloMed OS built for?", a: "Multi-branch care operators: ambulance services running many branches, mobile-clinic companies, home/remote care providers, and site/occupational health teams in mining, construction, camps and clubs." },
@@ -39,10 +40,17 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [stats, setStats] = useState<{ branches_live: number; active_cases: number; teams_live: number; credentials_expiring_7d: number } | null>(null);
   const { get, preview } = useSiteContent("en");
+  const [intakeOpen, setIntakeOpen] = useState(false);
   useEffect(() => {
     let cancel = false;
     fetch("/api/public/v1/stats").then((r) => r.ok ? r.json() : null).then((d) => { if (!cancel && d) setStats(d); }).catch(() => {});
     return () => { cancel = true; };
+  }, []);
+  // DemoBanner + external links can request the intake modal via ?intake=1.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("intake") === "1") setIntakeOpen(true);
   }, []);
   const items = [
     { kpi: stats?.branches_live ?? 5, label: "Branches live" },
@@ -270,13 +278,28 @@ function Index() {
           <h2 className="font-serif text-4xl lg:text-6xl tracking-tight leading-[1.02] whitespace-pre-line">{get("cta.final", "See your whole network\non the map in 30 minutes.")}</h2>
           <p className="text-muted-foreground mt-5 max-w-xl mx-auto">{get("cta.subcopy", "We'll bring the sample data — branches, regions, crews and live cases — preloaded with your operating cities.")}</p>
           <div className="mt-7 flex flex-wrap gap-3 justify-center">
-            <Link to="/demo" className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-teal text-background mono text-xs uppercase tracking-widest font-bold shadow-[0_0_28px_oklch(0.74_0.13_195/0.35)]">Book a demo <ArrowRight className="size-3.5" /></Link>
+            <button
+              type="button"
+              onClick={() => setIntakeOpen(true)}
+              data-testid="landing-book-demo"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-teal text-background mono text-xs uppercase tracking-widest font-bold shadow-[0_0_28px_oklch(0.74_0.13_195/0.35)]"
+            >
+              Book a demo <ArrowRight className="size-3.5" />
+            </button>
+            <Link
+              to="/demo-tour"
+              data-testid="landing-try-sandbox"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-teal text-teal mono text-xs uppercase tracking-widest hover:bg-teal/10"
+            >
+              Try sandbox <ArrowRight className="size-3.5" />
+            </Link>
             <Link to="/contact" className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-hairline mono text-xs uppercase tracking-widest hover:bg-panel">Talk to us <ArrowRight className="size-3.5" /></Link>
           </div>
         </div>
       </section>
       </main>
       <SiteFooter />
+      {intakeOpen && <BusinessIntakeModal onClose={() => setIntakeOpen(false)} />}
     </div>
   );
 }
