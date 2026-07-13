@@ -18,20 +18,33 @@ function envForce(): boolean {
   return String(process.env.DEMO_MODE ?? "").toLowerCase() === "true";
 }
 
+/** Pure predicate — exposed for unit tests so the tenant_type semantics
+ *  can be asserted without touching the DB or the module-scope cache. */
+export function computeIsDemo(row: { tenant_type?: string | null } | null | undefined, force: boolean): boolean {
+  return force || row?.tenant_type === "sandbox";
+}
+
+/** Pure predicate for `getDemoTenantId` defensive check. */
+export function resolveDemoTenantId(row: { id?: string | null; tenant_type?: string | null } | null | undefined): string | null {
+  if (!row || row.tenant_type !== "sandbox") return null;
+  return row.id ?? null;
+}
+
 export async function isDemoTenant(tenantId: string | null | undefined): Promise<boolean> {
-  if (!tenantId) return envForce();
+  const force = envForce();
+  if (!tenantId) return force;
   const hit = cache.get(tenantId);
   const now = Date.now();
-  if (hit && hit.expires > now) return hit.value || envForce();
+  if (hit && hit.expires > now) return hit.value || force;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data } = await (serviceClient() as any)
     .from("corporate_accounts")
     .select("tenant_type")
     .eq("id", tenantId)
     .maybeSingle();
-  const value = data?.tenant_type === "sandbox";
+  const value = computeIsDemo(data, false);
   cache.set(tenantId, { value, expires: now + TTL_MS });
-  return value || envForce();
+  return value || force;
 }
 
 export async function getDemoTenantId(): Promise<string | null> {
@@ -41,11 +54,7 @@ export async function getDemoTenantId(): Promise<string | null> {
     .select("id, tenant_type")
     .eq("slug", DEMO_TENANT_SLUG)
     .maybeSingle();
-  // Defensive: refuse to hand back the id if the slug-tagged row is not
-  // actually a sandbox tenant (guards against future migrations that might
-  // reuse the demo slug for a production tenant).
-  if (!data || data.tenant_type !== "sandbox") return null;
-  return data.id ?? null;
+  return resolveDemoTenantId(data);
 }
 
 export function invalidateDemoCache(tenantId?: string) {
