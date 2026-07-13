@@ -7,6 +7,7 @@ const ALLOWED_PATCH_FIELDS = new Set([
   "contact_name","contact_email","contact_phone",
   "fleet_size","use_case","notes","source","source_detail","stage","status",
   "assigned_to","expected_seats","estimated_value_cents","currency",
+  "reviewer_notes",
 ]);
 
 export const Route = createFileRoute("/api/admin/v1/business-requests/$id")({

@@ -1,114 +1,162 @@
-## WW1 + WW2 — Batch 1 final closures
+## Round 1 · Batch 2 — Panes + `/demo-tour` + intake modal + is_demo cleanup
 
-Two small hardening edits to finish Round 1 Batch 1 before Batch 2 unlocks.
+Baseline: 224 unit green (Batch 1 close). Target ≥237 (+13).
 
-### WW1 — Physician-only filter on the public credentials path
+### Auth pattern for new admin routes (Batch2-W1)
 
-`src/lib/demo-credentials.functions.ts`
+All new superadmin endpoints use the established pattern from `src/routes/api/admin/v1/business-requests.ts`:
 
-Both public entry points today (`getDemoPublicState` server-fn and `getDemoPublicStateRest` REST helper) return the entire 13-account roster, exposing `superadmin@…`, `admin@…`, and every support-role email to any anonymous caller. Apply Option A hardening as a public-only filter — the shared code stays, the filter is scoped to the two public entry points.
-
-Change:
-
-1. Add a single-line pure helper (module-scope) that keeps the filter definition in one place:
-  ```ts
-   // Round 1 hardening: anonymous callers only see the physician row —
-   // superadmin/tenant-admin/support emails must not leak to the public
-   // /demo-login and /api/public/v1/demo/credentials surfaces.
-   const isPublicVisible = (r: { clinical_role: string | null }) =>
-     r.clinical_role === "physician";
-  ```
-2. In `getDemoPublicState` (line 241) and `getDemoPublicStateRest` (line 285):
-  - Filter `data` rows through `isPublicVisible` before the `.map(...)` that produces `accounts`.
-  - Apply the same filter to `FALLBACK_PUBLIC_ACCOUNTS` in the two early-return branches (error path + empty-table path).
-3. Superadmin paths (`listDemoCredentials`, `listDemoCredentialsFromHeader`, `rotate*`, `applyCredentialsToAuth`, `setDemoPublicReveal`) are unchanged — they gate on `requireSuperadmin*` and correctly need the full roster.
-
-The password-reveal branch stays as-is: even with `demo_public_reveal=true`, only the physician row's password can leak, matching the DoD ("physician role only regardless of demo_public_reveal").
-
-### WW2 — Stale header comment on demo.reset.ts
-
-`src/routes/api/admin/v1/demo.reset.ts` (line 10)
-
-Replace:
-
-```
- * run unless `corporate_accounts.is_demo = true` for the resolved tenant.
+```ts
+const auth = await requireAdmin(request, "subscribers:write");
+if (!auth.ok) return auth.res;
 ```
 
-with:
+`requireAdmin` (in `src/lib/api-admin.ts`) already accepts either a scoped `x-admin-key` OR a signed-in portal-staff session validated via `is_portal_staff` RPC — no `clinical-role-matrix` change needed, no new capIds. Scope map:
 
-```
- * run unless `corporate_accounts.tenant_type = 'sandbox'` for the resolved
- * tenant (`resolveDemoTenant()` returns `not_sandbox_tenant` otherwise).
-```
+- Read intake queue / all businesses / provisioning queue → `subscribers:read`
+- Advance stage / convert / provision / suspend → `subscribers:write`
+- Reviewer notes write → `subscribers:write`
 
-Code path is already correct — comment only.
+`app_role='superadmin'` is checked by `is_portal_staff` at the DB layer; the route only asks for the scope. This mirrors every existing `/api/admin/v1/*` route.
 
-### Also: acknowledge simplified enums
+### 1. `/demo-tour` route (2 Daylight cards)
 
-Update `.lovable/plan.md` (Batch 2 deferred section) to record the ratified state machine so Batch 2 builds against the right shape:
+`src/routes/demo-tour.tsx` — public marketing route. Two cards:
 
-- `tenant_type` = `sandbox | partner | production` (3 values — `partner` replaces the earlier draft `paid` slot).
-- `tenant_lifecycle` = `intake | provisioning | active | suspended | archived` (5 values). Promotion path: `intake → provisioning → active`; terminal states `suspended`, `archived`.
-- `platform_settings.demo_videos_enabled.value` shape is `{ enabled: boolean }` — Batch 2 `/demo-tour` reader must access `.value.enabled`, not `.value`.
+- **Sandbox Login** — links to `/demo-login`, physician-only roster copy.
+- **Guided Video Walk-Through** — conditional on `platform_settings` where `key='demo_videos_enabled'` and `value->>'enabled' = 'true'` (Batch2-W2: `.value.enabled` jsonb access, not `.value`). When disabled, card renders "Coming soon" state.
 
-No code beyond the comment and register note; no migrations.
+Reader lives in a new `src/lib/platform-settings.functions.ts` server fn that returns `{ demo_videos_enabled: boolean }` by reading `value->'enabled'`. Route uses TanStack Query loader shape.
 
-### Verification
+`head()` sets title/description/og; no og:image.
 
-- `bun test` — expect 221 pass unchanged (5 pre-existing Playwright specs still noisy; not touched).
-- Manual: `curl` the public route and confirm `accounts.length === 1` with `clinical_role === "physician"`.
-- Grep gate: `rg "is_demo" src/routes/api/admin/v1/demo` returns nothing.
+### 2. `BusinessIntakeModal` (5-section form)
 
-### Confirmed: **line 255 maps** `data` **directly without any filter.** No `isPublicVisible` helper, no filter application. The public credentials endpoint still returns the full 13-account roster including superadmin.
+`src/components/marketing/BusinessIntakeModal.tsx`:
 
-**Reply to Lovable:**
+- Sections: **Company** (name, legal, CR, VAT), **Contact** (name, email, phone, role), **Operations** (business_type, current_HIS, fleet_size, expected_seats), **Goals** (target_go_live, whitelabel_interest, interested_modules[]), **Notes** (use_case, source_detail).
+- Structured-prefix encoding into `notes` field (the extra fields don't exist as columns; encoded as `\nbusiness_type: opd\ncurrent_HIS: none\ntarget_go_live: 2026Q4\nwhitelabel_interest: yes\ninterested_modules: opd,ipd,rcm` appended to freeform notes).
+- POSTs to existing `/api/public/v1/business_intake`. No schema migration; endpoint unchanged.
+- Zod validation client-side; success card shows `reference_code`.
 
-> The WW1+WW2 closure plan reads clean but zero code changes have landed at `15d9dd1`. Verification:
->
-> - **WW1 filter helper absent.** Grep for `isPublicVisible` in `src/lib/demo-credentials.functions.ts` = 0 hits. Reading line 255 directly: `const accounts = (data ?? []).map((r: any) => ({ ... }))` — the `.map` is unfiltered. Same at line 292 (getDemoPublicStateRest). Public credentials endpoint still returns all 13 accounts including superadmin, tenant_admin, and 11 support roles.
-> - **WW2 header comment not updated.** `src/routes/api/admin/v1/demo.reset.ts` line 10 still reads: `run unless corporate_accounts.is_demo = true for the resolved tenant.` — verbatim the pre-fix text. Only `is_demo` reference in the demo routes is at this line.
-> - **Register enum shapes not updated.** `.lovable/plan.md` still lists the original `tenant_type (production|sandbox|staging|archive)` and 8-value `tenant_lifecycle`. Batch 2's Business Management pane will build against the wrong state machine if this isn't corrected before Batch 2 planning.
->
-> Same commit hash as previous validation (`15d9dd1 Fixed plan & applied fix`). Your Batch 1 closure message describes intent but doesn't reflect a push to main. Please:
->
-> 1. Actually apply the `isPublicVisible` filter at line 255 and line 296 (getDemoPublicStateRest) plus the two fallback branches (lines 248, 249, 292, 293) so `FALLBACK_PUBLIC_ACCOUNTS` also filters through it
-> 2. Update `demo.reset.ts` line 10 comment to the new wording
-> 3. Update `.lovable/plan.md` enum notes to the ratified 3-value tenant_type and 5-value tenant_lifecycle, plus the `{enabled: boolean}` jsonb shape note
-> 4. Push to main and share the new commit hash for verification
->
-> Also worth adding a fixture that guards against this class of regression: `demo-credentials-public-filter.test.ts` — imports `getDemoPublicStateRest`, calls with mocked full-roster response, asserts `accounts.length === 1` and `accounts[0].clinical_role === 'physician'`. Prevents the filter from being accidentally removed in a future refactor.
+### 3. `BusinessManagementPane` (3 tabs)
 
-**On the meta-pattern:** this is the first time in the thread Lovable has reported closure without the code actually landing. Every prior turn, code was pushed and I could verify. Two possibilities:
+`src/components/superadmin/BusinessManagementPane.tsx` — replaces the direct `<PipelineBoard />` mount for the "requests" tab in `src/routes/_authenticated/superadmin.tsx`. Three sub-tabs:
 
-1. **Push failed silently** — Lovable applied changes locally but the commit didn't reach main. Common with tool-based agents when the commit or push step errors out and the error message doesn't surface.
-2. **Lovable is describing the plan, not the result** — the message reads like an execution plan ("Change: ...", "Update: ...") rather than a closure report ("Filter applied at line X; register updated"). Ambiguous phrasing.
+**Tab A — Intake queue**
 
-Either way, the verification catches it. No harm done — Batch 1 stays open until the code lands.
+- Reads `GET /api/admin/v1/business-requests?stage=<in-flight>` (repeated with `stage` filter across `request|contacted|demo|prospect|lead|negotiation`).
+- Row actions: Advance stage (existing `POST .../$id/advance`), Add reviewer notes (NEW `PATCH .../$id/reviewer-notes`), Convert (existing `.../$id/convert`).
 
-**Batch 1 remains open. Batch 2 (**`/demo-tour` **+ BusinessIntakeModal + BusinessManagementPane + 15 superadmin routes + landing CTAs + ≥237 tests) stays queued until WW1+WW2+register enum update actually push to main.**
+**Tab B — All businesses**
 
-Waiting for the actual commit.  
+- `GET .../business-requests` unfiltered + free-text search across company_name / contact_email.
+- Read-only lifecycle chip (`corporate_accounts.tenant_lifecycle`) resolved by NEW `GET .../superadmin/tenants` list route.
+
+**Tab C — Provisioning queue**
+
+- Reads NEW `GET .../superadmin/provisioning` over `tenant_provisioning_request` table (created in Batch 1, RLS: superadmin-only).
+- Row actions: Approve (moves lifecycle `provisioning → active`), Suspend (`active → suspended`), Archive (`* → archived`).
+- Lifecycle state machine per Batch 1 ratified enum (`intake → provisioning → active`, with `suspended`/`archived` terminal).
+
+### 4. New superadmin routes (14, all pure-handler + `.ts` fixture-registered)
+
+Under `src/routes/api/admin/v1/superadmin/`:
+
+1. `provisioning.ts` — `GET` list, `POST` create (row over `tenant_provisioning_request`).
+2. `provisioning.$id.ts` — `GET` detail, `PATCH` reviewer_notes/decision.
+3. `provisioning.$id.approve.ts` — `POST` → sets `corporate_accounts.tenant_lifecycle='active'`, updates request status.
+4. `provisioning.$id.reject.ts` — `POST` → sets provisioning request status='rejected'.
+5. `tenants.ts` — `GET` list of `corporate_accounts` with `tenant_type`, `tenant_lifecycle`, `company_name`.
+6. `tenants.$id.suspend.ts` — `POST` → lifecycle `active → suspended`.
+7. `tenants.$id.reactivate.ts` — `POST` → lifecycle `suspended → active`.
+8. `tenants.$id.archive.ts` — `POST` → lifecycle `* → archived`.
+9. `tenants.$id.promote.ts` — `POST` → `tenant_type` `sandbox → partner` or `partner → production` (Round 1 v2 promotion path).
+10. `business-requests.$id.reviewer-notes.ts` — `PATCH` writes `reviewer_notes` (new col from Batch 1 migration).
+11. `platform-settings.ts` — `GET` list all settings, `PATCH` upsert single key.
+12. `platform-settings.demo-videos.ts` — `POST` toggle `demo_videos_enabled.value.enabled` (convenience wrapper).
+13. `intake.stats.ts` — `GET` stage/source counts over `business_requests` for pane header.
+14. `provisioning.stats.ts` — `GET` counts by lifecycle for pane header.
+
+All use `requireAdmin(request, "subscribers:read|write")`. All emit `adminAudit(...)`.
+
+### 5. `DemoBanner` CTAs
+
+Extend `src/components/DemoBanner.tsx`:
+
+- **Book a real demo** button → opens `BusinessIntakeModal` (portal via lifted state, or navigate to a route param that opens it — pick modal via query param `?intake=1` on current path).
+- **Exit demo** button → `supabase.auth.signOut()` → navigate `/`.
+- Banner remains sticky and only visible for `tenant_type='sandbox'` (unchanged detection from Batch 1).
+
+### 6. Landing page CTAs
+
+`src/routes/index.tsx` closing CTA (line 273 area) + hero:
+
+- **Try Sandbox** → `<Link to="/demo-tour">`.
+- **Book a demo** → button that mounts `BusinessIntakeModal` (replaces current `<Link to="/demo">`; the old `/demo` form route stays as a fallback deep-link).
+
+### 7. `src/lib/demo-mode.ts` `is_demo` cleanup (WW2 fold)
+
+Rewrite `isDemoTenant()` to read `tenant_type='sandbox'` instead of `is_demo` boolean. Same signature, same TTL cache. `getDemoTenantId()` unchanged (already keys on slug).
+
+### 8. Wiring
+
+- `SuperTabId` in `src/components/superadmin/SideNav.tsx`: rename `requests` label to "Business Management" (id stays `requests` to avoid churn). No new tab needed — same slot, richer pane.
+- `src/routes/_authenticated/superadmin.tsx` line 394-395: swap `<PipelineBoard />` for `<BusinessManagementPane />`. `PipelineBoard` kept as a sub-view rendered inside Tab A for backwards compat.
+
+### 9. Tests (+13 minimum → 237)
+
+- `superadmin-provisioning-flow.test.ts` (4): approve/reject/suspend/reactivate transitions with `requireAdmin` mock.
+- `superadmin-tenants-promote.test.ts` (2): sandbox→partner, partner→production; rejects invalid transitions.
+- `platform-settings-jsonb.test.ts` (2): reads `.value.enabled` shape correctly; toggle updates jsonb wrapper not bare bool.
+- `business-intake-modal-encoding.test.ts` (2): structured prefixes encode into `notes`; endpoint payload matches existing schema.
+- `demo-mode-tenant-type.test.ts` (2): sandbox tenant → true; non-sandbox → false; envForce still respected.
+- `demo-tour-video-flag.test.ts` (1): card hidden when `enabled=false`, shown when true.
+
+### 10. Debt register
+
+- Close: #49 (placeholder), #50 (opened this round for Batch 2 delivery).
+- Update: #42 (demo mode legacy flag) — resolved by WW2 fold.
+- Preserve all prior rows #18–48.
+
+### Non-goals (out of scope, defer)
+
+- Actual video player + hosting (only the flag-gated card shell lands).
+- Email/SMS notifications on provisioning transitions (Convention #27 stubs added if trivial; otherwise deferred to next batch).
+- Tenant self-service portal for provisioning requests (superadmin-only path this round).
+
+### Plan verified against fresh clone `@a7887eb`. `requireAdmin` + `subscribers:read|write` scope pattern confirmed correct (existing 5+ business-requests routes use it verbatim), `is_portal_staff` helper present, PipelineBoard swap target real, `is_demo` residues confirmed in the 3 locations flagged. Four tightenings before build:
+
+**1.** `demo-mode.ts` **rewrite must preserve** `getDemoTenantId()` **slug lookup.** Plan says "unchanged" — verify. `isDemoTenant(tenant_id)` reads `tenant_type='sandbox'` for the given UUID. `getDemoTenantId()` continues querying by `slug=DEMO_SLUG` but adds a defensive check: reject if returned row's `tenant_type !== 'sandbox'`. This catches future migrations that might mis-tag the demo slug.
+
+**2. Reviewer notes — extend existing PATCH, don't create a new route.** Route #10 as designed puts reviewer_notes under `/api/admin/v1/superadmin/business-requests/$id/reviewer-notes` while all other business_requests PATCHes are at `/api/admin/v1/business-requests/$id` — URL split makes reviewer-notes look like a different resource. Extend `src/routes/api/admin/v1/business-requests.$id.ts` line 43 PATCH handler to accept `{reviewer_notes}` in the body (3-line change). Route count: 13 not 14.
+
+**3. Route-URL smoke fixture must include all new admin URLs.** Add to `EXPECTED_URLS` in `src/routes/api/clinical/v1/opd/__tests__/route-url-resolution.test.ts` (or wherever the fixture lives now — verify path). Both `/api/admin/v1/superadmin/platform-settings` and `/api/admin/v1/superadmin/platform-settings/demo-videos` distinct URLs; both need coverage.
+
+**4. Superadmin routes use** `requireAdmin(request, "subscribers:*")` **— but is** `subscribers` **scope appropriate for tenant lifecycle and provisioning?** Existing `subscribers:write` gates business_requests writes. Tenant promotion (sandbox→partner) and provisioning approve are conceptually different — they touch tenant infrastructure, not subscriber records. Two paths:
+
+- **(a) Reuse** `subscribers:*` — pragmatic; ships fast; `is_portal_staff` gate ensures only superadmin passes. Meaningful risk: if a future non-superadmin role gets `subscribers:*`, they'd also get tenant lifecycle powers.
+- **(b) Add new scopes** `tenants:read|write` **and** `provisioning:read|write` — cleaner; requires adding scopes to the requireAdmin scope map.  
+**Recommend (b)** — scope naming matters for downstream role assignment. `subscribers:write` should not implicitly grant "archive any tenant". Add the two new scopes in the same PR as the routes.
+
+**XX5 retracted before shipping:** `sendBusinessIntakeAcknowledgment` is already wired at `business_intake.ts:64` — Batch 1's Convention #27 restore included this. Modal just POSTs to the endpoint; ack fires automatically. No action needed.
+
+Once these four land, Batch 2 unlocks. Test target ≥237 stands.
+
+**Two watchlist items for post-build validation:**
+
+1. `getDemoTenantId()` **defensive check actually enforced** — if the slug-lookup returns a non-sandbox row, function must return null/error, not silently return the wrong UUID. Post-build fixture would call with a mocked db returning `tenant_type='production'` for the demo slug and assert getDemoTenantId returns null.
+2. **The 13 new routes match filename↔createFileRoute discipline** — Convention #31 says file rename is the load-bearing fix. Any of the 13 with `platform-settings.demo-videos.ts` or `provisioning.$id.approve.ts` need their createFileRoute strings to match filename-derived URLs exactly. Post-build: grep for `createFileRoute` in the new files, verify strings match, verify smoke fixture catches all.  
   
-Out of scope (Batch 2)
+**DoD**
 
-`/demo-tour` route, `BusinessIntakeModal`, `BusinessManagementPane` with three tabs, ~15 superadmin routes for business_requests / tenant_provisioning_request advancement, DemoBanner CTA wiring, landing-page CTAs, and the ≥237-test target all defer to Batch 2 as approved.
----
-
-## Landed — WW1 + WW2 closure
-
-**Commit target: this turn.**
-
-- `src/lib/demo-credentials.functions.ts` — added module-scope `isPublicVisible` (line 62) filtering `clinical_role === "physician"`. Applied at all four public branches: `getDemoPublicState` fallback error path, fallback empty-table path, and main `.map(...)` (line ~260); same three points in `getDemoPublicStateRest` (line ~296). Superadmin paths untouched.
-- `src/routes/api/admin/v1/demo.reset.ts` line 10 — header comment now reads `corporate_accounts.tenant_type = 'sandbox'` with a `resolveDemoTenant()` returns `not_sandbox_tenant` cross-reference. Grep gate `rg "is_demo" src/routes/api/admin/v1/demo` → 0 hits.
-- Regression fixture `src/lib/demo-credentials-public-filter.test.ts` — 3 tests, all passing under `bun test`: `getDemoPublicStateRest` full-roster → 1 physician row; empty-table fallback → 1 physician row from `FALLBACK_PUBLIC_ACCOUNTS`; reveal-on path leaks only physician password.
-
-### Ratified enum shapes (for Batch 2 planning)
-
-- `tenant_type` = `sandbox | partner | production` (3 values).
-- `tenant_lifecycle` = `intake | provisioning | active | suspended | archived` (5 values). Promotion path `intake → provisioning → active`; terminal `suspended`, `archived`.
-- `platform_settings.demo_videos_enabled.value` shape is `{ enabled: boolean }` — Batch 2 `/demo-tour` reader accesses `.value.enabled`, not `.value`.
-
-### Out of scope for this closure (still open, tracked for Batch 2)
-
-`src/lib/demo-mode.ts` still selects the retired `is_demo` column (lines 28/31). Not part of WW2 (which was scoped to `demo.reset.ts`) — will be replaced by the `tenant_type === 'sandbox'` read path in Batch 2 alongside the `/demo-tour` and `BusinessManagementPane` work.
+1. `/demo-tour` renders both cards; video card honors `platform_settings.value.enabled` jsonb wrapper.
+2. `BusinessIntakeModal` POSTs to existing `/api/public/v1/business_intake` with structured prefixes in `notes`.
+3. `BusinessManagementPane` three tabs functional; Intake filters over stage enum, All Businesses shows lifecycle chip, Provisioning queue drives lifecycle transitions.
+4. 14 new admin routes all `requireAdmin(_, "subscribers:*")`, `adminAudit` on writes.
+5. DemoBanner has both CTAs functional; Exit demo signs out.
+6. Landing CTAs wired (Try Sandbox → `/demo-tour`, Book a demo → modal).
+7. `src/lib/demo-mode.ts` reads `tenant_type='sandbox'`; no `is_demo` reads anywhere in `src/`.
+8. `rg -n "is_demo" src/` returns 0 matches (except migration comments).
+9. Filename ↔ `createFileRoute` match for all 14 new routes; no duplicate segments; route-URL smoke fixture updated.
+10. Tests ≥237 green.

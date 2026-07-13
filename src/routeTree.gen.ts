@@ -20,6 +20,7 @@ import { Route as PreauthMidRouteImport } from './routes/preauth-mid'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as HisRouteImport } from './routes/his'
+import { Route as DemoTourRouteImport } from './routes/demo-tour'
 import { Route as DemoLoginRouteImport } from './routes/demo-login'
 import { Route as DemoCredentialsRouteImport } from './routes/demo-credentials'
 import { Route as DemoRouteImport } from './routes/demo'
@@ -133,6 +134,7 @@ import { Route as ApiPublicV1IncidentsIdRouteImport } from './routes/api/public/
 import { Route as ApiPublicV1HomecareVisitsRouteImport } from './routes/api/public/v1/homecare.visits'
 import { Route as ApiPublicV1HomecareRecipientsRouteImport } from './routes/api/public/v1/homecare.recipients'
 import { Route as ApiPublicV1HomecareCarePlansRouteImport } from './routes/api/public/v1/homecare.care-plans'
+import { Route as ApiPublicV1DemoTourConfigRouteImport } from './routes/api/public/v1/demo.tour-config'
 import { Route as ApiPublicV1DemoCredentialsRouteImport } from './routes/api/public/v1/demo.credentials'
 import { Route as ApiPublicV1DebugEventsRouteImport } from './routes/api/public/v1/debug.events'
 import { Route as ApiPublicLegalSlugAcceptRouteImport } from './routes/api/public/legal.$slug.accept'
@@ -223,6 +225,9 @@ import { Route as ApiClinicalV1BeneficiariesIdRouteImport } from './routes/api/c
 import { Route as ApiClinicalV1AuthRequestsRouteImport } from './routes/api/clinical/v1/auth/requests'
 import { Route as ApiAdminV1UsageDailyRouteImport } from './routes/api/admin/v1/usage.daily'
 import { Route as ApiAdminV1TenantSubscriptionsIdRouteImport } from './routes/api/admin/v1/tenant-subscriptions.$id'
+import { Route as ApiAdminV1SuperadminTenantsRouteImport } from './routes/api/admin/v1/superadmin/tenants'
+import { Route as ApiAdminV1SuperadminProvisioningRouteImport } from './routes/api/admin/v1/superadmin/provisioning'
+import { Route as ApiAdminV1SuperadminPlatformSettingsRouteImport } from './routes/api/admin/v1/superadmin/platform-settings'
 import { Route as ApiAdminV1SubscribersIdRouteImport } from './routes/api/admin/v1/subscribers.$id'
 import { Route as ApiAdminV1SiteContentUnpublishRouteImport } from './routes/api/admin/v1/site-content.unpublish'
 import { Route as ApiAdminV1SiteContentPublishRouteImport } from './routes/api/admin/v1/site-content.publish'
@@ -383,6 +388,10 @@ import { Route as ApiClinicalV1BeneficiariesIdCoverageRouteImport } from './rout
 import { Route as ApiClinicalV1AuthRequestsBulkRouteImport } from './routes/api/clinical/v1/auth/requests.bulk'
 import { Route as ApiClinicalV1AuthRequestsIdRouteImport } from './routes/api/clinical/v1/auth/requests.$id'
 import { Route as ApiAdminV1TicketsIdEventsRouteImport } from './routes/api/admin/v1/tickets.$id.events'
+import { Route as ApiAdminV1SuperadminProvisioningStatsRouteImport } from './routes/api/admin/v1/superadmin/provisioning.stats'
+import { Route as ApiAdminV1SuperadminProvisioningIdRouteImport } from './routes/api/admin/v1/superadmin/provisioning.$id'
+import { Route as ApiAdminV1SuperadminPlatformSettingsDemoVideosRouteImport } from './routes/api/admin/v1/superadmin/platform-settings.demo-videos'
+import { Route as ApiAdminV1SuperadminIntakeStatsRouteImport } from './routes/api/admin/v1/superadmin/intake.stats'
 import { Route as ApiAdminV1PaymentsIdValidateRouteImport } from './routes/api/admin/v1/payments.$id.validate'
 import { Route as ApiAdminV1LegalDocumentsIdPublishRouteImport } from './routes/api/admin/v1/legal-documents.$id.publish'
 import { Route as ApiAdminV1ConfigEffectiveSubscriberIdRouteImport } from './routes/api/admin/v1/config.effective.$subscriberId'
@@ -431,6 +440,12 @@ import { Route as ApiClinicalV1AuthRequestsIdSubmitRouteImport } from './routes/
 import { Route as ApiClinicalV1AuthRequestsIdDecisionRouteImport } from './routes/api/clinical/v1/auth/requests.$id.decision'
 import { Route as ApiClinicalV1AuthRequestsIdCommunicationsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.communications'
 import { Route as ApiClinicalV1AuthRequestsIdAttachmentsRouteImport } from './routes/api/clinical/v1/auth/requests.$id.attachments'
+import { Route as ApiAdminV1SuperadminTenantsIdSuspendRouteImport } from './routes/api/admin/v1/superadmin/tenants.$id.suspend'
+import { Route as ApiAdminV1SuperadminTenantsIdReactivateRouteImport } from './routes/api/admin/v1/superadmin/tenants.$id.reactivate'
+import { Route as ApiAdminV1SuperadminTenantsIdPromoteRouteImport } from './routes/api/admin/v1/superadmin/tenants.$id.promote'
+import { Route as ApiAdminV1SuperadminTenantsIdArchiveRouteImport } from './routes/api/admin/v1/superadmin/tenants.$id.archive'
+import { Route as ApiAdminV1SuperadminProvisioningIdRejectRouteImport } from './routes/api/admin/v1/superadmin/provisioning.$id.reject'
+import { Route as ApiAdminV1SuperadminProvisioningIdApproveRouteImport } from './routes/api/admin/v1/superadmin/provisioning.$id.approve'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsFeedRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.feed'
 import { Route as ApiClinicalV1MastersPriceListsIdItemsBulkUpdateRouteImport } from './routes/api/clinical/v1/masters/price-lists.$id.items.bulk-update'
 
@@ -487,6 +502,11 @@ const McpRoute = McpRouteImport.update({
 const HisRoute = HisRouteImport.update({
   id: '/his',
   path: '/his',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoTourRoute = DemoTourRouteImport.update({
+  id: '/demo-tour',
+  path: '/demo-tour',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoLoginRoute = DemoLoginRouteImport.update({
@@ -1080,6 +1100,12 @@ const ApiPublicV1HomecareCarePlansRoute =
     path: '/api/public/v1/homecare/care-plans',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicV1DemoTourConfigRoute =
+  ApiPublicV1DemoTourConfigRouteImport.update({
+    id: '/api/public/v1/demo/tour-config',
+    path: '/api/public/v1/demo/tour-config',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1DemoCredentialsRoute =
   ApiPublicV1DemoCredentialsRouteImport.update({
     id: '/api/public/v1/demo/credentials',
@@ -1607,6 +1633,24 @@ const ApiAdminV1TenantSubscriptionsIdRoute =
     id: '/$id',
     path: '/$id',
     getParentRoute: () => ApiAdminV1TenantSubscriptionsRoute,
+  } as any)
+const ApiAdminV1SuperadminTenantsRoute =
+  ApiAdminV1SuperadminTenantsRouteImport.update({
+    id: '/api/admin/v1/superadmin/tenants',
+    path: '/api/admin/v1/superadmin/tenants',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminV1SuperadminProvisioningRoute =
+  ApiAdminV1SuperadminProvisioningRouteImport.update({
+    id: '/api/admin/v1/superadmin/provisioning',
+    path: '/api/admin/v1/superadmin/provisioning',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiAdminV1SuperadminPlatformSettingsRoute =
+  ApiAdminV1SuperadminPlatformSettingsRouteImport.update({
+    id: '/api/admin/v1/superadmin/platform-settings',
+    path: '/api/admin/v1/superadmin/platform-settings',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiAdminV1SubscribersIdRoute = ApiAdminV1SubscribersIdRouteImport.update({
   id: '/$id',
@@ -2554,6 +2598,30 @@ const ApiAdminV1TicketsIdEventsRoute =
     path: '/$id/events',
     getParentRoute: () => ApiAdminV1TicketsRoute,
   } as any)
+const ApiAdminV1SuperadminProvisioningStatsRoute =
+  ApiAdminV1SuperadminProvisioningStatsRouteImport.update({
+    id: '/stats',
+    path: '/stats',
+    getParentRoute: () => ApiAdminV1SuperadminProvisioningRoute,
+  } as any)
+const ApiAdminV1SuperadminProvisioningIdRoute =
+  ApiAdminV1SuperadminProvisioningIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiAdminV1SuperadminProvisioningRoute,
+  } as any)
+const ApiAdminV1SuperadminPlatformSettingsDemoVideosRoute =
+  ApiAdminV1SuperadminPlatformSettingsDemoVideosRouteImport.update({
+    id: '/demo-videos',
+    path: '/demo-videos',
+    getParentRoute: () => ApiAdminV1SuperadminPlatformSettingsRoute,
+  } as any)
+const ApiAdminV1SuperadminIntakeStatsRoute =
+  ApiAdminV1SuperadminIntakeStatsRouteImport.update({
+    id: '/api/admin/v1/superadmin/intake/stats',
+    path: '/api/admin/v1/superadmin/intake/stats',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAdminV1PaymentsIdValidateRoute =
   ApiAdminV1PaymentsIdValidateRouteImport.update({
     id: '/$id/validate',
@@ -2842,6 +2910,42 @@ const ApiClinicalV1AuthRequestsIdAttachmentsRoute =
     path: '/attachments',
     getParentRoute: () => ApiClinicalV1AuthRequestsIdRoute,
   } as any)
+const ApiAdminV1SuperadminTenantsIdSuspendRoute =
+  ApiAdminV1SuperadminTenantsIdSuspendRouteImport.update({
+    id: '/$id/suspend',
+    path: '/$id/suspend',
+    getParentRoute: () => ApiAdminV1SuperadminTenantsRoute,
+  } as any)
+const ApiAdminV1SuperadminTenantsIdReactivateRoute =
+  ApiAdminV1SuperadminTenantsIdReactivateRouteImport.update({
+    id: '/$id/reactivate',
+    path: '/$id/reactivate',
+    getParentRoute: () => ApiAdminV1SuperadminTenantsRoute,
+  } as any)
+const ApiAdminV1SuperadminTenantsIdPromoteRoute =
+  ApiAdminV1SuperadminTenantsIdPromoteRouteImport.update({
+    id: '/$id/promote',
+    path: '/$id/promote',
+    getParentRoute: () => ApiAdminV1SuperadminTenantsRoute,
+  } as any)
+const ApiAdminV1SuperadminTenantsIdArchiveRoute =
+  ApiAdminV1SuperadminTenantsIdArchiveRouteImport.update({
+    id: '/$id/archive',
+    path: '/$id/archive',
+    getParentRoute: () => ApiAdminV1SuperadminTenantsRoute,
+  } as any)
+const ApiAdminV1SuperadminProvisioningIdRejectRoute =
+  ApiAdminV1SuperadminProvisioningIdRejectRouteImport.update({
+    id: '/reject',
+    path: '/reject',
+    getParentRoute: () => ApiAdminV1SuperadminProvisioningIdRoute,
+  } as any)
+const ApiAdminV1SuperadminProvisioningIdApproveRoute =
+  ApiAdminV1SuperadminProvisioningIdApproveRouteImport.update({
+    id: '/approve',
+    path: '/approve',
+    getParentRoute: () => ApiAdminV1SuperadminProvisioningIdRoute,
+  } as any)
 const ApiClinicalV1MastersPriceListsIdItemsFeedRoute =
   ApiClinicalV1MastersPriceListsIdItemsFeedRouteImport.update({
     id: '/feed',
@@ -2866,6 +2970,7 @@ export interface FileRoutesByFullPath {
   '/demo': typeof DemoRoute
   '/demo-credentials': typeof DemoCredentialsRoute
   '/demo-login': typeof DemoLoginRoute
+  '/demo-tour': typeof DemoTourRoute
   '/his': typeof HisRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
@@ -3000,6 +3105,9 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/site-content/publish': typeof ApiAdminV1SiteContentPublishRoute
   '/api/admin/v1/site-content/unpublish': typeof ApiAdminV1SiteContentUnpublishRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
+  '/api/admin/v1/superadmin/platform-settings': typeof ApiAdminV1SuperadminPlatformSettingsRouteWithChildren
+  '/api/admin/v1/superadmin/provisioning': typeof ApiAdminV1SuperadminProvisioningRouteWithChildren
+  '/api/admin/v1/superadmin/tenants': typeof ApiAdminV1SuperadminTenantsRouteWithChildren
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRouteWithChildren
@@ -3090,6 +3198,7 @@ export interface FileRoutesByFullPath {
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/demo/credentials': typeof ApiPublicV1DemoCredentialsRoute
+  '/api/public/v1/demo/tour-config': typeof ApiPublicV1DemoTourConfigRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
@@ -3102,6 +3211,10 @@ export interface FileRoutesByFullPath {
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/legal-documents/$id/publish': typeof ApiAdminV1LegalDocumentsIdPublishRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
+  '/api/admin/v1/superadmin/intake/stats': typeof ApiAdminV1SuperadminIntakeStatsRoute
+  '/api/admin/v1/superadmin/platform-settings/demo-videos': typeof ApiAdminV1SuperadminPlatformSettingsDemoVideosRoute
+  '/api/admin/v1/superadmin/provisioning/$id': typeof ApiAdminV1SuperadminProvisioningIdRouteWithChildren
+  '/api/admin/v1/superadmin/provisioning/stats': typeof ApiAdminV1SuperadminProvisioningStatsRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/clinical/v1/auth/requests/$id': typeof ApiClinicalV1AuthRequestsIdRouteWithChildren
   '/api/clinical/v1/auth/requests/bulk': typeof ApiClinicalV1AuthRequestsBulkRoute
@@ -3235,6 +3348,12 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/admin/v1/superadmin/provisioning/$id/approve': typeof ApiAdminV1SuperadminProvisioningIdApproveRoute
+  '/api/admin/v1/superadmin/provisioning/$id/reject': typeof ApiAdminV1SuperadminProvisioningIdRejectRoute
+  '/api/admin/v1/superadmin/tenants/$id/archive': typeof ApiAdminV1SuperadminTenantsIdArchiveRoute
+  '/api/admin/v1/superadmin/tenants/$id/promote': typeof ApiAdminV1SuperadminTenantsIdPromoteRoute
+  '/api/admin/v1/superadmin/tenants/$id/reactivate': typeof ApiAdminV1SuperadminTenantsIdReactivateRoute
+  '/api/admin/v1/superadmin/tenants/$id/suspend': typeof ApiAdminV1SuperadminTenantsIdSuspendRoute
   '/api/clinical/v1/auth/requests/$id/attachments': typeof ApiClinicalV1AuthRequestsIdAttachmentsRoute
   '/api/clinical/v1/auth/requests/$id/communications': typeof ApiClinicalV1AuthRequestsIdCommunicationsRoute
   '/api/clinical/v1/auth/requests/$id/decision': typeof ApiClinicalV1AuthRequestsIdDecisionRoute
@@ -3290,6 +3409,7 @@ export interface FileRoutesByTo {
   '/demo': typeof DemoRoute
   '/demo-credentials': typeof DemoCredentialsRoute
   '/demo-login': typeof DemoLoginRoute
+  '/demo-tour': typeof DemoTourRoute
   '/his': typeof HisRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
@@ -3423,6 +3543,9 @@ export interface FileRoutesByTo {
   '/api/admin/v1/site-content/publish': typeof ApiAdminV1SiteContentPublishRoute
   '/api/admin/v1/site-content/unpublish': typeof ApiAdminV1SiteContentUnpublishRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
+  '/api/admin/v1/superadmin/platform-settings': typeof ApiAdminV1SuperadminPlatformSettingsRouteWithChildren
+  '/api/admin/v1/superadmin/provisioning': typeof ApiAdminV1SuperadminProvisioningRouteWithChildren
+  '/api/admin/v1/superadmin/tenants': typeof ApiAdminV1SuperadminTenantsRouteWithChildren
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRouteWithChildren
@@ -3513,6 +3636,7 @@ export interface FileRoutesByTo {
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/demo/credentials': typeof ApiPublicV1DemoCredentialsRoute
+  '/api/public/v1/demo/tour-config': typeof ApiPublicV1DemoTourConfigRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
@@ -3525,6 +3649,10 @@ export interface FileRoutesByTo {
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/legal-documents/$id/publish': typeof ApiAdminV1LegalDocumentsIdPublishRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
+  '/api/admin/v1/superadmin/intake/stats': typeof ApiAdminV1SuperadminIntakeStatsRoute
+  '/api/admin/v1/superadmin/platform-settings/demo-videos': typeof ApiAdminV1SuperadminPlatformSettingsDemoVideosRoute
+  '/api/admin/v1/superadmin/provisioning/$id': typeof ApiAdminV1SuperadminProvisioningIdRouteWithChildren
+  '/api/admin/v1/superadmin/provisioning/stats': typeof ApiAdminV1SuperadminProvisioningStatsRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/clinical/v1/auth/requests/$id': typeof ApiClinicalV1AuthRequestsIdRouteWithChildren
   '/api/clinical/v1/auth/requests/bulk': typeof ApiClinicalV1AuthRequestsBulkRoute
@@ -3658,6 +3786,12 @@ export interface FileRoutesByTo {
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/admin/v1/superadmin/provisioning/$id/approve': typeof ApiAdminV1SuperadminProvisioningIdApproveRoute
+  '/api/admin/v1/superadmin/provisioning/$id/reject': typeof ApiAdminV1SuperadminProvisioningIdRejectRoute
+  '/api/admin/v1/superadmin/tenants/$id/archive': typeof ApiAdminV1SuperadminTenantsIdArchiveRoute
+  '/api/admin/v1/superadmin/tenants/$id/promote': typeof ApiAdminV1SuperadminTenantsIdPromoteRoute
+  '/api/admin/v1/superadmin/tenants/$id/reactivate': typeof ApiAdminV1SuperadminTenantsIdReactivateRoute
+  '/api/admin/v1/superadmin/tenants/$id/suspend': typeof ApiAdminV1SuperadminTenantsIdSuspendRoute
   '/api/clinical/v1/auth/requests/$id/attachments': typeof ApiClinicalV1AuthRequestsIdAttachmentsRoute
   '/api/clinical/v1/auth/requests/$id/communications': typeof ApiClinicalV1AuthRequestsIdCommunicationsRoute
   '/api/clinical/v1/auth/requests/$id/decision': typeof ApiClinicalV1AuthRequestsIdDecisionRoute
@@ -3716,6 +3850,7 @@ export interface FileRoutesById {
   '/demo': typeof DemoRoute
   '/demo-credentials': typeof DemoCredentialsRoute
   '/demo-login': typeof DemoLoginRoute
+  '/demo-tour': typeof DemoTourRoute
   '/his': typeof HisRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
@@ -3850,6 +3985,9 @@ export interface FileRoutesById {
   '/api/admin/v1/site-content/publish': typeof ApiAdminV1SiteContentPublishRoute
   '/api/admin/v1/site-content/unpublish': typeof ApiAdminV1SiteContentUnpublishRoute
   '/api/admin/v1/subscribers/$id': typeof ApiAdminV1SubscribersIdRoute
+  '/api/admin/v1/superadmin/platform-settings': typeof ApiAdminV1SuperadminPlatformSettingsRouteWithChildren
+  '/api/admin/v1/superadmin/provisioning': typeof ApiAdminV1SuperadminProvisioningRouteWithChildren
+  '/api/admin/v1/superadmin/tenants': typeof ApiAdminV1SuperadminTenantsRouteWithChildren
   '/api/admin/v1/tenant-subscriptions/$id': typeof ApiAdminV1TenantSubscriptionsIdRoute
   '/api/admin/v1/usage/daily': typeof ApiAdminV1UsageDailyRoute
   '/api/clinical/v1/auth/requests': typeof ApiClinicalV1AuthRequestsRouteWithChildren
@@ -3940,6 +4078,7 @@ export interface FileRoutesById {
   '/api/public/legal/$slug/accept': typeof ApiPublicLegalSlugAcceptRoute
   '/api/public/v1/debug/events': typeof ApiPublicV1DebugEventsRoute
   '/api/public/v1/demo/credentials': typeof ApiPublicV1DemoCredentialsRoute
+  '/api/public/v1/demo/tour-config': typeof ApiPublicV1DemoTourConfigRoute
   '/api/public/v1/homecare/care-plans': typeof ApiPublicV1HomecareCarePlansRoute
   '/api/public/v1/homecare/recipients': typeof ApiPublicV1HomecareRecipientsRoute
   '/api/public/v1/homecare/visits': typeof ApiPublicV1HomecareVisitsRouteWithChildren
@@ -3952,6 +4091,10 @@ export interface FileRoutesById {
   '/api/admin/v1/config/effective/$subscriberId': typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
   '/api/admin/v1/legal-documents/$id/publish': typeof ApiAdminV1LegalDocumentsIdPublishRoute
   '/api/admin/v1/payments/$id/validate': typeof ApiAdminV1PaymentsIdValidateRoute
+  '/api/admin/v1/superadmin/intake/stats': typeof ApiAdminV1SuperadminIntakeStatsRoute
+  '/api/admin/v1/superadmin/platform-settings/demo-videos': typeof ApiAdminV1SuperadminPlatformSettingsDemoVideosRoute
+  '/api/admin/v1/superadmin/provisioning/$id': typeof ApiAdminV1SuperadminProvisioningIdRouteWithChildren
+  '/api/admin/v1/superadmin/provisioning/stats': typeof ApiAdminV1SuperadminProvisioningStatsRoute
   '/api/admin/v1/tickets/$id/events': typeof ApiAdminV1TicketsIdEventsRoute
   '/api/clinical/v1/auth/requests/$id': typeof ApiClinicalV1AuthRequestsIdRouteWithChildren
   '/api/clinical/v1/auth/requests/bulk': typeof ApiClinicalV1AuthRequestsBulkRoute
@@ -4085,6 +4228,12 @@ export interface FileRoutesById {
   '/api/public/v1/vehicles/$id/credentials': typeof ApiPublicV1VehiclesIdCredentialsRoute
   '/api/public/v1/vehicles/$id/defects': typeof ApiPublicV1VehiclesIdDefectsRoute
   '/api/public/v1/vehicles/$id/work_orders': typeof ApiPublicV1VehiclesIdWork_ordersRoute
+  '/api/admin/v1/superadmin/provisioning/$id/approve': typeof ApiAdminV1SuperadminProvisioningIdApproveRoute
+  '/api/admin/v1/superadmin/provisioning/$id/reject': typeof ApiAdminV1SuperadminProvisioningIdRejectRoute
+  '/api/admin/v1/superadmin/tenants/$id/archive': typeof ApiAdminV1SuperadminTenantsIdArchiveRoute
+  '/api/admin/v1/superadmin/tenants/$id/promote': typeof ApiAdminV1SuperadminTenantsIdPromoteRoute
+  '/api/admin/v1/superadmin/tenants/$id/reactivate': typeof ApiAdminV1SuperadminTenantsIdReactivateRoute
+  '/api/admin/v1/superadmin/tenants/$id/suspend': typeof ApiAdminV1SuperadminTenantsIdSuspendRoute
   '/api/clinical/v1/auth/requests/$id/attachments': typeof ApiClinicalV1AuthRequestsIdAttachmentsRoute
   '/api/clinical/v1/auth/requests/$id/communications': typeof ApiClinicalV1AuthRequestsIdCommunicationsRoute
   '/api/clinical/v1/auth/requests/$id/decision': typeof ApiClinicalV1AuthRequestsIdDecisionRoute
@@ -4143,6 +4292,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/demo-credentials'
     | '/demo-login'
+    | '/demo-tour'
     | '/his'
     | '/mcp'
     | '/platform'
@@ -4277,6 +4427,9 @@ export interface FileRouteTypes {
     | '/api/admin/v1/site-content/publish'
     | '/api/admin/v1/site-content/unpublish'
     | '/api/admin/v1/subscribers/$id'
+    | '/api/admin/v1/superadmin/platform-settings'
+    | '/api/admin/v1/superadmin/provisioning'
+    | '/api/admin/v1/superadmin/tenants'
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/clinical/v1/auth/requests'
@@ -4367,6 +4520,7 @@ export interface FileRouteTypes {
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/demo/credentials'
+    | '/api/public/v1/demo/tour-config'
     | '/api/public/v1/homecare/care-plans'
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/homecare/visits'
@@ -4379,6 +4533,10 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/legal-documents/$id/publish'
     | '/api/admin/v1/payments/$id/validate'
+    | '/api/admin/v1/superadmin/intake/stats'
+    | '/api/admin/v1/superadmin/platform-settings/demo-videos'
+    | '/api/admin/v1/superadmin/provisioning/$id'
+    | '/api/admin/v1/superadmin/provisioning/stats'
     | '/api/admin/v1/tickets/$id/events'
     | '/api/clinical/v1/auth/requests/$id'
     | '/api/clinical/v1/auth/requests/bulk'
@@ -4512,6 +4670,12 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/admin/v1/superadmin/provisioning/$id/approve'
+    | '/api/admin/v1/superadmin/provisioning/$id/reject'
+    | '/api/admin/v1/superadmin/tenants/$id/archive'
+    | '/api/admin/v1/superadmin/tenants/$id/promote'
+    | '/api/admin/v1/superadmin/tenants/$id/reactivate'
+    | '/api/admin/v1/superadmin/tenants/$id/suspend'
     | '/api/clinical/v1/auth/requests/$id/attachments'
     | '/api/clinical/v1/auth/requests/$id/communications'
     | '/api/clinical/v1/auth/requests/$id/decision'
@@ -4567,6 +4731,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/demo-credentials'
     | '/demo-login'
+    | '/demo-tour'
     | '/his'
     | '/mcp'
     | '/platform'
@@ -4700,6 +4865,9 @@ export interface FileRouteTypes {
     | '/api/admin/v1/site-content/publish'
     | '/api/admin/v1/site-content/unpublish'
     | '/api/admin/v1/subscribers/$id'
+    | '/api/admin/v1/superadmin/platform-settings'
+    | '/api/admin/v1/superadmin/provisioning'
+    | '/api/admin/v1/superadmin/tenants'
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/clinical/v1/auth/requests'
@@ -4790,6 +4958,7 @@ export interface FileRouteTypes {
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/demo/credentials'
+    | '/api/public/v1/demo/tour-config'
     | '/api/public/v1/homecare/care-plans'
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/homecare/visits'
@@ -4802,6 +4971,10 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/legal-documents/$id/publish'
     | '/api/admin/v1/payments/$id/validate'
+    | '/api/admin/v1/superadmin/intake/stats'
+    | '/api/admin/v1/superadmin/platform-settings/demo-videos'
+    | '/api/admin/v1/superadmin/provisioning/$id'
+    | '/api/admin/v1/superadmin/provisioning/stats'
     | '/api/admin/v1/tickets/$id/events'
     | '/api/clinical/v1/auth/requests/$id'
     | '/api/clinical/v1/auth/requests/bulk'
@@ -4935,6 +5108,12 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/admin/v1/superadmin/provisioning/$id/approve'
+    | '/api/admin/v1/superadmin/provisioning/$id/reject'
+    | '/api/admin/v1/superadmin/tenants/$id/archive'
+    | '/api/admin/v1/superadmin/tenants/$id/promote'
+    | '/api/admin/v1/superadmin/tenants/$id/reactivate'
+    | '/api/admin/v1/superadmin/tenants/$id/suspend'
     | '/api/clinical/v1/auth/requests/$id/attachments'
     | '/api/clinical/v1/auth/requests/$id/communications'
     | '/api/clinical/v1/auth/requests/$id/decision'
@@ -4992,6 +5171,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/demo-credentials'
     | '/demo-login'
+    | '/demo-tour'
     | '/his'
     | '/mcp'
     | '/platform'
@@ -5126,6 +5306,9 @@ export interface FileRouteTypes {
     | '/api/admin/v1/site-content/publish'
     | '/api/admin/v1/site-content/unpublish'
     | '/api/admin/v1/subscribers/$id'
+    | '/api/admin/v1/superadmin/platform-settings'
+    | '/api/admin/v1/superadmin/provisioning'
+    | '/api/admin/v1/superadmin/tenants'
     | '/api/admin/v1/tenant-subscriptions/$id'
     | '/api/admin/v1/usage/daily'
     | '/api/clinical/v1/auth/requests'
@@ -5216,6 +5399,7 @@ export interface FileRouteTypes {
     | '/api/public/legal/$slug/accept'
     | '/api/public/v1/debug/events'
     | '/api/public/v1/demo/credentials'
+    | '/api/public/v1/demo/tour-config'
     | '/api/public/v1/homecare/care-plans'
     | '/api/public/v1/homecare/recipients'
     | '/api/public/v1/homecare/visits'
@@ -5228,6 +5412,10 @@ export interface FileRouteTypes {
     | '/api/admin/v1/config/effective/$subscriberId'
     | '/api/admin/v1/legal-documents/$id/publish'
     | '/api/admin/v1/payments/$id/validate'
+    | '/api/admin/v1/superadmin/intake/stats'
+    | '/api/admin/v1/superadmin/platform-settings/demo-videos'
+    | '/api/admin/v1/superadmin/provisioning/$id'
+    | '/api/admin/v1/superadmin/provisioning/stats'
     | '/api/admin/v1/tickets/$id/events'
     | '/api/clinical/v1/auth/requests/$id'
     | '/api/clinical/v1/auth/requests/bulk'
@@ -5361,6 +5549,12 @@ export interface FileRouteTypes {
     | '/api/public/v1/vehicles/$id/credentials'
     | '/api/public/v1/vehicles/$id/defects'
     | '/api/public/v1/vehicles/$id/work_orders'
+    | '/api/admin/v1/superadmin/provisioning/$id/approve'
+    | '/api/admin/v1/superadmin/provisioning/$id/reject'
+    | '/api/admin/v1/superadmin/tenants/$id/archive'
+    | '/api/admin/v1/superadmin/tenants/$id/promote'
+    | '/api/admin/v1/superadmin/tenants/$id/reactivate'
+    | '/api/admin/v1/superadmin/tenants/$id/suspend'
     | '/api/clinical/v1/auth/requests/$id/attachments'
     | '/api/clinical/v1/auth/requests/$id/communications'
     | '/api/clinical/v1/auth/requests/$id/decision'
@@ -5419,6 +5613,7 @@ export interface RootRouteChildren {
   DemoRoute: typeof DemoRoute
   DemoCredentialsRoute: typeof DemoCredentialsRoute
   DemoLoginRoute: typeof DemoLoginRoute
+  DemoTourRoute: typeof DemoTourRoute
   HisRoute: typeof HisRoute
   McpRoute: typeof McpRoute
   PlatformRoute: typeof PlatformRoute
@@ -5508,6 +5703,9 @@ export interface RootRouteChildren {
   ApiAdminV1OpsSmokeReportsRoute: typeof ApiAdminV1OpsSmokeReportsRoute
   ApiAdminV1OpsTestRunsRoute: typeof ApiAdminV1OpsTestRunsRoute
   ApiAdminV1OpsWorkspaceRoute: typeof ApiAdminV1OpsWorkspaceRoute
+  ApiAdminV1SuperadminPlatformSettingsRoute: typeof ApiAdminV1SuperadminPlatformSettingsRouteWithChildren
+  ApiAdminV1SuperadminProvisioningRoute: typeof ApiAdminV1SuperadminProvisioningRouteWithChildren
+  ApiAdminV1SuperadminTenantsRoute: typeof ApiAdminV1SuperadminTenantsRouteWithChildren
   ApiAdminV1UsageDailyRoute: typeof ApiAdminV1UsageDailyRoute
   ApiClinicalV1AuthRequestsRoute: typeof ApiClinicalV1AuthRequestsRouteWithChildren
   ApiClinicalV1CareTeamIdRoute: typeof ApiClinicalV1CareTeamIdRoute
@@ -5580,12 +5778,14 @@ export interface RootRouteChildren {
   ApiPatientV1PromsPendingRoute: typeof ApiPatientV1PromsPendingRoute
   ApiPublicV1DebugEventsRoute: typeof ApiPublicV1DebugEventsRoute
   ApiPublicV1DemoCredentialsRoute: typeof ApiPublicV1DemoCredentialsRoute
+  ApiPublicV1DemoTourConfigRoute: typeof ApiPublicV1DemoTourConfigRoute
   ApiPublicV1HomecareCarePlansRoute: typeof ApiPublicV1HomecareCarePlansRoute
   ApiPublicV1HomecareRecipientsRoute: typeof ApiPublicV1HomecareRecipientsRoute
   ApiPublicV1HomecareVisitsRoute: typeof ApiPublicV1HomecareVisitsRouteWithChildren
   ApiPublicV1PreauthMidBoardRoute: typeof ApiPublicV1PreauthMidBoardRoute
   ApiPublicV1ShareTokenRoute: typeof ApiPublicV1ShareTokenRoute
   ApiAdminV1ConfigEffectiveSubscriberIdRoute: typeof ApiAdminV1ConfigEffectiveSubscriberIdRoute
+  ApiAdminV1SuperadminIntakeStatsRoute: typeof ApiAdminV1SuperadminIntakeStatsRoute
   ApiClinicalV1InterfacesD365SummaryRoute: typeof ApiClinicalV1InterfacesD365SummaryRoute
   ApiClinicalV1MastersNetworkMembershipsIdRoute: typeof ApiClinicalV1MastersNetworkMembershipsIdRoute
   ApiClinicalV1MastersPriceListItemsIdRoute: typeof ApiClinicalV1MastersPriceListItemsIdRoute
@@ -5712,6 +5912,13 @@ declare module '@tanstack/react-router' {
       path: '/his'
       fullPath: '/his'
       preLoaderRoute: typeof HisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo-tour': {
+      id: '/demo-tour'
+      path: '/demo-tour'
+      fullPath: '/demo-tour'
+      preLoaderRoute: typeof DemoTourRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo-login': {
@@ -6505,6 +6712,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1HomecareCarePlansRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/v1/demo/tour-config': {
+      id: '/api/public/v1/demo/tour-config'
+      path: '/api/public/v1/demo/tour-config'
+      fullPath: '/api/public/v1/demo/tour-config'
+      preLoaderRoute: typeof ApiPublicV1DemoTourConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/demo/credentials': {
       id: '/api/public/v1/demo/credentials'
       path: '/api/public/v1/demo/credentials'
@@ -7134,6 +7348,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/admin/v1/tenant-subscriptions/$id'
       preLoaderRoute: typeof ApiAdminV1TenantSubscriptionsIdRouteImport
       parentRoute: typeof ApiAdminV1TenantSubscriptionsRoute
+    }
+    '/api/admin/v1/superadmin/tenants': {
+      id: '/api/admin/v1/superadmin/tenants'
+      path: '/api/admin/v1/superadmin/tenants'
+      fullPath: '/api/admin/v1/superadmin/tenants'
+      preLoaderRoute: typeof ApiAdminV1SuperadminTenantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/superadmin/provisioning': {
+      id: '/api/admin/v1/superadmin/provisioning'
+      path: '/api/admin/v1/superadmin/provisioning'
+      fullPath: '/api/admin/v1/superadmin/provisioning'
+      preLoaderRoute: typeof ApiAdminV1SuperadminProvisioningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/v1/superadmin/platform-settings': {
+      id: '/api/admin/v1/superadmin/platform-settings'
+      path: '/api/admin/v1/superadmin/platform-settings'
+      fullPath: '/api/admin/v1/superadmin/platform-settings'
+      preLoaderRoute: typeof ApiAdminV1SuperadminPlatformSettingsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/admin/v1/subscribers/$id': {
       id: '/api/admin/v1/subscribers/$id'
@@ -8255,6 +8490,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminV1TicketsIdEventsRouteImport
       parentRoute: typeof ApiAdminV1TicketsRoute
     }
+    '/api/admin/v1/superadmin/provisioning/stats': {
+      id: '/api/admin/v1/superadmin/provisioning/stats'
+      path: '/stats'
+      fullPath: '/api/admin/v1/superadmin/provisioning/stats'
+      preLoaderRoute: typeof ApiAdminV1SuperadminProvisioningStatsRouteImport
+      parentRoute: typeof ApiAdminV1SuperadminProvisioningRoute
+    }
+    '/api/admin/v1/superadmin/provisioning/$id': {
+      id: '/api/admin/v1/superadmin/provisioning/$id'
+      path: '/$id'
+      fullPath: '/api/admin/v1/superadmin/provisioning/$id'
+      preLoaderRoute: typeof ApiAdminV1SuperadminProvisioningIdRouteImport
+      parentRoute: typeof ApiAdminV1SuperadminProvisioningRoute
+    }
+    '/api/admin/v1/superadmin/platform-settings/demo-videos': {
+      id: '/api/admin/v1/superadmin/platform-settings/demo-videos'
+      path: '/demo-videos'
+      fullPath: '/api/admin/v1/superadmin/platform-settings/demo-videos'
+      preLoaderRoute: typeof ApiAdminV1SuperadminPlatformSettingsDemoVideosRouteImport
+      parentRoute: typeof ApiAdminV1SuperadminPlatformSettingsRoute
+    }
+    '/api/admin/v1/superadmin/intake/stats': {
+      id: '/api/admin/v1/superadmin/intake/stats'
+      path: '/api/admin/v1/superadmin/intake/stats'
+      fullPath: '/api/admin/v1/superadmin/intake/stats'
+      preLoaderRoute: typeof ApiAdminV1SuperadminIntakeStatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin/v1/payments/$id/validate': {
       id: '/api/admin/v1/payments/$id/validate'
       path: '/$id/validate'
@@ -8590,6 +8853,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/clinical/v1/auth/requests/$id/attachments'
       preLoaderRoute: typeof ApiClinicalV1AuthRequestsIdAttachmentsRouteImport
       parentRoute: typeof ApiClinicalV1AuthRequestsIdRoute
+    }
+    '/api/admin/v1/superadmin/tenants/$id/suspend': {
+      id: '/api/admin/v1/superadmin/tenants/$id/suspend'
+      path: '/$id/suspend'
+      fullPath: '/api/admin/v1/superadmin/tenants/$id/suspend'
+      preLoaderRoute: typeof ApiAdminV1SuperadminTenantsIdSuspendRouteImport
+      parentRoute: typeof ApiAdminV1SuperadminTenantsRoute
+    }
+    '/api/admin/v1/superadmin/tenants/$id/reactivate': {
+      id: '/api/admin/v1/superadmin/tenants/$id/reactivate'
+      path: '/$id/reactivate'
+      fullPath: '/api/admin/v1/superadmin/tenants/$id/reactivate'
+      preLoaderRoute: typeof ApiAdminV1SuperadminTenantsIdReactivateRouteImport
+      parentRoute: typeof ApiAdminV1SuperadminTenantsRoute
+    }
+    '/api/admin/v1/superadmin/tenants/$id/promote': {
+      id: '/api/admin/v1/superadmin/tenants/$id/promote'
+      path: '/$id/promote'
+      fullPath: '/api/admin/v1/superadmin/tenants/$id/promote'
+      preLoaderRoute: typeof ApiAdminV1SuperadminTenantsIdPromoteRouteImport
+      parentRoute: typeof ApiAdminV1SuperadminTenantsRoute
+    }
+    '/api/admin/v1/superadmin/tenants/$id/archive': {
+      id: '/api/admin/v1/superadmin/tenants/$id/archive'
+      path: '/$id/archive'
+      fullPath: '/api/admin/v1/superadmin/tenants/$id/archive'
+      preLoaderRoute: typeof ApiAdminV1SuperadminTenantsIdArchiveRouteImport
+      parentRoute: typeof ApiAdminV1SuperadminTenantsRoute
+    }
+    '/api/admin/v1/superadmin/provisioning/$id/reject': {
+      id: '/api/admin/v1/superadmin/provisioning/$id/reject'
+      path: '/reject'
+      fullPath: '/api/admin/v1/superadmin/provisioning/$id/reject'
+      preLoaderRoute: typeof ApiAdminV1SuperadminProvisioningIdRejectRouteImport
+      parentRoute: typeof ApiAdminV1SuperadminProvisioningIdRoute
+    }
+    '/api/admin/v1/superadmin/provisioning/$id/approve': {
+      id: '/api/admin/v1/superadmin/provisioning/$id/approve'
+      path: '/approve'
+      fullPath: '/api/admin/v1/superadmin/provisioning/$id/approve'
+      preLoaderRoute: typeof ApiAdminV1SuperadminProvisioningIdApproveRouteImport
+      parentRoute: typeof ApiAdminV1SuperadminProvisioningIdRoute
     }
     '/api/clinical/v1/masters/price-lists/$id/items/feed': {
       id: '/api/clinical/v1/masters/price-lists/$id/items/feed'
@@ -9447,6 +9752,81 @@ const ApiClinicalV1OpdRoutingRouteRouteWithChildren =
     ApiClinicalV1OpdRoutingRouteRouteChildren,
   )
 
+interface ApiAdminV1SuperadminPlatformSettingsRouteChildren {
+  ApiAdminV1SuperadminPlatformSettingsDemoVideosRoute: typeof ApiAdminV1SuperadminPlatformSettingsDemoVideosRoute
+}
+
+const ApiAdminV1SuperadminPlatformSettingsRouteChildren: ApiAdminV1SuperadminPlatformSettingsRouteChildren =
+  {
+    ApiAdminV1SuperadminPlatformSettingsDemoVideosRoute:
+      ApiAdminV1SuperadminPlatformSettingsDemoVideosRoute,
+  }
+
+const ApiAdminV1SuperadminPlatformSettingsRouteWithChildren =
+  ApiAdminV1SuperadminPlatformSettingsRoute._addFileChildren(
+    ApiAdminV1SuperadminPlatformSettingsRouteChildren,
+  )
+
+interface ApiAdminV1SuperadminProvisioningIdRouteChildren {
+  ApiAdminV1SuperadminProvisioningIdApproveRoute: typeof ApiAdminV1SuperadminProvisioningIdApproveRoute
+  ApiAdminV1SuperadminProvisioningIdRejectRoute: typeof ApiAdminV1SuperadminProvisioningIdRejectRoute
+}
+
+const ApiAdminV1SuperadminProvisioningIdRouteChildren: ApiAdminV1SuperadminProvisioningIdRouteChildren =
+  {
+    ApiAdminV1SuperadminProvisioningIdApproveRoute:
+      ApiAdminV1SuperadminProvisioningIdApproveRoute,
+    ApiAdminV1SuperadminProvisioningIdRejectRoute:
+      ApiAdminV1SuperadminProvisioningIdRejectRoute,
+  }
+
+const ApiAdminV1SuperadminProvisioningIdRouteWithChildren =
+  ApiAdminV1SuperadminProvisioningIdRoute._addFileChildren(
+    ApiAdminV1SuperadminProvisioningIdRouteChildren,
+  )
+
+interface ApiAdminV1SuperadminProvisioningRouteChildren {
+  ApiAdminV1SuperadminProvisioningIdRoute: typeof ApiAdminV1SuperadminProvisioningIdRouteWithChildren
+  ApiAdminV1SuperadminProvisioningStatsRoute: typeof ApiAdminV1SuperadminProvisioningStatsRoute
+}
+
+const ApiAdminV1SuperadminProvisioningRouteChildren: ApiAdminV1SuperadminProvisioningRouteChildren =
+  {
+    ApiAdminV1SuperadminProvisioningIdRoute:
+      ApiAdminV1SuperadminProvisioningIdRouteWithChildren,
+    ApiAdminV1SuperadminProvisioningStatsRoute:
+      ApiAdminV1SuperadminProvisioningStatsRoute,
+  }
+
+const ApiAdminV1SuperadminProvisioningRouteWithChildren =
+  ApiAdminV1SuperadminProvisioningRoute._addFileChildren(
+    ApiAdminV1SuperadminProvisioningRouteChildren,
+  )
+
+interface ApiAdminV1SuperadminTenantsRouteChildren {
+  ApiAdminV1SuperadminTenantsIdArchiveRoute: typeof ApiAdminV1SuperadminTenantsIdArchiveRoute
+  ApiAdminV1SuperadminTenantsIdPromoteRoute: typeof ApiAdminV1SuperadminTenantsIdPromoteRoute
+  ApiAdminV1SuperadminTenantsIdReactivateRoute: typeof ApiAdminV1SuperadminTenantsIdReactivateRoute
+  ApiAdminV1SuperadminTenantsIdSuspendRoute: typeof ApiAdminV1SuperadminTenantsIdSuspendRoute
+}
+
+const ApiAdminV1SuperadminTenantsRouteChildren: ApiAdminV1SuperadminTenantsRouteChildren =
+  {
+    ApiAdminV1SuperadminTenantsIdArchiveRoute:
+      ApiAdminV1SuperadminTenantsIdArchiveRoute,
+    ApiAdminV1SuperadminTenantsIdPromoteRoute:
+      ApiAdminV1SuperadminTenantsIdPromoteRoute,
+    ApiAdminV1SuperadminTenantsIdReactivateRoute:
+      ApiAdminV1SuperadminTenantsIdReactivateRoute,
+    ApiAdminV1SuperadminTenantsIdSuspendRoute:
+      ApiAdminV1SuperadminTenantsIdSuspendRoute,
+  }
+
+const ApiAdminV1SuperadminTenantsRouteWithChildren =
+  ApiAdminV1SuperadminTenantsRoute._addFileChildren(
+    ApiAdminV1SuperadminTenantsRouteChildren,
+  )
+
 interface ApiClinicalV1AuthRequestsIdRouteChildren {
   ApiClinicalV1AuthRequestsIdAttachmentsRoute: typeof ApiClinicalV1AuthRequestsIdAttachmentsRoute
   ApiClinicalV1AuthRequestsIdCommunicationsRoute: typeof ApiClinicalV1AuthRequestsIdCommunicationsRoute
@@ -10287,6 +10667,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoRoute: DemoRoute,
   DemoCredentialsRoute: DemoCredentialsRoute,
   DemoLoginRoute: DemoLoginRoute,
+  DemoTourRoute: DemoTourRoute,
   HisRoute: HisRoute,
   McpRoute: McpRoute,
   PlatformRoute: PlatformRoute,
@@ -10382,6 +10763,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminV1OpsSmokeReportsRoute: ApiAdminV1OpsSmokeReportsRoute,
   ApiAdminV1OpsTestRunsRoute: ApiAdminV1OpsTestRunsRoute,
   ApiAdminV1OpsWorkspaceRoute: ApiAdminV1OpsWorkspaceRoute,
+  ApiAdminV1SuperadminPlatformSettingsRoute:
+    ApiAdminV1SuperadminPlatformSettingsRouteWithChildren,
+  ApiAdminV1SuperadminProvisioningRoute:
+    ApiAdminV1SuperadminProvisioningRouteWithChildren,
+  ApiAdminV1SuperadminTenantsRoute:
+    ApiAdminV1SuperadminTenantsRouteWithChildren,
   ApiAdminV1UsageDailyRoute: ApiAdminV1UsageDailyRoute,
   ApiClinicalV1AuthRequestsRoute: ApiClinicalV1AuthRequestsRouteWithChildren,
   ApiClinicalV1CareTeamIdRoute: ApiClinicalV1CareTeamIdRoute,
@@ -10486,6 +10873,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPatientV1PromsPendingRoute: ApiPatientV1PromsPendingRoute,
   ApiPublicV1DebugEventsRoute: ApiPublicV1DebugEventsRoute,
   ApiPublicV1DemoCredentialsRoute: ApiPublicV1DemoCredentialsRoute,
+  ApiPublicV1DemoTourConfigRoute: ApiPublicV1DemoTourConfigRoute,
   ApiPublicV1HomecareCarePlansRoute: ApiPublicV1HomecareCarePlansRoute,
   ApiPublicV1HomecareRecipientsRoute: ApiPublicV1HomecareRecipientsRoute,
   ApiPublicV1HomecareVisitsRoute: ApiPublicV1HomecareVisitsRouteWithChildren,
@@ -10493,6 +10881,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicV1ShareTokenRoute: ApiPublicV1ShareTokenRoute,
   ApiAdminV1ConfigEffectiveSubscriberIdRoute:
     ApiAdminV1ConfigEffectiveSubscriberIdRoute,
+  ApiAdminV1SuperadminIntakeStatsRoute: ApiAdminV1SuperadminIntakeStatsRoute,
   ApiClinicalV1InterfacesD365SummaryRoute:
     ApiClinicalV1InterfacesD365SummaryRoute,
   ApiClinicalV1MastersNetworkMembershipsIdRoute:
@@ -10575,13 +10964,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
