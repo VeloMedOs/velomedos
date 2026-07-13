@@ -11,7 +11,7 @@ import {
 import { openApiSpec } from "@/lib/openapi-spec";
 import { openApiAdminSpec, adminEndpointCount } from "@/lib/openapi-admin-spec";
 import { ROLE_META, ROLE_ORDER, CAPABILITIES, effectiveCapabilities, type AppRole } from "@/lib/role-matrix";
-import { PipelineBoard } from "@/components/superadmin/PipelineBoard";
+import { BusinessManagementPane } from "@/components/superadmin/BusinessManagementPane";
 import { adminFetch } from "@/lib/admin-fetch";
 import { SuperadminSideNav } from "@/components/superadmin/SideNav";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -392,7 +392,7 @@ function Superadmin() {
         <ApiDocsPane />
       )}
       {tab === "requests" && (
-        <PipelineBoard />
+        <BusinessManagementPane />
       )}
       {tab === "debug" && (
         <DebugPane tenants={tenants} />
