@@ -19,7 +19,6 @@ export const EXCLUDE_PATH_PREFIXES = ["_authenticated/", "api/"];
 export const EXCLUDE_FILES = new Set([
   "__root.tsx",
   "sitemap[.]xml.ts",
-  "robots[.]txt.ts",
   "auth.tsx",
   "auth.error.tsx",
   "superadmin.login.tsx",
