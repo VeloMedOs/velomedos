@@ -5,6 +5,7 @@
 // route that isn't picked up here will also be missing from
 // /sitemap.xml — the test fails with the exact list so the regression is
 // obvious well before a deploy.
+// @ts-expect-error bun-types conflicts with project types
 import { describe, expect, it } from "bun:test";
 import { readdirSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
@@ -13,7 +14,6 @@ import {
   isPublicRouteFile,
   EXCLUDE_FILES,
   EXCLUDE_PATH_PREFIXES,
-  // @ts-expect-error — .mjs module with .d.mts alongside; TS resolves types.
 } from "../../../scripts/sitemap-discover.mjs";
 
 const ROUTES_DIR = "src/routes";
