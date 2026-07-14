@@ -108,3 +108,7 @@ When the audit lands:
 - No fixes applied this turn — proposed fixes are described in findings only.
 - No automated security scan; no dependency scan.
 - No touching Round 2 pricing catalog work.
+
+## Debt Register
+
+- #49 — Demo security audit findings (see `docs/security/demo-security-audit-2026-07.md`). Owner: Platform Governance Round 2 (all findings Medium/Informational; no Critical/High → no immediate hardening turn required). Row appended per Convention #25 (row-delta, no wholesale rewrite).
