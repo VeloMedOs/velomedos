@@ -1,99 +1,86 @@
 #!/usr/bin/env node
 /**
- * Build-time sitemap audit.
+ * Prebuild sitemap audit.
  *
- * Walks src/routes/ for public file-based routes and checks that every
- * one of them is listed in the static entries[] array inside
- * src/routes/sitemap[.]xml.ts. Authenticated routes (under
- * `_authenticated/`), API routes (under `api/`), dynamic `$param` routes,
- * splats, and the sitemap/auth shells are excluded by design.
+ * Walks src/routes/ on disk and passes the filenames through the SAME
+ * discovery logic used by src/routes/sitemap[.]xml.ts at request time
+ * (scripts/sitemap-discover.mjs). Because the sitemap is auto-derived,
+ * every public route file automatically becomes a sitemap entry — this
+ * script's job is to:
  *
- * Run via:  node scripts/audit-sitemap.mjs
- * Fails non-zero if a public route is missing from the sitemap so it can
- * gate CI / pre-deploy.
+ *   1. Fail loudly if a public route file is somehow rejected by the
+ *      discovery filter (typos, accidental underscore, missing extension).
+ *   2. Warn when an entry in EXCLUDE_FILES no longer maps to a real file
+ *      (stale exclusions).
+ *
+ * Runs on `bun run build` via the `prebuild` npm hook.
  */
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { readdirSync, statSync, existsSync } from "node:fs";
+import { join, relative, sep } from "node:path";
+import {
+  EXCLUDE_FILES,
+  EXCLUDE_PATH_PREFIXES,
+  discoverStaticPaths,
+  isPublicRouteFile,
+} from "./sitemap-discover.mjs";
 
 const ROUTES_DIR = "src/routes";
-const SITEMAP_FILE = "src/routes/sitemap[.]xml.ts";
-
-const EXCLUDE_PREFIXES = ["_authenticated/", "api/"];
-const EXCLUDE_FILES = new Set([
-  "__root.tsx",
-  "sitemap[.]xml.ts",
-  "robots[.]txt.ts",
-  "auth.tsx",
-  "auth.error.tsx",
-  "superadmin.login.tsx",
-  "superadmin.reset.tsx",
-  "trip.$token.tsx",            // tokenised, per-trip — not for sitemap
-  "Privacy.tsx",                // layout shell
-  "privacy.$.tsx",              // splat redirector
-  "resources.$slug.tsx",        // dynamic, sitemap lists per slug via SERVICES/RESOURCES
-  "services.$slug.tsx",
-  "clinics.$city.tsx",
-  "solutions.tsx",              // redirect-only → /services
-  "solutions.$slug.tsx",        // redirect-only → /services/:slug
-  "his.tsx",                    // redirect-only → /launch or /auth
-  "demo-login.tsx",             // sandbox demo entry — noindex
-  "demo-credentials.tsx",       // sandbox roster — noindex
-  "mcp.ts",                     // MCP server endpoint — not a page
-  "preauth-mid.tsx",            // public kiosk — noindex
-]);
 
 function walk(dir) {
   const out = [];
   for (const name of readdirSync(dir)) {
     const full = join(dir, name);
-    const rel = relative(ROUTES_DIR, full);
     if (statSync(full).isDirectory()) { out.push(...walk(full)); continue; }
-    if (!/\.(tsx|ts)$/.test(name)) continue;
-    if (EXCLUDE_PREFIXES.some((p) => rel.startsWith(p))) continue;
-    // Skip TanStack escaped-dot / bracketed directories (e.g. [.mcp], [.well-known])
-    if (rel.split(/[\\/]/).some((seg) => seg.startsWith("["))) continue;
-    if (EXCLUDE_FILES.has(rel)) continue;
-    if (name.startsWith("_")) continue;
-    out.push(rel);
+    out.push(relative(ROUTES_DIR, full).split(sep).join("/"));
   }
   return out;
 }
 
-function filenameToPath(rel) {
-  // strip extension, convert dots → slashes, drop trailing /index
-  let p = rel.replace(/\.(tsx|ts)$/, "").replace(/\./g, "/");
-  if (p === "index") return "/";
-  p = p.replace(/\/index$/, "");
-  return "/" + p;
-}
-
 const files = walk(ROUTES_DIR);
-const expected = new Set(files.map(filenameToPath));
+const discovered = new Set(discoverStaticPaths(files));
 
-const sitemap = readFileSync(SITEMAP_FILE, "utf8");
-// Extract every `path: "..."` literal in entries[]
-const declared = new Set(
-  Array.from(sitemap.matchAll(/path:\s*["'`]([^"'`]+)["'`]/g)).map((m) => m[1])
+// Detect "public-looking" files that were rejected by the discovery filter
+// for reasons OTHER than the intentional excludes (excluded prefix, dynamic
+// segment, bracket, underscore, or explicit EXCLUDE_FILES entry). If a page
+// route ever lands in this list it means the filter has a bug or the file
+// is misnamed — the build must fail.
+const suspicious = files.filter((rel) => {
+  if (isPublicRouteFile(rel)) return false;
+  if (!/\.(tsx|ts)$/.test(rel)) return false;
+  if (EXCLUDE_PATH_PREFIXES.some((p) => rel.startsWith(p))) return false;
+  if (rel.split("/").some((s) => s.startsWith("[") || s.startsWith("_"))) return false;
+  if (rel.includes("$")) return false;
+  if (EXCLUDE_FILES.has(rel)) return false;
+  return true;
+});
+
+const staleExcludes = [...EXCLUDE_FILES].filter(
+  (f) => !existsSync(join(ROUTES_DIR, f)),
 );
-// SERVICES/RESOURCES/cities are spread in — we trust those for $slug routes.
-// We only diff the static routes here.
-
-const missing = [...expected].filter((p) => !declared.has(p));
-const unknown = [...declared].filter(
-  (p) => !expected.has(p) && !p.includes("/") === false && !/^(\/services\/|\/clinics\/|\/resources\/[a-z])/i.test(p),
-).filter((p) => !expected.has(p) && !/^\/(services|clinics|resources)\//.test(p));
 
 let failed = false;
-if (missing.length) {
+
+if (suspicious.length) {
   failed = true;
-  console.error("✗ sitemap audit: public routes missing from sitemap entries[]:");
-  for (const p of missing) console.error("    " + p);
+  console.error("✗ sitemap audit: public route files rejected by discovery filter:");
+  for (const f of suspicious) console.error("    src/routes/" + f);
+  console.error("  → Either the file is misnamed, or the filter in");
+  console.error("    scripts/sitemap-discover.mjs needs updating.");
 }
-if (unknown.length) {
-  console.warn("⚠ sitemap audit: entries declared but no matching route file (orphan):");
-  for (const p of unknown) console.warn("    " + p);
+
+if (staleExcludes.length) {
+  console.warn("⚠ sitemap audit: EXCLUDE_FILES entries with no matching file (stale):");
+  for (const f of staleExcludes) console.warn("    " + f);
 }
+
 if (!failed) {
-  console.log(`✓ sitemap audit: ${expected.size} public routes present in ${SITEMAP_FILE}`);
+  console.log(
+    `✓ sitemap audit: ${discovered.size} public routes auto-discovered ` +
+    `(sitemap is derived from src/routes/ at request time)`,
+  );
+  if (process.env.SITEMAP_AUDIT_VERBOSE) {
+    for (const p of [...discovered].sort()) console.log("    " + p);
+  }
 }
+
 process.exit(failed ? 1 : 0);
