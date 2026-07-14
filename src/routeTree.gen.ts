@@ -74,6 +74,7 @@ import { Route as AuthenticatedSuperadminDocsRouteImport } from './routes/_authe
 import { Route as AuthenticatedSuperadminApiDocsRouteImport } from './routes/_authenticated/superadmin.api-docs'
 import { Route as AuthenticatedPatientProfileRouteImport } from './routes/_authenticated/patient.profile'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicLegalIndexRouteImport } from './routes/api/public/legal.index'
 import { Route as ApiPublicV1Work_ordersRouteImport } from './routes/api/public/v1/work_orders'
 import { Route as ApiPublicV1Web_intakeRouteImport } from './routes/api/public/v1/web_intake'
@@ -781,6 +782,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicLegalIndexRoute = ApiPublicLegalIndexRouteImport.update({
   id: '/api/public/legal/',
   path: '/api/public/legal/',
@@ -3020,6 +3026,7 @@ export interface FileRoutesByFullPath {
   '/trip/$token': typeof TripTokenRoute
   '/Privacy/': typeof PrivacyIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
@@ -3458,6 +3465,7 @@ export interface FileRoutesByTo {
   '/trip/$token': typeof TripTokenRoute
   '/Privacy': typeof PrivacyIndexRoute
   '/services': typeof ServicesIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
@@ -3900,6 +3908,7 @@ export interface FileRoutesById {
   '/trip/$token': typeof TripTokenRoute
   '/Privacy/': typeof PrivacyIndexRoute
   '/services/': typeof ServicesIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/patient/profile': typeof AuthenticatedPatientProfileRoute
   '/_authenticated/superadmin/api-docs': typeof AuthenticatedSuperadminApiDocsRoute
@@ -4342,6 +4351,7 @@ export interface FileRouteTypes {
     | '/trip/$token'
     | '/Privacy/'
     | '/services/'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/patient/profile'
     | '/superadmin/api-docs'
@@ -4780,6 +4790,7 @@ export interface FileRouteTypes {
     | '/trip/$token'
     | '/Privacy'
     | '/services'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/patient/profile'
     | '/superadmin/api-docs'
@@ -5221,6 +5232,7 @@ export interface FileRouteTypes {
     | '/trip/$token'
     | '/Privacy/'
     | '/services/'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/patient/profile'
     | '/_authenticated/superadmin/api-docs'
@@ -5631,6 +5643,7 @@ export interface RootRouteChildren {
   SuperadminLoginRoute: typeof SuperadminLoginRoute
   SuperadminResetRoute: typeof SuperadminResetRoute
   TripTokenRoute: typeof TripTokenRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiAdminV1AddonsRoute: typeof ApiAdminV1AddonsRouteWithChildren
   ApiAdminV1AuditRoute: typeof ApiAdminV1AuditRoute
@@ -6290,6 +6303,13 @@ declare module '@tanstack/react-router' {
       path: '/.mcp/invoke-tool/$tool'
       fullPath: '/.mcp/invoke-tool/$tool'
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/legal/': {
@@ -10686,6 +10706,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuperadminLoginRoute: SuperadminLoginRoute,
   SuperadminResetRoute: SuperadminResetRoute,
   TripTokenRoute: TripTokenRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiAdminV1AddonsRoute: ApiAdminV1AddonsRouteWithChildren,
   ApiAdminV1AuditRoute: ApiAdminV1AuditRoute,
