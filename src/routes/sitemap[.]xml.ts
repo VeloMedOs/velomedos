@@ -24,7 +24,7 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: () => {
         // Static routes — derived from src/routes/ at build time.
         const staticEntries: Entry[] = discoverStaticPaths(ROUTE_FILENAMES).map(
-          (path) => ({ path, ...hintFor(path) }),
+          (path: string) => ({ path, ...hintFor(path) }),
         );
         // Dynamic routes — expanded from data sources that mirror the loaders.
         const dynamicEntries: Entry[] = expandDynamic({
